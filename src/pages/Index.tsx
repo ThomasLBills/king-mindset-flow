@@ -70,6 +70,16 @@ const Index = () => {
           )}
         </motion.div>
 
+        {/* Freedom Calendar */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="mb-6"
+        >
+          <FreedomCalendar onOpenGraceProtocol={() => setShowGrace(true)} />
+        </motion.div>
+
         {/* Week Progress */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -82,16 +92,6 @@ const Index = () => {
             weekTitle="Identity"
             weekTheme="Sonship: You are received, not achieved"
           />
-        </motion.div>
-
-        {/* Freedom Calendar */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25 }}
-          className="mb-6"
-        >
-          <FreedomCalendar onOpenGraceProtocol={() => setShowGrace(true)} />
         </motion.div>
 
         {/* In-the-Moment Tools */}
