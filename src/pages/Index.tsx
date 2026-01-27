@@ -4,6 +4,7 @@ import AppLayout from "@/components/layout/AppLayout";
 import DailyCheckIn from "@/components/home/DailyCheckIn";
 import ToolCard from "@/components/home/ToolCard";
 import WeekProgress from "@/components/home/WeekProgress";
+import FreedomCalendar from "@/components/home/FreedomCalendar";
 import PressureRisingTool from "@/components/tools/PressureRisingTool";
 import TemptationTool from "@/components/tools/TemptationTool";
 import AfterFallTool from "@/components/tools/AfterFallTool";
@@ -81,6 +82,16 @@ const Index = () => {
             weekTitle="Identity"
             weekTheme="Sonship: You are received, not achieved"
           />
+        </motion.div>
+
+        {/* Freedom Calendar */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25 }}
+          className="mb-6"
+        >
+          <FreedomCalendar onOpenGraceProtocol={() => setShowGrace(true)} />
         </motion.div>
 
         {/* In-the-Moment Tools */}
