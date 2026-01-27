@@ -113,19 +113,19 @@ const FreedomCalendar = ({ onOpenGraceProtocol }: FreedomCalendarProps) => {
       </div>
 
       {/* Weekday Headers */}
-      <div className="grid grid-cols-7 gap-1 mb-1">
+      <div className="grid grid-cols-7 gap-0.5 mb-0.5 max-w-[200px] mx-auto">
         {weekDays.map((day, i) => (
-          <div key={i} className="text-center text-xs text-muted-foreground font-medium py-1">
+          <div key={i} className="text-center text-[10px] text-muted-foreground font-medium py-0.5">
             {day}
           </div>
         ))}
       </div>
 
       {/* Calendar Grid */}
-      <div className="grid grid-cols-7 gap-1">
+      <div className="grid grid-cols-7 gap-0.5 max-w-[200px] mx-auto">
         {/* Empty cells for days before month starts */}
         {Array.from({ length: startDayOfWeek }).map((_, i) => (
-          <div key={`empty-${i}`} className="aspect-square" />
+          <div key={`empty-${i}`} className="w-6 h-6" />
         ))}
         
         {/* Calendar days */}
@@ -139,7 +139,7 @@ const FreedomCalendar = ({ onOpenGraceProtocol }: FreedomCalendarProps) => {
               key={day.toISOString()}
               initial={false}
               className={cn(
-                "aspect-square flex items-center justify-center text-sm rounded-lg transition-colors",
+                "w-6 h-6 flex items-center justify-center text-[10px] rounded transition-colors",
                 isFree && !isToday && "bg-success/20 text-success font-medium",
                 isToday && isFree && "bg-success text-success-foreground font-bold",
                 isToday && !isFree && "bg-accent text-accent-foreground font-bold",
