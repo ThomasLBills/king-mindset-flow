@@ -14,14 +14,14 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, isAfter } from "date-fns";
+import { format, startOfWeek, endOfWeek, eachDayOfInterval, addWeeks, subWeeks, isAfter, isSameDay } from "date-fns";
 
 interface FreedomCalendarProps {
   onOpenGraceProtocol?: () => void;
 }
 
 const FreedomCalendar = ({ onOpenGraceProtocol }: FreedomCalendarProps) => {
-  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [currentWeekStart, setCurrentWeekStart] = useState(() => startOfWeek(new Date(), { weekStartsOn: 0 }));
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
   const [lastResetDate, setLastResetDate] = useState<Date>(() => {
     const saved = localStorage.getItem("freedom-start-date");
@@ -33,20 +33,16 @@ const FreedomCalendar = ({ onOpenGraceProtocol }: FreedomCalendarProps) => {
   const daysFree = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
   // Check if a date is a "free" day
-  const isFreeDday = (date: Date): boolean => {
+  const isFreeDay = (date: Date): boolean => {
     const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
     const resetOnly = new Date(lastResetDate.getFullYear(), lastResetDate.getMonth(), lastResetDate.getDate());
     const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     return dateOnly >= resetOnly && dateOnly <= todayOnly;
   };
 
-  // Generate calendar days
-  const monthStart = startOfMonth(currentMonth);
-  const monthEnd = endOfMonth(currentMonth);
-  const calendarDays = eachDayOfInterval({ start: monthStart, end: monthEnd });
-
-  // Get day of week for first day (0 = Sunday)
-  const startDayOfWeek = monthStart.getDay();
+  // Generate week days
+  const weekEnd = endOfWeek(currentWeekStart, { weekStartsOn: 0 });
+  const weekDays = eachDayOfInterval({ start: currentWeekStart, end: weekEnd });
 
   const handleReset = () => {
     const now = new Date();
@@ -67,7 +63,9 @@ const FreedomCalendar = ({ onOpenGraceProtocol }: FreedomCalendarProps) => {
     return "Deep roots of freedom.";
   };
 
-  const weekDays = ["S", "M", "T", "W", "T", "F", "S"];
+  const dayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  const canGoForward = !isAfter(addWeeks(currentWeekStart, 1), today);
 
   return (
     <div className="card-elevated p-5">
@@ -87,68 +85,55 @@ const FreedomCalendar = ({ onOpenGraceProtocol }: FreedomCalendarProps) => {
         "{getMessage()}"
       </p>
 
-      {/* Month Navigation */}
+      {/* Week Navigation */}
       <div className="flex items-center justify-between mb-3">
         <button
-          onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
+          onClick={() => setCurrentWeekStart(subWeeks(currentWeekStart, 1))}
           className="p-1.5 hover:bg-secondary rounded-lg transition-colors"
         >
           <ChevronLeft className="h-4 w-4 text-muted-foreground" />
         </button>
         <span className="text-sm font-medium">
-          {format(currentMonth, "MMMM yyyy")}
+          {format(currentWeekStart, "MMM d")} – {format(weekEnd, "MMM d, yyyy")}
         </span>
         <button
-          onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
+          onClick={() => setCurrentWeekStart(addWeeks(currentWeekStart, 1))}
           className="p-1.5 hover:bg-secondary rounded-lg transition-colors"
-          disabled={isAfter(addMonths(currentMonth, 1), today)}
+          disabled={!canGoForward}
         >
           <ChevronRight className={cn(
             "h-4 w-4",
-            isAfter(addMonths(currentMonth, 1), today) 
-              ? "text-muted-foreground/30" 
-              : "text-muted-foreground"
+            !canGoForward ? "text-muted-foreground/30" : "text-muted-foreground"
           )} />
         </button>
       </div>
 
-      {/* Weekday Headers */}
-      <div className="grid grid-cols-7 gap-0.5 mb-0.5 max-w-[200px] mx-auto">
-        {weekDays.map((day, i) => (
-          <div key={i} className="text-center text-[10px] text-muted-foreground font-medium py-0.5">
-            {day}
-          </div>
-        ))}
-      </div>
-
-      {/* Calendar Grid */}
-      <div className="grid grid-cols-7 gap-0.5 max-w-[200px] mx-auto">
-        {/* Empty cells for days before month starts */}
-        {Array.from({ length: startDayOfWeek }).map((_, i) => (
-          <div key={`empty-${i}`} className="w-6 h-6" />
-        ))}
-        
-        {/* Calendar days */}
-        {calendarDays.map((day) => {
-          const isFree = isFreeDday(day);
+      {/* Weekly Calendar */}
+      <div className="grid grid-cols-7 gap-2">
+        {weekDays.map((day, i) => {
+          const isFree = isFreeDay(day);
           const isToday = isSameDay(day, today);
           const isFuture = isAfter(day, today);
 
           return (
-            <motion.div
-              key={day.toISOString()}
-              initial={false}
-              className={cn(
-                "w-6 h-6 flex items-center justify-center text-[10px] rounded transition-colors",
-                isFree && !isToday && "bg-success/20 text-success font-medium",
-                isToday && isFree && "bg-success text-success-foreground font-bold",
-                isToday && !isFree && "bg-accent text-accent-foreground font-bold",
-                isFuture && "text-muted-foreground/30",
-                !isFree && !isToday && !isFuture && "text-muted-foreground"
-              )}
-            >
-              {format(day, "d")}
-            </motion.div>
+            <div key={day.toISOString()} className="flex flex-col items-center gap-1">
+              <span className="text-[10px] text-muted-foreground font-medium">
+                {dayLabels[i]}
+              </span>
+              <motion.div
+                initial={false}
+                className={cn(
+                  "w-8 h-8 flex items-center justify-center text-xs rounded-full transition-colors",
+                  isFree && !isToday && "bg-success/20 text-success font-medium",
+                  isToday && isFree && "bg-success text-success-foreground font-bold ring-2 ring-success/30",
+                  isToday && !isFree && "bg-accent text-accent-foreground font-bold ring-2 ring-accent/30",
+                  isFuture && "text-muted-foreground/30 bg-muted/30",
+                  !isFree && !isToday && !isFuture && "text-muted-foreground bg-muted/50"
+                )}
+              >
+                {format(day, "d")}
+              </motion.div>
+            </div>
           );
         })}
       </div>
