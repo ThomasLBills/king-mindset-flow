@@ -1,30 +1,76 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Check, Cross, BookOpen, Brain } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useDailyContent, useDailyCompletion } from "@/hooks/useDailyContent";
+import { prayers, scriptures, Prayer, Scripture } from "@/data/faithContent";
 import PrayerModal from "./PrayerModal";
 import ScriptureModal from "./ScriptureModal";
 import RenewedMindModal from "./RenewedMindModal";
 
-interface FaithItem {
-  id: string;
-  label: string;
-  description: string;
-  icon: React.ElementType;
-  completed: boolean;
-}
-
 interface FaithSectionProps {
-  items: FaithItem[];
-  onItemComplete: (itemId: string) => void;
+  onProgressChange?: (completed: number, total: number) => void;
 }
 
-const FaithSection = ({ items, onItemComplete }: FaithSectionProps) => {
+const FaithSection = ({ onProgressChange }: FaithSectionProps) => {
   const [prayerOpen, setPrayerOpen] = useState(false);
   const [scriptureOpen, setScriptureOpen] = useState(false);
   const [renewedMindOpen, setRenewedMindOpen] = useState(false);
 
-  const completedCount = items.filter((i) => i.completed).length;
+  // Daily content rotation with 21-day no-repeat logic
+  const { todayContent: todayPrayer } = useDailyContent<Prayer>({
+    key: "prayer",
+    items: prayers,
+    recentWindowSize: 21,
+  });
+
+  const { todayContent: todayScripture } = useDailyContent<Scripture>({
+    key: "scripture",
+    items: scriptures,
+    recentWindowSize: 21,
+  });
+
+  // Day index for consistent truth statements
+  const dayIndex = useMemo(() => {
+    const now = new Date();
+    return now.getFullYear() * 1000 + now.getMonth() * 31 + now.getDate();
+  }, []);
+
+  // Daily completion tracking
+  const faithItemIds = ["prayer", "scripture", "renewed-mind"];
+  const { isCompleted, markCompleted, completedCount } = useDailyCompletion(
+    "faith-completion",
+    faithItemIds
+  );
+
+  // Notify parent of progress changes
+  useMemo(() => {
+    onProgressChange?.(completedCount, faithItemIds.length);
+  }, [completedCount, onProgressChange]);
+
+  const items = [
+    {
+      id: "prayer",
+      label: "Prayer",
+      description: "Re-center with God",
+      icon: Cross,
+      completed: isCompleted("prayer"),
+    },
+    {
+      id: "scripture",
+      label: "Scripture",
+      description: "Anchor your mind in truth",
+      icon: BookOpen,
+      completed: isCompleted("scripture"),
+    },
+    {
+      id: "renewed-mind",
+      label: "Renewed Mind",
+      description: "Replace the lie with truth",
+      icon: Brain,
+      completed: isCompleted("renewed-mind"),
+    },
+  ];
 
   const handleItemClick = (itemId: string) => {
     switch (itemId) {
@@ -38,10 +84,6 @@ const FaithSection = ({ items, onItemComplete }: FaithSectionProps) => {
         setRenewedMindOpen(true);
         break;
     }
-  };
-
-  const handleComplete = (itemId: string) => {
-    onItemComplete(itemId);
   };
 
   return (
@@ -93,15 +135,13 @@ const FaithSection = ({ items, onItemComplete }: FaithSectionProps) => {
               <div
                 className={cn(
                   "w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200",
-                  item.completed
-                    ? "bg-success/20"
-                    : "bg-primary/10"
+                  item.completed ? "bg-success/20" : "bg-primary/10"
                 )}
               >
                 {item.completed ? (
                   <Check className="w-5 h-5 text-success" />
                 ) : (
-                  <item.icon className={cn("w-5 h-5 text-primary")} />
+                  <item.icon className="w-5 h-5 text-primary" />
                 )}
               </div>
               <div className="flex-1 text-left">
@@ -130,17 +170,23 @@ const FaithSection = ({ items, onItemComplete }: FaithSectionProps) => {
       <PrayerModal
         open={prayerOpen}
         onOpenChange={setPrayerOpen}
-        onComplete={() => handleComplete("prayer")}
+        onComplete={() => markCompleted("prayer")}
+        prayer={todayPrayer}
+        isCompleted={isCompleted("prayer")}
       />
       <ScriptureModal
         open={scriptureOpen}
         onOpenChange={setScriptureOpen}
-        onComplete={() => handleComplete("scripture")}
+        onComplete={() => markCompleted("scripture")}
+        scripture={todayScripture}
+        isCompleted={isCompleted("scripture")}
       />
       <RenewedMindModal
         open={renewedMindOpen}
         onOpenChange={setRenewedMindOpen}
-        onComplete={() => handleComplete("renewed-mind")}
+        onComplete={() => markCompleted("renewed-mind")}
+        isCompleted={isCompleted("renewed-mind")}
+        dayIndex={dayIndex}
       />
     </>
   );
