@@ -46,13 +46,6 @@ const PrayerModal = ({ open, onOpenChange, onComplete, prayer, isCompleted }: Pr
           </motion.div>
         </AnimatePresence>
             
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Volume2 className="w-4 h-4" />
-              <span>Audio coming soon</span>
-            </div>
-          </motion.div>
-        </AnimatePresence>
-
         <div className="flex flex-col gap-3 pt-2">
           {isCompleted ? (
             <div className="text-center py-3 text-success font-medium">

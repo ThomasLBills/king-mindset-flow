@@ -53,7 +53,7 @@ const ScriptureModal = ({ open, onOpenChange, onComplete, scripture, isCompleted
                 "{scripture.text}"
               </p>
               <p className="text-sm text-primary-foreground/70 font-medium">
-                — {scripture.reference}
+                {scripture.reference}
               </p>
             </div>
             
