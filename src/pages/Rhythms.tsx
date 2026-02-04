@@ -211,12 +211,25 @@ const RhythmsPage = () => {
           }} transition={{
             delay: 0.1 + index * 0.05
           }} onClick={() => setActivePillar(pillar.id)} className={cn("pillar-card", isActive && "active")}>
-                <div className={cn("p-2 rounded-lg transition-colors", isActive ? "bg-primary-foreground/20" : pillar.bgColor)}>
-                  
+                <div className={cn("p-2.5 rounded-xl transition-colors", isActive ? "bg-primary-foreground/20" : pillar.bgColor)}>
+                  <pillar.icon className={cn("w-5 h-5", isActive ? "text-primary-foreground" : pillar.color)} />
                 </div>
-                <span className="text-xs font-semibold">{pillar.label}</span>
-                <div className="flex items-center gap-1">
-                  {isComplete ? <Check className="w-3 h-3 text-success" /> : <span className="text-[10px] opacity-70">
+                <div className="flex flex-col items-center gap-0.5">
+                  <span className="text-sm font-bold tracking-tight">{pillar.label}</span>
+                  {pillar.subtitle && (
+                    <span className={cn(
+                      "text-[9px] leading-tight text-center max-w-[72px]",
+                      isActive ? "text-primary-foreground/70" : "text-muted-foreground"
+                    )}>
+                      {pillar.subtitle}
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-1 mt-1">
+                  {isComplete ? <Check className="w-3.5 h-3.5 text-success" /> : <span className={cn(
+                    "text-[10px] font-medium",
+                    isActive ? "text-primary-foreground/70" : "opacity-70"
+                  )}>
                       {done}/{total}
                     </span>}
                 </div>
