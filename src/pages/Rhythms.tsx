@@ -172,7 +172,7 @@ const RhythmsPage = () => {
               exit={{ opacity: 0, x: -10 }}
               className="mb-6"
             >
-              <FaithSection items={faith} onItemComplete={completeFaithItem} />
+              <FaithSection onProgressChange={handleFaithProgressChange} />
             </motion.div>
           ) : (
             <motion.div
