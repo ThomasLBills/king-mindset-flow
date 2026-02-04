@@ -24,32 +24,32 @@ export const prayers: Prayer[] = [
   {
     id: "prayer-1",
     title: "Morning Surrender",
-    text: "Father, I come to You not because I'm strong, but because You are. Today, I surrender my thoughts, my desires, and my weaknesses into Your hands. I am Your son—not defined by my failures, but by Your love. Lead me in freedom today.",
+    text: "Father, I come to You not because I am strong, but because You are. Today, I surrender my thoughts, my desires, and my weaknesses into Your hands. I am Your son, not defined by my failures, but by Your love. Lead me in freedom today.",
   },
   {
     id: "prayer-2",
     title: "Identity Reset",
-    text: "Lord, remind me who I am. Not what I've done, not what I feel, but who You say I am. I am chosen. I am loved. I am being made new. Help me walk in that truth today, one moment at a time.",
+    text: "Lord, remind me who I am. Not what I have done, not what I feel, but who You say I am. I am chosen. I am loved. I am being made new. Help me walk in that truth today, one moment at a time.",
   },
   {
     id: "prayer-3",
     title: "Strength in Weakness",
-    text: "God, I don't have what it takes on my own—and that's okay. Your power is made perfect in my weakness. I invite Your Spirit to fill the places where I am empty. I trust You more than I trust my urges.",
+    text: "God, I do not have what it takes on my own, and that is okay. Your power is made perfect in my weakness. I invite Your Spirit to fill the places where I am empty. I trust You more than I trust my urges.",
   },
   {
     id: "prayer-4",
     title: "Peace Over Pressure",
-    text: "Father, when pressure builds and my mind races, anchor me in Your peace. I don't need to perform for You. I don't need to prove anything. I am already Yours. Help me rest in that truth today.",
+    text: "Father, when pressure builds and my mind races, anchor me in Your peace. I do not need to perform for You. I do not need to prove anything. I am already Yours. Help me rest in that truth today.",
   },
   {
     id: "prayer-5",
     title: "Freedom Declaration",
-    text: "Lord, I declare that I am no longer a slave to sin—I am a son. The chains that once held me have been broken by Your power. Today, I choose to walk in the freedom You've already won for me.",
+    text: "Lord, I declare that I am no longer a slave to sin. I am a son. The chains that once held me have been broken by Your power. Today, I choose to walk in the freedom You have already won for me.",
   },
   {
     id: "prayer-6",
     title: "Grace for the Battle",
-    text: "God, the battle feels real today. But I know that You fight for me. Cover me with Your grace. When I stumble, remind me that Your mercy is new every morning. I am not disqualified—I am loved.",
+    text: "God, the battle feels real today. But I know that You fight for me. Cover me with Your grace. When I stumble, remind me that Your mercy is new every morning. I am not disqualified. I am loved.",
   },
   {
     id: "prayer-7",
@@ -59,7 +59,7 @@ export const prayers: Prayer[] = [
   {
     id: "prayer-8",
     title: "Present Moment",
-    text: "Lord, help me be present right now—not anxious about later, not ashamed about before. This moment is where I meet You. This moment is where I can choose freedom. I am here with You.",
+    text: "Lord, help me be present right now. Not anxious about later, not ashamed about before. This moment is where I meet You. This moment is where I can choose freedom. I am here with You.",
   },
 ];
 
