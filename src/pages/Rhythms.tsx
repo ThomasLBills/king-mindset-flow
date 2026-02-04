@@ -8,24 +8,28 @@ import FaithSection from "@/components/rhythms/FaithSection";
 const pillars = [{
   id: "faith",
   label: "Faith",
+  subtitle: "",
   icon: Cross,
   color: "text-primary",
   bgColor: "bg-primary/10"
 }, {
   id: "family",
-  label: "Family",
+  label: "Connection",
+  subtitle: "Move toward people, not isolation",
   icon: Heart,
   color: "text-warning",
   bgColor: "bg-warning/10"
 }, {
   id: "fitness",
   label: "Fitness",
+  subtitle: "",
   icon: Dumbbell,
   color: "text-success",
   bgColor: "bg-success/10"
 }, {
   id: "finance",
   label: "Finance",
+  subtitle: "",
   icon: DollarSign,
   color: "text-accent",
   bgColor: "bg-accent/10"
