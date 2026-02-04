@@ -6,7 +6,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Heart, Volume2 } from "lucide-react";
+import { Heart } from "lucide-react";
 import { Prayer } from "@/data/faithContent";
 
 interface PrayerModalProps {
