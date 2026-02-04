@@ -133,11 +133,11 @@ const Index = () => {
           transition={{ delay: 0.4 }}
           className="mt-6"
         >
-          <div className="gradient-calm rounded-2xl p-6 text-primary-foreground">
-            <p className="font-serif text-lg leading-relaxed mb-3">
+          <div className="scripture-card">
+            <p className="font-serif text-lg text-primary-foreground/90 leading-relaxed mb-3">
               "Therefore, there is now no condemnation for those who are in Christ Jesus."
             </p>
-            <p className="text-sm opacity-80">Romans 8:1</p>
+            <p className="text-sm text-primary-foreground/60">Romans 8:1</p>
           </div>
         </motion.div>
       </div>
