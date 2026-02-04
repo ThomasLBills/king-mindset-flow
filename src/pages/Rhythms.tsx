@@ -146,7 +146,7 @@ const RhythmsPage = () => {
             <Sparkles className="w-4 h-4 text-accent" />
             <span className="text-sm text-muted-foreground">{overallProgress}% complete today</span>
           </div>
-          <h1 className="font-serif text-3xl font-bold mb-2">Four Pillars</h1>
+          <h1 className="font-serif text-3xl font-bold mb-2">Three Pillars</h1>
           <p className="text-muted-foreground">
             Small, consistent actions build lasting freedom
           </p>
