@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import AppLayout from "@/components/layout/AppLayout";
-import { Check, Cross, Heart, DollarSign, Dumbbell, Sparkles, BookOpen, Brain } from "lucide-react";
+import { Check, Cross, Heart, DollarSign, Dumbbell, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
 import FaithSection from "@/components/rhythms/FaithSection";
@@ -13,13 +13,6 @@ const pillars = [
   { id: "finance", label: "Finance", icon: DollarSign, color: "text-accent", bgColor: "bg-accent/10" },
 ];
 
-// Faith items - identity-driven micro-practices
-const faithItems = [
-  { id: "prayer", label: "Prayer", description: "Re-center with God", icon: Cross, completed: false },
-  { id: "scripture", label: "Scripture", description: "Anchor your mind in truth", icon: BookOpen, completed: false },
-  { id: "renewed-mind", label: "Renewed Mind", description: "Replace the lie with truth", icon: Brain, completed: false },
-];
-
 const rhythmItems = {
   family: [
     { id: "present", label: "Be present at dinner", description: "Phone-free mealtime", completed: false },
@@ -27,8 +20,8 @@ const rhythmItems = {
     { id: "serve", label: "Act of service", description: "Do something for someone", completed: false },
   ],
   fitness: [
-    { id: "movement", label: "30 min movement", description: "Any form of exercise", completed: true },
-    { id: "water", label: "Drink 8 glasses water", description: "Stay hydrated", completed: true },
+    { id: "movement", label: "30 min movement", description: "Any form of exercise", completed: false },
+    { id: "water", label: "Drink 8 glasses water", description: "Stay hydrated", completed: false },
     { id: "sleep", label: "7+ hours sleep", description: "Rest is restoration", completed: false },
   ],
   finance: [
@@ -47,7 +40,7 @@ const digitalWisdomItems = [
 const RhythmsPage = () => {
   const [activePillar, setActivePillar] = useState<string>("faith");
   const [items, setItems] = useState(rhythmItems);
-  const [faith, setFaith] = useState(faithItems);
+  const [faithProgress, setFaithProgress] = useState({ completed: 0, total: 3 });
   const [digitalWisdom, setDigitalWisdom] = useState(digitalWisdomItems);
 
   const toggleItem = (pillarId: string, itemId: string) => {
@@ -59,13 +52,9 @@ const RhythmsPage = () => {
     }));
   };
 
-  const completeFaithItem = (itemId: string) => {
-    setFaith((prev) =>
-      prev.map((item) =>
-        item.id === itemId ? { ...item, completed: true } : item
-      )
-    );
-  };
+  const handleFaithProgressChange = useCallback((completed: number, total: number) => {
+    setFaithProgress({ completed, total });
+  }, []);
 
   const toggleDigitalWisdom = (itemId: string) => {
     setDigitalWisdom((prev) =>
@@ -76,19 +65,30 @@ const RhythmsPage = () => {
   };
 
   const currentItems = activePillar === "faith" ? null : items[activePillar as keyof typeof items];
-  const completedCount = currentItems ? currentItems.filter((i) => i.completed).length : faith.filter((i) => i.completed).length;
+  const completedCount = currentItems ? currentItems.filter((i) => i.completed).length : faithProgress.completed;
   
   // Calculate total progress including faith items
-  const faithCompleted = faith.filter((i) => i.completed).length;
   const otherPillarsCompleted = Object.values(items).reduce(
     (acc, pillar) => acc + pillar.filter((i) => i.completed).length,
     0
   );
-  const totalPillarsCompleted = faithCompleted + otherPillarsCompleted;
-  const totalPillarsItems = faith.length + Object.values(items).reduce((acc, pillar) => acc + pillar.length, 0);
+  const totalPillarsCompleted = faithProgress.completed + otherPillarsCompleted;
+  const totalPillarsItems = faithProgress.total + Object.values(items).reduce((acc, pillar) => acc + pillar.length, 0);
   const overallProgress = Math.round((totalPillarsCompleted / totalPillarsItems) * 100);
 
   const activePillarData = pillars.find((p) => p.id === activePillar);
+
+  // Get pillar progress for the cards
+  const getPillarProgress = (pillarId: string) => {
+    if (pillarId === "faith") {
+      return { done: faithProgress.completed, total: faithProgress.total };
+    }
+    const pillarItems = items[pillarId as keyof typeof items];
+    return { 
+      done: pillarItems.filter((i) => i.completed).length, 
+      total: pillarItems.length 
+    };
+  };
 
   return (
     <AppLayout>
@@ -125,10 +125,8 @@ const RhythmsPage = () => {
           transition={{ delay: 0.1 }}
           className="grid grid-cols-4 gap-2 mb-6"
         >
-        {pillars.map((pillar, index) => {
-            const pillarItems = pillar.id === "faith" ? faith : items[pillar.id as keyof typeof items];
-            const done = pillarItems.filter((i) => i.completed).length;
-            const total = pillarItems.length;
+          {pillars.map((pillar, index) => {
+            const { done, total } = getPillarProgress(pillar.id);
             const isActive = activePillar === pillar.id;
             const isComplete = done === total;
 
@@ -174,7 +172,7 @@ const RhythmsPage = () => {
               exit={{ opacity: 0, x: -10 }}
               className="mb-6"
             >
-              <FaithSection items={faith} onItemComplete={completeFaithItem} />
+              <FaithSection onProgressChange={handleFaithProgressChange} />
             </motion.div>
           ) : (
             <motion.div
