@@ -38,11 +38,13 @@ const PrayerModal = ({ open, onOpenChange, onComplete, prayer, isCompleted }: Pr
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="space-y-6 py-4"
+            className="py-4"
           >
             <p className="font-serif text-lg leading-relaxed text-foreground/90">
               {prayer.text}
             </p>
+          </motion.div>
+        </AnimatePresence>
             
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Volume2 className="w-4 h-4" />
