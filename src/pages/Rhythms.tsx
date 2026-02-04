@@ -1,10 +1,11 @@
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import AppLayout from "@/components/layout/AppLayout";
-import { Check, Cross, Heart, DollarSign, Dumbbell, Sparkles } from "lucide-react";
+import { Check, Cross, Users, Dumbbell, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
 import FaithSection from "@/components/rhythms/FaithSection";
+
 const pillars = [{
   id: "faith",
   label: "Faith",
@@ -13,10 +14,10 @@ const pillars = [{
   color: "text-primary",
   bgColor: "bg-primary/10"
 }, {
-  id: "family",
+  id: "connection",
   label: "Connection",
   subtitle: "Move toward people, not isolation",
-  icon: Heart,
+  icon: Users,
   color: "text-warning",
   bgColor: "bg-warning/10"
 }, {
@@ -26,29 +27,23 @@ const pillars = [{
   icon: Dumbbell,
   color: "text-success",
   bgColor: "bg-success/10"
-}, {
-  id: "finance",
-  label: "Finance",
-  subtitle: "",
-  icon: DollarSign,
-  color: "text-accent",
-  bgColor: "bg-accent/10"
 }];
+
 const rhythmItems = {
-  family: [{
-    id: "present",
-    label: "Be present at dinner",
-    description: "Phone-free mealtime",
+  connection: [{
+    id: "presence",
+    label: "Be Present",
+    description: "Phone down. Be here.",
     completed: false
   }, {
     id: "connect",
-    label: "Connect with spouse/family",
-    description: "Meaningful conversation",
+    label: "Connect Intentionally",
+    description: "One meaningful conversation",
     completed: false
   }, {
-    id: "serve",
-    label: "Act of service",
-    description: "Do something for someone",
+    id: "service",
+    label: "Act of Service",
+    description: "Love in action",
     completed: false
   }],
   fitness: [{
@@ -66,28 +61,13 @@ const rhythmItems = {
     label: "7+ hours sleep",
     description: "Rest is restoration",
     completed: false
-  }],
-  finance: [{
-    id: "review",
-    label: "Review spending",
-    description: "Quick budget check",
-    completed: false
-  }, {
-    id: "save",
-    label: "Transfer to savings",
-    description: "Pay yourself first",
-    completed: false
-  }, {
-    id: "give",
-    label: "Plan to give",
-    description: "Generosity brings freedom",
-    completed: false
   }]
 };
+
 const digitalWisdomItems = [{
   id: "phone-free",
   label: "Phone-free hours",
-  description: "9 PM - 7 AM",
+  description: "9 PM to 7 AM",
   active: true
 }, {
   id: "bedtime",
@@ -166,7 +146,7 @@ const RhythmsPage = () => {
             <Sparkles className="w-4 h-4 text-accent" />
             <span className="text-sm text-muted-foreground">{overallProgress}% complete today</span>
           </div>
-          <h1 className="font-serif text-3xl font-bold mb-2">Four Pillars</h1>
+          <h1 className="font-serif text-3xl font-bold mb-2">Three Pillars</h1>
           <p className="text-muted-foreground">
             Small, consistent actions build lasting freedom
           </p>
@@ -185,7 +165,7 @@ const RhythmsPage = () => {
           <Progress value={overallProgress} className="h-2" />
         </motion.div>
 
-        {/* Four Pillars */}
+        {/* Three Pillars */}
         <motion.div initial={{
         opacity: 0,
         y: 20
@@ -194,7 +174,7 @@ const RhythmsPage = () => {
         y: 0
       }} transition={{
         delay: 0.1
-      }} className="grid grid-cols-4 gap-2 mb-6">
+      }} className="grid grid-cols-3 gap-3 mb-6">
           {pillars.map((pillar, index) => {
           const {
             done,
@@ -269,13 +249,18 @@ const RhythmsPage = () => {
           duration: 0.2
         }} className="card-elevated p-5 mb-6">
               <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  {activePillarData && <div className={cn("p-1.5 rounded-lg", activePillarData.bgColor)}>
-                      <activePillarData.icon className={cn("w-4 h-4", activePillarData.color)} />
+                <div className="flex items-center gap-3">
+                  {activePillarData && <div className={cn("p-2 rounded-xl", activePillarData.bgColor)}>
+                      <activePillarData.icon className={cn("w-5 h-5", activePillarData.color)} />
                     </div>}
-                  <h2 className="font-serif text-xl font-semibold capitalize">
-                    {activePillar}
-                  </h2>
+                  <div>
+                    <h2 className="font-serif text-xl font-semibold">
+                      {activePillarData?.label}
+                    </h2>
+                    {activePillarData?.subtitle && (
+                      <p className="text-sm text-muted-foreground">{activePillarData.subtitle}</p>
+                    )}
+                  </div>
                 </div>
                 {currentItems && <span className={cn("text-sm font-medium px-2 py-1 rounded-full", completedCount === currentItems.length ? "bg-success/20 text-success" : "text-muted-foreground")}>
                     {completedCount}/{currentItems.length}
