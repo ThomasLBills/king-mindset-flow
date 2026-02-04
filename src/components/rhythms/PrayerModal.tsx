@@ -6,7 +6,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Heart, Volume2 } from "lucide-react";
+import { Heart } from "lucide-react";
 import { Prayer } from "@/data/faithContent";
 
 interface PrayerModalProps {
@@ -38,19 +38,14 @@ const PrayerModal = ({ open, onOpenChange, onComplete, prayer, isCompleted }: Pr
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="space-y-6 py-4"
+            className="py-4"
           >
             <p className="font-serif text-lg leading-relaxed text-foreground/90">
               {prayer.text}
             </p>
-            
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Volume2 className="w-4 h-4" />
-              <span>Audio coming soon</span>
-            </div>
           </motion.div>
         </AnimatePresence>
-
+            
         <div className="flex flex-col gap-3 pt-2">
           {isCompleted ? (
             <div className="text-center py-3 text-success font-medium">
