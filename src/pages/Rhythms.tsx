@@ -125,10 +125,8 @@ const RhythmsPage = () => {
           transition={{ delay: 0.1 }}
           className="grid grid-cols-4 gap-2 mb-6"
         >
-        {pillars.map((pillar, index) => {
-            const pillarItems = pillar.id === "faith" ? faith : items[pillar.id as keyof typeof items];
-            const done = pillarItems.filter((i) => i.completed).length;
-            const total = pillarItems.length;
+          {pillars.map((pillar, index) => {
+            const { done, total } = getPillarProgress(pillar.id);
             const isActive = activePillar === pillar.id;
             const isComplete = done === total;
 
