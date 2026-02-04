@@ -249,13 +249,18 @@ const RhythmsPage = () => {
           duration: 0.2
         }} className="card-elevated p-5 mb-6">
               <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  {activePillarData && <div className={cn("p-1.5 rounded-lg", activePillarData.bgColor)}>
-                      <activePillarData.icon className={cn("w-4 h-4", activePillarData.color)} />
+                <div className="flex items-center gap-3">
+                  {activePillarData && <div className={cn("p-2 rounded-xl", activePillarData.bgColor)}>
+                      <activePillarData.icon className={cn("w-5 h-5", activePillarData.color)} />
                     </div>}
-                  <h2 className="font-serif text-xl font-semibold capitalize">
-                    {activePillar}
-                  </h2>
+                  <div>
+                    <h2 className="font-serif text-xl font-semibold">
+                      {activePillarData?.label}
+                    </h2>
+                    {activePillarData?.subtitle && (
+                      <p className="text-sm text-muted-foreground">{activePillarData.subtitle}</p>
+                    )}
+                  </div>
                 </div>
                 {currentItems && <span className={cn("text-sm font-medium px-2 py-1 rounded-full", completedCount === currentItems.length ? "bg-success/20 text-success" : "text-muted-foreground")}>
                     {completedCount}/{currentItems.length}
