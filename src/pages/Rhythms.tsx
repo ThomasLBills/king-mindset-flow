@@ -165,7 +165,7 @@ const RhythmsPage = () => {
           <Progress value={overallProgress} className="h-2" />
         </motion.div>
 
-        {/* Four Pillars */}
+        {/* Three Pillars */}
         <motion.div initial={{
         opacity: 0,
         y: 20
@@ -174,7 +174,7 @@ const RhythmsPage = () => {
         y: 0
       }} transition={{
         delay: 0.1
-      }} className="grid grid-cols-4 gap-2 mb-6">
+      }} className="grid grid-cols-3 gap-3 mb-6">
           {pillars.map((pillar, index) => {
           const {
             done,
