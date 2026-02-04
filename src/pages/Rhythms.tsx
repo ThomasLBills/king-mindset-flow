@@ -1,10 +1,11 @@
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import AppLayout from "@/components/layout/AppLayout";
-import { Check, Cross, Heart, DollarSign, Dumbbell, Sparkles } from "lucide-react";
+import { Check, Cross, Users, Dumbbell, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
 import FaithSection from "@/components/rhythms/FaithSection";
+
 const pillars = [{
   id: "faith",
   label: "Faith",
@@ -13,10 +14,10 @@ const pillars = [{
   color: "text-primary",
   bgColor: "bg-primary/10"
 }, {
-  id: "family",
+  id: "connection",
   label: "Connection",
   subtitle: "Move toward people, not isolation",
-  icon: Heart,
+  icon: Users,
   color: "text-warning",
   bgColor: "bg-warning/10"
 }, {
@@ -26,29 +27,23 @@ const pillars = [{
   icon: Dumbbell,
   color: "text-success",
   bgColor: "bg-success/10"
-}, {
-  id: "finance",
-  label: "Finance",
-  subtitle: "",
-  icon: DollarSign,
-  color: "text-accent",
-  bgColor: "bg-accent/10"
 }];
+
 const rhythmItems = {
-  family: [{
-    id: "present",
-    label: "Be present at dinner",
-    description: "Phone-free mealtime",
+  connection: [{
+    id: "presence",
+    label: "Be Present",
+    description: "Phone down. Be here.",
     completed: false
   }, {
     id: "connect",
-    label: "Connect with spouse/family",
-    description: "Meaningful conversation",
+    label: "Connect Intentionally",
+    description: "One meaningful conversation",
     completed: false
   }, {
-    id: "serve",
-    label: "Act of service",
-    description: "Do something for someone",
+    id: "service",
+    label: "Act of Service",
+    description: "Love in action",
     completed: false
   }],
   fitness: [{
@@ -66,28 +61,13 @@ const rhythmItems = {
     label: "7+ hours sleep",
     description: "Rest is restoration",
     completed: false
-  }],
-  finance: [{
-    id: "review",
-    label: "Review spending",
-    description: "Quick budget check",
-    completed: false
-  }, {
-    id: "save",
-    label: "Transfer to savings",
-    description: "Pay yourself first",
-    completed: false
-  }, {
-    id: "give",
-    label: "Plan to give",
-    description: "Generosity brings freedom",
-    completed: false
   }]
 };
+
 const digitalWisdomItems = [{
   id: "phone-free",
   label: "Phone-free hours",
-  description: "9 PM - 7 AM",
+  description: "9 PM to 7 AM",
   active: true
 }, {
   id: "bedtime",
