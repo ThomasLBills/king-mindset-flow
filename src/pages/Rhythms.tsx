@@ -202,6 +202,7 @@ const RhythmsPage = () => {
           } = getPillarProgress(pillar.id);
           const isActive = activePillar === pillar.id;
           const isComplete = done === total;
+          const hasSubtitle = !!pillar.subtitle;
           return <motion.button key={pillar.id} initial={{
             opacity: 0,
             y: 10
@@ -211,11 +212,16 @@ const RhythmsPage = () => {
           }} transition={{
             delay: 0.1 + index * 0.05
           }} onClick={() => setActivePillar(pillar.id)} className={cn("pillar-card", isActive && "active")}>
-                <div className={cn("p-2.5 rounded-xl transition-colors", isActive ? "bg-primary-foreground/20" : pillar.bgColor)}>
-                  <pillar.icon className={cn("w-5 h-5", isActive ? "text-primary-foreground" : pillar.color)} />
-                </div>
-                <div className="flex flex-col items-center gap-0.5">
-                  <span className="text-sm font-bold tracking-tight">{pillar.label}</span>
+                {!hasSubtitle && (
+                  <div className={cn("p-2.5 rounded-xl transition-colors", isActive ? "bg-primary-foreground/20" : pillar.bgColor)}>
+                    <pillar.icon className={cn("w-5 h-5", isActive ? "text-primary-foreground" : pillar.color)} />
+                  </div>
+                )}
+                <div className={cn("flex flex-col items-center", hasSubtitle ? "gap-1" : "gap-0.5")}>
+                  <span className={cn(
+                    "font-bold tracking-tight",
+                    hasSubtitle ? "text-base" : "text-sm"
+                  )}>{pillar.label}</span>
                   {pillar.subtitle && (
                     <span className={cn(
                       "text-[9px] leading-tight text-center max-w-[72px]",
