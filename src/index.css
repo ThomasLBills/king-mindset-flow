@@ -146,8 +146,15 @@
 
 @layer components {
   .card-elevated {
-    @apply bg-card rounded-xl shadow-lg;
-    box-shadow: 0 4px 24px -4px hsl(var(--card-shadow));
+    @apply bg-card rounded-2xl;
+    box-shadow: 0 4px 24px -4px hsl(var(--card-shadow)), 
+                0 1px 3px -1px hsl(var(--card-shadow));
+    border: 1px solid hsl(var(--border) / 0.5);
+  }
+
+  .card-glass {
+    @apply bg-card/80 backdrop-blur-md rounded-2xl border border-border/30;
+    box-shadow: 0 8px 32px -8px hsl(var(--card-shadow));
   }
 
   .gradient-calm {
@@ -162,18 +169,95 @@
     background: var(--gradient-peace);
   }
 
+  .gradient-scripture {
+    background: linear-gradient(135deg, hsl(220 45% 18%) 0%, hsl(220 40% 25%) 50%, hsl(38 40% 30%) 100%);
+  }
+
   .tool-card {
     @apply relative overflow-hidden rounded-2xl p-6 transition-all duration-300;
-    @apply hover:shadow-xl hover:-translate-y-1;
+    @apply hover:shadow-xl hover:-translate-y-0.5;
+  }
+
+  .tool-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(180deg, transparent 0%, hsl(0 0% 0% / 0.1) 100%);
+    pointer-events: none;
   }
 
   .scripture-text {
     font-family: 'Crimson Pro', Georgia, serif;
-    @apply italic text-muted-foreground;
+    @apply italic text-muted-foreground leading-relaxed;
+  }
+
+  .scripture-card {
+    @apply relative overflow-hidden rounded-2xl p-6;
+    background: linear-gradient(135deg, hsl(220 45% 20%) 0%, hsl(220 35% 28%) 100%);
+  }
+
+  .scripture-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, hsl(38 65% 55% / 0.15) 0%, transparent 70%);
+    pointer-events: none;
   }
 
   .safe-zone {
-    @apply bg-secondary/50 border border-border/50 rounded-xl p-4;
+    @apply bg-success/5 border border-success/20 rounded-xl p-4;
+  }
+
+  .pillar-card {
+    @apply relative flex flex-col items-center gap-2 p-4 rounded-xl transition-all duration-200;
+    @apply border-2 border-transparent;
+  }
+
+  .pillar-card.active {
+    @apply bg-primary text-primary-foreground border-primary shadow-lg;
+    transform: translateY(-2px);
+  }
+
+  .pillar-card:not(.active) {
+    @apply bg-card border-border hover:border-primary/30 hover:shadow-md;
+  }
+
+  .checklist-item {
+    @apply w-full flex items-center gap-4 p-4 rounded-xl border-2 transition-all text-left;
+  }
+
+  .checklist-item.completed {
+    @apply border-success/40 bg-success/10;
+  }
+
+  .checklist-item:not(.completed) {
+    @apply border-border hover:border-primary/40 hover:bg-secondary/30;
+  }
+
+  .week-card {
+    @apply w-full p-4 rounded-xl border-2 text-left transition-all duration-200;
+  }
+
+  .week-card.current {
+    @apply border-primary bg-primary/10 shadow-md;
+  }
+
+  .week-card.completed {
+    @apply border-success/40 bg-success/5;
+  }
+
+  .week-card.locked {
+    @apply border-border opacity-60;
+  }
+
+  .week-card.unlocked {
+    @apply border-border hover:border-primary/40 hover:shadow-sm;
   }
 }
 
@@ -208,4 +292,27 @@
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
   }
+
+  .animate-scale-in {
+    animation: scaleIn 0.3s ease-out forwards;
+  }
+
+  @keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  .animate-shimmer {
+    animation: shimmer 2s ease-in-out infinite;
+  }
+
+  @keyframes shimmer {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+  }
+
+  .stagger-1 { animation-delay: 0.05s; }
+  .stagger-2 { animation-delay: 0.1s; }
+  .stagger-3 { animation-delay: 0.15s; }
+  .stagger-4 { animation-delay: 0.2s; }
 }

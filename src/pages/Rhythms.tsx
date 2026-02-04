@@ -1,43 +1,51 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import AppLayout from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
-import { Check, Cross, Heart, Users, DollarSign, Dumbbell } from "lucide-react";
+import { Check, Cross, Heart, Users, DollarSign, Dumbbell, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Progress } from "@/components/ui/progress";
 
 const pillars = [
-  { id: "faith", label: "Faith", icon: Cross, color: "text-primary" },
-  { id: "family", label: "Family", icon: Heart, color: "text-warning" },
-  { id: "fitness", label: "Fitness", icon: Dumbbell, color: "text-success" },
-  { id: "finance", label: "Finance", icon: DollarSign, color: "text-accent" },
+  { id: "faith", label: "Faith", icon: Cross, color: "text-primary", bgColor: "bg-primary/10" },
+  { id: "family", label: "Family", icon: Heart, color: "text-warning", bgColor: "bg-warning/10" },
+  { id: "fitness", label: "Fitness", icon: Dumbbell, color: "text-success", bgColor: "bg-success/10" },
+  { id: "finance", label: "Finance", icon: DollarSign, color: "text-accent", bgColor: "bg-accent/10" },
 ];
 
 const rhythmItems = {
   faith: [
-    { id: "prayer", label: "Morning prayer", completed: true },
-    { id: "scripture", label: "Read scripture", completed: false },
-    { id: "gratitude", label: "Gratitude practice", completed: true },
+    { id: "prayer", label: "Morning prayer", description: "Start your day connected", completed: true },
+    { id: "scripture", label: "Read scripture", description: "15 minutes in the Word", completed: false },
+    { id: "gratitude", label: "Gratitude practice", description: "Name 3 blessings", completed: true },
   ],
   family: [
-    { id: "present", label: "Be present at dinner", completed: false },
-    { id: "connect", label: "Connect with spouse/family", completed: false },
-    { id: "serve", label: "Act of service", completed: false },
+    { id: "present", label: "Be present at dinner", description: "Phone-free mealtime", completed: false },
+    { id: "connect", label: "Connect with spouse/family", description: "Meaningful conversation", completed: false },
+    { id: "serve", label: "Act of service", description: "Do something for someone", completed: false },
   ],
   fitness: [
-    { id: "movement", label: "30 min movement", completed: true },
-    { id: "water", label: "Drink 8 glasses water", completed: true },
-    { id: "sleep", label: "7+ hours sleep", completed: false },
+    { id: "movement", label: "30 min movement", description: "Any form of exercise", completed: true },
+    { id: "water", label: "Drink 8 glasses water", description: "Stay hydrated", completed: true },
+    { id: "sleep", label: "7+ hours sleep", description: "Rest is restoration", completed: false },
   ],
   finance: [
-    { id: "review", label: "Review spending", completed: false },
-    { id: "save", label: "Transfer to savings", completed: false },
-    { id: "give", label: "Plan to give", completed: false },
+    { id: "review", label: "Review spending", description: "Quick budget check", completed: false },
+    { id: "save", label: "Transfer to savings", description: "Pay yourself first", completed: false },
+    { id: "give", label: "Plan to give", description: "Generosity brings freedom", completed: false },
   ],
 };
+
+const digitalWisdomItems = [
+  { id: "phone-free", label: "Phone-free hours", description: "9 PM - 7 AM", active: true },
+  { id: "bedtime", label: "Bedtime boundary", description: "Device out of bedroom", active: false },
+  { id: "social-limit", label: "Social media limit", description: "30 min daily max", active: false },
+];
 
 const RhythmsPage = () => {
   const [activePillar, setActivePillar] = useState<string>("faith");
   const [items, setItems] = useState(rhythmItems);
+  const [digitalWisdom, setDigitalWisdom] = useState(digitalWisdomItems);
 
   const toggleItem = (pillarId: string, itemId: string) => {
     setItems((prev) => ({
@@ -48,8 +56,24 @@ const RhythmsPage = () => {
     }));
   };
 
+  const toggleDigitalWisdom = (itemId: string) => {
+    setDigitalWisdom((prev) =>
+      prev.map((item) =>
+        item.id === itemId ? { ...item, active: !item.active } : item
+      )
+    );
+  };
+
   const currentItems = items[activePillar as keyof typeof items];
   const completedCount = currentItems.filter((i) => i.completed).length;
+  const totalPillarsCompleted = Object.values(items).reduce(
+    (acc, pillar) => acc + pillar.filter((i) => i.completed).length,
+    0
+  );
+  const totalPillarsItems = Object.values(items).reduce((acc, pillar) => acc + pillar.length, 0);
+  const overallProgress = Math.round((totalPillarsCompleted / totalPillarsItems) * 100);
+
+  const activePillarData = pillars.find((p) => p.id === activePillar);
 
   return (
     <AppLayout>
@@ -59,10 +83,24 @@ const RhythmsPage = () => {
           animate={{ opacity: 1, y: 0 }}
           className="mb-6"
         >
-          <h1 className="font-serif text-3xl font-bold mb-2">Daily Rhythms</h1>
+          <div className="flex items-center gap-2 mb-1">
+            <Sparkles className="w-4 h-4 text-accent" />
+            <span className="text-sm text-muted-foreground">{overallProgress}% complete today</span>
+          </div>
+          <h1 className="font-serif text-3xl font-bold mb-2">Four Pillars</h1>
           <p className="text-muted-foreground">
             Small, consistent actions build lasting freedom
           </p>
+        </motion.div>
+
+        {/* Overall Progress */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05 }}
+          className="mb-6"
+        >
+          <Progress value={overallProgress} className="h-2" />
         </motion.div>
 
         {/* Four Pillars */}
@@ -72,113 +110,161 @@ const RhythmsPage = () => {
           transition={{ delay: 0.1 }}
           className="grid grid-cols-4 gap-2 mb-6"
         >
-          {pillars.map((pillar) => {
+          {pillars.map((pillar, index) => {
             const pillarItems = items[pillar.id as keyof typeof items];
             const done = pillarItems.filter((i) => i.completed).length;
             const total = pillarItems.length;
             const isActive = activePillar === pillar.id;
+            const isComplete = done === total;
 
             return (
-              <button
+              <motion.button
                 key={pillar.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 + index * 0.05 }}
                 onClick={() => setActivePillar(pillar.id)}
-                className={cn(
-                  "flex flex-col items-center gap-2 p-3 rounded-xl transition-all",
-                  isActive
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-card border border-border hover:border-primary/30"
-                )}
+                className={cn("pillar-card", isActive && "active")}
               >
-                <pillar.icon
-                  className={cn("w-5 h-5", isActive ? "text-current" : pillar.color)}
-                />
-                <span className="text-xs font-medium">{pillar.label}</span>
-                <span className="text-xs opacity-70">
-                  {done}/{total}
-                </span>
-              </button>
+                <div className={cn(
+                  "p-2 rounded-lg transition-colors",
+                  isActive ? "bg-primary-foreground/20" : pillar.bgColor
+                )}>
+                  <pillar.icon
+                    className={cn("w-5 h-5", isActive ? "text-current" : pillar.color)}
+                  />
+                </div>
+                <span className="text-xs font-semibold">{pillar.label}</span>
+                <div className="flex items-center gap-1">
+                  {isComplete ? (
+                    <Check className="w-3 h-3 text-success" />
+                  ) : (
+                    <span className="text-[10px] opacity-70">
+                      {done}/{total}
+                    </span>
+                  )}
+                </div>
+              </motion.button>
             );
           })}
         </motion.div>
 
         {/* Active Pillar Items */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="card-elevated p-5"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-serif text-xl font-semibold capitalize">
-              {activePillar} Rhythms
-            </h2>
-            <span className="text-sm text-muted-foreground">
-              {completedCount}/{currentItems.length} today
-            </span>
-          </div>
-
-          <div className="space-y-3">
-            {currentItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => toggleItem(activePillar, item.id)}
-                className={cn(
-                  "w-full flex items-center gap-4 p-4 rounded-xl border transition-all text-left",
-                  item.completed
-                    ? "border-success/30 bg-success/5"
-                    : "border-border hover:border-primary/30"
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activePillar}
+            initial={{ opacity: 0, x: 10 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -10 }}
+            transition={{ duration: 0.2 }}
+            className="card-elevated p-5 mb-6"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                {activePillarData && (
+                  <div className={cn("p-1.5 rounded-lg", activePillarData.bgColor)}>
+                    <activePillarData.icon className={cn("w-4 h-4", activePillarData.color)} />
+                  </div>
                 )}
-              >
-                <div
-                  className={cn(
-                    "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors",
-                    item.completed
-                      ? "border-success bg-success"
-                      : "border-muted-foreground"
-                  )}
+                <h2 className="font-serif text-xl font-semibold capitalize">
+                  {activePillar}
+                </h2>
+              </div>
+              <span className={cn(
+                "text-sm font-medium px-2 py-1 rounded-full",
+                completedCount === currentItems.length 
+                  ? "bg-success/20 text-success"
+                  : "text-muted-foreground"
+              )}>
+                {completedCount}/{currentItems.length}
+              </span>
+            </div>
+
+            <div className="space-y-2">
+              {currentItems.map((item, index) => (
+                <motion.button
+                  key={item.id}
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  onClick={() => toggleItem(activePillar, item.id)}
+                  className={cn("checklist-item", item.completed && "completed")}
                 >
-                  {item.completed && <Check className="w-4 h-4 text-success-foreground" />}
-                </div>
-                <span
-                  className={cn(
-                    "font-medium transition-colors",
-                    item.completed && "text-muted-foreground line-through"
-                  )}
-                >
-                  {item.label}
-                </span>
-              </button>
-            ))}
-          </div>
-        </motion.div>
+                  <div
+                    className={cn(
+                      "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200",
+                      item.completed
+                        ? "border-success bg-success scale-110"
+                        : "border-muted-foreground/40"
+                    )}
+                  >
+                    {item.completed && <Check className="w-4 h-4 text-success-foreground" />}
+                  </div>
+                  <div className="flex-1 text-left">
+                    <span
+                      className={cn(
+                        "font-medium block transition-colors",
+                        item.completed && "text-muted-foreground line-through"
+                      )}
+                    >
+                      {item.label}
+                    </span>
+                    <span className="text-xs text-muted-foreground">{item.description}</span>
+                  </div>
+                </motion.button>
+              ))}
+            </div>
+          </motion.div>
+        </AnimatePresence>
 
         {/* Digital Wisdom */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="mt-6"
         >
           <h2 className="font-serif text-xl font-semibold mb-4">Digital Wisdom</h2>
           <div className="space-y-3">
-            <div className="safe-zone flex items-center justify-between">
-              <div>
-                <p className="font-medium">Phone-free hours</p>
-                <p className="text-sm text-muted-foreground">9 PM - 7 AM</p>
-              </div>
-              <div className="px-3 py-1 bg-success/20 text-success rounded-full text-sm font-medium">
-                Active
-              </div>
-            </div>
-            <div className="safe-zone flex items-center justify-between">
-              <div>
-                <p className="font-medium">Bedtime boundary</p>
-                <p className="text-sm text-muted-foreground">Device out of bedroom</p>
-              </div>
-              <div className="px-3 py-1 bg-muted text-muted-foreground rounded-full text-sm font-medium">
-                Set up
-              </div>
-            </div>
+            {digitalWisdom.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => toggleDigitalWisdom(item.id)}
+                className={cn(
+                  "w-full flex items-center justify-between p-4 rounded-xl transition-all",
+                  item.active
+                    ? "safe-zone"
+                    : "bg-secondary/50 border border-border hover:border-success/30"
+                )}
+              >
+                <div className="text-left">
+                  <p className="font-medium">{item.label}</p>
+                  <p className="text-sm text-muted-foreground">{item.description}</p>
+                </div>
+                <div className={cn(
+                  "px-3 py-1 rounded-full text-sm font-medium transition-colors",
+                  item.active
+                    ? "bg-success/20 text-success"
+                    : "bg-muted text-muted-foreground"
+                )}>
+                  {item.active ? "Active" : "Set up"}
+                </div>
+              </button>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Encouragement */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="mt-6"
+        >
+          <div className="scripture-card">
+            <p className="font-serif text-lg text-primary-foreground/90 leading-relaxed mb-2">
+              "Be very careful, then, how you live—not as unwise but as wise, making the most of every opportunity."
+            </p>
+            <p className="text-sm text-primary-foreground/60">Ephesians 5:15-16</p>
           </div>
         </motion.div>
       </div>
