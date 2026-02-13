@@ -13,6 +13,9 @@ import Rhythms from "./pages/Rhythms";
 import Brotherhood from "./pages/Brotherhood";
 import Library from "./pages/Library";
 import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import Checkout from "./pages/Checkout";
 import ThankYou from "./pages/ThankYou";
 import Upgrade from "./pages/Upgrade";
@@ -34,6 +37,9 @@ const App = () => (
             {/* Public routes */}
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/thank-you" element={<ThankYou />} />
 
