@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value?: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: []
+      }
+      brotherhood_connections: {
+        Row: {
+          created_at: string
+          id: string
+          recipient_id: string
+          requester_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          recipient_id: string
+          requester_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          recipient_id?: string
+          requester_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       chat_channel_members: {
         Row: {
           channel_id: string
@@ -52,7 +97,11 @@ export type Database = {
           created_by: string
           description: string | null
           id: string
+          is_default: boolean
+          is_locked: boolean
+          is_pinned: boolean
           name: string
+          sort_order: number
           type: string
         }
         Insert: {
@@ -60,7 +109,11 @@ export type Database = {
           created_by: string
           description?: string | null
           id?: string
+          is_default?: boolean
+          is_locked?: boolean
+          is_pinned?: boolean
           name: string
+          sort_order?: number
           type?: string
         }
         Update: {
@@ -68,7 +121,11 @@ export type Database = {
           created_by?: string
           description?: string | null
           id?: string
+          is_default?: boolean
+          is_locked?: boolean
+          is_pinned?: boolean
           name?: string
+          sort_order?: number
           type?: string
         }
         Relationships: []

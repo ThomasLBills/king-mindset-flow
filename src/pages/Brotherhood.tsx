@@ -1,178 +1,81 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import AppLayout from "@/components/layout/AppLayout";
-import ReachOut from "@/components/brotherhood/ReachOut";
-import { Button } from "@/components/ui/button";
-import { Users, MessageCircle, Heart, Plus } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { AnimatePresence } from "framer-motion";
-
-const brothers = [
-  {
-    id: "1",
-    name: "Marcus Johnson",
-    initials: "MJ",
-    lastActive: "2 hours ago",
-    status: "online",
-  },
-  {
-    id: "2",
-    name: "David Williams",
-    initials: "DW",
-    lastActive: "Yesterday",
-    status: "offline",
-  },
-  {
-    id: "3",
-    name: "James Thompson",
-    initials: "JT",
-    lastActive: "3 days ago",
-    status: "offline",
-  },
-];
-
-const recentMessages = [
-  {
-    id: "1",
-    from: "Marcus",
-    message: "Praying for you, brother. You've got this.",
-    time: "2h ago",
-    type: "encouragement",
-  },
-  {
-    id: "2",
-    from: "You",
-    message: "Had a tough moment but made it through.",
-    time: "Yesterday",
-    type: "checkin",
-  },
-];
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Users, Hash, MessageCircle } from "lucide-react";
+import MyBrothersTab from "@/components/brotherhood/MyBrothersTab";
+import ChannelsTab from "@/components/brotherhood/ChannelsTab";
+import MessagesTab from "@/components/brotherhood/MessagesTab";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import type { ChatTarget } from "@/hooks/useChat";
 
 const BrotherhoodPage = () => {
-  const [showReachOut, setShowReachOut] = useState(false);
+  const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState("brothers");
+  const [dmTarget, setDmTarget] = useState<ChatTarget | null>(null);
+
+  const handleStartDM = useCallback(async (brotherUserId: string, name: string) => {
+    if (!user) return;
+    // Check for existing DM
+    const { data: existing } = await supabase
+      .from("chat_dms")
+      .select("id")
+      .or(`and(user_a.eq.${user.id},user_b.eq.${brotherUserId}),and(user_a.eq.${brotherUserId},user_b.eq.${user.id})`)
+      .limit(1);
+
+    let dmId: string;
+    if (existing && existing.length > 0) {
+      dmId = existing[0].id;
+    } else {
+      const { data: newDm, error } = await supabase
+        .from("chat_dms")
+        .insert({ user_a: user.id, user_b: brotherUserId })
+        .select("id")
+        .single();
+      if (error || !newDm) return;
+      dmId = newDm.id;
+    }
+
+    setDmTarget({ type: "dm", id: dmId, name });
+    setActiveTab("messages");
+  }, [user]);
 
   return (
     <AppLayout>
       <div className="px-5 py-6">
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-6"
-        >
-          <h1 className="font-serif text-3xl font-bold mb-2">Brotherhood</h1>
-          <p className="text-muted-foreground">
-            Freedom is sustained together
-          </p>
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-4">
+          <h1 className="font-serif text-3xl font-bold mb-1">Brotherhood</h1>
+          <p className="text-muted-foreground text-sm">Freedom is sustained together</p>
         </motion.div>
 
-        {/* Quick Reach Out */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="mb-6"
-        >
-          <Button
-            variant="brotherhood"
-            size="lg"
-            onClick={() => setShowReachOut(true)}
-            className="w-full"
-          >
-            <MessageCircle className="w-5 h-5" />
-            Reach Out Now
-          </Button>
-        </motion.div>
+        <Tabs value={activeTab} onValueChange={(v) => { setActiveTab(v); if (v !== "messages") setDmTarget(null); }}>
+          <TabsList className="w-full mb-4">
+            <TabsTrigger value="brothers" className="flex-1 gap-1.5">
+              <Users className="w-4 h-4" />
+              Brothers
+            </TabsTrigger>
+            <TabsTrigger value="channels" className="flex-1 gap-1.5">
+              <Hash className="w-4 h-4" />
+              Channels
+            </TabsTrigger>
+            <TabsTrigger value="messages" className="flex-1 gap-1.5">
+              <MessageCircle className="w-4 h-4" />
+              Messages
+            </TabsTrigger>
+          </TabsList>
 
-        {/* My Brothers */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="mb-6"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-serif text-xl font-semibold">My Brothers</h2>
-            <button className="p-2 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors">
-              <Plus className="w-4 h-4" />
-            </button>
-          </div>
-
-          <div className="space-y-3">
-            {brothers.map((brother) => (
-              <div
-                key={brother.id}
-                className="flex items-center gap-4 p-4 rounded-xl bg-card border border-border"
-              >
-                <div className="relative">
-                  <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center font-semibold">
-                    {brother.initials}
-                  </div>
-                  {brother.status === "online" && (
-                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-success rounded-full border-2 border-card" />
-                  )}
-                </div>
-                <div className="flex-1">
-                  <p className="font-medium">{brother.name}</p>
-                  <p className="text-sm text-muted-foreground">{brother.lastActive}</p>
-                </div>
-                <button className="p-2 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors">
-                  <MessageCircle className="w-4 h-4" />
-                </button>
-              </div>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Recent Activity */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-        >
-          <h2 className="font-serif text-xl font-semibold mb-4">Recent</h2>
-          <div className="space-y-3">
-            {recentMessages.map((msg) => (
-              <div
-                key={msg.id}
-                className={cn(
-                  "p-4 rounded-xl",
-                  msg.from === "You" ? "bg-primary/5 border border-primary/20" : "bg-secondary"
-                )}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="font-medium">{msg.from}</span>
-                  <span className="text-xs text-muted-foreground">{msg.time}</span>
-                </div>
-                <p className="text-sm text-muted-foreground">{msg.message}</p>
-              </div>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Community Guidelines */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="mt-6"
-        >
-          <div className="safe-zone">
-            <div className="flex items-center gap-2 mb-2">
-              <Heart className="w-4 h-4 text-success" />
-              <span className="font-medium">Safe Space Guidelines</span>
-            </div>
-            <ul className="text-sm text-muted-foreground space-y-1">
-              <li>• No explicit details needed—connection is what matters</li>
-              <li>• Restore with gentleness, not judgment</li>
-              <li>• What's shared here stays here</li>
-            </ul>
-          </div>
-        </motion.div>
+          <TabsContent value="brothers" className="mt-0">
+            <MyBrothersTab onStartDM={handleStartDM} />
+          </TabsContent>
+          <TabsContent value="channels" className="mt-0">
+            <ChannelsTab />
+          </TabsContent>
+          <TabsContent value="messages" className="mt-0">
+            <MessagesTab initialTarget={dmTarget} />
+          </TabsContent>
+        </Tabs>
       </div>
-
-      <AnimatePresence>
-        {showReachOut && <ReachOut onClose={() => setShowReachOut(false)} />}
-      </AnimatePresence>
     </AppLayout>
   );
 };

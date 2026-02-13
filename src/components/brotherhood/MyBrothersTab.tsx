@@ -1,0 +1,189 @@
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { MessageCircle, UserPlus, X, Check, Search, Heart, Shield, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useBrothers, useSearchUsers } from "@/hooks/useBrotherhood";
+import { toast } from "sonner";
+import ReachOut from "@/components/brotherhood/ReachOut";
+
+interface MyBrothersTabProps {
+  onStartDM: (brotherUserId: string, name: string) => void;
+}
+
+const MyBrothersTab = ({ onStartDM }: MyBrothersTabProps) => {
+  const {
+    brothers, pendingRequests, maxBrothers, isLoading, atCapacity,
+    sendRequest, acceptRequest, declineRequest, removeBrother,
+  } = useBrothers();
+  const [showReachOut, setShowReachOut] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const { data: searchResults = [], isLoading: searching } = useSearchUsers(searchQuery);
+
+  const handleSendRequest = async (userId: string) => {
+    try {
+      await sendRequest.mutateAsync(userId);
+      toast.success("Request sent!");
+      setShowSearch(false);
+      setSearchQuery("");
+    } catch {
+      toast.error("Could not send request. You may already have a connection.");
+    }
+  };
+
+  const existingIds = new Set([...brothers.map(b => b.userId), ...pendingRequests.map(b => b.userId)]);
+
+  return (
+    <div className="px-5 py-6 space-y-6">
+      {/* Quick Reach Out */}
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+        <Button variant="brotherhood" size="lg" onClick={() => setShowReachOut(true)} className="w-full">
+          <MessageCircle className="w-5 h-5" />
+          Reach Out Now
+        </Button>
+      </motion.div>
+
+      {/* Pending Requests */}
+      {pendingRequests.length > 0 && (
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+          <h2 className="font-serif text-lg font-semibold mb-3">Pending Requests</h2>
+          <div className="space-y-3">
+            {pendingRequests.map((req) => (
+              <div key={req.connectionId} className="flex items-center gap-4 p-4 rounded-xl bg-card border border-primary/20">
+                <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center font-semibold text-sm">
+                  {req.displayName.slice(0, 2).toUpperCase()}
+                </div>
+                <div className="flex-1">
+                  <p className="font-medium text-sm">{req.displayName}</p>
+                  <p className="text-xs text-muted-foreground">Wants to connect</p>
+                </div>
+                <Button size="sm" variant="default" onClick={() => acceptRequest.mutate(req.connectionId)}>
+                  <Check className="w-4 h-4" />
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => declineRequest.mutate(req.connectionId)}>
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      )}
+
+      {/* My Brothers */}
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-serif text-xl font-semibold">
+            My Brothers <span className="text-sm text-muted-foreground font-normal">({brothers.length}/{maxBrothers})</span>
+          </h2>
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => setShowSearch(!showSearch)}
+            disabled={atCapacity}
+          >
+            <UserPlus className="w-4 h-4" />
+            {atCapacity ? "Full" : "Add"}
+          </Button>
+        </div>
+
+        {/* Search to add brothers */}
+        <AnimatePresence>
+          {showSearch && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="mb-4 overflow-hidden"
+            >
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search by name or email…"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9"
+                  autoFocus
+                />
+              </div>
+              {searchQuery.length >= 2 && (
+                <div className="mt-2 rounded-xl border border-border bg-card overflow-hidden">
+                  {searching ? (
+                    <div className="flex items-center justify-center py-4">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    </div>
+                  ) : searchResults.length === 0 ? (
+                    <p className="text-sm text-muted-foreground text-center py-4">No users found</p>
+                  ) : (
+                    searchResults.filter(u => !existingIds.has(u.user_id)).map((u) => (
+                      <button
+                        key={u.user_id}
+                        onClick={() => handleSendRequest(u.user_id)}
+                        className="flex items-center gap-3 w-full px-4 py-3 hover:bg-secondary/50 transition-colors text-left"
+                      >
+                        <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center text-xs font-semibold">
+                          {(u.display_name || u.first_name || "U").slice(0, 2).toUpperCase()}
+                        </div>
+                        <span className="text-sm font-medium">{u.display_name || u.first_name || "User"}</span>
+                        <UserPlus className="w-4 h-4 ml-auto text-muted-foreground" />
+                      </button>
+                    ))
+                  )}
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {isLoading ? (
+          <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin" /></div>
+        ) : brothers.length === 0 ? (
+          <div className="text-center py-8 text-muted-foreground text-sm">
+            <p>No brothers yet. Search and send a request to connect.</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {brothers.map((brother) => (
+              <div key={brother.connectionId} className="flex items-center gap-4 p-4 rounded-xl bg-card border border-border">
+                <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center font-semibold">
+                  {brother.displayName.slice(0, 2).toUpperCase()}
+                </div>
+                <div className="flex-1">
+                  <p className="font-medium">{brother.displayName}</p>
+                </div>
+                <button
+                  onClick={() => onStartDM(brother.userId, brother.displayName)}
+                  className="p-2 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </motion.div>
+
+      {/* Safe Space Guidelines */}
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+        <div className="safe-zone">
+          <div className="flex items-center gap-2 mb-2">
+            <Heart className="w-4 h-4 text-success" />
+            <span className="font-medium">Safe Space Guidelines</span>
+          </div>
+          <ul className="text-sm text-muted-foreground space-y-1">
+            <li>• No explicit details needed—connection is what matters</li>
+            <li>• Restore with gentleness, not judgment</li>
+            <li>• What's shared here stays here</li>
+          </ul>
+        </div>
+      </motion.div>
+
+      <AnimatePresence>
+        {showReachOut && <ReachOut onClose={() => setShowReachOut(false)} />}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+export default MyBrothersTab;
