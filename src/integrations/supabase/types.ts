@@ -14,6 +14,166 @@ export type Database = {
   }
   public: {
     Tables: {
+      chat_channel_members: {
+        Row: {
+          channel_id: string
+          id: string
+          joined_at: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          channel_id: string
+          id?: string
+          joined_at?: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          channel_id?: string
+          id?: string
+          joined_at?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_channel_members_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "chat_channels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_channels: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          name: string
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          name: string
+          type?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          name?: string
+          type?: string
+        }
+        Relationships: []
+      }
+      chat_dms: {
+        Row: {
+          created_at: string
+          id: string
+          user_a: string
+          user_b: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          user_a: string
+          user_b: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          user_a?: string
+          user_b?: string
+        }
+        Relationships: []
+      }
+      chat_flags: {
+        Row: {
+          created_at: string
+          flagged_by: string
+          id: string
+          message_id: string
+          reason: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          flagged_by: string
+          id?: string
+          message_id: string
+          reason?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          flagged_by?: string
+          id?: string
+          message_id?: string
+          reason?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_flags_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "chat_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_messages: {
+        Row: {
+          channel_id: string | null
+          content: string
+          created_at: string
+          dm_id: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          channel_id?: string | null
+          content: string
+          created_at?: string
+          dm_id?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          channel_id?: string | null
+          content?: string
+          created_at?: string
+          dm_id?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "chat_channels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_messages_dm_id_fkey"
+            columns: ["dm_id"]
+            isOneToOne: false
+            referencedRelation: "chat_dms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       entitlements: {
         Row: {
           active: boolean
@@ -125,21 +285,45 @@ export type Database = {
       }
       profiles: {
         Row: {
+          avatar_url: string | null
           created_at: string
+          display_name: string | null
           email: string
+          first_name: string | null
+          last_name: string | null
           name: string | null
+          onboarding_completed: boolean
+          phone: string | null
+          timezone: string | null
+          updated_at: string
           user_id: string
         }
         Insert: {
+          avatar_url?: string | null
           created_at?: string
+          display_name?: string | null
           email: string
+          first_name?: string | null
+          last_name?: string | null
           name?: string | null
+          onboarding_completed?: boolean
+          phone?: string | null
+          timezone?: string | null
+          updated_at?: string
           user_id: string
         }
         Update: {
+          avatar_url?: string | null
           created_at?: string
+          display_name?: string | null
           email?: string
+          first_name?: string | null
+          last_name?: string | null
           name?: string | null
+          onboarding_completed?: boolean
+          phone?: string | null
+          timezone?: string | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
