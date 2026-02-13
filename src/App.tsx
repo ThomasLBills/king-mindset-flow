@@ -10,7 +10,7 @@ import AdminGuard from "@/components/guards/AdminGuard";
 import Index from "./pages/Index";
 import Tools from "./pages/Tools";
 import Rhythms from "./pages/Rhythms";
-import Brotherhood from "./pages/Brotherhood";
+import Chat from "./pages/Chat";
 import Library from "./pages/Library";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -51,7 +51,7 @@ const App = () => (
             <Route path="/app" element={<EntitlementGuard><AppDashboard /></EntitlementGuard>} />
             <Route path="/tools" element={<EntitlementGuard><Tools /></EntitlementGuard>} />
             <Route path="/rhythms" element={<EntitlementGuard><Rhythms /></EntitlementGuard>} />
-            <Route path="/brotherhood" element={<EntitlementGuard><Brotherhood /></EntitlementGuard>} />
+            <Route path="/chat" element={<EntitlementGuard><Chat /></EntitlementGuard>} />
             <Route path="/library" element={<EntitlementGuard><Library /></EntitlementGuard>} />
 
             {/* Admin */}
