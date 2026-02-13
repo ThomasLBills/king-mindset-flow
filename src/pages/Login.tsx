@@ -115,13 +115,20 @@ const Login = () => {
                     {mode === "magic" ? "Use password instead" : "Use magic link instead"}
                   </button>
                 </div>
+                {mode === "password" && (
+                  <div className="mt-2 text-center">
+                    <button type="button" onClick={() => navigate("/forgot-password")} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                      Forgot password?
+                    </button>
+                  </div>
+                )}
                 <div className="mt-2 text-center">
                   <button
                     type="button"
-                    onClick={() => navigate("/checkout")}
+                    onClick={() => navigate("/signup")}
                     className="text-sm text-primary hover:underline"
                   >
-                    Don't have an account? Get started
+                    Don't have an account? Sign up
                   </button>
                 </div>
               </>
