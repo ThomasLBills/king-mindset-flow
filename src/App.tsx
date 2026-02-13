@@ -7,6 +7,17 @@ import { AuthProvider } from "@/hooks/useAuth";
 import AuthGuard from "@/components/guards/AuthGuard";
 import EntitlementGuard from "@/components/guards/EntitlementGuard";
 import AdminGuard from "@/components/guards/AdminGuard";
+import AdminLayout from "@/components/admin/AdminLayout";
+import AdminDashboard from "@/components/admin/AdminDashboard";
+import AdminUsers from "@/components/admin/AdminUsers";
+import AdminAuditLog from "@/components/admin/AdminAuditLog";
+import AdminAnnouncements from "@/components/admin/AdminAnnouncements";
+import AdminCommunity from "@/components/admin/AdminCommunity";
+import AdminSettings from "@/components/admin/AdminSettings";
+import CoursesList from "@/components/admin/curriculum/CoursesList";
+import CourseDetail from "@/components/admin/curriculum/CourseDetail";
+import ModuleDetail from "@/components/admin/curriculum/ModuleDetail";
+import LessonEditor from "@/components/admin/curriculum/LessonEditor";
 import Index from "./pages/Index";
 import Tools from "./pages/Tools";
 import Rhythms from "./pages/Rhythms";
@@ -20,7 +31,6 @@ import Checkout from "./pages/Checkout";
 import ThankYou from "./pages/ThankYou";
 import Upgrade from "./pages/Upgrade";
 import Billing from "./pages/Billing";
-import Admin from "./pages/Admin";
 import AppDashboard from "./pages/AppDashboard";
 import NotFound from "./pages/NotFound";
 
@@ -55,7 +65,18 @@ const App = () => (
             <Route path="/library" element={<EntitlementGuard><Library /></EntitlementGuard>} />
 
             {/* Admin */}
-            <Route path="/admin" element={<AdminGuard><Admin /></AdminGuard>} />
+            <Route path="/admin" element={<AdminGuard><AdminLayout /></AdminGuard>}>
+              <Route index element={<AdminDashboard />} />
+              <Route path="courses" element={<CoursesList />} />
+              <Route path="courses/:courseId" element={<CourseDetail />} />
+              <Route path="courses/:courseId/modules/:moduleId" element={<ModuleDetail />} />
+              <Route path="courses/:courseId/modules/:moduleId/lessons/:lessonId" element={<LessonEditor />} />
+              <Route path="users" element={<AdminUsers />} />
+              <Route path="community" element={<AdminCommunity />} />
+              <Route path="announcements" element={<AdminAnnouncements />} />
+              <Route path="audit-log" element={<AdminAuditLog />} />
+              <Route path="settings" element={<AdminSettings />} />
+            </Route>
 
             <Route path="*" element={<NotFound />} />
           </Routes>
