@@ -4,10 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Shield, Users, CheckCircle, XCircle, Loader2 } from "lucide-react";
+import { Shield, Users, CheckCircle, XCircle, Loader2, Hash } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import AdminChannels from "@/components/admin/AdminChannels";
 
 const Admin = () => {
   const { toast } = useToast();
@@ -92,58 +94,71 @@ const Admin = () => {
             </Card>
           </div>
 
-          <Card className="card-elevated">
-            <CardHeader>
-              <CardTitle>Users</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {isLoading ? (
-                <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin" /></div>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Entitlement</TableHead>
-                      <TableHead>Subscription</TableHead>
-                      <TableHead>Renewal</TableHead>
-                      <TableHead>Action</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {profiles?.map((p) => {
-                      const ent = getEntitlement(p.user_id);
-                      const sub = getSubscription(p.user_id);
-                      return (
-                        <TableRow key={p.user_id}>
-                          <TableCell className="text-sm">{p.email}</TableCell>
-                          <TableCell>
-                            <Badge variant={ent?.active ? "default" : "secondary"}>
-                              {ent?.active ? "Active" : "Inactive"}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-sm capitalize">{sub?.status || "—"}</TableCell>
-                          <TableCell className="text-sm">
-                            {sub?.current_period_end ? new Date(sub.current_period_end).toLocaleDateString() : "—"}
-                          </TableCell>
-                          <TableCell>
-                            <Button
-                              size="sm"
-                              variant={ent?.active ? "destructive" : "default"}
-                              onClick={() => toggleEntitlement.mutate({ userId: p.user_id, active: !ent?.active })}
-                              disabled={toggleEntitlement.isPending}
-                            >
-                              {ent?.active ? "Revoke" : "Grant"}
-                            </Button>
-                          </TableCell>
+          <Tabs defaultValue="users">
+            <TabsList className="mb-4">
+              <TabsTrigger value="users" className="gap-1.5"><Users className="w-4 h-4" /> Users</TabsTrigger>
+              <TabsTrigger value="channels" className="gap-1.5"><Hash className="w-4 h-4" /> Community</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="users">
+              <Card className="card-elevated">
+                <CardHeader>
+                  <CardTitle>Users</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {isLoading ? (
+                    <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin" /></div>
+                  ) : (
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Email</TableHead>
+                          <TableHead>Entitlement</TableHead>
+                          <TableHead>Subscription</TableHead>
+                          <TableHead>Renewal</TableHead>
+                          <TableHead>Action</TableHead>
                         </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              )}
-            </CardContent>
-          </Card>
+                      </TableHeader>
+                      <TableBody>
+                        {profiles?.map((p) => {
+                          const ent = getEntitlement(p.user_id);
+                          const sub = getSubscription(p.user_id);
+                          return (
+                            <TableRow key={p.user_id}>
+                              <TableCell className="text-sm">{p.email}</TableCell>
+                              <TableCell>
+                                <Badge variant={ent?.active ? "default" : "secondary"}>
+                                  {ent?.active ? "Active" : "Inactive"}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-sm capitalize">{sub?.status || "—"}</TableCell>
+                              <TableCell className="text-sm">
+                                {sub?.current_period_end ? new Date(sub.current_period_end).toLocaleDateString() : "—"}
+                              </TableCell>
+                              <TableCell>
+                                <Button
+                                  size="sm"
+                                  variant={ent?.active ? "destructive" : "default"}
+                                  onClick={() => toggleEntitlement.mutate({ userId: p.user_id, active: !ent?.active })}
+                                  disabled={toggleEntitlement.isPending}
+                                >
+                                  {ent?.active ? "Revoke" : "Grant"}
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="channels">
+              <AdminChannels />
+            </TabsContent>
+          </Tabs>
         </motion.div>
       </div>
     </div>

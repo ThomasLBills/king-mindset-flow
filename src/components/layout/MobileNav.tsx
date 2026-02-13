@@ -1,4 +1,4 @@
-import { Home, Wrench, Calendar, MessageSquare, BookOpen } from "lucide-react";
+import { Home, Wrench, Calendar, Users, BookOpen } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -7,7 +7,7 @@ const navItems = [
   { icon: Home, label: "Home", path: "/" },
   { icon: Wrench, label: "Tools", path: "/tools" },
   { icon: Calendar, label: "Pillars", path: "/rhythms" },
-  { icon: MessageSquare, label: "Chat", path: "/chat" },
+  { icon: Users, label: "Brothers", path: "/brotherhood" },
   { icon: BookOpen, label: "Library", path: "/library" },
 ];
 
