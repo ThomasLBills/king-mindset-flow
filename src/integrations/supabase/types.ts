@@ -393,6 +393,151 @@ export type Database = {
           },
         ]
       }
+      curriculum_lesson_progress: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          id: string
+          last_viewed_at: string | null
+          lesson_id: string
+          percent: number
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          last_viewed_at?: string | null
+          lesson_id: string
+          percent?: number
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          last_viewed_at?: string | null
+          lesson_id?: string
+          percent?: number
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curriculum_lesson_progress_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "curriculum_lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      curriculum_lessons: {
+        Row: {
+          audio_url: string | null
+          content_json: Json
+          created_at: string
+          duration_minutes: number | null
+          id: string
+          order_index: number
+          published_at: string | null
+          slug: string
+          status: string
+          summary: string | null
+          title: string
+          unlock_day_offset: number | null
+          unlock_rule: string
+          updated_at: string
+          video_url: string | null
+          week_id: string
+        }
+        Insert: {
+          audio_url?: string | null
+          content_json?: Json
+          created_at?: string
+          duration_minutes?: number | null
+          id?: string
+          order_index?: number
+          published_at?: string | null
+          slug: string
+          status?: string
+          summary?: string | null
+          title: string
+          unlock_day_offset?: number | null
+          unlock_rule?: string
+          updated_at?: string
+          video_url?: string | null
+          week_id: string
+        }
+        Update: {
+          audio_url?: string | null
+          content_json?: Json
+          created_at?: string
+          duration_minutes?: number | null
+          id?: string
+          order_index?: number
+          published_at?: string | null
+          slug?: string
+          status?: string
+          summary?: string | null
+          title?: string
+          unlock_day_offset?: number | null
+          unlock_rule?: string
+          updated_at?: string
+          video_url?: string | null
+          week_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curriculum_lessons_week_id_fkey"
+            columns: ["week_id"]
+            isOneToOne: false
+            referencedRelation: "weeks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      curriculum_settings: {
+        Row: {
+          cover_image_url: string | null
+          created_at: string
+          drip_mode: string
+          duration_label: string | null
+          id: string
+          status: string
+          subtitle: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          cover_image_url?: string | null
+          created_at?: string
+          drip_mode?: string
+          duration_label?: string | null
+          id?: string
+          status?: string
+          subtitle?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Update: {
+          cover_image_url?: string | null
+          created_at?: string
+          drip_mode?: string
+          duration_label?: string | null
+          id?: string
+          status?: string
+          subtitle?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       curriculum_versions: {
         Row: {
           created_at: string
@@ -987,6 +1132,27 @@ export type Database = {
           },
         ]
       }
+      user_enrollments: {
+        Row: {
+          created_at: string
+          enrolled_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          enrolled_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          enrolled_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_journal_entries: {
         Row: {
           content: string
@@ -1064,6 +1230,42 @@ export type Database = {
           received_at?: string
           status?: string
           stripe_event_id?: string
+        }
+        Relationships: []
+      }
+      weeks: {
+        Row: {
+          created_at: string
+          id: string
+          order_index: number
+          status: string
+          summary: string | null
+          title: string
+          unlock_day_offset: number
+          updated_at: string
+          week_number: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          order_index?: number
+          status?: string
+          summary?: string | null
+          title: string
+          unlock_day_offset?: number
+          updated_at?: string
+          week_number: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          order_index?: number
+          status?: string
+          summary?: string | null
+          title?: string
+          unlock_day_offset?: number
+          updated_at?: string
+          week_number?: number
         }
         Relationships: []
       }
