@@ -47,9 +47,19 @@ const LibraryPage = () => {
 
   const dripMode = settings?.drip_mode || "weekly";
 
-  const isWeekUnlocked = (week: any) => {
+  const isWeekUnlocked = (week: any, index: number) => {
     if (!enrollment) return false;
     if (dripMode === "immediate") return true;
+    // Sequential: previous week must be completed (except week 0)
+    if (index > 0 && weeks) {
+      const prevWeek = weeks[index - 1];
+      if (prevWeek && !isWeekCompleted(prevWeek.id)) {
+        // Still respect day offset even if prev is complete
+        if (daysSinceEnrollment < week.unlock_day_offset) return false;
+        // If day offset passed but prev not done, still locked (sequential)
+        return false;
+      }
+    }
     return daysSinceEnrollment >= week.unlock_day_offset;
   };
 
@@ -70,7 +80,7 @@ const LibraryPage = () => {
   const overallProgress = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
 
   // Find current week (first non-completed unlocked week)
-  const currentWeekId = weeks?.find(w => isWeekUnlocked(w) && !isWeekCompleted(w.id))?.id;
+  const currentWeekId = weeks?.find((w, i) => isWeekUnlocked(w, i) && !isWeekCompleted(w.id))?.id;
 
   // Auto-expand current week
   if (currentWeekId && expandedWeek === null) {
@@ -129,7 +139,7 @@ const LibraryPage = () => {
         {/* Weeks */}
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="space-y-3">
           {(weeks ?? []).map((week, index) => {
-            const unlocked = enrollment ? isWeekUnlocked(week) : false;
+            const unlocked = enrollment ? isWeekUnlocked(week, index) : false;
             const completed = isWeekCompleted(week.id);
             const isCurrent = week.id === currentWeekId;
             const weekProgress = getWeekProgress(week.id);

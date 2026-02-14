@@ -77,7 +77,7 @@ const Index = () => {
 
         {/* Week Progress */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mb-6">
-          <WeekProgress currentWeek={1} weekTitle="Grace" weekTheme="The verdict is settled" />
+          <WeekProgress />
         </motion.div>
 
         {/* In-the-Moment Tools */}
