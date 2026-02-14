@@ -15,6 +15,7 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, addWeeks, subWeeks, isAfter, isSameDay } from "date-fns";
+import { useFreedomStreak } from "@/hooks/useDailyProgress";
 
 interface FreedomCalendarProps {
   onOpenGraceProtocol?: () => void;
@@ -23,31 +24,22 @@ interface FreedomCalendarProps {
 const FreedomCalendar = ({ onOpenGraceProtocol }: FreedomCalendarProps) => {
   const [currentWeekStart, setCurrentWeekStart] = useState(() => startOfWeek(new Date(), { weekStartsOn: 0 }));
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
-  const [lastResetDate, setLastResetDate] = useState<Date>(() => {
-    const saved = localStorage.getItem("freedom-start-date");
-    return saved ? new Date(saved) : new Date();
-  });
+  const { startDate, daysFree, resetStreak, isLoading } = useFreedomStreak();
 
   const today = new Date();
-  const diffTime = Math.abs(today.getTime() - lastResetDate.getTime());
-  const daysFree = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-  // Check if a date is a "free" day
   const isFreeDay = (date: Date): boolean => {
     const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    const resetOnly = new Date(lastResetDate.getFullYear(), lastResetDate.getMonth(), lastResetDate.getDate());
+    const resetOnly = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
     const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     return dateOnly >= resetOnly && dateOnly <= todayOnly;
   };
 
-  // Generate week days
   const weekEnd = endOfWeek(currentWeekStart, { weekStartsOn: 0 });
   const weekDays = eachDayOfInterval({ start: currentWeekStart, end: weekEnd });
 
-  const handleReset = () => {
-    const now = new Date();
-    localStorage.setItem("freedom-start-date", now.toISOString());
-    setLastResetDate(now);
+  const handleReset = async () => {
+    await resetStreak.mutateAsync();
     setResetDialogOpen(false);
     if (onOpenGraceProtocol) {
       onOpenGraceProtocol();
@@ -64,12 +56,10 @@ const FreedomCalendar = ({ onOpenGraceProtocol }: FreedomCalendarProps) => {
   };
 
   const dayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
   const canGoForward = !isAfter(addWeeks(currentWeekStart, 1), today);
 
   return (
     <div className="card-elevated p-5">
-      {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <CalendarDays className="h-5 w-5 text-primary" />
@@ -80,12 +70,10 @@ const FreedomCalendar = ({ onOpenGraceProtocol }: FreedomCalendarProps) => {
         </Badge>
       </div>
 
-      {/* Message */}
       <p className="text-sm text-muted-foreground mb-4 italic">
         "{getMessage()}"
       </p>
 
-      {/* Week Navigation */}
       <div className="flex items-center justify-between mb-3">
         <button
           onClick={() => setCurrentWeekStart(subWeeks(currentWeekStart, 1))}
@@ -108,7 +96,6 @@ const FreedomCalendar = ({ onOpenGraceProtocol }: FreedomCalendarProps) => {
         </button>
       </div>
 
-      {/* Weekly Calendar */}
       <div className="grid grid-cols-7 gap-2">
         {weekDays.map((day, i) => {
           const isFree = isFreeDay(day);
@@ -138,7 +125,6 @@ const FreedomCalendar = ({ onOpenGraceProtocol }: FreedomCalendarProps) => {
         })}
       </div>
 
-      {/* Reset Button */}
       <div className="mt-4 pt-4 border-t border-border">
         <Dialog open={resetDialogOpen} onOpenChange={setResetDialogOpen}>
           <DialogTrigger asChild>
@@ -183,6 +169,7 @@ const FreedomCalendar = ({ onOpenGraceProtocol }: FreedomCalendarProps) => {
                 variant="grace"
                 className="w-full sm:w-auto"
                 onClick={handleReset}
+                disabled={resetStreak.isPending}
               >
                 Reset & Begin Grace Protocol
               </Button>

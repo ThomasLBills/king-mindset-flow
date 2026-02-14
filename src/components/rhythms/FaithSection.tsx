@@ -2,7 +2,8 @@ import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Check, Cross, BookOpen, Brain } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useDailyContent, useDailyCompletion } from "@/hooks/useDailyContent";
+import { useDailyContent } from "@/hooks/useDailyContent";
+import { useDailyCompletions } from "@/hooks/useDailyProgress";
 import { prayers, scriptures, Prayer, Scripture } from "@/data/faithContent";
 import PrayerModal from "./PrayerModal";
 import ScriptureModal from "./ScriptureModal";
@@ -12,12 +13,13 @@ interface FaithSectionProps {
   onProgressChange?: (completed: number, total: number) => void;
 }
 
+const faithItemIds = ["prayer", "scripture", "renewed-mind"];
+
 const FaithSection = ({ onProgressChange }: FaithSectionProps) => {
   const [prayerOpen, setPrayerOpen] = useState(false);
   const [scriptureOpen, setScriptureOpen] = useState(false);
   const [renewedMindOpen, setRenewedMindOpen] = useState(false);
 
-  // Daily content rotation with 21-day no-repeat logic
   const { todayContent: todayPrayer } = useDailyContent<Prayer>({
     key: "prayer",
     items: prayers,
@@ -30,18 +32,13 @@ const FaithSection = ({ onProgressChange }: FaithSectionProps) => {
     recentWindowSize: 21,
   });
 
-  // Day index for consistent truth statements
   const dayIndex = useMemo(() => {
     const now = new Date();
     return now.getFullYear() * 1000 + now.getMonth() * 31 + now.getDate();
   }, []);
 
-  // Daily completion tracking
-  const faithItemIds = ["prayer", "scripture", "renewed-mind"];
-  const { isCompleted, markCompleted, completedCount } = useDailyCompletion(
-    "faith-completion",
-    faithItemIds
-  );
+  // DB-backed completion tracking
+  const { isCompleted, completedCount, markCompleted } = useDailyCompletions("faith", faithItemIds);
 
   // Notify parent of progress changes
   useMemo(() => {
@@ -74,16 +71,14 @@ const FaithSection = ({ onProgressChange }: FaithSectionProps) => {
 
   const handleItemClick = (itemId: string) => {
     switch (itemId) {
-      case "prayer":
-        setPrayerOpen(true);
-        break;
-      case "scripture":
-        setScriptureOpen(true);
-        break;
-      case "renewed-mind":
-        setRenewedMindOpen(true);
-        break;
+      case "prayer": setPrayerOpen(true); break;
+      case "scripture": setScriptureOpen(true); break;
+      case "renewed-mind": setRenewedMindOpen(true); break;
     }
+  };
+
+  const handleMarkCompleted = (itemId: string) => {
+    markCompleted.mutate(itemId);
   };
 
   return (
@@ -102,14 +97,10 @@ const FaithSection = ({ onProgressChange }: FaithSectionProps) => {
             </div>
             <h2 className="font-serif text-xl font-semibold">Faith</h2>
           </div>
-          <span
-            className={cn(
-              "text-sm font-medium px-2 py-1 rounded-full",
-              completedCount === items.length
-                ? "bg-success/20 text-success"
-                : "text-muted-foreground"
-            )}
-          >
+          <span className={cn(
+            "text-sm font-medium px-2 py-1 rounded-full",
+            completedCount === items.length ? "bg-success/20 text-success" : "text-muted-foreground"
+          )}>
             {completedCount}/{items.length}
           </span>
         </div>
@@ -132,12 +123,10 @@ const FaithSection = ({ onProgressChange }: FaithSectionProps) => {
                 item.completed && "bg-success/5 border-success/20"
               )}
             >
-              <div
-                className={cn(
-                  "w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200",
-                  item.completed ? "bg-success/20" : "bg-primary/10"
-                )}
-              >
+              <div className={cn(
+                "w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200",
+                item.completed ? "bg-success/20" : "bg-primary/10"
+              )}>
                 {item.completed ? (
                   <Check className="w-5 h-5 text-success" />
                 ) : (
@@ -145,22 +134,13 @@ const FaithSection = ({ onProgressChange }: FaithSectionProps) => {
                 )}
               </div>
               <div className="flex-1 text-left">
-                <span
-                  className={cn(
-                    "font-medium block transition-colors",
-                    item.completed && "text-muted-foreground"
-                  )}
-                >
+                <span className={cn("font-medium block transition-colors", item.completed && "text-muted-foreground")}>
                   {item.label}
                 </span>
-                <span className="text-xs text-muted-foreground">
-                  {item.description}
-                </span>
+                <span className="text-xs text-muted-foreground">{item.description}</span>
               </div>
               {!item.completed && (
-                <span className="text-xs text-primary/70 font-medium">
-                  Tap to start
-                </span>
+                <span className="text-xs text-primary/70 font-medium">Tap to start</span>
               )}
             </motion.button>
           ))}
@@ -170,21 +150,21 @@ const FaithSection = ({ onProgressChange }: FaithSectionProps) => {
       <PrayerModal
         open={prayerOpen}
         onOpenChange={setPrayerOpen}
-        onComplete={() => markCompleted("prayer")}
+        onComplete={() => handleMarkCompleted("prayer")}
         prayer={todayPrayer}
         isCompleted={isCompleted("prayer")}
       />
       <ScriptureModal
         open={scriptureOpen}
         onOpenChange={setScriptureOpen}
-        onComplete={() => markCompleted("scripture")}
+        onComplete={() => handleMarkCompleted("scripture")}
         scripture={todayScripture}
         isCompleted={isCompleted("scripture")}
       />
       <RenewedMindModal
         open={renewedMindOpen}
         onOpenChange={setRenewedMindOpen}
-        onComplete={() => markCompleted("renewed-mind")}
+        onComplete={() => handleMarkCompleted("renewed-mind")}
         isCompleted={isCompleted("renewed-mind")}
         dayIndex={dayIndex}
       />
