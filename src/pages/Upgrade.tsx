@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 const benefits = [
-  "Full 12-week course curriculum",
+  "Full 8-week course curriculum",
   "In-the-moment tools & support",
   "Daily rhythms & accountability",
   "Brotherhood community access",
