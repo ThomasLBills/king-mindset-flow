@@ -19,6 +19,7 @@ import CourseDetail from "@/components/admin/curriculum/CourseDetail";
 import ModuleDetail from "@/components/admin/curriculum/ModuleDetail";
 import LessonEditor from "@/components/admin/curriculum/LessonEditor";
 import Index from "./pages/Index";
+import Landing from "./pages/Landing";
 import Tools from "./pages/Tools";
 import Rhythms from "./pages/Rhythms";
 import Brotherhood from "./pages/Brotherhood";
@@ -45,7 +46,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             {/* Public routes */}
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
