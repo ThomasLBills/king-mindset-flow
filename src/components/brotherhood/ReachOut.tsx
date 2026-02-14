@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { X, Send, Users, Heart, Shield, MessageCircle } from "lucide-react";
+import { X, Send, Heart, Shield, MessageCircle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useBrothers } from "@/hooks/useBrotherhood";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 const templates = [
   {
@@ -20,7 +23,7 @@ const templates = [
   },
   {
     id: "victory",
-    icon: Users,
+    icon: Heart,
     title: "Sharing a win",
     message: "Had a moment of temptation but made it through. Grateful for you.",
   },
@@ -32,31 +35,67 @@ const templates = [
   },
 ];
 
-const brothers = [
-  { id: "1", name: "Marcus", initials: "MJ", available: true },
-  { id: "2", name: "David", initials: "DW", available: true },
-  { id: "3", name: "James", initials: "JT", available: false },
-];
-
 interface ReachOutProps {
   onClose: () => void;
 }
 
 const ReachOut = ({ onClose }: ReachOutProps) => {
+  const { user } = useAuth();
+  const { brothers, isLoading } = useBrothers();
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [selectedBrother, setSelectedBrother] = useState<string | null>(null);
-  const [customMessage, setCustomMessage] = useState("");
-
-  const handleSend = () => {
-    toast.success("Message sent", {
-      description: "Your brother will be notified.",
-    });
-    onClose();
-  };
+  const [sending, setSending] = useState(false);
 
   const currentMessage = selectedTemplate
     ? templates.find((t) => t.id === selectedTemplate)?.message || ""
-    : customMessage;
+    : "";
+
+  const handleSend = useCallback(async () => {
+    if (!user || !selectedBrother || !currentMessage) return;
+    setSending(true);
+
+    try {
+      // Find or create DM
+      const { data: existing } = await supabase
+        .from("chat_dms")
+        .select("id")
+        .or(
+          `and(user_a.eq.${user.id},user_b.eq.${selectedBrother}),and(user_a.eq.${selectedBrother},user_b.eq.${user.id})`
+        )
+        .limit(1);
+
+      let dmId: string;
+      if (existing && existing.length > 0) {
+        dmId = existing[0].id;
+      } else {
+        const { data: newDm, error } = await supabase
+          .from("chat_dms")
+          .insert({ user_a: user.id, user_b: selectedBrother })
+          .select("id")
+          .single();
+        if (error || !newDm) throw new Error("Could not create conversation");
+        dmId = newDm.id;
+      }
+
+      // Send the message
+      const { error: msgError } = await supabase.from("chat_messages").insert({
+        content: currentMessage,
+        user_id: user.id,
+        dm_id: dmId,
+      });
+
+      if (msgError) throw msgError;
+
+      toast.success("Message sent", {
+        description: "Your brother will see it in their messages.",
+      });
+      onClose();
+    } catch (e: any) {
+      toast.error("Could not send message", { description: e.message });
+    } finally {
+      setSending(false);
+    }
+  }, [user, selectedBrother, currentMessage, onClose]);
 
   return (
     <div className="fixed inset-0 bg-background z-50 flex flex-col">
@@ -73,35 +112,42 @@ const ReachOut = ({ onClose }: ReachOutProps) => {
         {/* Brothers */}
         <div className="mb-6">
           <p className="text-sm font-medium mb-3">Who do you want to reach?</p>
-          <div className="flex gap-3">
-            {brothers.map((brother) => (
-              <button
-                key={brother.id}
-                onClick={() => setSelectedBrother(brother.id)}
-                disabled={!brother.available}
-                className={cn(
-                  "flex flex-col items-center gap-2 p-3 rounded-xl transition-all",
-                  selectedBrother === brother.id
-                    ? "bg-primary text-primary-foreground"
-                    : brother.available
-                    ? "bg-secondary hover:bg-secondary/80"
-                    : "bg-muted opacity-50 cursor-not-allowed"
-                )}
-              >
-                <div
+          {isLoading ? (
+            <div className="flex justify-center py-4">
+              <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+            </div>
+          ) : brothers.length === 0 ? (
+            <p className="text-sm text-muted-foreground py-4">
+              No brothers connected yet. Add brothers from the Brotherhood page first.
+            </p>
+          ) : (
+            <div className="flex gap-3 flex-wrap">
+              {brothers.map((brother) => (
+                <button
+                  key={brother.userId}
+                  onClick={() => setSelectedBrother(brother.userId)}
                   className={cn(
-                    "w-12 h-12 rounded-full flex items-center justify-center text-sm font-semibold",
-                    selectedBrother === brother.id
-                      ? "bg-primary-foreground/20"
-                      : "bg-background"
+                    "flex flex-col items-center gap-2 p-3 rounded-xl transition-all",
+                    selectedBrother === brother.userId
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-secondary hover:bg-secondary/80"
                   )}
                 >
-                  {brother.initials}
-                </div>
-                <span className="text-sm font-medium">{brother.name}</span>
-              </button>
-            ))}
-          </div>
+                  <div
+                    className={cn(
+                      "w-12 h-12 rounded-full flex items-center justify-center text-sm font-semibold",
+                      selectedBrother === brother.userId
+                        ? "bg-primary-foreground/20"
+                        : "bg-background"
+                    )}
+                  >
+                    {brother.displayName.slice(0, 2).toUpperCase()}
+                  </div>
+                  <span className="text-sm font-medium">{brother.displayName}</span>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Templates */}
@@ -144,7 +190,7 @@ const ReachOut = ({ onClose }: ReachOutProps) => {
         </div>
 
         {/* Preview */}
-        {(selectedTemplate || customMessage) && (
+        {currentMessage && (
           <div className="mb-6">
             <p className="text-sm font-medium mb-3">Message preview</p>
             <div className="bg-secondary/50 rounded-xl p-4">
@@ -156,7 +202,7 @@ const ReachOut = ({ onClose }: ReachOutProps) => {
         {/* Safe reminder */}
         <div className="safe-zone">
           <p className="text-sm text-muted-foreground">
-            <strong className="text-foreground">Safe sharing:</strong> You don't need to share 
+            <strong className="text-foreground">Safe sharing:</strong> You don't need to share
             explicit details. Brothers understand. Connection is what matters.
           </p>
         </div>
@@ -168,11 +214,15 @@ const ReachOut = ({ onClose }: ReachOutProps) => {
           variant="brotherhood"
           size="lg"
           onClick={handleSend}
-          disabled={!selectedBrother || !currentMessage}
+          disabled={!selectedBrother || !currentMessage || sending}
           className="w-full"
         >
-          <Send className="w-4 h-4" />
-          Send Message
+          {sending ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <Send className="w-4 h-4" />
+          )}
+          {sending ? "Sending…" : "Send Message"}
         </Button>
       </div>
     </div>
