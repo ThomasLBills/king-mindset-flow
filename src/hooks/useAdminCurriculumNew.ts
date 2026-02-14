@@ -3,15 +3,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 import { useToast } from "./use-toast";
 
-// Audit log helper
+// Audit log helper — silently skips if no user
 async function logAudit(
-  adminUserId: string,
+  adminUserId: string | undefined,
   action: string,
   entityType: string,
   entityId: string | null,
   beforeJson?: any,
   afterJson?: any
 ) {
+  if (!adminUserId) return;
   await supabase.from("admin_audit_log").insert({
     admin_user_id: adminUserId,
     action,
@@ -57,7 +58,7 @@ export function useSaveCurriculumSettings() {
         .select()
         .single();
       if (error) throw error;
-      await logAudit(user!.id, "update", "curriculum_settings", data.id, before, data);
+      await logAudit(user?.id, "update", "curriculum_settings", data.id, before, data);
       return data;
     },
     onSuccess: () => {
@@ -107,14 +108,14 @@ export function useSaveWeek() {
       if (isNew) {
         const { data, error } = await supabase.from("weeks").insert(week).select().single();
         if (error) throw error;
-        await logAudit(user!.id, "create", "week", data.id, null, data);
+        await logAudit(user?.id, "create", "week", data.id, null, data);
         return data;
       } else {
         const { id, ...rest } = week;
         const { data: before } = await supabase.from("weeks").select("*").eq("id", id).single();
         const { data, error } = await supabase.from("weeks").update(rest).eq("id", id).select().single();
         if (error) throw error;
-        await logAudit(user!.id, "update", "week", data.id, before, data);
+        await logAudit(user?.id, "update", "week", data.id, before, data);
         return data;
       }
     },
@@ -141,7 +142,7 @@ export function usePublishWeek() {
         .select()
         .single();
       if (error) throw error;
-      await logAudit(user!.id, publish ? "publish" : "unpublish", "week", id, before, data);
+      await logAudit(user?.id, publish ? "publish" : "unpublish", "week", id, before, data);
       return data;
     },
     onSuccess: (_, { publish }) => {
@@ -194,14 +195,14 @@ export function useSaveCurriculumLesson() {
       if (isNew) {
         const { data, error } = await supabase.from("curriculum_lessons").insert(lesson).select().single();
         if (error) throw error;
-        await logAudit(user!.id, "create", "curriculum_lesson", data.id, null, data);
+        await logAudit(user?.id, "create", "curriculum_lesson", data.id, null, data);
         return data;
       } else {
         const { id, ...rest } = lesson;
         const { data: before } = await supabase.from("curriculum_lessons").select("*").eq("id", id).single();
         const { data, error } = await supabase.from("curriculum_lessons").update(rest).eq("id", id).select().single();
         if (error) throw error;
-        await logAudit(user!.id, "update", "curriculum_lesson", data.id, before, data);
+        await logAudit(user?.id, "update", "curriculum_lesson", data.id, before, data);
         return data;
       }
     },
@@ -226,7 +227,7 @@ export function usePublishCurriculumLesson() {
       if (publish) update.published_at = new Date().toISOString();
       const { data, error } = await supabase.from("curriculum_lessons").update(update).eq("id", id).select().single();
       if (error) throw error;
-      await logAudit(user!.id, publish ? "publish" : "unpublish", "curriculum_lesson", id, before, data);
+      await logAudit(user?.id, publish ? "publish" : "unpublish", "curriculum_lesson", id, before, data);
       return data;
     },
     onSuccess: (_, { publish }) => {
@@ -248,7 +249,7 @@ export function useDeleteCurriculumLesson() {
       const { data: before } = await supabase.from("curriculum_lessons").select("*").eq("id", id).single();
       const { error } = await supabase.from("curriculum_lessons").delete().eq("id", id);
       if (error) throw error;
-      await logAudit(user!.id, "delete", "curriculum_lesson", id, before, null);
+      await logAudit(user?.id, "delete", "curriculum_lesson", id, before, null);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-curriculum-lessons"] });
@@ -274,7 +275,7 @@ export function useDuplicateCurriculumLesson() {
         .select()
         .single();
       if (error) throw error;
-      await logAudit(user!.id, "duplicate", "curriculum_lesson", data.id, null, data);
+      await logAudit(user?.id, "duplicate", "curriculum_lesson", data.id, null, data);
       return data;
     },
     onSuccess: () => {
@@ -295,7 +296,7 @@ export function useReorderWeeks() {
       for (const item of items) {
         await supabase.from("weeks").update({ order_index: item.order_index }).eq("id", item.id);
       }
-      await logAudit(user!.id, "reorder", "weeks", null, null, items);
+      await logAudit(user?.id, "reorder", "weeks", null, null, items);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-weeks"] });
@@ -312,7 +313,7 @@ export function useReorderCurriculumLessons() {
       for (const item of items) {
         await supabase.from("curriculum_lessons").update({ order_index: item.order_index }).eq("id", item.id);
       }
-      await logAudit(user!.id, "reorder", "curriculum_lessons", null, null, items);
+      await logAudit(user?.id, "reorder", "curriculum_lessons", null, null, items);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-curriculum-lessons"] });
