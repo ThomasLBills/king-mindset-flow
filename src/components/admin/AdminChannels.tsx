@@ -43,13 +43,20 @@ const AdminChannels = () => {
   const createChannel = useMutation({
     mutationFn: async () => {
       if (!newName.trim() || !user) return;
-      const { error } = await supabase.from("chat_channels").insert({
+      const { data: ch, error } = await supabase.from("chat_channels").insert({
         name: newName.trim().toLowerCase().replace(/\s+/g, "-"),
         description: newDesc || null,
         created_by: user.id,
         sort_order: channels.length + 1,
-      });
+      }).select("id").single();
       if (error) throw error;
+      // Auto-add creator as member
+      if (ch) {
+        await supabase.from("chat_channel_members").upsert(
+          { channel_id: ch.id, user_id: user.id },
+          { onConflict: "channel_id,user_id", ignoreDuplicates: true }
+        );
+      }
     },
     onSuccess: () => {
       invalidate();

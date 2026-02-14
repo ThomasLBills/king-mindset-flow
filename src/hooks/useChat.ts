@@ -23,7 +23,7 @@ export function useChannels() {
     supabase
       .from("chat_channels")
       .select("*")
-      .order("name")
+      .order("sort_order", { ascending: true })
       .then(({ data }) => {
         setChannels(data ?? []);
         setLoading(false);

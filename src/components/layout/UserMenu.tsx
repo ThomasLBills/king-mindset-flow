@@ -44,6 +44,9 @@ const UserMenu = () => {
           <p className="text-xs text-muted-foreground truncate">{user.email}</p>
         </div>
         <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => navigate("/profile")} className="cursor-pointer">
+          <User className="mr-2 h-4 w-4" /> Profile
+        </DropdownMenuItem>
         <DropdownMenuItem onClick={() => navigate("/billing")} className="cursor-pointer">
           <CreditCard className="mr-2 h-4 w-4" /> Billing
         </DropdownMenuItem>
