@@ -1,12 +1,14 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, CheckCircle, BookOpen, FileText, Plus, Loader2 } from "lucide-react";
+import { Users, CheckCircle, BookOpen, FileText, Plus, Loader2, TrendingUp, GraduationCap, BarChart3 } from "lucide-react";
 import { useAdminStats } from "@/hooks/useAdminCurriculum";
+import { useAdminEngagementStats } from "@/hooks/useAdminEngagement";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 
 const AdminDashboard = () => {
   const { data: stats, isLoading } = useAdminStats();
+  const { data: engagement, isLoading: engLoading } = useAdminEngagementStats();
   const navigate = useNavigate();
 
   const statCards = [
@@ -29,6 +31,29 @@ const AdminDashboard = () => {
           <Card key={s.label} className="card-elevated">
             <CardContent className="pt-6 text-center">
               {isLoading ? (
+                <Loader2 className="h-6 w-6 mx-auto animate-spin text-muted-foreground" />
+              ) : (
+                <>
+                  <s.icon className={`h-6 w-6 mx-auto mb-2 ${s.color}`} />
+                  <p className="text-2xl font-bold">{s.value ?? 0}</p>
+                  <p className="text-sm text-muted-foreground">{s.label}</p>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Engagement Stats */}
+      <div className="grid grid-cols-3 gap-4">
+        {[
+          { label: "Enrollments", value: engagement?.totalEnrollments, icon: GraduationCap, color: "text-accent" },
+          { label: "Lessons Done", value: engagement?.lessonsCompleted, icon: TrendingUp, color: "text-success" },
+          { label: "Completion Rate", value: engagement?.completionRate !== undefined ? `${engagement.completionRate}%` : undefined, icon: BarChart3, color: "text-primary" },
+        ].map((s) => (
+          <Card key={s.label} className="card-elevated">
+            <CardContent className="pt-6 text-center">
+              {engLoading ? (
                 <Loader2 className="h-6 w-6 mx-auto animate-spin text-muted-foreground" />
               ) : (
                 <>
