@@ -25,7 +25,7 @@ const navSections = [
   {
     label: "Curriculum",
     items: [
-      { label: "Courses", path: "/admin/courses", icon: BookOpen },
+      { label: "Curriculum", path: "/admin/curriculum", icon: BookOpen },
       { label: "Announcements", path: "/admin/announcements", icon: Megaphone },
     ],
   },
@@ -136,7 +136,7 @@ const AdminLayout = () => {
         <div className="flex items-center justify-around px-2 py-2">
           {[
             { icon: LayoutDashboard, label: "Home", path: "/admin", end: true },
-            { icon: BookOpen, label: "Courses", path: "/admin/courses" },
+            { icon: BookOpen, label: "Curriculum", path: "/admin/curriculum" },
             { icon: Users, label: "Users", path: "/admin/users" },
             { icon: Settings, label: "Settings", path: "/admin/settings" },
           ].map((item) => {

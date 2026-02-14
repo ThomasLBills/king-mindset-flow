@@ -14,10 +14,9 @@ import AdminAuditLog from "@/components/admin/AdminAuditLog";
 import AdminAnnouncements from "@/components/admin/AdminAnnouncements";
 import AdminCommunity from "@/components/admin/AdminCommunity";
 import AdminSettings from "@/components/admin/AdminSettings";
-import CoursesList from "@/components/admin/curriculum/CoursesList";
-import CourseDetail from "@/components/admin/curriculum/CourseDetail";
-import ModuleDetail from "@/components/admin/curriculum/ModuleDetail";
-import LessonEditor from "@/components/admin/curriculum/LessonEditor";
+import CurriculumOverview from "@/components/admin/curriculum/CurriculumOverview";
+import WeekDetail from "@/components/admin/curriculum/WeekDetail";
+import CurriculumLessonEditor from "@/components/admin/curriculum/CurriculumLessonEditor";
 import Index from "./pages/Index";
 import Landing from "./pages/Landing";
 import Tools from "./pages/Tools";
@@ -74,10 +73,9 @@ const App = () => (
             {/* Admin */}
             <Route path="/admin" element={<AdminGuard><AdminLayout /></AdminGuard>}>
               <Route index element={<AdminDashboard />} />
-              <Route path="courses" element={<CoursesList />} />
-              <Route path="courses/:courseId" element={<CourseDetail />} />
-              <Route path="courses/:courseId/modules/:moduleId" element={<ModuleDetail />} />
-              <Route path="courses/:courseId/modules/:moduleId/lessons/:lessonId" element={<LessonEditor />} />
+              <Route path="curriculum" element={<CurriculumOverview />} />
+              <Route path="curriculum/weeks/:weekId" element={<WeekDetail />} />
+              <Route path="curriculum/weeks/:weekId/lessons/:lessonId" element={<CurriculumLessonEditor />} />
               <Route path="users" element={<AdminUsers />} />
               <Route path="community" element={<AdminCommunity />} />
               <Route path="announcements" element={<AdminAnnouncements />} />
