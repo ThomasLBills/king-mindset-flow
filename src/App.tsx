@@ -35,6 +35,7 @@ import Billing from "./pages/Billing";
 import AppDashboard from "./pages/AppDashboard";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -68,6 +69,7 @@ const App = () => (
             <Route path="/rhythms" element={<EntitlementGuard><Rhythms /></EntitlementGuard>} />
             <Route path="/brotherhood" element={<EntitlementGuard><Brotherhood /></EntitlementGuard>} />
             <Route path="/library" element={<EntitlementGuard><Library /></EntitlementGuard>} />
+            <Route path="/profile" element={<AuthGuard><Profile /></AuthGuard>} />
 
             {/* Admin */}
             <Route path="/admin" element={<AdminGuard><AdminLayout /></AdminGuard>}>
