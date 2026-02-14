@@ -429,6 +429,60 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_check_ins: {
+        Row: {
+          check_in_date: string
+          created_at: string
+          feelings: string[]
+          id: string
+          needs_support: boolean
+          user_id: string
+        }
+        Insert: {
+          check_in_date?: string
+          created_at?: string
+          feelings?: string[]
+          id?: string
+          needs_support?: boolean
+          user_id: string
+        }
+        Update: {
+          check_in_date?: string
+          created_at?: string
+          feelings?: string[]
+          id?: string
+          needs_support?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
+      daily_completions: {
+        Row: {
+          category: string
+          completion_date: string
+          created_at: string
+          id: string
+          item_id: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          completion_date?: string
+          created_at?: string
+          id?: string
+          item_id: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          completion_date?: string
+          created_at?: string
+          id?: string
+          item_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       entitlements: {
         Row: {
           active: boolean
@@ -463,6 +517,27 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
         ]
+      }
+      freedom_streaks: {
+        Row: {
+          id: string
+          start_date: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          start_date?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          start_date?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       lesson_progress: {
         Row: {
@@ -1010,7 +1085,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "user"
+      app_role: "admin" | "user" | "moderator"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1138,7 +1213,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user"],
+      app_role: ["admin", "user", "moderator"],
     },
   },
 } as const

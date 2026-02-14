@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Check, ChevronRight, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useDailyCheckIn } from "@/hooks/useDailyProgress";
 
 const awarenessOptions = [
   { id: "rested", label: "Rested", emoji: "😌" },
@@ -24,6 +25,13 @@ const DailyCheckIn = ({ onComplete, onNeedSupport }: DailyCheckInProps) => {
   const [step, setStep] = useState(0);
   const [selectedAwareness, setSelectedAwareness] = useState<string[]>([]);
   const [completed, setCompleted] = useState(false);
+  const { isCheckedIn, submitCheckIn } = useDailyCheckIn();
+
+  // If already checked in today, signal parent
+  if (isCheckedIn && !completed) {
+    // Already done for today
+    return null;
+  }
 
   const toggleAwareness = (id: string) => {
     setSelectedAwareness((prev) =>
@@ -31,14 +39,18 @@ const DailyCheckIn = ({ onComplete, onNeedSupport }: DailyCheckInProps) => {
     );
   };
 
-  const handleComplete = () => {
-    setCompleted(true);
-    setTimeout(() => onComplete(), 1500);
-  };
-
   const needsSupport = selectedAwareness.some((a) =>
     ["stressed", "anxious", "lonely", "pressured"].includes(a)
   );
+
+  const handleComplete = async () => {
+    await submitCheckIn.mutateAsync({
+      feelings: selectedAwareness,
+      needsSupport,
+    });
+    setCompleted(true);
+    setTimeout(() => onComplete(), 1500);
+  };
 
   if (completed) {
     return (
@@ -134,7 +146,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport }: DailyCheckInProps) => {
             </p>
 
             <div className="flex flex-col gap-3">
-              <Button variant="tool" onClick={handleComplete} className="w-full">
+              <Button variant="tool" onClick={handleComplete} className="w-full" disabled={submitCheckIn.isPending}>
                 <Check className="w-4 h-4" />
                 Complete Check-In
               </Button>

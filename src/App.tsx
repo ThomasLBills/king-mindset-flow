@@ -33,6 +33,8 @@ import ThankYou from "./pages/ThankYou";
 import Upgrade from "./pages/Upgrade";
 import Billing from "./pages/Billing";
 import AppDashboard from "./pages/AppDashboard";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -53,6 +55,8 @@ const App = () => (
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/thank-you" element={<ThankYou />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
 
             {/* Auth-required but no entitlement needed */}
             <Route path="/upgrade" element={<AuthGuard><Upgrade /></AuthGuard>} />
