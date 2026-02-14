@@ -12,6 +12,10 @@ import {
   Type, AlignLeft, List, Quote, BookOpen, Video, Music, FileText, Link, Image, Minus,
 } from "lucide-react";
 import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
+  DropdownMenuSeparator, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   useCurriculumLesson, useSaveCurriculumLesson, usePublishCurriculumLesson,
 } from "@/hooks/useAdminCurriculumNew";
 import { supabase } from "@/integrations/supabase/client";
@@ -203,16 +207,37 @@ const CurriculumLessonEditor = () => {
           ))}
         </div>
 
-        {/* Add Block */}
+        {/* Add Block Dropdown */}
         <div className="mt-4">
-          <p className="text-sm font-medium mb-2">Add Block</p>
-          <div className="flex flex-wrap gap-2">
-            {BLOCK_TYPES.map(({ type, label, icon: Icon }) => (
-              <Button key={type} variant="outline" size="sm" className="gap-1.5 text-xs" onClick={() => addBlock(type)}>
-                <Icon className="h-3.5 w-3.5" /> {label}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="gap-2">
+                <Plus className="h-4 w-4" /> Add Content Block
               </Button>
-            ))}
-          </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-56 bg-card border-border z-50">
+              <DropdownMenuLabel className="text-xs text-muted-foreground">Text</DropdownMenuLabel>
+              {BLOCK_TYPES.filter(b => ["heading", "paragraph", "bullet_list"].includes(b.type)).map(({ type, label, icon: Icon }) => (
+                <DropdownMenuItem key={type} onClick={() => addBlock(type)} className="gap-2 cursor-pointer">
+                  <Icon className="h-4 w-4 text-muted-foreground" /> {label}
+                </DropdownMenuItem>
+              ))}
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel className="text-xs text-muted-foreground">Media</DropdownMenuLabel>
+              {BLOCK_TYPES.filter(b => ["video_embed", "video_upload", "audio_upload", "image", "file_upload"].includes(b.type)).map(({ type, label, icon: Icon }) => (
+                <DropdownMenuItem key={type} onClick={() => addBlock(type)} className="gap-2 cursor-pointer">
+                  <Icon className="h-4 w-4 text-muted-foreground" /> {label}
+                </DropdownMenuItem>
+              ))}
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel className="text-xs text-muted-foreground">Interactive</DropdownMenuLabel>
+              {BLOCK_TYPES.filter(b => ["callout", "scripture", "external_link", "divider"].includes(b.type)).map(({ type, label, icon: Icon }) => (
+                <DropdownMenuItem key={type} onClick={() => addBlock(type)} className="gap-2 cursor-pointer">
+                  <Icon className="h-4 w-4 text-muted-foreground" /> {label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </motion.div>

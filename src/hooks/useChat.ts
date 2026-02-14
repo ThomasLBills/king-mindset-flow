@@ -128,11 +128,12 @@ export function useMessages(target: ChatTarget | null) {
     return () => { supabase.removeChannel(channel); };
   }, [target?.type, target?.id]);
 
-  const sendMessage = useCallback(async (content: string) => {
+  const sendMessage = useCallback(async (content: string, imageUrl?: string) => {
     if (!target || !user) return;
     await supabase.from("chat_messages").insert({
       content,
       user_id: user.id,
+      image_url: imageUrl || null,
       ...(target.type === "channel" ? { channel_id: target.id } : { dm_id: target.id }),
     });
   }, [target, user]);
