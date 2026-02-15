@@ -22,9 +22,9 @@ const variantStyles = {
     icon: "bg-accent-foreground/20",
   },
   grace: {
-    bg: "bg-success",
-    text: "text-success-foreground",
-    icon: "bg-success-foreground/20",
+    bg: "bg-accent",
+    text: "text-accent-foreground",
+    icon: "bg-accent-foreground/20",
   },
 };
 
