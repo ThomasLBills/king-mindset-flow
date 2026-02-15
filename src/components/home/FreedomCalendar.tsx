@@ -59,7 +59,7 @@ const FreedomCalendar = ({ onOpenGraceProtocol }: FreedomCalendarProps) => {
   const canGoForward = !isAfter(addWeeks(currentWeekStart, 1), today);
 
   return (
-    <div className="card-elevated p-5">
+    <div className="card-elevated p-6">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <CalendarDays className="h-5 w-5 text-primary" />

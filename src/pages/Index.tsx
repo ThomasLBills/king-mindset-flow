@@ -36,7 +36,7 @@ const Index = () => {
 
   return (
     <AppLayout>
-      <div className="px-5 py-6">
+      <div className="px-6 py-6 max-w-lg mx-auto">
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
           <div className="flex items-center gap-2 mb-1">
@@ -49,7 +49,7 @@ const Index = () => {
         </motion.div>
 
         {/* Daily Check-In */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mb-6">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mb-5">
           {!checkInDone ? (
             <DailyCheckIn
               onComplete={() => setJustCompleted(true)}
@@ -71,19 +71,19 @@ const Index = () => {
         </motion.div>
 
         {/* Freedom Calendar */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="mb-6">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="mb-5">
           <FreedomCalendar onOpenGraceProtocol={() => setShowGrace(true)} />
         </motion.div>
 
         {/* Week Progress */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mb-6">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mb-5">
           <WeekProgress />
         </motion.div>
 
         {/* In-the-Moment Tools */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
           <h2 className="font-serif text-xl font-semibold mb-4">In-the-Moment Tools</h2>
-          <div className="space-y-3">
+          <div className="space-y-4">
             <ToolCard title="Pressure Rising" description="Notice → Name Truth → Redirect" icon={Flame} variant="pressure" onClick={() => setShowPressure(true)} />
             <ToolCard title="Active Temptation" description="The way out when you need it now" icon={Shield} variant="temptation" onClick={() => setShowTemptation(true)} />
             <ToolCard title="After a Fall" description="Grace Protocol: Return quickly" icon={Heart} variant="grace" onClick={() => setShowGrace(true)} />

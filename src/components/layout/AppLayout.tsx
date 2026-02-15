@@ -14,7 +14,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
           <UserMenu />
         </div>
       </header>
-      <main className="pb-24">
+      <main className="pb-28">
         {children}
       </main>
       <MobileNav />
