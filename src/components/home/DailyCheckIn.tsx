@@ -74,12 +74,12 @@ const DailyCheckIn = ({ onComplete, onNeedSupport }: DailyCheckInProps) => {
   }
 
   return (
-    <div className="card-elevated p-6">
+    <div className="card-elevated p-6 bg-white text-black">
       <div className="flex items-center gap-2 mb-4">
         <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center">
           <Heart className="w-4 h-4 text-accent" />
         </div>
-        <h3 className="font-serif text-lg font-semibold">Daily Check-In</h3>
+        <h3 className="font-serif text-lg font-semibold text-black">Daily Check-In</h3>
       </div>
 
       <AnimatePresence mode="wait">
@@ -90,7 +90,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport }: DailyCheckInProps) => {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
           >
-            <p className="text-muted-foreground mb-4">
+            <p className="text-gray-600 mb-4">
               How are you feeling right now? Select all that apply.
             </p>
             <div className="grid grid-cols-2 gap-2 mb-6">
@@ -101,8 +101,8 @@ const DailyCheckIn = ({ onComplete, onNeedSupport }: DailyCheckInProps) => {
                   className={cn(
                     "flex items-center gap-3 p-3 rounded-xl border transition-all duration-200",
                     selectedAwareness.includes(option.id)
-                      ? "border-primary bg-primary/5 text-primary"
-                      : "border-border hover:border-primary/30 hover:bg-muted/50"
+                      ? "border-amber-600 bg-amber-50 text-amber-900"
+                      : "border-gray-200 hover:border-amber-300 hover:bg-gray-50 text-black"
                   )}
                 >
                   <span className="text-xl">{option.emoji}</span>
