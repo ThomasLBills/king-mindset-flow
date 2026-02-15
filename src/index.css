@@ -6,30 +6,30 @@
 
 @layer base {
   :root {
-    /* Core palette - Deep navy, warm sand, calming earth tones */
-    --background: 220 20% 97%;
-    --foreground: 220 30% 15%;
+    /* Core palette - Dark charcoal, cream text, warm gold accents (matches liberatedkings.com) */
+    --background: 0 0% 7%;
+    --foreground: 40 20% 92%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 220 30% 15%;
+    --card: 0 0% 10%;
+    --card-foreground: 40 20% 92%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 30% 15%;
+    --popover: 0 0% 10%;
+    --popover-foreground: 40 20% 92%;
 
-    /* Deep navy - strength, trust, calm */
-    --primary: 220 45% 20%;
-    --primary-foreground: 40 30% 96%;
+    /* Warm gold - purpose, glory, royalty */
+    --primary: 40 55% 55%;
+    --primary-foreground: 0 0% 7%;
 
-    /* Warm sand - grace, warmth, hope */
-    --secondary: 35 30% 92%;
-    --secondary-foreground: 220 30% 20%;
+    /* Dark elevated surface */
+    --secondary: 0 0% 14%;
+    --secondary-foreground: 40 20% 88%;
 
-    --muted: 220 15% 94%;
-    --muted-foreground: 220 15% 45%;
+    --muted: 0 0% 16%;
+    --muted-foreground: 40 10% 55%;
 
-    /* Gold accent - glory, purpose, breakthrough */
-    --accent: 38 65% 55%;
-    --accent-foreground: 220 30% 12%;
+    /* Gold accent */
+    --accent: 40 55% 55%;
+    --accent-foreground: 0 0% 7%;
 
     /* Sage green - growth, peace, restoration */
     --success: 150 35% 45%;
@@ -42,59 +42,59 @@
     --destructive: 0 60% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 20% 88%;
-    --input: 220 20% 88%;
-    --ring: 220 45% 20%;
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
+    --ring: 40 55% 55%;
 
     --radius: 0.75rem;
 
     /* Custom tokens for app-specific elements */
-    --tool-pressure: 220 45% 25%;
+    --tool-pressure: 0 0% 15%;
     --tool-temptation: 25 60% 50%;
     --tool-grace: 150 35% 45%;
     
-    --card-elevated: 0 0% 100%;
-    --card-shadow: 220 30% 15% / 0.08;
+    --card-elevated: 0 0% 12%;
+    --card-shadow: 0 0% 0% / 0.4;
     
     /* Gradients */
-    --gradient-calm: linear-gradient(135deg, hsl(220 45% 20%) 0%, hsl(220 35% 30%) 100%);
-    --gradient-hope: linear-gradient(135deg, hsl(38 65% 55%) 0%, hsl(35 70% 60%) 100%);
-    --gradient-peace: linear-gradient(180deg, hsl(220 20% 97%) 0%, hsl(35 30% 95%) 100%);
+    --gradient-calm: linear-gradient(135deg, hsl(0 0% 8%) 0%, hsl(0 0% 14%) 100%);
+    --gradient-hope: linear-gradient(135deg, hsl(40 55% 45%) 0%, hsl(40 60% 55%) 100%);
+    --gradient-peace: linear-gradient(180deg, hsl(0 0% 7%) 0%, hsl(0 0% 10%) 100%);
 
-    --sidebar-background: 220 20% 97%;
-    --sidebar-foreground: 220 30% 15%;
-    --sidebar-primary: 220 45% 20%;
-    --sidebar-primary-foreground: 40 30% 96%;
-    --sidebar-accent: 35 30% 92%;
-    --sidebar-accent-foreground: 220 30% 20%;
-    --sidebar-border: 220 20% 88%;
-    --sidebar-ring: 220 45% 20%;
+    --sidebar-background: 0 0% 9%;
+    --sidebar-foreground: 40 20% 92%;
+    --sidebar-primary: 40 55% 55%;
+    --sidebar-primary-foreground: 0 0% 7%;
+    --sidebar-accent: 0 0% 14%;
+    --sidebar-accent-foreground: 40 20% 88%;
+    --sidebar-border: 0 0% 18%;
+    --sidebar-ring: 40 55% 55%;
   }
 
   .dark {
-    --background: 220 25% 8%;
+    --background: 0 0% 5%;
     --foreground: 40 20% 95%;
 
-    --card: 220 25% 12%;
+    --card: 0 0% 8%;
     --card-foreground: 40 20% 95%;
 
-    --popover: 220 25% 12%;
+    --popover: 0 0% 8%;
     --popover-foreground: 40 20% 95%;
 
-    --primary: 38 55% 60%;
-    --primary-foreground: 220 30% 10%;
+    --primary: 40 55% 58%;
+    --primary-foreground: 0 0% 5%;
 
-    --secondary: 220 20% 18%;
+    --secondary: 0 0% 12%;
     --secondary-foreground: 40 20% 90%;
 
-    --muted: 220 20% 18%;
-    --muted-foreground: 220 15% 55%;
+    --muted: 0 0% 14%;
+    --muted-foreground: 40 10% 50%;
 
-    --accent: 38 65% 55%;
-    --accent-foreground: 220 30% 10%;
+    --accent: 40 55% 58%;
+    --accent-foreground: 0 0% 5%;
 
     --success: 150 35% 50%;
-    --success-foreground: 220 30% 10%;
+    --success-foreground: 0 0% 5%;
 
     --warning: 20 70% 55%;
     --warning-foreground: 20 80% 15%;
@@ -102,29 +102,29 @@
     --destructive: 0 55% 45%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 20% 20%;
-    --input: 220 20% 20%;
-    --ring: 38 55% 60%;
+    --border: 0 0% 16%;
+    --input: 0 0% 16%;
+    --ring: 40 55% 58%;
 
-    --tool-pressure: 220 35% 40%;
+    --tool-pressure: 0 0% 18%;
     --tool-temptation: 25 55% 55%;
     --tool-grace: 150 30% 50%;
     
-    --card-elevated: 220 25% 14%;
-    --card-shadow: 0 0% 0% / 0.3;
+    --card-elevated: 0 0% 10%;
+    --card-shadow: 0 0% 0% / 0.5;
 
-    --gradient-calm: linear-gradient(135deg, hsl(220 35% 15%) 0%, hsl(220 30% 22%) 100%);
-    --gradient-hope: linear-gradient(135deg, hsl(38 55% 50%) 0%, hsl(35 60% 55%) 100%);
-    --gradient-peace: linear-gradient(180deg, hsl(220 25% 8%) 0%, hsl(220 20% 12%) 100%);
+    --gradient-calm: linear-gradient(135deg, hsl(0 0% 6%) 0%, hsl(0 0% 12%) 100%);
+    --gradient-hope: linear-gradient(135deg, hsl(40 55% 48%) 0%, hsl(40 60% 55%) 100%);
+    --gradient-peace: linear-gradient(180deg, hsl(0 0% 5%) 0%, hsl(0 0% 8%) 100%);
 
-    --sidebar-background: 220 25% 10%;
+    --sidebar-background: 0 0% 6%;
     --sidebar-foreground: 40 20% 95%;
-    --sidebar-primary: 38 55% 60%;
-    --sidebar-primary-foreground: 220 30% 10%;
-    --sidebar-accent: 220 20% 18%;
+    --sidebar-primary: 40 55% 58%;
+    --sidebar-primary-foreground: 0 0% 5%;
+    --sidebar-accent: 0 0% 12%;
     --sidebar-accent-foreground: 40 20% 90%;
-    --sidebar-border: 220 20% 20%;
-    --sidebar-ring: 38 55% 60%;
+    --sidebar-border: 0 0% 16%;
+    --sidebar-ring: 40 55% 58%;
   }
 }
 
@@ -170,7 +170,7 @@
   }
 
   .gradient-scripture {
-    background: linear-gradient(135deg, hsl(220 45% 18%) 0%, hsl(220 40% 25%) 50%, hsl(38 40% 30%) 100%);
+    background: linear-gradient(135deg, hsl(0 0% 10%) 0%, hsl(0 0% 14%) 50%, hsl(40 30% 18%) 100%);
   }
 
   .tool-card {
@@ -196,7 +196,8 @@
 
   .scripture-card {
     @apply relative overflow-hidden rounded-2xl p-6;
-    background: linear-gradient(135deg, hsl(220 45% 20%) 0%, hsl(220 35% 28%) 100%);
+    background: linear-gradient(135deg, hsl(0 0% 10%) 0%, hsl(0 0% 15%) 100%);
+    border: 1px solid hsl(40 55% 55% / 0.2);
   }
 
   .scripture-card::before {
@@ -206,7 +207,7 @@
     right: -50%;
     width: 100%;
     height: 100%;
-    background: radial-gradient(circle, hsl(38 65% 55% / 0.15) 0%, transparent 70%);
+    background: radial-gradient(circle, hsl(40 55% 55% / 0.12) 0%, transparent 70%);
     pointer-events: none;
   }
 
