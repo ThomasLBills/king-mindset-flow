@@ -93,10 +93,10 @@ const Index = () => {
         {/* Scripture Card */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="mt-6">
           <div className="scripture-card">
-            <p className="font-serif text-lg text-primary-foreground/90 leading-relaxed mb-3">
+            <p className="font-serif text-lg text-white/90 leading-relaxed mb-3">
               "Therefore, there is now no condemnation for those who are in Christ Jesus."
             </p>
-            <p className="text-sm text-primary-foreground/60">Romans 8:1</p>
+            <p className="text-sm text-white/60">Romans 8:1</p>
           </div>
         </motion.div>
       </div>
