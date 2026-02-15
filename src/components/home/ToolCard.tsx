@@ -17,9 +17,9 @@ const variantStyles = {
     icon: "bg-primary-foreground/20",
   },
   temptation: {
-    bg: "bg-secondary",
-    text: "text-secondary-foreground",
-    icon: "bg-secondary-foreground/10",
+    bg: "bg-card",
+    text: "text-card-foreground",
+    icon: "bg-muted",
   },
   grace: {
     bg: "bg-accent",
