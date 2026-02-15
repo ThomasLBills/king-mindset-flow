@@ -174,7 +174,7 @@
   }
 
   .tool-card {
-    @apply relative overflow-hidden rounded-2xl p-6 transition-all duration-300;
+    @apply relative overflow-hidden rounded-2xl p-5 transition-all duration-300;
     @apply hover:shadow-xl hover:-translate-y-0.5;
   }
 

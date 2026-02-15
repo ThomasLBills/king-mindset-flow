@@ -58,7 +58,7 @@ const WeekProgress = () => {
     <motion.button
       whileTap={{ scale: 0.98 }}
       onClick={() => navigate("/library")}
-      className="card-elevated p-5 w-full text-left"
+      className="card-elevated p-6 w-full text-left"
     >
       <div className="flex items-center gap-4">
         <div className="relative">

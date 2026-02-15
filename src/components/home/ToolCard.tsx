@@ -17,9 +17,9 @@ const variantStyles = {
     icon: "bg-primary-foreground/20",
   },
   temptation: {
-    bg: "bg-white",
-    text: "text-black",
-    icon: "bg-black/10",
+    bg: "bg-secondary",
+    text: "text-secondary-foreground",
+    icon: "bg-secondary-foreground/10",
   },
   grace: {
     bg: "bg-accent",
@@ -41,15 +41,15 @@ const ToolCard = ({ title, description, icon: Icon, variant, onClick }: ToolCard
         styles.text
       )}
     >
-      <div className="flex items-start gap-4">
-        <div className={cn("p-3 rounded-xl", styles.icon)}>
+      <div className="flex items-center gap-4">
+        <div className={cn("p-3 rounded-xl flex-shrink-0", styles.icon)}>
           <Icon className="w-6 h-6" />
         </div>
-        <div className="flex-1">
-          <h3 className="font-serif text-lg font-semibold mb-1">{title}</h3>
-          <p className="text-sm opacity-80">{description}</p>
+        <div className="flex-1 min-w-0">
+          <h3 className="font-serif text-lg font-semibold mb-0.5">{title}</h3>
+          <p className="text-sm opacity-75">{description}</p>
         </div>
-        <ChevronRight className="w-5 h-5 opacity-60 mt-1" />
+        <ChevronRight className="w-5 h-5 opacity-50 flex-shrink-0" />
       </div>
     </motion.button>
   );
