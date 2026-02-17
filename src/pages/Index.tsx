@@ -2,7 +2,6 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import AppLayout from "@/components/layout/AppLayout";
 import DailyCheckIn from "@/components/home/DailyCheckIn";
-import KingProfile from "@/components/home/KingProfile";
 import FreedomStrip from "@/components/home/FreedomStrip";
 import PatternInsightCard from "@/components/home/PatternInsightCard";
 import ReachOut from "@/components/brotherhood/ReachOut";
@@ -26,7 +25,7 @@ const Index = () => {
   return (
     <AppLayout>
       <div className="px-6 py-6 max-w-lg mx-auto">
-        {/* 1. Freedom Journey */}
+        {/* 1. Liberation */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="mb-5">
           <FreedomStrip />
         </motion.div>
@@ -44,11 +43,6 @@ const Index = () => {
             }}
             onNeedSupport={() => setShowReachOut(true)}
           />
-        </motion.div>
-
-        {/* 3. King Profile */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="mb-5">
-          <KingProfile />
         </motion.div>
 
         {/* Pattern Insight Card */}
