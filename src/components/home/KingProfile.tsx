@@ -18,9 +18,9 @@ const KingProfile = () => {
 
   const pillars = [
     { icon: CalendarCheck, label: "Days Consistent", value: daysConsistent },
-    { icon: Heart, label: "Support Connections", value: supportConnections },
-    { icon: BookOpen, label: "Curriculum", value: `Wk ${currentWeekNumber}/${totalWeeks}`, isProgress: true },
     { icon: Sparkles, label: "Breakthroughs", value: breakthroughMoments },
+    { icon: BookOpen, label: "Curriculum", value: `Wk ${currentWeekNumber}/${totalWeeks}`, isProgress: true },
+    { icon: Heart, label: "Support Connections", value: supportConnections },
   ];
 
   const progressPercent = totalWeeks > 0 ? Math.round((currentWeekNumber / totalWeeks) * 100) : 0;
