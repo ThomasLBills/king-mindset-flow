@@ -13,7 +13,7 @@ const FreedomStrip = () => {
       </div>
 
       {/* Neural pathways message */}
-      <p className="text-sm text-white/50 leading-relaxed mb-6">
+      <p className="text-sm text-white leading-relaxed mb-6">
         Every check-in, armor use, and declaration builds new neural pathways.
       </p>
 
