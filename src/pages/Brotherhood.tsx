@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import AppLayout from "@/components/layout/AppLayout";
-import { Users, Heart } from "lucide-react";
+import { Users } from "lucide-react";
 import MyBrothersTab from "@/components/brotherhood/MyBrothersTab";
 import ReachOut from "@/components/brotherhood/ReachOut";
 import { useAuth } from "@/hooks/useAuth";
@@ -21,8 +21,7 @@ const BrotherhoodPage = () => {
         {/* Safe Space Guidelines */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="mb-5">
           <div className="rounded-xl bg-card border border-border p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <Heart className="w-4 h-4 text-success" />
+            <div className="mb-2">
               <span className="font-medium">Expectations</span>
             </div>
             <ul className="text-sm text-muted-foreground space-y-1">
