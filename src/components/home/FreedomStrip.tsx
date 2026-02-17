@@ -19,10 +19,10 @@ const FreedomStrip = () => {
 
       {/* Large evidence counter */}
       <div className="flex flex-col items-center py-6">
-        <p className="text-6xl font-bold text-white mb-6">
+        <p className="text-6xl font-bold text-primary mb-6">
           {isLoading ? "–" : count}
         </p>
-        <p className="text-base text-white text-center mb-3">
+        <p className="text-base text-primary text-center mb-3">
           Pieces of New Evidence This Month
         </p>
         <p className="text-sm text-white text-center">
