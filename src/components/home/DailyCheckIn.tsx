@@ -105,10 +105,10 @@ const DailyCheckIn = ({ onComplete, onNeedSupport }: DailyCheckInProps) => {
                     key={option.id}
                     onClick={() => toggleAwareness(option.id)}
                     className={cn(
-                      "relative flex items-center gap-3 p-3 rounded-xl border transition-colors duration-150 text-left",
+                      "relative flex items-center gap-3 p-3 rounded-xl border transition-colors duration-150 text-left bg-card",
                       isSelected
-                        ? "border-primary bg-primary/15 text-card-foreground"
-                        : "border-border/50 hover:border-primary/30 text-card-foreground"
+                        ? "border-primary text-card-foreground"
+                        : "border-border text-card-foreground"
                     )}
                   >
                     <span className="text-sm font-medium">{option.label}</span>
@@ -132,13 +132,17 @@ const DailyCheckIn = ({ onComplete, onNeedSupport }: DailyCheckInProps) => {
 
             <div className="flex gap-3">
               <Button
-                variant="calm"
                 onClick={() => {
                   setShowBreathText(true);
                   setTimeout(() => setStep(1), 1000);
                 }}
                 disabled={selectedAwareness.length === 0}
-                className="flex-1"
+                className={cn(
+                  "flex-1 rounded-xl font-medium h-11",
+                  selectedAwareness.length === 0
+                    ? "bg-[hsl(0_0%_92%)] text-[hsl(0_0%_55%)] hover:bg-[hsl(0_0%_92%)]"
+                    : "bg-primary text-primary-foreground hover:bg-primary/90"
+                )}
               >
                 Align Today
               </Button>
