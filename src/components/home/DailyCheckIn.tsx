@@ -72,6 +72,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport }: DailyCheckInProps) => {
   const [completed, setCompleted] = useState(false);
   const [showBreathText, setShowBreathText] = useState(false);
   const [spiritPrompt, setSpiritPrompt] = useState("");
+  const [showBreakthroughMsg, setShowBreakthroughMsg] = useState(false);
   const { isCheckedIn, submitCheckIn } = useDailyCheckIn();
 
   // Randomize tile order once per session
@@ -112,9 +113,12 @@ const DailyCheckIn = ({ onComplete, onNeedSupport }: DailyCheckInProps) => {
     await submitCheckIn.mutateAsync({
       feelings: selectedAwareness,
       needsSupport,
+      spiritResponse: spiritPrompt.trim() || undefined,
     });
+    const hadBreakthrough = spiritPrompt.trim().length > 0;
     setCompleted(true);
-    setTimeout(() => onComplete(), 1500);
+    setShowBreakthroughMsg(hadBreakthrough);
+    setTimeout(() => onComplete(), hadBreakthrough ? 2500 : 1500);
   };
 
   if (completed) {
@@ -133,7 +137,11 @@ const DailyCheckIn = ({ onComplete, onNeedSupport }: DailyCheckInProps) => {
           <Check className="w-8 h-8 text-primary-foreground" />
         </motion.div>
         <h3 className="font-serif text-2xl font-semibold mb-2 text-white">You are seen.</h3>
-        <p className="text-white/60">Grace meets you here. One step at a time.</p>
+        <p className="text-white/60">
+          {showBreakthroughMsg
+            ? "Breakthrough moment recorded. Your King Profile has grown."
+            : "Grace meets you here. One step at a time."}
+        </p>
       </motion.div>
     );
   }

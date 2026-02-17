@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import AppLayout from "@/components/layout/AppLayout";
 import DailyCheckIn from "@/components/home/DailyCheckIn";
+import KingProfile from "@/components/home/KingProfile";
 import ToolCard from "@/components/home/ToolCard";
 import WeekProgress from "@/components/home/WeekProgress";
 import FreedomCalendar from "@/components/home/FreedomCalendar";
@@ -80,13 +81,18 @@ const Index = () => {
           )}
         </motion.div>
 
-        {/* Freedom Calendar */}
+        {/* King Profile */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="mb-5">
+          <KingProfile />
+        </motion.div>
+
+        {/* Freedom Calendar (secondary) */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mb-5">
           <FreedomCalendar onOpenGraceProtocol={() => setShowGrace(true)} />
         </motion.div>
 
         {/* Week Progress */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mb-5">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="mb-5">
           <WeekProgress />
         </motion.div>
 

@@ -28,17 +28,19 @@ export function useDailyCheckIn() {
   });
 
   const submitCheckIn = useMutation({
-    mutationFn: async (params: { feelings: string[]; needsSupport: boolean }) => {
+    mutationFn: async (params: { feelings: string[]; needsSupport: boolean; spiritResponse?: string }) => {
       const { error } = await supabase.from("daily_check_ins").upsert({
         user_id: user!.id,
         check_in_date: today,
         feelings: params.feelings,
         needs_support: params.needsSupport,
-      }, { onConflict: "user_id,check_in_date" });
+        spirit_response: params.spiritResponse ?? null,
+      } as any, { onConflict: "user_id,check_in_date" });
       if (error) throw error;
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["daily-check-in"] });
+      qc.invalidateQueries({ queryKey: ["king-profile-breakthroughs"] });
     },
   });
 
