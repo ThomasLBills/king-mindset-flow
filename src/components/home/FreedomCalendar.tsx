@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CalendarDays, Heart, RotateCcw, ChevronLeft, ChevronRight } from "lucide-react";
+import { Shield, Heart, RotateCcw, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Dialog,
@@ -46,35 +46,43 @@ const FreedomCalendar = ({ onOpenGraceProtocol }: FreedomCalendarProps) => {
     }
   };
 
-  const getMessage = () => {
-    if (daysFree === 0) return "Today is a new beginning.";
-    if (daysFree === 1) return "One day at a time.";
-    if (daysFree < 7) return "Every day matters.";
-    if (daysFree < 30) return "Building new patterns.";
-    if (daysFree < 90) return "Transformation is happening.";
-    return "Deep roots of freedom.";
+  const getCovenantMessage = () => {
+    if (daysFree === 0) return "Your King is pleased with your pursuit. Today is Day 1.";
+    if (daysFree < 7) return `${daysFree} ${daysFree === 1 ? "day" : "days"} walking in freedom. Stay rooted.`;
+    return `${daysFree} days of faithfulness. Your identity is holding.`;
   };
 
   const dayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const canGoForward = !isAfter(addWeeks(currentWeekStart, 1), today);
+  const hasActiveStreak = daysFree > 0;
 
   return (
-    <div className="card-elevated p-6">
-      <div className="flex items-center justify-between mb-4">
+    <div className={cn(
+      "card-elevated p-6 relative overflow-hidden",
+      hasActiveStreak && "ring-1 ring-primary/20"
+    )}>
+      {/* Subtle glow when streak is active */}
+      {hasActiveStreak && (
+        <div className="absolute inset-0 pointer-events-none" style={{
+          background: "radial-gradient(ellipse at top right, hsl(40 44% 57% / 0.06) 0%, transparent 60%)"
+        }} />
+      )}
+
+      <div className="relative flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <CalendarDays className="h-5 w-5 text-primary" />
+          <Shield className="h-5 w-5 text-primary" />
           <h3 className="font-serif font-semibold">Freedom Journey</h3>
         </div>
-        <Badge variant="secondary" className="font-semibold bg-success/15 text-success border-0">
+        <Badge variant="secondary" className="font-semibold bg-primary/15 text-primary border-0">
           {daysFree} {daysFree === 1 ? "day" : "days"}
         </Badge>
       </div>
 
-      <p className="text-sm text-muted-foreground mb-4 italic">
-        "{getMessage()}"
+      <p className="relative text-sm text-muted-foreground mb-4 font-medium">
+        {getCovenantMessage()}
       </p>
 
-      <div className="flex items-center justify-between mb-3">
+      <div className="relative flex items-center justify-between mb-3">
         <button
           onClick={() => setCurrentWeekStart(subWeeks(currentWeekStart, 1))}
           className="p-1.5 hover:bg-secondary rounded-lg transition-colors"
@@ -96,7 +104,7 @@ const FreedomCalendar = ({ onOpenGraceProtocol }: FreedomCalendarProps) => {
         </button>
       </div>
 
-      <div className="grid grid-cols-7 gap-2">
+      <div className="relative grid grid-cols-7 gap-2">
         {weekDays.map((day, i) => {
           const isFree = isFreeDay(day);
           const isToday = isSameDay(day, today);
@@ -111,8 +119,8 @@ const FreedomCalendar = ({ onOpenGraceProtocol }: FreedomCalendarProps) => {
                 initial={false}
                 className={cn(
                   "w-8 h-8 flex items-center justify-center text-xs rounded-full transition-colors",
-                  isFree && !isToday && "bg-success/20 text-success font-medium",
-                  isToday && isFree && "bg-success text-success-foreground font-bold ring-2 ring-success/30",
+                  isFree && !isToday && "bg-primary/15 text-primary font-medium",
+                  isToday && isFree && "bg-primary text-primary-foreground font-bold ring-2 ring-primary/30",
                   isToday && !isFree && "bg-accent text-accent-foreground font-bold ring-2 ring-accent/30",
                   isFuture && "text-muted-foreground/30 bg-muted/30",
                   !isFree && !isToday && !isFuture && "text-muted-foreground bg-muted/50"
@@ -125,7 +133,7 @@ const FreedomCalendar = ({ onOpenGraceProtocol }: FreedomCalendarProps) => {
         })}
       </div>
 
-      <div className="mt-4 pt-4 border-t border-border">
+      <div className="relative mt-4 pt-4 border-t border-border">
         <Dialog open={resetDialogOpen} onOpenChange={setResetDialogOpen}>
           <DialogTrigger asChild>
             <Button
@@ -149,12 +157,12 @@ const FreedomCalendar = ({ onOpenGraceProtocol }: FreedomCalendarProps) => {
                   Your identity is not defined by this moment.
                 </p>
                 <p className="font-medium text-foreground">
-                  The goal isn't a streak—it's returning quickly to the Father who 
+                  The goal is not a streak. It is returning quickly to the Father who 
                   has already received you.
                 </p>
                 <p className="text-sm">
                   Resetting your counter is an act of honesty and courage. 
-                  We'll walk you through the Grace Protocol to help you 
+                  We will walk you through the Grace Protocol to help you 
                   reconnect and move forward.
                 </p>
               </DialogDescription>
@@ -171,7 +179,7 @@ const FreedomCalendar = ({ onOpenGraceProtocol }: FreedomCalendarProps) => {
                 onClick={handleReset}
                 disabled={resetStreak.isPending}
               >
-                Reset & Begin Grace Protocol
+                Reset and Begin Grace Protocol
               </Button>
             </DialogFooter>
           </DialogContent>
