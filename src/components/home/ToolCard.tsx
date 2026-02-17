@@ -21,9 +21,9 @@ const ToolCard = ({ title, description, icon: Icon, onClick }: ToolCardProps) =>
         </div>
         <div className="flex-1 min-w-0">
           <h3 className="font-serif text-lg font-bold text-white">{title}</h3>
-          <p className="text-sm text-white/50">{description}</p>
+          <p className="text-sm text-white">{description}</p>
         </div>
-        <ChevronRight className="w-5 h-5 text-white/30 flex-shrink-0" />
+        <ChevronRight className="w-5 h-5 text-white flex-shrink-0" />
       </div>
     </motion.button>
   );

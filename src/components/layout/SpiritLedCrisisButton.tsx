@@ -75,7 +75,7 @@ const SpiritLedCrisisButton = () => {
             {/* Close button */}
             <div className="flex justify-end p-4">
               <button onClick={handleClose} className="p-2 rounded-full hover:bg-white/10 transition-colors">
-                <X className="w-5 h-5 text-white/50" />
+                <X className="w-5 h-5 text-white" />
               </button>
             </div>
 
@@ -95,7 +95,7 @@ const SpiritLedCrisisButton = () => {
                       Stop. Breathe. You are not alone.
                     </h2>
                     <div className="bg-white/5 border border-primary/20 rounded-xl p-5 mb-8">
-                      <p className="font-serif text-sm text-white/80 italic leading-relaxed">
+                      <p className="font-serif text-sm text-white italic leading-relaxed">
                         "No temptation has overtaken you except what is common to mankind. And God is faithful; he will not let you be tempted beyond what you can bear."
                       </p>
                       <p className="text-xs text-primary mt-3 font-medium">1 Corinthians 10:13</p>
@@ -138,7 +138,7 @@ const SpiritLedCrisisButton = () => {
                         </motion.button>
                       ))}
                     </div>
-                    <p className="text-sm text-white/50 mb-6 leading-relaxed">
+                    <p className="text-sm text-white mb-6 leading-relaxed">
                       You are not what you feel. You are who God says you are.
                     </p>
                     <Button
@@ -210,7 +210,7 @@ const SpiritLedCrisisButton = () => {
                           className="overflow-hidden mb-4"
                         >
                           <div className="bg-white/5 border border-primary/20 rounded-xl p-5 text-left">
-                            <p className="font-serif text-sm text-white/85 italic leading-relaxed">
+                            <p className="font-serif text-sm text-white italic leading-relaxed">
                               {currentPrayer}
                             </p>
                           </div>
@@ -220,7 +220,7 @@ const SpiritLedCrisisButton = () => {
 
                     <button
                       onClick={handleClose}
-                      className="text-sm text-white/40 hover:text-white/60 transition-colors py-3"
+                      className="text-sm text-white hover:text-white/80 transition-colors py-3"
                     >
                       I am steady. Close.
                     </button>

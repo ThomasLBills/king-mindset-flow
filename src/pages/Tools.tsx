@@ -72,7 +72,7 @@ const ToolsPage = () => {
               </div>
               <div>
                 <h3 className="font-serif text-lg font-bold text-white">Reach Out Now</h3>
-                <p className="text-sm text-white/50">Connect with a brother immediately</p>
+                <p className="text-sm text-white">Connect with a brother immediately</p>
               </div>
             </div>
           </button>
@@ -85,7 +85,7 @@ const ToolsPage = () => {
           transition={{ delay: 0.3 }}
         >
           <div className="w-full rounded-2xl bg-[#111111] px-6 py-8">
-            <p className="font-serif text-base text-white/85 italic leading-relaxed mb-3">
+            <p className="font-serif text-base text-white italic leading-relaxed mb-3">
               "No temptation has overtaken you except what is common to mankind. And God is faithful; he will not let you be tempted beyond what you can bear."
             </p>
             <p className="text-sm text-primary font-medium">1 Corinthians 10:13</p>
