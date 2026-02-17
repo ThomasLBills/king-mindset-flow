@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Shield, CalendarCheck, Heart, BookOpen } from "lucide-react";
+import { Crown, CalendarCheck, Heart, BookOpen, Shield } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { useKingProfile } from "@/hooks/useKingProfile";
 import { useFreedomStreak } from "@/hooks/useDailyProgress";
@@ -39,8 +39,8 @@ const KingProfile = () => {
 
       {/* Header */}
       <div className="relative flex items-center gap-2 mb-3">
-        <Shield className="h-5 w-5 text-primary" />
-        <h3 className="font-serif text-lg font-semibold text-white">King Profile</h3>
+        <Crown className="h-5 w-5 text-primary" />
+        <h3 className="font-serif text-lg font-semibold text-white">King</h3>
       </div>
 
       {/* Dynamic Headline */}
