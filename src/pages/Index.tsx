@@ -10,8 +10,6 @@ import ReachOut from "@/components/brotherhood/ReachOut";
 import { useDailyCheckIn, useFreedomStreak } from "@/hooks/useDailyProgress";
 import { useTriggerPatterns } from "@/hooks/useTriggerPatterns";
 import { useAuth } from "@/hooks/useAuth";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
   const [showGrace, setShowGrace] = useState(false);
@@ -20,44 +18,20 @@ const Index = () => {
 
   const { user } = useAuth();
   const { isCheckedIn } = useDailyCheckIn();
-  const { daysFree } = useFreedomStreak();
   const { activeInsight, dismissInsight, analyzePatterns } = useTriggerPatterns();
 
-  const { data: profile } = useQuery({
-    queryKey: ["profile", user?.id],
-    enabled: !!user,
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("profiles")
-        .select("first_name, display_name")
-        .eq("user_id", user!.id)
-        .maybeSingle();
-      return data;
-    },
-  });
-
-  const firstName = profile?.first_name || profile?.display_name || "King";
-  const hour = new Date().getHours();
-  const timeGreeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
   const checkInDone = isCheckedIn || justCompleted;
-
-  // Show insight only when check-in is done and there is an active insight
   const showInsight = checkInDone && activeInsight && !activeInsight.dismissed;
 
   return (
     <AppLayout>
       <div className="px-6 py-6 max-w-lg mx-auto">
-        {/* Header */}
-        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
-          <h1 className="font-serif text-4xl font-semibold mb-1">{timeGreeting}, {firstName}.</h1>
-          <p className="text-sm text-muted-foreground">
-            {daysFree > 0
-              ? `You are on Day ${daysFree} of your liberation.`
-              : "Today is a new beginning. Walk in freedom."}
-          </p>
+        {/* 1. Freedom Journey */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="mb-5">
+          <FreedomStrip onOpenGraceProtocol={() => setShowGrace(true)} />
         </motion.div>
 
-        {/* 1. Daily Check-In */}
+        {/* 2. Daily Check-In */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mb-5">
           <DailyCheckIn
             onComplete={() => {
@@ -68,7 +42,7 @@ const Index = () => {
           />
         </motion.div>
 
-        {/* 2. King Profile */}
+        {/* 3. King Profile */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="mb-5">
           <KingProfile />
         </motion.div>
@@ -88,18 +62,11 @@ const Index = () => {
             </motion.div>
           )}
         </AnimatePresence>
-
-        {/* 3. Freedom Journey (compact strip) */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mb-5">
-          <FreedomStrip onOpenGraceProtocol={() => setShowGrace(true)} />
-        </motion.div>
       </div>
 
       {/* Modals */}
       <AnimatePresence>
-        {showGrace && (
-          <GraceProtocol onClose={() => setShowGrace(false)} />
-        )}
+        {showGrace && <GraceProtocol onClose={() => setShowGrace(false)} />}
         {showReachOut && <ReachOut onClose={() => setShowReachOut(false)} />}
       </AnimatePresence>
     </AppLayout>
