@@ -14,7 +14,7 @@ const FreedomStrip = () => {
 
       {/* Grace message */}
       <p className="text-sm text-white leading-relaxed mb-6">
-        You are loved today. Not because of your streak, but because of the cross.
+        You are already free in Christ. This is evidence you're walking in it.
       </p>
 
       {/* Large evidence counter */}
