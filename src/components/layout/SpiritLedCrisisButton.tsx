@@ -11,13 +11,28 @@ const crisisOptions = [
   { id: "stressed", label: "I am feeling stressed" },
 ];
 
-const closingPrayer = `Father, I bring this moment to You. I do not have to be strong on my own. Your Spirit lives in me, and that is enough. I choose to stand. I choose truth over the lie. I choose freedom over escape. Strengthen me now. In Jesus' name, amen.`;
+const crisisPrayers = [
+  "Father, I bring this moment to You. I do not have to be strong on my own. Your Spirit lives in me, and that is enough. I choose to stand. I choose truth over the lie. I choose freedom over escape. Strengthen me now. In Jesus' name, amen.",
+  "Lord, right now I feel the pull. But I am not defined by this urge. I am Your son, bought with a price, sealed by Your Spirit. I ask You to flood this moment with Your presence. I do not have to give in. I choose You. In Jesus' name, amen.",
+  "God, I am weak right now and I know it. But Your Word says Your power is made perfect in weakness. So I bring my weakness to You and ask You to be my strength. I will not run to what destroys me. I will run to You. In Jesus' name, amen.",
+  "Father, the enemy wants me to believe I am alone in this. But You are here. You have not left me. You are not disappointed in me. You are fighting for me. Help me stand for just this moment. That is all I need. In Jesus' name, amen.",
+  "Lord Jesus, You were tempted in every way and did not sin. You understand what I feel right now. I ask for the same Spirit that sustained You to sustain me now. I do not have to white-knuckle this. I just have to stay close to You. In Jesus' name, amen.",
+  "God, I confess that I want what I should not want right now. But I also want freedom more. Align my desires with Yours. Replace this craving with Your peace. I trust that You are able to keep me from falling. In Jesus' name, amen.",
+  "Father, I choose to be honest with You in this moment. I am struggling. But honesty before You is the first step to freedom. I do not hide from You. I run to You. Cover me with grace and carry me through. In Jesus' name, amen.",
+  "Lord, I declare that sin has no dominion over me. I am not under law but under grace. The chains are already broken. Help me walk in the freedom that is already mine. I am a new creation. The old has passed away. In Jesus' name, amen.",
+];
+
+const getCrisisPrayer = (): string => {
+  const index = Math.floor(Math.random() * crisisPrayers.length);
+  return crisisPrayers[index];
+};
 
 const SpiritLedCrisisButton = () => {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
   const [showPrayer, setShowPrayer] = useState(false);
+  const [currentPrayer, setCurrentPrayer] = useState("");
   const navigate = useNavigate();
 
   const handleClose = () => {
@@ -175,7 +190,7 @@ const SpiritLedCrisisButton = () => {
                       </motion.button>
                       <motion.button
                         whileTap={{ scale: 0.97 }}
-                        onClick={() => setShowPrayer(true)}
+                        onClick={() => { setCurrentPrayer(getCrisisPrayer()); setShowPrayer(true); }}
                         className="w-full p-4 rounded-xl bg-primary text-[#0A0A0A] font-semibold flex items-center gap-3"
                       >
                         <HandHeart className="w-5 h-5" />
@@ -194,7 +209,7 @@ const SpiritLedCrisisButton = () => {
                         >
                           <div className="bg-white/5 border border-primary/20 rounded-xl p-5 text-left">
                             <p className="font-serif text-sm text-white/85 italic leading-relaxed">
-                              {closingPrayer}
+                              {currentPrayer}
                             </p>
                           </div>
                         </motion.div>
