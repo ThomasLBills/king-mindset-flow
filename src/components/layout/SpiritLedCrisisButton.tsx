@@ -77,7 +77,7 @@ export const SpiritLedCrisisModal = ({ onClose }: { onClose: () => void }) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 bg-[hsl(225_12%_6%)] flex flex-col"
+      className="fixed inset-0 z-50 bg-[#111111] flex flex-col"
     >
       {/* Victory Overlay */}
       <AnimatePresence>
@@ -87,8 +87,7 @@ export const SpiritLedCrisisModal = ({ onClose }: { onClose: () => void }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="absolute inset-0 z-[60] flex flex-col items-center justify-center bg-background"
-            style={{ boxShadow: "inset 0 0 120px rgba(212,175,55,0.06)" }}
+            className="absolute inset-0 z-[60] flex flex-col items-center justify-center bg-[#111111]"
           >
             <motion.h2
               initial={{ opacity: 0, y: 10 }}
@@ -117,7 +116,7 @@ export const SpiritLedCrisisModal = ({ onClose }: { onClose: () => void }) => {
         </button>
       </div>
 
-      <div className="flex-1 flex items-center justify-center px-6">
+      <div className="flex-1 flex items-center justify-center px-8">
         <AnimatePresence mode="wait">
           {step === 0 && (
             <motion.div
@@ -125,21 +124,21 @@ export const SpiritLedCrisisModal = ({ onClose }: { onClose: () => void }) => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="text-center max-w-sm"
+              className="text-center max-w-sm w-full flex flex-col items-center"
             >
-              <Shield className="w-12 h-12 text-primary mx-auto mb-6" />
-              <h2 className="font-serif text-3xl font-bold text-white mb-4">
+              <Shield className="w-[60px] h-[60px] text-primary mb-6" />
+              <h2 className="font-serif text-2xl font-bold text-white mb-6 text-center">
                 Stop. Breathe. You are not alone.
               </h2>
-              <div className="bg-white/5 border border-primary/20 rounded-xl p-5 mb-8">
-                <p className="font-serif text-sm text-white italic leading-relaxed">
+              <div className="bg-white/5 border border-primary/20 rounded-xl p-5 mb-8 w-full">
+                <p className="font-serif text-base text-white italic leading-relaxed">
                   "No temptation has overtaken you except what is common to mankind. And God is faithful; he will not let you be tempted beyond what you can bear."
                 </p>
-                <p className="text-xs text-primary mt-3 font-medium">1 Corinthians 10:13</p>
+                <p className="text-sm text-primary mt-3 font-medium">1 Corinthians 10:13</p>
               </div>
               <Button
                 onClick={() => setStep(1)}
-                className="w-full rounded-xl font-bold h-12 text-base bg-primary text-[#0A0A0A] hover:bg-primary/90 shadow-lg shadow-primary/20"
+                className="w-full rounded-xl font-bold h-12 text-base bg-primary text-[#0A0A0A] hover:bg-primary/90"
               >
                 Continue
               </Button>
@@ -152,12 +151,16 @@ export const SpiritLedCrisisModal = ({ onClose }: { onClose: () => void }) => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="text-center max-w-sm w-full"
+              className="text-center max-w-sm w-full flex flex-col items-center"
             >
-              <h2 className="font-serif text-2xl font-bold text-white mb-6">
+              <Shield className="w-[60px] h-[60px] text-primary mb-6" />
+              <h2 className="font-serif text-2xl font-bold text-white mb-4 text-center">
                 Name what is happening right now.
               </h2>
-              <div className="space-y-3 mb-6">
+              <p className="text-sm text-white text-center mb-6">
+                You are not what you feel. You are who God says you are.
+              </p>
+              <div className="space-y-3 mb-6 w-full">
                 {crisisOptions.map((opt) => (
                   <motion.button
                     key={opt.id}
@@ -167,23 +170,20 @@ export const SpiritLedCrisisModal = ({ onClose }: { onClose: () => void }) => {
                       "w-full p-4 rounded-xl text-left font-medium transition-colors",
                       selected === opt.id
                         ? "bg-primary text-[#0A0A0A]"
-                        : "bg-white/5 border border-white/10 text-white hover:bg-white/10"
+                        : "bg-[#1C1C1E] border border-primary/30 text-white hover:bg-white/10"
                     )}
                   >
                     {opt.label}
                   </motion.button>
                 ))}
               </div>
-              <p className="text-sm text-white mb-6 leading-relaxed">
-                You are not what you feel. You are who God says you are.
-              </p>
               <Button
                 onClick={() => setStep(2)}
                 disabled={!selected}
                 className={cn(
                   "w-full rounded-xl font-bold h-12 text-base transition-all",
                   selected
-                    ? "bg-primary text-[#0A0A0A] hover:bg-primary/90 shadow-lg shadow-primary/20"
+                    ? "bg-primary text-[#0A0A0A] hover:bg-primary/90"
                     : "bg-white/10 text-white/30"
                 )}
               >
@@ -198,12 +198,13 @@ export const SpiritLedCrisisModal = ({ onClose }: { onClose: () => void }) => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="text-center max-w-sm w-full"
+              className="text-center max-w-sm w-full flex flex-col items-center"
             >
-              <h2 className="font-serif text-2xl font-bold text-white mb-6">
+              <Shield className="w-[60px] h-[60px] text-primary mb-6" />
+              <h2 className="font-serif text-2xl font-bold text-white mb-6 text-center">
                 Do one of these right now:
               </h2>
-              <div className="space-y-3 mb-6">
+              <div className="space-y-3 mb-6 w-full">
                 <motion.button
                   whileTap={{ scale: 0.97 }}
                   onClick={() => { window.location.href = "tel:"; }}
@@ -236,7 +237,7 @@ export const SpiritLedCrisisModal = ({ onClose }: { onClose: () => void }) => {
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
-                    className="overflow-hidden mb-4"
+                    className="overflow-hidden mb-4 w-full"
                   >
                     <div className="bg-white/5 border border-primary/20 rounded-xl p-5 text-left">
                       <p className="font-serif text-sm text-white italic leading-relaxed">
@@ -250,7 +251,7 @@ export const SpiritLedCrisisModal = ({ onClose }: { onClose: () => void }) => {
               <Button
                 onClick={handleVictory}
                 disabled={recordVictory.isPending}
-                className="w-full rounded-xl font-bold h-12 text-base bg-primary text-[#0A0A0A] hover:bg-primary/90 shadow-lg shadow-primary/20"
+                className="w-full rounded-xl font-bold h-12 text-base bg-primary text-[#0A0A0A] hover:bg-primary/90"
               >
                 I stood firm. Record this victory.
               </Button>
