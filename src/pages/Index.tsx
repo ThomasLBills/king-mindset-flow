@@ -4,10 +4,12 @@ import AppLayout from "@/components/layout/AppLayout";
 import DailyCheckIn from "@/components/home/DailyCheckIn";
 import KingProfile from "@/components/home/KingProfile";
 import FreedomStrip from "@/components/home/FreedomStrip";
+import PatternInsightCard from "@/components/home/PatternInsightCard";
 import AfterFallTool from "@/components/tools/AfterFallTool";
 import ReachOut from "@/components/brotherhood/ReachOut";
 import { Heart } from "lucide-react";
 import { useDailyCheckIn, useFreedomStreak } from "@/hooks/useDailyProgress";
+import { useTriggerPatterns } from "@/hooks/useTriggerPatterns";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -20,6 +22,7 @@ const Index = () => {
   const { user } = useAuth();
   const { isCheckedIn } = useDailyCheckIn();
   const { daysFree } = useFreedomStreak();
+  const { activeInsight, dismissInsight, analyzePatterns } = useTriggerPatterns();
 
   const { data: profile } = useQuery({
     queryKey: ["profile", user?.id],
@@ -39,6 +42,9 @@ const Index = () => {
   const timeGreeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
   const checkInDone = isCheckedIn || justCompleted;
 
+  // Show insight only when check-in is done and there is an active insight
+  const showInsight = checkInDone && activeInsight && !activeInsight.dismissed;
+
   return (
     <AppLayout>
       <div className="px-6 py-6 max-w-lg mx-auto">
@@ -56,7 +62,10 @@ const Index = () => {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mb-5">
           {!checkInDone ? (
             <DailyCheckIn
-              onComplete={() => setJustCompleted(true)}
+              onComplete={() => {
+                setJustCompleted(true);
+                analyzePatterns.mutate();
+              }}
               onNeedSupport={() => setShowReachOut(true)}
             />
           ) : (
@@ -78,6 +87,22 @@ const Index = () => {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="mb-5">
           <KingProfile />
         </motion.div>
+
+        {/* Pattern Insight Card */}
+        <AnimatePresence>
+          {showInsight && activeInsight && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="mb-5">
+              <PatternInsightCard
+                title={activeInsight.title}
+                message={activeInsight.message}
+                scriptureRef={activeInsight.scripture_reference}
+                scriptureText={activeInsight.scripture_text}
+                actionStep={activeInsight.action_step}
+                onDismiss={() => dismissInsight.mutate(activeInsight.id)}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* 3. Freedom Journey (compact strip) */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mb-5">

@@ -428,6 +428,30 @@ export type Database = {
           },
         ]
       }
+      crisis_button_events: {
+        Row: {
+          created_at: string
+          id: string
+          selected_feeling: string | null
+          triggered_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          selected_feeling?: string | null
+          triggered_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          selected_feeling?: string | null
+          triggered_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       curriculum_lesson_progress: {
         Row: {
           completed_at: string | null
@@ -910,6 +934,51 @@ export type Database = {
           },
         ]
       }
+      pattern_insights: {
+        Row: {
+          action_step: string
+          created_at: string
+          dismissed: boolean
+          dismissed_at: string | null
+          id: string
+          message: string
+          pattern_type: string
+          scripture_reference: string
+          scripture_text: string
+          surfaced_at: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          action_step: string
+          created_at?: string
+          dismissed?: boolean
+          dismissed_at?: string | null
+          id?: string
+          message: string
+          pattern_type: string
+          scripture_reference: string
+          scripture_text: string
+          surfaced_at?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          action_step?: string
+          created_at?: string
+          dismissed?: boolean
+          dismissed_at?: string | null
+          id?: string
+          message?: string
+          pattern_type?: string
+          scripture_reference?: string
+          scripture_text?: string
+          surfaced_at?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       payments: {
         Row: {
           amount: number
@@ -1062,6 +1131,36 @@ export type Database = {
           status?: string
           title?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      relapse_events: {
+        Row: {
+          created_at: string
+          day_of_week: number | null
+          id: string
+          program_day: number | null
+          recent_emotions: string[] | null
+          relapsed_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          day_of_week?: number | null
+          id?: string
+          program_day?: number | null
+          recent_emotions?: string[] | null
+          relapsed_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          day_of_week?: number | null
+          id?: string
+          program_day?: number | null
+          recent_emotions?: string[] | null
+          relapsed_at?: string
+          user_id?: string
         }
         Relationships: []
       }
