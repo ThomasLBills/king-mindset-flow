@@ -107,8 +107,8 @@ const DailyCheckIn = ({ onComplete, onNeedSupport }: DailyCheckInProps) => {
                     className={cn(
                       "relative flex items-center gap-3 p-3 rounded-xl border transition-colors duration-150 text-left",
                       isSelected
-                        ? "border-primary bg-primary/8 text-foreground"
-                        : "border-border hover:border-primary/30 hover:bg-muted/50 text-foreground"
+                        ? "border-primary bg-primary/15 text-card-foreground"
+                        : "border-border/50 hover:border-primary/30 text-card-foreground"
                     )}
                   >
                     <span className="text-sm font-medium">{option.label}</span>

@@ -14,17 +14,17 @@ const variantStyles = {
   pressure: {
     bg: "bg-primary",
     text: "text-primary-foreground",
-    icon: "bg-primary-foreground/20",
+    icon: "bg-primary-foreground/15",
   },
   temptation: {
-    bg: "bg-card",
-    text: "text-card-foreground",
+    bg: "bg-secondary",
+    text: "text-secondary-foreground",
     icon: "bg-muted",
   },
   grace: {
-    bg: "bg-accent",
-    text: "text-accent-foreground",
-    icon: "bg-accent-foreground/20",
+    bg: "bg-primary",
+    text: "text-primary-foreground",
+    icon: "bg-primary-foreground/15",
   },
 };
 
