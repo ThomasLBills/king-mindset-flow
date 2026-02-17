@@ -52,8 +52,8 @@ export function useKingProfile() {
   });
 
   // Breakthrough Moments — daily_check_ins with non-empty spirit_response
-  const { data: breakthroughMoments = 0 } = useQuery({
-    queryKey: ["king-profile-breakthroughs", user?.id],
+  const { data: spiritBreakthroughs = 0 } = useQuery({
+    queryKey: ["king-profile-breakthroughs-spirit", user?.id],
     enabled: !!user,
     queryFn: async () => {
       const { count, error } = await supabase
@@ -66,6 +66,23 @@ export function useKingProfile() {
       return count ?? 0;
     },
   });
+
+  // Crisis breakthroughs — daily_completions with category "crisis_breakthrough"
+  const { data: crisisBreakthroughs = 0 } = useQuery({
+    queryKey: ["king-profile-breakthroughs-crisis", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("daily_completions")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user!.id)
+        .eq("category", "crisis_breakthrough");
+      if (error) throw error;
+      return count ?? 0;
+    },
+  });
+
+  const breakthroughMoments = spiritBreakthroughs + crisisBreakthroughs;
 
   // Curriculum Progress
   const { data: weeks = [] } = usePublishedWeeks();

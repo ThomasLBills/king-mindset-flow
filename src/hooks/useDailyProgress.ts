@@ -40,7 +40,8 @@ export function useDailyCheckIn() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["daily-check-in"] });
-      qc.invalidateQueries({ queryKey: ["king-profile-breakthroughs"] });
+      qc.invalidateQueries({ queryKey: ["king-profile-breakthroughs-spirit"] });
+      qc.invalidateQueries({ queryKey: ["king-profile-days-consistent"] });
     },
   });
 

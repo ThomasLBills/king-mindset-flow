@@ -5,6 +5,9 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 import { useCrisisEventLogger } from "@/hooks/useTriggerPatterns";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 const crisisOptions = [
   { id: "tempted", label: "I am feeling tempted" },
@@ -34,8 +37,29 @@ const SpiritLedCrisisButton = () => {
   const [selected, setSelected] = useState<string | null>(null);
   const [showPrayer, setShowPrayer] = useState(false);
   const [currentPrayer, setCurrentPrayer] = useState("");
+  const [showVictory, setShowVictory] = useState(false);
   const navigate = useNavigate();
   const { logCrisisEvent } = useCrisisEventLogger();
+  const { user } = useAuth();
+  const qc = useQueryClient();
+
+  const recordVictory = useMutation({
+    mutationFn: async () => {
+      if (!user) return;
+      const now = new Date();
+      const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+      const { error } = await supabase.from("daily_completions").insert({
+        user_id: user.id,
+        completion_date: today,
+        category: "crisis_breakthrough",
+        item_id: `crisis-${Date.now()}`,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["king-profile-breakthroughs-crisis"] });
+    },
+  });
 
   const handleClose = () => {
     setOpen(false);
@@ -43,7 +67,16 @@ const SpiritLedCrisisButton = () => {
       setStep(0);
       setSelected(null);
       setShowPrayer(false);
+      setShowVictory(false);
     }, 300);
+  };
+
+  const handleVictory = async () => {
+    recordVictory.mutate();
+    setShowVictory(true);
+    setTimeout(() => {
+      handleClose();
+    }, 1000);
   };
 
   return (
@@ -72,6 +105,37 @@ const SpiritLedCrisisButton = () => {
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 bg-[hsl(225_12%_6%)] flex flex-col"
           >
+            {/* Victory Overlay */}
+            <AnimatePresence>
+              {showVictory && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="absolute inset-0 z-[60] flex flex-col items-center justify-center bg-background"
+                  style={{ boxShadow: "inset 0 0 120px rgba(212,175,55,0.06)" }}
+                >
+                  <motion.h2
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.15 }}
+                    className="font-serif text-3xl font-bold text-white mb-3 text-center"
+                  >
+                    Victory recorded.
+                  </motion.h2>
+                  <motion.p
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="text-white text-lg text-center"
+                  >
+                    You are a King.
+                  </motion.p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             {/* Close button */}
             <div className="flex justify-end p-4">
               <button onClick={handleClose} className="p-2 rounded-full hover:bg-white/10 transition-colors">
@@ -218,12 +282,13 @@ const SpiritLedCrisisButton = () => {
                       )}
                     </AnimatePresence>
 
-                    <button
-                      onClick={handleClose}
-                      className="text-sm text-white hover:text-white/80 transition-colors py-3"
+                    <Button
+                      onClick={handleVictory}
+                      disabled={recordVictory.isPending}
+                      className="w-full rounded-xl font-bold h-12 text-base bg-primary text-[#0A0A0A] hover:bg-primary/90 shadow-lg shadow-primary/20"
                     >
-                      I am steady. Close.
-                    </button>
+                      I stood firm. Record this victory.
+                    </Button>
                   </motion.div>
                 )}
               </AnimatePresence>
