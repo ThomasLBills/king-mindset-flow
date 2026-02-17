@@ -61,7 +61,7 @@ const ToolsPage = () => {
           className="my-8"
         >
           <h2 className="font-semibold text-base mb-4">What do you need right now?</h2>
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col gap-4">
             <motion.button
               onClick={() => setShowCrisisModal(true)}
               whileTap={{ scale: 1.02 }}
