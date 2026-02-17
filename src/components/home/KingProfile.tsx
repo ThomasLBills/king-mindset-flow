@@ -75,18 +75,6 @@ const KingProfile = () => {
           </div>
         ))}
       </div>
-
-      {/* Secondary streak metric */}
-      <div className="relative flex items-center gap-2 pt-3 border-t border-white/10">
-        <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
-          <Shield className="h-3 w-3 text-primary" />
-        </div>
-        <span className="text-sm text-white">
-          {daysFree === 0
-            ? "Today is Day 1 of your freedom."
-            : `${daysFree} ${daysFree === 1 ? "day" : "days"} walking in freedom.`}
-        </span>
-      </div>
     </div>
   );
 };
