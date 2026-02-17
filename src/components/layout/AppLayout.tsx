@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import MobileNav from "./MobileNav";
 import UserMenu from "./UserMenu";
+import SpiritLedCrisisButton from "./SpiritLedCrisisButton";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -17,6 +18,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
       <main className="pb-28">
         {children}
       </main>
+      <SpiritLedCrisisButton />
       <MobileNav />
     </div>
   );
