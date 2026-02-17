@@ -111,31 +111,11 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
       className="fixed inset-0 z-50 bg-[hsl(225_12%_6%)] flex flex-col"
     >
       {/* Top bar */}
-      <div className="flex items-center justify-between p-4">
+      <div className="flex items-center justify-end p-4">
         <button onClick={onClose} className="p-2 rounded-full hover:bg-white/10 transition-colors">
           <X className="w-5 h-5 text-white" />
         </button>
-        <p className="text-xs text-white font-medium">Grace Protocol</p>
-        <div className="w-9" />
       </div>
-
-      {/* Progress dots */}
-      <div className="flex items-center justify-center gap-2 px-6 mb-2">
-        {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
-          <div
-            key={i}
-            className={cn(
-              "w-2.5 h-2.5 rounded-full transition-colors duration-300",
-              i <= step ? "bg-primary" : "bg-white/15"
-            )}
-          />
-        ))}
-      </div>
-
-      {/* Header quote */}
-      <p className="text-xs text-primary/50 text-center px-8 mb-4 italic">
-        {headerQuote}
-      </p>
 
       {/* Step content */}
       <div className="flex-1 flex items-center justify-center px-6 overflow-y-auto">
