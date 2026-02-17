@@ -616,6 +616,7 @@ export type Database = {
           feelings: string[]
           id: string
           needs_support: boolean
+          spirit_response: string | null
           user_id: string
         }
         Insert: {
@@ -624,6 +625,7 @@ export type Database = {
           feelings?: string[]
           id?: string
           needs_support?: boolean
+          spirit_response?: string | null
           user_id: string
         }
         Update: {
@@ -632,6 +634,7 @@ export type Database = {
           feelings?: string[]
           id?: string
           needs_support?: boolean
+          spirit_response?: string | null
           user_id?: string
         }
         Relationships: []
