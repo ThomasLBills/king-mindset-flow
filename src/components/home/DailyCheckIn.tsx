@@ -237,7 +237,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport }: DailyCheckInProps) => {
                       : "bg-primary text-[#0A0A0A] font-bold hover:bg-primary/90 shadow-lg shadow-primary/20 animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_1]"
                   )}
                 >
-                  {selectedAwareness.length === 0 ? "Select to align" : "I am aligned. Let's Go."}
+                  {selectedAwareness.length === 0 ? "What is present in you today?" : "I am aligned. Let's Go."}
                 </Button>
               </motion.div>
             </div>
