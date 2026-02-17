@@ -12,9 +12,9 @@ const FreedomStrip = () => {
         <h3 className="font-serif text-lg font-bold text-white">Liberation</h3>
       </div>
 
-      {/* Grace message */}
-      <p className="text-sm text-white leading-relaxed mb-6">
-        You are already free in Christ. This is evidence you're walking in it.
+      {/* Neural pathways message */}
+      <p className="text-sm text-white/50 leading-relaxed mb-6">
+        Every check-in, armor use, and declaration builds new neural pathways.
       </p>
 
       {/* Large evidence counter */}
@@ -25,8 +25,8 @@ const FreedomStrip = () => {
         <p className="text-base text-white text-center mb-3">
           Pieces of New Evidence This Month
         </p>
-        <p className="text-sm text-white/50 text-center">
-          Every check-in, armor use, and declaration builds new neural pathways.
+        <p className="text-sm text-white text-center">
+          You are already free in Christ. This is evidence you're walking in it.
         </p>
       </div>
     </div>
