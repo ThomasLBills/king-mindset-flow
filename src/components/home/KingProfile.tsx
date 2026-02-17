@@ -60,16 +60,16 @@ const KingProfile = () => {
         {pillars.map((pillar) => (
           <div
             key={pillar.label}
-            className="bg-white/5 border border-white/10 rounded-xl p-3 flex flex-col gap-1.5"
+            className="rounded-xl p-3 flex flex-col gap-1.5"
           >
             <div className="flex items-center gap-2">
-              <pillar.icon className="h-4 w-4 text-primary/80" />
-              <span className="text-xs text-white/50 font-medium">{pillar.label}</span>
+              <pillar.icon className="h-4 w-4 text-primary" />
+              <span className="text-xs text-white font-medium">{pillar.label}</span>
             </div>
             {pillar.isProgress ? (
               <div className="flex flex-col gap-1.5">
                 <span className="text-lg font-semibold text-white">{pillar.value}</span>
-                <Progress value={progressPercent} className="h-1.5 bg-white/10" />
+                <Progress value={progressPercent} className="h-1.5 bg-primary/20" />
               </div>
             ) : (
               <span className="text-lg font-semibold text-white">{pillar.value}</span>
@@ -83,7 +83,7 @@ const KingProfile = () => {
         <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
           <Shield className="h-3 w-3 text-primary" />
         </div>
-        <span className="text-sm text-white/50">
+        <span className="text-sm text-white">
           {daysFree === 0
             ? "Today is Day 1 of your freedom."
             : `${daysFree} ${daysFree === 1 ? "day" : "days"} walking in freedom.`}
