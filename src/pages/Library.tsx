@@ -98,14 +98,14 @@ const LibraryPage = () => {
           <div className="flex items-center gap-2 mb-1">
             <Sparkles className="w-4 h-4 text-accent" />
             <span className="text-sm text-muted-foreground">
-              {settings?.duration_label || "8-Week Journey"}
+              Your Liberation Curriculum
             </span>
           </div>
           <h1 className="font-serif text-3xl font-bold mb-2">
-            {settings?.title || "Library"}
+            The Liberated Path
           </h1>
           <p className="text-muted-foreground">
-            {settings?.subtitle || "Your journey to freedom"}
+            Eight weeks. One transformation.
           </p>
         </motion.div>
 
