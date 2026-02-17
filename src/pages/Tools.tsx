@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import AppLayout from "@/components/layout/AppLayout";
 import GraceProtocol from "@/components/tools/GraceProtocol";
 import { SpiritLedCrisisModal } from "@/components/layout/SpiritLedCrisisButton";
@@ -31,13 +32,22 @@ const armorScriptures = [
   },
 ];
 
-const STORAGE_KEY = "armor-scripture-index";
+const declarations = [
+  { text: "I am a child of God, and He loves me unconditionally.", reference: "John 1:12, Romans 8:38-39" },
+  { text: "I have been redeemed and forgiven of my sins through the sacrifice of Jesus on the cross.", reference: "Ephesians 1:7" },
+  { text: "I am a new creation in Christ, and my old self has passed away.", reference: "2 Corinthians 5:17" },
+  { text: "I have been given a spirit of power, love, and self-discipline, not fear.", reference: "2 Timothy 1:7" },
+  { text: "I am free in Christ. The chains are broken.", reference: "Galatians 5:1" },
+  { text: "I am being transformed by the renewing of my mind.", reference: "Romans 12:2" },
+];
 
 const ToolsPage = () => {
   const [showCrisisModal, setShowCrisisModal] = useState(false);
   const [showGraceProtocol, setShowGraceProtocol] = useState(false);
   const [showScriptureModal, setShowScriptureModal] = useState(false);
   const [scriptureIndex, setScriptureIndex] = useState(0);
+  const [showDeclarations, setShowDeclarations] = useState(false);
+  const [declarationIndex, setDeclarationIndex] = useState(0);
 
   return (
     <AppLayout>
@@ -53,7 +63,6 @@ const ToolsPage = () => {
           </p>
         </motion.div>
 
-        {/* Moment Selector Buttons */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -65,26 +74,34 @@ const ToolsPage = () => {
             <motion.button
               onClick={() => setShowCrisisModal(true)}
               whileTap={{ scale: 1.02 }}
-              className="flex-1 py-6 px-10 rounded-xl text-center bg-[#1C1C1E] border-[1.5px] border-primary active:bg-primary active:text-[#0A0A0A] transition-colors duration-200"
+              className="py-6 px-10 rounded-xl text-center bg-[#1C1C1E] border-[1.5px] border-primary active:bg-primary active:text-[#0A0A0A] transition-colors duration-200"
             >
-              <span className="block font-bold text-white text-base active:text-[#0A0A0A]">I Need Strength</span>
+              <span className="block font-bold text-white text-base">I Need Strength</span>
               <span className="block text-sm text-primary mt-1">Stand against temptation</span>
             </motion.button>
             <motion.button
               onClick={() => setShowGraceProtocol(true)}
               whileTap={{ scale: 1.02 }}
-              className="flex-1 py-6 px-10 rounded-xl text-center bg-[#1C1C1E] border-[1.5px] border-primary active:bg-primary active:text-[#0A0A0A] transition-colors duration-200"
+              className="py-6 px-10 rounded-xl text-center bg-[#1C1C1E] border-[1.5px] border-primary active:bg-primary active:text-[#0A0A0A] transition-colors duration-200"
             >
-              <span className="block font-bold text-white text-base active:text-[#0A0A0A]">I Need Grace</span>
+              <span className="block font-bold text-white text-base">I Need Grace</span>
               <span className="block text-sm text-primary mt-1">Return quickly</span>
             </motion.button>
             <motion.button
               onClick={() => setShowScriptureModal(true)}
               whileTap={{ scale: 1.02 }}
-              className="flex-1 py-6 px-10 rounded-xl text-center bg-[#1C1C1E] border-[1.5px] border-primary active:bg-primary active:text-[#0A0A0A] transition-colors duration-200"
+              className="py-6 px-10 rounded-xl text-center bg-[#1C1C1E] border-[1.5px] border-primary active:bg-primary active:text-[#0A0A0A] transition-colors duration-200"
             >
-              <span className="block font-bold text-white text-base active:text-[#0A0A0A]">God's Truth For This Moment</span>
+              <span className="block font-bold text-white text-base">God's Truth For This Moment</span>
               <span className="block text-sm text-primary mt-1">Anchor yourself in Scripture</span>
+            </motion.button>
+            <motion.button
+              onClick={() => { setDeclarationIndex(0); setShowDeclarations(true); }}
+              whileTap={{ scale: 1.02 }}
+              className="py-6 px-10 rounded-xl text-center bg-[#1C1C1E] border-[1.5px] border-primary active:bg-primary active:text-[#0A0A0A] transition-colors duration-200"
+            >
+              <span className="block font-bold text-white text-base">Speak Truth Over Myself</span>
+              <span className="block text-sm text-primary mt-1">Declare who God says you are</span>
             </motion.button>
           </div>
         </motion.div>
@@ -125,6 +142,67 @@ const ToolsPage = () => {
                 Close
               </button>
             </motion.div>
+          </motion.div>
+        )}
+        {showDeclarations && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/95 flex flex-col items-center justify-center px-8"
+          >
+            {/* Progress dots */}
+            <div className="flex gap-2 mb-10">
+              {declarations.map((_, i) => (
+                <div
+                  key={i}
+                  className={`w-2 h-2 rounded-full transition-colors ${i === declarationIndex ? 'bg-primary' : 'bg-white/30'}`}
+                />
+              ))}
+            </div>
+
+            <div className="relative max-w-lg w-full flex items-center">
+              <button
+                onClick={() => setDeclarationIndex((prev) => (prev - 1 + declarations.length) % declarations.length)}
+                className="absolute -left-4 sm:-left-8 text-white/50 hover:text-white transition-colors z-10"
+              >
+                <ChevronLeft className="w-8 h-8" />
+              </button>
+
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={declarationIndex}
+                  initial={{ opacity: 0, x: 40 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -40 }}
+                  transition={{ duration: 0.25 }}
+                  className="text-center w-full px-8"
+                >
+                  <p className="font-serif text-2xl text-white font-bold leading-relaxed mb-6">
+                    "{declarations[declarationIndex].text}"
+                  </p>
+                  <p className="text-base text-primary font-medium">
+                    {declarations[declarationIndex].reference}
+                  </p>
+                </motion.div>
+              </AnimatePresence>
+
+              <button
+                onClick={() => setDeclarationIndex((prev) => (prev + 1) % declarations.length)}
+                className="absolute -right-4 sm:-right-8 text-white/50 hover:text-white transition-colors z-10"
+              >
+                <ChevronRight className="w-8 h-8" />
+              </button>
+            </div>
+
+            <div className="mt-10 max-w-lg w-full text-center">
+              <button
+                onClick={() => setShowDeclarations(false)}
+                className="w-full py-4 rounded-xl bg-primary text-primary-foreground font-bold text-base mb-4"
+              >
+                I believe this. Close.
+              </button>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
