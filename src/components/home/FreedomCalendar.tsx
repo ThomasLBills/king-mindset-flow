@@ -47,7 +47,7 @@ const FreedomCalendar = ({ onOpenGraceProtocol }: FreedomCalendarProps) => {
   };
 
   const getCovenantMessage = () => {
-    if (daysFree === 0) return "You are loved today \u2014 not because of your streak, but because of the cross. Walk in freedom.";
+    if (daysFree === 0) return "You are loved today. Not because of your streak, but because of the cross. Walk in freedom.";
     if (daysFree < 7) return `You are loved. ${daysFree} ${daysFree === 1 ? "day" : "days"} of walking in freedom.`;
     if (daysFree < 30) return `His grace is holding you. ${daysFree} days of faithfulness.`;
     return `The Spirit is at work in you. ${daysFree} days of transformation.`;
