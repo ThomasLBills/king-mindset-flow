@@ -264,7 +264,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
 
   return (
     <>
-      <div className="rounded-2xl p-6 bg-[hsl(225_12%_8%)] text-white -mx-6" style={{ borderRadius: 0, paddingLeft: '1.5rem', paddingRight: '1.5rem' }}>
+      <div className="rounded-2xl p-5 bg-[#111111] border-l-4 border-primary text-white">
         <div className="flex items-center gap-2 mb-4">
           <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
             <Heart className="w-4 h-4 text-primary" />
