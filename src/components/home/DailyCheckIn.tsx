@@ -265,12 +265,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
   return (
     <>
       <div className="rounded-2xl p-5 bg-[#111111] border-l-4 border-primary text-white">
-        <div className="flex items-center gap-2 mb-4">
-          <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-            <Heart className="w-4 h-4 text-primary" />
-          </div>
-          <h3 className="font-serif text-lg font-semibold text-white">Daily Check-In</h3>
-        </div>
+        <h3 className="font-serif text-lg font-semibold text-white text-center mb-4">Daily Check-In</h3>
 
         <AnimatePresence mode="wait">
           {step === 0 && (
