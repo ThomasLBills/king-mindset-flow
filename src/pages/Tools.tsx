@@ -73,12 +73,24 @@ const ToolsPage = () => {
           className="mb-6"
         >
           <h2 className="font-semibold text-base mb-2">Which moment are you in?</h2>
-          <div className="flex items-center gap-0 text-sm text-muted-foreground">
-            <span>Before</span>
-            <span className="mx-3 text-border">|</span>
-            <span>During</span>
-            <span className="mx-3 text-border">|</span>
-            <span>After</span>
+          <div className="flex items-center gap-0 text-sm">
+            {[
+              { label: "Before", action: () => setShowPressure(true) },
+              { label: "During", action: () => setShowTemptation(true) },
+              { label: "After", action: () => setShowGraceProtocol(true) },
+            ].map((item, i) => (
+              <>
+                {i > 0 && <span key={`sep-${i}`} className="mx-3 text-border">|</span>}
+                <motion.button
+                  key={item.label}
+                  onClick={item.action}
+                  whileTap={{ scale: 1.05 }}
+                  className="py-4 text-[#666666] hover:underline hover:text-primary active:text-primary transition-colors"
+                >
+                  {item.label}
+                </motion.button>
+              </>
+            ))}
           </div>
         </motion.div>
 
