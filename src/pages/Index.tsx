@@ -53,7 +53,7 @@ const Index = () => {
           <p className="text-sm text-muted-foreground tracking-wide mb-1">
             {daysFree > 0 ? `Day ${daysFree} of your journey` : "Start steady."}
           </p>
-          <h1 className="font-serif text-3xl font-semibold">{timeGreeting}, {firstName}.</h1>
+          <h1 className="font-serif text-4xl font-semibold">{timeGreeting}, {firstName}.</h1>
         </motion.div>
 
         {/* Daily Check-In */}
@@ -90,7 +90,7 @@ const Index = () => {
 
         {/* In-the-Moment Tools */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-          <h2 className="font-serif text-xl font-semibold mb-4">In-the-Moment Tools</h2>
+          <h2 className="font-serif text-2xl font-semibold mb-4">In-the-Moment Tools</h2>
           <div className="space-y-4">
             <ToolCard title="Pressure Rising" description="Notice → Name Truth → Redirect" icon={Flame} variant="pressure" onClick={() => setShowPressure(true)} />
             <ToolCard title="Active Temptation" description="The way out when you need it now" icon={Shield} variant="temptation" onClick={() => setShowTemptation(true)} />
