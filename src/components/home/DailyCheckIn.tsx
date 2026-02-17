@@ -6,14 +6,20 @@ import { cn } from "@/lib/utils";
 import { useDailyCheckIn } from "@/hooks/useDailyProgress";
 
 const awarenessOptions = [
-  { id: "rested", label: "Rested", emoji: "😌" },
-  { id: "tired", label: "Tired", emoji: "😴" },
-  { id: "stressed", label: "Stressed", emoji: "😰" },
-  { id: "anxious", label: "Anxious", emoji: "😟" },
-  { id: "lonely", label: "Lonely", emoji: "🫂" },
-  { id: "grateful", label: "Grateful", emoji: "🙏" },
-  { id: "hopeful", label: "Hopeful", emoji: "✨" },
-  { id: "pressured", label: "Pressured", emoji: "😤" },
+  // Physical
+  { id: "rested", label: "Rested", group: "Physical" },
+  { id: "drained", label: "Drained", group: "Physical" },
+  // Mental / Emotional
+  { id: "calm", label: "Calm", group: "Mental" },
+  { id: "anxious", label: "Anxious", group: "Mental" },
+  { id: "pressured", label: "Pressured", group: "Mental" },
+  { id: "discouraged", label: "Discouraged", group: "Mental" },
+  // Relational
+  { id: "connected", label: "Connected", group: "Relational" },
+  { id: "isolated", label: "Isolated", group: "Relational" },
+  // Spiritual
+  { id: "hopeful", label: "Hopeful", group: "Spiritual" },
+  { id: "grateful", label: "Grateful", group: "Spiritual" },
 ];
 
 interface DailyCheckInProps {
@@ -25,6 +31,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport }: DailyCheckInProps) => {
   const [step, setStep] = useState(0);
   const [selectedAwareness, setSelectedAwareness] = useState<string[]>([]);
   const [completed, setCompleted] = useState(false);
+  const [showBreathText, setShowBreathText] = useState(false);
   const { isCheckedIn, submitCheckIn } = useDailyCheckIn();
 
   // If already checked in today, signal parent
@@ -40,7 +47,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport }: DailyCheckInProps) => {
   };
 
   const needsSupport = selectedAwareness.some((a) =>
-    ["stressed", "anxious", "lonely", "pressured"].includes(a)
+    ["anxious", "pressured", "isolated", "discouraged", "drained"].includes(a)
   );
 
   const handleComplete = async () => {
@@ -91,7 +98,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport }: DailyCheckInProps) => {
             exit={{ opacity: 0, x: -20 }}
           >
             <p className="text-muted-foreground mb-4">
-              How are you feeling right now? Select all that apply.
+              What is present in you right now?
             </p>
             <div className="grid grid-cols-2 gap-2 mb-6">
               {awarenessOptions.map((option) => (
@@ -99,26 +106,34 @@ const DailyCheckIn = ({ onComplete, onNeedSupport }: DailyCheckInProps) => {
                   key={option.id}
                   onClick={() => toggleAwareness(option.id)}
                   className={cn(
-                    "flex items-center gap-3 p-3 rounded-xl border transition-all duration-200",
+                    "flex items-center gap-3 p-3 rounded-xl border transition-all duration-200 text-left",
                     selectedAwareness.includes(option.id)
                       ? "border-primary bg-primary/10 text-foreground"
                       : "border-border hover:border-primary/30 hover:bg-muted/50 text-foreground"
                   )}
                 >
-                  <span className="text-xl">{option.emoji}</span>
                   <span className="text-sm font-medium">{option.label}</span>
                 </button>
               ))}
             </div>
+
+            {showBreathText && (
+              <p className="text-sm text-muted-foreground text-center mb-4">
+                Take a breath. Awareness builds freedom.
+              </p>
+            )}
+
             <div className="flex gap-3">
               <Button
                 variant="calm"
-                onClick={() => setStep(1)}
+                onClick={() => {
+                  setShowBreathText(true);
+                  setTimeout(() => setStep(1), 1000);
+                }}
                 disabled={selectedAwareness.length === 0}
                 className="flex-1"
               >
-                Continue
-                <ChevronRight className="w-4 h-4" />
+                Align Today
               </Button>
             </div>
           </motion.div>

@@ -9,16 +9,12 @@ import PressureRisingTool from "@/components/tools/PressureRisingTool";
 import TemptationTool from "@/components/tools/TemptationTool";
 import AfterFallTool from "@/components/tools/AfterFallTool";
 import ReachOut from "@/components/brotherhood/ReachOut";
-import { Flame, Shield, Heart, Sparkles } from "lucide-react";
+import { Flame, Shield, Heart } from "lucide-react";
 import { useDailyCheckIn, useFreedomStreak } from "@/hooks/useDailyProgress";
 import { useAuth } from "@/hooks/useAuth";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
-const greetings = [
-  "Good morning, king.",
-  "Welcome back, brother.",
-  "You are seen.",
-  "Grace meets you here.",
-];
 
 const Index = () => {
   const [showPressure, setShowPressure] = useState(false);
@@ -31,7 +27,20 @@ const Index = () => {
   const { isCheckedIn } = useDailyCheckIn();
   const { daysFree } = useFreedomStreak();
 
-  const greeting = greetings[Math.floor(Math.random() * greetings.length)];
+  const { data: profile } = useQuery({
+    queryKey: ["profile", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("first_name, display_name")
+        .eq("user_id", user!.id)
+        .maybeSingle();
+      return data;
+    },
+  });
+
+  const firstName = profile?.first_name || profile?.display_name || "King";
   const checkInDone = isCheckedIn || justCompleted;
 
   return (
@@ -39,13 +48,10 @@ const Index = () => {
       <div className="px-6 py-6 max-w-lg mx-auto">
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
-          <div className="flex items-center gap-2 mb-1">
-            <Sparkles className="w-4 h-4 text-accent" />
-            <span className="text-sm text-muted-foreground">
-              {daysFree > 0 ? `Day ${daysFree} of your journey` : "Today is a new beginning"}
-            </span>
-          </div>
-          <h1 className="font-serif text-3xl font-bold">{greeting}</h1>
+          <p className="text-sm text-muted-foreground tracking-wide uppercase mb-1">
+            {daysFree > 0 ? `Day ${daysFree} of your journey` : "Start steady."}
+          </p>
+          <h1 className="font-serif text-3xl font-bold">Good morning, {firstName}.</h1>
         </motion.div>
 
         {/* Daily Check-In */}
