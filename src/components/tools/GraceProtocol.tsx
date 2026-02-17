@@ -150,7 +150,7 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
               </p>
               <ScriptureBlock
                 text="Therefore, there is now no condemnation for those who are in Christ Jesus."
-                ref="Romans 8:1 (ESV)"
+                reference="Romans 8:1 (ESV)"
               />
               <Button onClick={next} className="w-full mt-8 rounded-xl font-bold h-12 text-base bg-primary text-[#0A0A0A] hover:bg-primary/90 shadow-lg shadow-primary/20">
                 I receive this. Continue.
@@ -277,7 +277,7 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
               </p>
               <ScriptureBlock
                 text="Do not gloat over me, my enemy! Though I have fallen, I will rise."
-                ref="Micah 7:8 (ESV)"
+                reference="Micah 7:8 (ESV)"
               />
               <div className="bg-white/5 border border-primary/20 rounded-xl p-6 mt-6 mb-8 max-w-sm">
                 <p className="font-serif text-lg font-bold text-white leading-relaxed text-center">
@@ -323,7 +323,7 @@ const StepWrapper = ({ children }: { children: React.ReactNode }) => (
   </motion.div>
 );
 
-const ScriptureBlock = ({ text, ref: reference }: { text: string; ref: string }) => (
+const ScriptureBlock = ({ text, reference }: { text: string; reference: string }) => (
   <div className="bg-white/5 border border-primary/20 rounded-xl p-5 w-full max-w-sm">
     <p className="font-serif text-sm text-primary italic leading-relaxed">
       "{text}"
