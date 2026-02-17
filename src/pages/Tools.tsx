@@ -16,14 +16,14 @@ const ToolsPage = () => {
 
   return (
     <AppLayout>
-      <div className="px-5 py-6 min-h-screen bg-[hsl(225_12%_6%)]">
+      <div className="px-5 py-6 min-h-screen">
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-6"
         >
-          <h1 className="font-serif text-3xl font-bold text-white mb-2">Your Armor</h1>
-          <p className="text-white/50">
+          <h1 className="font-serif text-3xl font-bold mb-2">Your Armor</h1>
+          <p className="text-muted-foreground">
             Put on the full armor of God. Choose what your moment requires.
           </p>
         </motion.div>
@@ -64,7 +64,7 @@ const ToolsPage = () => {
         >
           <button
             onClick={() => setShowReachOut(true)}
-            className="w-full text-left p-4 rounded-2xl bg-[hsl(225_12%_8%)] border-l-4 border-primary transition-all hover:border-primary/80"
+            className="w-full text-left p-4 rounded-2xl bg-[#111111] border-l-4 border-primary transition-all hover:border-primary/80"
           >
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0">
@@ -84,7 +84,7 @@ const ToolsPage = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <div className="w-full rounded-2xl bg-[hsl(225_12%_8%)] px-6 py-8">
+          <div className="w-full rounded-2xl bg-[#111111] px-6 py-8">
             <p className="font-serif text-base text-white/85 italic leading-relaxed mb-3">
               "No temptation has overtaken you except what is common to mankind. And God is faithful; he will not let you be tempted beyond what you can bear."
             </p>

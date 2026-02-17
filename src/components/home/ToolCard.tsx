@@ -13,7 +13,7 @@ const ToolCard = ({ title, description, icon: Icon, onClick }: ToolCardProps) =>
     <motion.button
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
-      className="w-full text-left p-4 rounded-2xl bg-[hsl(225_12%_8%)] border-l-4 border-primary transition-all hover:border-primary/80"
+      className="w-full text-left p-4 rounded-2xl bg-[#111111] border-l-4 border-primary transition-all hover:border-primary/80"
     >
       <div className="flex items-center gap-4">
         <div className="w-12 h-12 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0">
