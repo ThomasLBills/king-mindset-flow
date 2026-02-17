@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useRelapseEventLogger } from "@/hooks/useTriggerPatterns";
-import { Shield, ChevronRight, Heart, RotateCcw } from "lucide-react";
+import { Shield, ChevronRight, Heart, RotateCcw, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -16,7 +16,6 @@ import {
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, addWeeks, subWeeks, isAfter, isSameDay } from "date-fns";
 import { useFreedomStreak } from "@/hooks/useDailyProgress";
 import { cn } from "@/lib/utils";
-import { ChevronLeft } from "lucide-react";
 
 interface FreedomStripProps {
   onOpenGraceProtocol?: () => void;
@@ -58,17 +57,25 @@ const FreedomStrip = ({ onOpenGraceProtocol }: FreedomStripProps) => {
   const dayLabels = ["S", "M", "T", "W", "T", "F", "S"];
 
   return (
-    <div className="bg-[hsl(225_12%_8%)] text-white -mx-6" style={{ paddingLeft: "1.5rem", paddingRight: "1.5rem" }}>
-      {/* Compact Strip */}
+    <div className="bg-[#111111] rounded-2xl border-l-4 border-primary p-5">
+      {/* Card heading */}
+      <div className="flex items-center gap-2 mb-3">
+        <Shield className="h-5 w-5 text-primary flex-shrink-0" />
+        <h3 className="font-serif text-lg font-bold text-white">Freedom Journey</h3>
+      </div>
+
+      {/* Grace message */}
+      <p className="text-sm text-white leading-relaxed mb-4">{getCovenantMessage()}</p>
+
+      {/* Expandable calendar toggle */}
       <motion.button
         onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center gap-3 py-4"
+        className="w-full flex items-center gap-2 text-sm text-primary"
         whileTap={{ scale: 0.99 }}
       >
-        <Shield className="h-4 w-4 text-primary flex-shrink-0" />
-        <span className="text-sm text-white flex-1 text-left">{getCovenantMessage()}</span>
+        <span>{expanded ? "Hide calendar" : "View calendar"}</span>
         <motion.div animate={{ rotate: expanded ? 90 : 0 }} transition={{ duration: 0.2 }}>
-          <ChevronRight className="h-4 w-4 text-white" />
+          <ChevronRight className="h-4 w-4" />
         </motion.div>
       </motion.button>
 
@@ -79,7 +86,7 @@ const FreedomStrip = ({ onOpenGraceProtocol }: FreedomStripProps) => {
         transition={{ duration: 0.25, ease: "easeInOut" }}
         className="overflow-hidden"
       >
-        <div className="pb-4">
+        <div className="pt-4">
           {/* Week navigation */}
           <div className="flex items-center justify-between mb-3">
             <button
