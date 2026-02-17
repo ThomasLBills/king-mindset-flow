@@ -2,11 +2,10 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MessageCircle, UserPlus, X, Check, Search, Heart, Shield, Loader2 } from "lucide-react";
+import { MessageCircle, UserPlus, X, Check, Search, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useBrothers, useSearchUsers } from "@/hooks/useBrotherhood";
 import { toast } from "sonner";
-import ReachOut from "@/components/brotherhood/ReachOut";
 
 interface MyBrothersTabProps {
   onStartDM: (brotherUserId: string, name: string) => void;
@@ -17,7 +16,6 @@ const MyBrothersTab = ({ onStartDM }: MyBrothersTabProps) => {
     brothers, pendingRequests, maxBrothers, isLoading, atCapacity,
     sendRequest, acceptRequest, declineRequest, removeBrother,
   } = useBrothers();
-  const [showReachOut, setShowReachOut] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const { data: searchResults = [], isLoading: searching } = useSearchUsers(searchQuery);
@@ -36,15 +34,7 @@ const MyBrothersTab = ({ onStartDM }: MyBrothersTabProps) => {
   const existingIds = new Set([...brothers.map(b => b.userId), ...pendingRequests.map(b => b.userId)]);
 
   return (
-    <div className="px-5 py-6 space-y-6">
-      {/* Quick Reach Out */}
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-        <Button variant="brotherhood" size="lg" onClick={() => setShowReachOut(true)} className="w-full">
-          <MessageCircle className="w-5 h-5" />
-          Reach Out Now
-        </Button>
-      </motion.div>
-
+    <div className="space-y-6">
       {/* Pending Requests */}
       {pendingRequests.length > 0 && (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
@@ -163,25 +153,6 @@ const MyBrothersTab = ({ onStartDM }: MyBrothersTabProps) => {
           </div>
         )}
       </motion.div>
-
-      {/* Safe Space Guidelines */}
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-        <div className="safe-zone">
-          <div className="flex items-center gap-2 mb-2">
-            <Heart className="w-4 h-4 text-success" />
-            <span className="font-medium">Safe Space Guidelines</span>
-          </div>
-          <ul className="text-sm text-muted-foreground space-y-1">
-            <li>• No explicit details needed—connection is what matters</li>
-            <li>• Restore with gentleness, not judgment</li>
-            <li>• What's shared here stays here</li>
-          </ul>
-        </div>
-      </motion.div>
-
-      <AnimatePresence>
-        {showReachOut && <ReachOut onClose={() => setShowReachOut(false)} />}
-      </AnimatePresence>
     </div>
   );
 };
