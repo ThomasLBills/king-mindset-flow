@@ -1,11 +1,11 @@
-import { Home, Wrench, Calendar, Users, BookOpen } from "lucide-react";
+import { Home, Shield, Calendar, Users, BookOpen } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
 const navItems = [
   { icon: Home, label: "Home", path: "/app" },
-  { icon: Wrench, label: "Armor", path: "/tools" },
+  { icon: Shield, label: "Armor", path: "/tools" },
   { icon: Calendar, label: "Pillars", path: "/rhythms" },
   { icon: Users, label: "Brothers", path: "/brotherhood" },
   { icon: BookOpen, label: "Library", path: "/library" },
