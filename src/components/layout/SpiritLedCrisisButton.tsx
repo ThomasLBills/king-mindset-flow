@@ -53,7 +53,7 @@ const SpiritLedCrisisButton = () => {
         onClick={() => { setOpen(true); logCrisisEvent.mutate(undefined); }}
         className="fixed z-40 w-14 h-14 rounded-full bg-primary flex items-center justify-center"
         style={{
-          bottom: "calc(env(safe-area-inset-bottom, 0px) + 76px)",
+          bottom: "calc(env(safe-area-inset-bottom, 0px) + 80px)",
           right: "20px",
           boxShadow: "0 4px 20px hsl(40 44% 54% / 0.4), 0 0 12px hsl(40 44% 54% / 0.2)",
         }}
