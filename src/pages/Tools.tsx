@@ -73,9 +73,9 @@ const ToolsPage = () => {
           <h2 className="font-semibold text-base mb-4">Which moment are you in?</h2>
           <div className="flex flex-col sm:flex-row gap-3">
             {[
-              { label: "Before", action: () => setShowPressure(true) },
-              { label: "During", action: () => setShowTemptation(true) },
-              { label: "After", action: () => setShowGraceProtocol(true) },
+              { label: "Pressure Rising", action: () => setShowPressure(true) },
+              { label: "Tempted Now", action: () => setShowTemptation(true) },
+              { label: "After a Fall", action: () => setShowGraceProtocol(true) },
             ].map((item) => (
               <motion.button
                 key={item.label}
