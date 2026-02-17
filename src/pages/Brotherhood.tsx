@@ -23,7 +23,7 @@ const BrotherhoodPage = () => {
           <div className="rounded-xl bg-card border border-border p-4">
             <div className="flex items-center gap-2 mb-2">
               <Heart className="w-4 h-4 text-success" />
-              <span className="font-medium">Safe Space Guidelines</span>
+              <span className="font-medium">Expectations</span>
             </div>
             <ul className="text-sm text-muted-foreground space-y-1">
               <li>• No explicit details needed — connection is what matters</li>
