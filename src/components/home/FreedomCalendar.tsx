@@ -47,59 +47,49 @@ const FreedomCalendar = ({ onOpenGraceProtocol }: FreedomCalendarProps) => {
   };
 
   const getCovenantMessage = () => {
-    if (daysFree === 0) return "Your King is pleased with your pursuit. Today is Day 1.";
-    if (daysFree < 7) return `${daysFree} ${daysFree === 1 ? "day" : "days"} walking in freedom. Stay rooted.`;
-    return `${daysFree} days of faithfulness. Your identity is holding.`;
+    if (daysFree === 0) return "You are loved today \u2014 not because of your streak, but because of the cross. Walk in freedom.";
+    if (daysFree < 7) return `You are loved. ${daysFree} ${daysFree === 1 ? "day" : "days"} of walking in freedom.`;
+    if (daysFree < 30) return `His grace is holding you. ${daysFree} days of faithfulness.`;
+    return `The Spirit is at work in you. ${daysFree} days of transformation.`;
   };
 
   const dayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const canGoForward = !isAfter(addWeeks(currentWeekStart, 1), today);
-  const hasActiveStreak = daysFree > 0;
 
   return (
-    <div className={cn(
-      "card-elevated p-6 relative overflow-hidden",
-      hasActiveStreak && "ring-1 ring-primary/20"
-    )}>
-      {/* Subtle glow when streak is active */}
-      {hasActiveStreak && (
-        <div className="absolute inset-0 pointer-events-none" style={{
-          background: "radial-gradient(ellipse at top right, hsl(40 44% 57% / 0.06) 0%, transparent 60%)"
-        }} />
-      )}
-
+    <div className="rounded-2xl p-6 bg-[hsl(225_12%_8%)] text-white relative overflow-hidden -mx-6" style={{ borderRadius: 0, paddingLeft: "1.5rem", paddingRight: "1.5rem" }}>
       <div className="relative flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Shield className="h-5 w-5 text-primary" />
-          <h3 className="font-serif font-semibold">Freedom Journey</h3>
+          <h3 className="font-serif font-semibold text-primary">Freedom Journey</h3>
         </div>
-        <Badge variant="secondary" className="font-semibold bg-primary/15 text-primary border-0">
+        <Badge className="font-semibold bg-white/10 text-primary border-0">
           {daysFree} {daysFree === 1 ? "day" : "days"}
         </Badge>
       </div>
 
-      <p className="relative text-sm text-muted-foreground mb-4 font-medium">
+      <p className="relative text-sm text-white/70 mb-4 font-medium leading-relaxed">
         {getCovenantMessage()}
       </p>
 
       <div className="relative flex items-center justify-between mb-3">
         <button
           onClick={() => setCurrentWeekStart(subWeeks(currentWeekStart, 1))}
-          className="p-1.5 hover:bg-secondary rounded-lg transition-colors"
+          className="p-1.5 hover:bg-white/10 rounded-lg transition-colors"
         >
-          <ChevronLeft className="h-4 w-4 text-muted-foreground" />
+          <ChevronLeft className="h-4 w-4 text-white/50" />
         </button>
-        <span className="text-sm font-medium">
+        <span className="text-sm font-medium text-white/60">
           {format(currentWeekStart, "MMM d")} – {format(weekEnd, "MMM d, yyyy")}
         </span>
         <button
           onClick={() => setCurrentWeekStart(addWeeks(currentWeekStart, 1))}
-          className="p-1.5 hover:bg-secondary rounded-lg transition-colors"
+          className="p-1.5 hover:bg-white/10 rounded-lg transition-colors"
           disabled={!canGoForward}
         >
           <ChevronRight className={cn(
             "h-4 w-4",
-            !canGoForward ? "text-muted-foreground/30" : "text-muted-foreground"
+            !canGoForward ? "text-white/15" : "text-white/50"
           )} />
         </button>
       </div>
@@ -112,18 +102,18 @@ const FreedomCalendar = ({ onOpenGraceProtocol }: FreedomCalendarProps) => {
 
           return (
             <div key={day.toISOString()} className="flex flex-col items-center gap-1">
-              <span className="text-[10px] text-muted-foreground font-medium">
+              <span className="text-[10px] text-white/40 font-medium">
                 {dayLabels[i]}
               </span>
               <motion.div
                 initial={false}
                 className={cn(
                   "w-8 h-8 flex items-center justify-center text-xs rounded-full transition-colors",
-                  isFree && !isToday && "bg-primary/15 text-primary font-medium",
-                  isToday && isFree && "bg-primary text-primary-foreground font-bold ring-2 ring-primary/30",
-                  isToday && !isFree && "bg-accent text-accent-foreground font-bold ring-2 ring-accent/30",
-                  isFuture && "text-muted-foreground/30 bg-muted/30",
-                  !isFree && !isToday && !isFuture && "text-muted-foreground bg-muted/50"
+                  isFree && !isToday && "bg-primary/20 text-primary font-medium",
+                  isToday && isFree && "bg-primary text-[#0A0A0A] font-bold ring-2 ring-primary/30",
+                  isToday && !isFree && "bg-white/15 text-white font-bold ring-2 ring-white/20",
+                  isFuture && "text-white/20 bg-white/5",
+                  !isFree && !isToday && !isFuture && "text-white/30 bg-white/5"
                 )}
               >
                 {format(day, "d")}
@@ -133,13 +123,13 @@ const FreedomCalendar = ({ onOpenGraceProtocol }: FreedomCalendarProps) => {
         })}
       </div>
 
-      <div className="relative mt-4 pt-4 border-t border-border">
+      <div className="relative mt-4 pt-4 border-t border-white/10">
         <Dialog open={resetDialogOpen} onOpenChange={setResetDialogOpen}>
           <DialogTrigger asChild>
             <Button
               variant="ghost"
               size="sm"
-              className="w-full text-muted-foreground hover:text-foreground"
+              className="w-full text-white/30 hover:text-white/50 hover:bg-white/5"
             >
               <RotateCcw className="h-4 w-4 mr-2" />
               I need to reset my journey
