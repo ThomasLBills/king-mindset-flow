@@ -5,7 +5,7 @@ import DailyCheckIn from "@/components/home/DailyCheckIn";
 import KingProfile from "@/components/home/KingProfile";
 import FreedomStrip from "@/components/home/FreedomStrip";
 import PatternInsightCard from "@/components/home/PatternInsightCard";
-import AfterFallTool from "@/components/tools/AfterFallTool";
+import GraceProtocol from "@/components/tools/GraceProtocol";
 import ReachOut from "@/components/brotherhood/ReachOut";
 import { Heart } from "lucide-react";
 import { useDailyCheckIn, useFreedomStreak } from "@/hooks/useDailyProgress";
@@ -113,7 +113,7 @@ const Index = () => {
       {/* Modals */}
       <AnimatePresence>
         {showGrace && (
-          <AfterFallTool onClose={() => setShowGrace(false)} onReachOut={() => { setShowGrace(false); setShowReachOut(true); }} />
+          <GraceProtocol onClose={() => setShowGrace(false)} />
         )}
         {showReachOut && <ReachOut onClose={() => setShowReachOut(false)} />}
       </AnimatePresence>
