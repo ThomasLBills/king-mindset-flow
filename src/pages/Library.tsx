@@ -149,49 +149,34 @@ const LibraryPage = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.03 }}
               >
-                <button
+              <button
                   onClick={() => unlocked && setExpandedWeek(expandedWeek === week.id ? null : week.id)}
                   disabled={!unlocked}
-                  className={cn(
-                    "week-card",
-                    isCurrent && "current",
-                    completed && "completed",
-                    !unlocked && "locked",
-                    unlocked && !isCurrent && !completed && "unlocked"
-                  )}
+                  className="w-full text-left p-4 rounded-2xl bg-[#111111] border-l-4 border-primary transition-all hover:border-primary/80"
                 >
                   <div className="flex items-center gap-4">
                     <div
                       className={cn(
                         "w-11 h-11 rounded-full flex items-center justify-center font-semibold text-sm transition-all",
                         completed
-                          ? "bg-success text-success-foreground"
-                          : isCurrent
-                          ? "bg-primary text-primary-foreground"
+                          ? "bg-primary/15"
                           : unlocked
-                          ? "bg-secondary text-secondary-foreground"
-                          : "bg-muted text-muted-foreground"
+                          ? "bg-primary/15"
+                          : "bg-white/10"
                       )}
                     >
                       {completed ? (
-                        <Check className="w-5 h-5" />
+                        <Check className="w-5 h-5 text-primary" />
                       ) : unlocked ? (
-                        week.week_number
+                        <BookOpen className="w-5 h-5 text-primary" />
                       ) : (
-                        <Lock className="w-4 h-4" />
+                        <Lock className="w-4 h-4 text-primary" />
                       )}
                     </div>
                     <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <span className="text-xs text-muted-foreground">Week {week.week_number}</span>
-                        {isCurrent && (
-                          <span className="text-[10px] bg-primary text-primary-foreground px-2 py-0.5 rounded-full font-semibold">
-                            Current
-                          </span>
-                        )}
-                      </div>
-                      <h3 className="font-serif font-semibold text-lg">{week.title}</h3>
-                      <p className="text-sm text-muted-foreground">{week.summary || ""}</p>
+                      <span className="text-xs text-white/50 block mb-0.5">Week {week.week_number}</span>
+                      <h3 className="font-serif font-bold text-lg text-white">{week.title}</h3>
+                      <p className="text-sm text-white/50">{week.summary || ""}</p>
                       {unlocked && weekProgress > 0 && weekProgress < 100 && (
                         <div className="mt-2">
                           <Progress value={weekProgress} className="h-1" />
@@ -201,7 +186,7 @@ const LibraryPage = () => {
                     {unlocked && (
                       <ChevronRight
                         className={cn(
-                          "w-5 h-5 text-muted-foreground transition-transform duration-200",
+                          "w-5 h-5 text-white/30 transition-transform duration-200",
                           expandedWeek === week.id && "rotate-90"
                         )}
                       />
@@ -229,14 +214,14 @@ const LibraryPage = () => {
                               <button
                                 key={lesson.id}
                                 onClick={() => navigate(`/library/lesson/${lesson.id}`)}
-                                className="w-full flex items-center gap-3 p-3.5 rounded-xl bg-secondary hover:bg-secondary/80 transition-all group"
+                                className="w-full flex items-center gap-3 p-3.5 rounded-xl bg-white/5 hover:bg-white/10 transition-all group"
                               >
                                 <div className={cn(
                                   "p-2 rounded-lg transition-colors",
-                                  isComplete ? "bg-success/10" : "bg-primary/10 group-hover:bg-primary/20"
+                                  isComplete ? "bg-primary/15" : "bg-primary/10 group-hover:bg-primary/20"
                                 )}>
                                   {isComplete ? (
-                                    <Check className="w-4 h-4 text-success" />
+                                    <Check className="w-4 h-4 text-primary" />
                                   ) : lesson.video_url ? (
                                     <Play className="w-4 h-4 text-primary" />
                                   ) : (
@@ -244,8 +229,8 @@ const LibraryPage = () => {
                                   )}
                                 </div>
                                 <div className="flex-1 text-left">
-                                  <span className="text-sm font-medium block">{lesson.title}</span>
-                                  <span className="text-xs text-muted-foreground">
+                                  <span className="text-sm font-medium block text-white">{lesson.title}</span>
+                                  <span className="text-xs text-white/50">
                                     {lesson.duration_minutes ? `${lesson.duration_minutes} min` : "Lesson"}
                                     {isComplete && " · Completed"}
                                   </span>
