@@ -246,10 +246,9 @@ const DailyCheckIn = ({ onComplete, onNeedSupport }: DailyCheckInProps) => {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
           >
-            <p className="text-white font-serif text-lg mb-2">
+            <p className="text-white font-serif text-lg mb-4">
               What do you sense the Spirit saying about what you are feeling?
             </p>
-            <p className="text-xs text-white mb-4">This is optional. Listen quietly.</p>
             
             <textarea
               value={spiritPrompt}
@@ -262,19 +261,17 @@ const DailyCheckIn = ({ onComplete, onNeedSupport }: DailyCheckInProps) => {
             <div className="flex flex-col gap-3 mt-4">
               <Button
                 onClick={handleComplete}
-                disabled={submitCheckIn.isPending}
-                className="w-full rounded-xl font-semibold h-12 text-base bg-primary text-[hsl(225_12%_8%)] hover:bg-primary/90 shadow-lg shadow-primary/20"
+                disabled={submitCheckIn.isPending || spiritPrompt.trim().length === 0}
+                className={cn(
+                  "w-full rounded-xl font-semibold h-12 text-base shadow-lg transition-all duration-200",
+                  spiritPrompt.trim().length > 0
+                    ? "bg-primary text-[#0A0A0A] hover:bg-primary/90 shadow-primary/20"
+                    : "bg-[hsl(225_12%_10%)] text-muted-foreground border border-primary/30 shadow-none cursor-not-allowed"
+                )}
               >
                 <Check className="w-4 h-4" />
                 Complete Check-In
               </Button>
-              <button
-                onClick={handleComplete}
-                disabled={submitCheckIn.isPending}
-                className="text-sm text-white hover:text-white/80 transition-colors py-2"
-              >
-                I will listen throughout the day
-              </button>
               {needsSupport && (
                 <Button
                   onClick={onNeedSupport}
