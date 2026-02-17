@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Heart, MessageCircle, Bell } from "lucide-react";
+import { X, Heart, MessageCircle, Bell, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
@@ -8,8 +8,6 @@ import { useFreedomStreak } from "@/hooks/useDailyProgress";
 import { useRelapseEventLogger } from "@/hooks/useTriggerPatterns";
 
 const TOTAL_STEPS = 6;
-
-const headerQuote = "Grace is not a reward for the strong. It is the lifeline for the broken.";
 
 const triggerOptions = [
   "I was alone.",
@@ -60,16 +58,15 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="fixed inset-0 z-50 bg-[hsl(225_12%_6%)] flex flex-col items-center justify-center px-6"
+        className="fixed inset-0 z-50 bg-[#111111] flex flex-col items-center justify-center px-8"
       >
         <motion.div
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
-          className="w-24 h-24 rounded-full bg-primary/20 flex items-center justify-center mb-8"
-          style={{ boxShadow: "0 0 60px hsl(40 44% 54% / 0.3), 0 0 120px hsl(40 44% 54% / 0.15)" }}
+          className="w-[60px] h-[60px] rounded-full bg-primary/20 flex items-center justify-center mb-8"
         >
-          <Heart className="w-12 h-12 text-primary" />
+          <Heart className="w-8 h-8 text-primary" />
         </motion.div>
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
@@ -108,20 +105,21 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 bg-[hsl(225_12%_6%)] flex flex-col"
+      className="fixed inset-0 z-50 bg-[#111111] flex flex-col"
     >
-      {/* Top bar */}
-      <div className="flex items-center justify-end p-4">
+      {/* Close button */}
+      <div className="flex justify-end p-4">
         <button onClick={onClose} className="p-2 rounded-full hover:bg-white/10 transition-colors">
           <X className="w-5 h-5 text-white" />
         </button>
       </div>
 
       {/* Step content */}
-      <div className="flex-1 flex items-center justify-center px-6 overflow-y-auto">
+      <div className="flex-1 flex items-center justify-center px-8 overflow-y-auto">
         <AnimatePresence mode="wait">
           {step === 0 && (
             <StepWrapper key="s1">
+              <Shield className="w-[60px] h-[60px] text-primary mb-6" />
               <h2 className="font-serif text-2xl font-bold text-white mb-4 text-center">
                 Stop. You are still His.
               </h2>
@@ -132,7 +130,7 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
                 text="Therefore, there is now no condemnation for those who are in Christ Jesus."
                 reference="Romans 8:1 (ESV)"
               />
-              <Button onClick={next} className="w-full mt-8 rounded-xl font-bold h-12 text-base bg-primary text-[#0A0A0A] hover:bg-primary/90 shadow-lg shadow-primary/20">
+              <Button onClick={next} className="w-full mt-8 rounded-xl font-bold h-12 text-base bg-primary text-[#0A0A0A] hover:bg-primary/90">
                 I receive this. Continue.
               </Button>
             </StepWrapper>
@@ -140,6 +138,7 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
 
           {step === 1 && (
             <StepWrapper key="s2">
+              <Shield className="w-[60px] h-[60px] text-primary mb-6" />
               <h2 className="font-serif text-2xl font-bold text-white mb-4 text-center">
                 Name it without hiding.
               </h2>
@@ -150,13 +149,13 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
                 value={confession}
                 onChange={(e) => setConfession(e.target.value)}
                 placeholder="What happened? Write it plainly."
-                className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm text-white/90 placeholder:text-white/25 resize-none focus:outline-none focus:border-primary/50 transition-colors mb-3"
+                className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm text-white placeholder:text-white/25 resize-none focus:outline-none focus:border-primary/50 transition-colors mb-3"
                 rows={3}
               />
               <p className="text-xs text-white text-center mb-6">
                 Shame lives in secrecy. Truth lives in light.
               </p>
-              <Button onClick={next} className="w-full rounded-xl font-bold h-12 text-base bg-primary text-[#0A0A0A] hover:bg-primary/90 shadow-lg shadow-primary/20">
+              <Button onClick={next} className="w-full rounded-xl font-bold h-12 text-base bg-primary text-[#0A0A0A] hover:bg-primary/90">
                 I have named it. Continue.
               </Button>
             </StepWrapper>
@@ -164,6 +163,7 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
 
           {step === 2 && (
             <StepWrapper key="s3">
+              <Shield className="w-[60px] h-[60px] text-primary mb-6" />
               <h2 className="font-serif text-2xl font-bold text-white mb-4 text-center">
                 Shame is a liar.
               </h2>
@@ -175,7 +175,7 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
                   I am not condemned. I am not defined by this moment. I am a son of God walking toward freedom.
                 </p>
               </div>
-              <Button onClick={next} className="w-full rounded-xl font-bold h-12 text-base bg-primary text-[#0A0A0A] hover:bg-primary/90 shadow-lg shadow-primary/20">
+              <Button onClick={next} className="w-full rounded-xl font-bold h-12 text-base bg-primary text-[#0A0A0A] hover:bg-primary/90">
                 I declare this. Continue.
               </Button>
             </StepWrapper>
@@ -183,6 +183,7 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
 
           {step === 3 && (
             <StepWrapper key="s4">
+              <Shield className="w-[60px] h-[60px] text-primary mb-6" />
               <h2 className="font-serif text-2xl font-bold text-white mb-4 text-center">
                 What led here?
               </h2>
@@ -199,7 +200,7 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
                       "w-full p-3.5 rounded-xl text-left text-sm font-medium transition-colors",
                       selectedTriggers.includes(t)
                         ? "bg-primary text-[#0A0A0A]"
-                        : "bg-white/5 border border-white/10 text-white hover:bg-white/10"
+                        : "bg-[#1C1C1E] border border-primary/30 text-white hover:bg-white/10"
                     )}
                   >
                     {t}
@@ -209,7 +210,7 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
               <p className="text-xs text-white text-center mb-6 max-w-sm">
                 This is stored privately in Your Patterns to help you see what the Spirit may be showing you over time.
               </p>
-              <Button onClick={next} className="w-full rounded-xl font-bold h-12 text-base bg-primary text-[#0A0A0A] hover:bg-primary/90 shadow-lg shadow-primary/20 max-w-sm">
+              <Button onClick={next} className="w-full rounded-xl font-bold h-12 text-base bg-primary text-[#0A0A0A] hover:bg-primary/90 max-w-sm">
                 I see it. Continue.
               </Button>
             </StepWrapper>
@@ -217,6 +218,7 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
 
           {step === 4 && (
             <StepWrapper key="s5">
+              <Shield className="w-[60px] h-[60px] text-primary mb-6" />
               <h2 className="font-serif text-2xl font-bold text-white mb-4 text-center">
                 You were not made to carry this alone.
               </h2>
@@ -235,13 +237,13 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
                 <motion.button
                   whileTap={{ scale: 0.97 }}
                   onClick={next}
-                  className="w-full p-4 rounded-xl bg-white/5 border border-white/10 text-white font-semibold flex items-center gap-3 hover:bg-white/10 transition-colors"
+                  className="w-full p-4 rounded-xl bg-[#1C1C1E] border border-primary/30 text-white font-semibold flex items-center gap-3 hover:bg-white/10 transition-colors"
                 >
                   <Bell className="w-5 h-5" />
                   I will connect today
                 </motion.button>
               </div>
-              <Button onClick={next} className="w-full rounded-xl font-bold h-12 text-base bg-primary text-[#0A0A0A] hover:bg-primary/90 shadow-lg shadow-primary/20 max-w-sm">
+              <Button onClick={next} className="w-full rounded-xl font-bold h-12 text-base bg-primary text-[#0A0A0A] hover:bg-primary/90 max-w-sm">
                 Continue
               </Button>
             </StepWrapper>
@@ -249,6 +251,7 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
 
           {step === 5 && (
             <StepWrapper key="s6">
+              <Shield className="w-[60px] h-[60px] text-primary mb-6" />
               <h2 className="font-serif text-2xl font-bold text-white mb-4 text-center">
                 Today is still Day 1 of the rest of your freedom.
               </h2>
@@ -267,7 +270,7 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
               <Button
                 onClick={handleFinalReset}
                 disabled={resetStreak.isPending || logRelapseEvent.isPending}
-                className="w-full rounded-xl font-bold h-12 text-base bg-primary text-[#0A0A0A] hover:bg-primary/90 shadow-lg shadow-primary/20 max-w-sm"
+                className="w-full rounded-xl font-bold h-12 text-base bg-primary text-[#0A0A0A] hover:bg-primary/90 max-w-sm"
               >
                 I rise. Reset my journey.
               </Button>
@@ -281,7 +284,7 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
         <button
           onClick={handleSkipToReset}
           disabled={resetStreak.isPending || logRelapseEvent.isPending}
-          className="text-xs text-white/50 hover:text-white transition-colors"
+          className="text-sm text-white hover:text-white/70 transition-colors"
         >
           Skip to reset.
         </button>
@@ -305,10 +308,10 @@ const StepWrapper = ({ children }: { children: React.ReactNode }) => (
 
 const ScriptureBlock = ({ text, reference }: { text: string; reference: string }) => (
   <div className="bg-white/5 border border-primary/20 rounded-xl p-5 w-full max-w-sm">
-    <p className="font-serif text-sm text-primary italic leading-relaxed">
+    <p className="font-serif text-base text-white italic leading-relaxed">
       "{text}"
     </p>
-    <p className="text-xs text-primary/70 mt-2 font-medium">{reference}</p>
+    <p className="text-sm text-primary mt-3 font-medium">{reference}</p>
   </div>
 );
 
