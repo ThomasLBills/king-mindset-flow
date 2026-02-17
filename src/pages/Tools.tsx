@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import AppLayout from "@/components/layout/AppLayout";
 import GraceProtocol from "@/components/tools/GraceProtocol";
@@ -33,19 +33,11 @@ const armorScriptures = [
 
 const STORAGE_KEY = "armor-scripture-index";
 
-const getNextScriptureIndex = () => {
-  const stored = localStorage.getItem(STORAGE_KEY);
-  const current = stored !== null ? parseInt(stored, 10) : -1;
-  const next = (current + 1) % armorScriptures.length;
-  localStorage.setItem(STORAGE_KEY, String(next));
-  return next;
-};
-
 const ToolsPage = () => {
   const [showCrisisModal, setShowCrisisModal] = useState(false);
   const [showGraceProtocol, setShowGraceProtocol] = useState(false);
-
-  const scripture = useMemo(() => armorScriptures[getNextScriptureIndex()], []);
+  const [showScriptureModal, setShowScriptureModal] = useState(false);
+  const [scriptureIndex, setScriptureIndex] = useState(0);
 
   return (
     <AppLayout>
@@ -86,20 +78,14 @@ const ToolsPage = () => {
               <span className="block font-bold text-white text-base active:text-[#0A0A0A]">I Need Grace</span>
               <span className="block text-sm text-primary mt-1">Return quickly</span>
             </motion.button>
-          </div>
-        </motion.div>
-
-        {/* Foundational Scripture */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <div className="w-full rounded-2xl bg-[#111111] px-6 py-[60px] text-center shadow-[inset_0_0_40px_rgba(212,175,55,0.04)]">
-            <p className="font-serif text-lg text-white italic leading-relaxed mb-4 max-w-md mx-auto">
-              "{scripture.text}"
-            </p>
-            <p className="text-sm text-primary font-medium">{scripture.reference}</p>
+            <motion.button
+              onClick={() => setShowScriptureModal(true)}
+              whileTap={{ scale: 1.02 }}
+              className="flex-1 py-6 px-10 rounded-xl text-center bg-[#1C1C1E] border-[1.5px] border-primary active:bg-primary active:text-[#0A0A0A] transition-colors duration-200"
+            >
+              <span className="block font-bold text-white text-base active:text-[#0A0A0A]">God's Truth For This Moment</span>
+              <span className="block text-sm text-primary mt-1">Anchor yourself in Scripture</span>
+            </motion.button>
           </div>
         </motion.div>
       </div>
@@ -107,6 +93,40 @@ const ToolsPage = () => {
       <AnimatePresence>
         {showCrisisModal && <SpiritLedCrisisModal onClose={() => setShowCrisisModal(false)} />}
         {showGraceProtocol && <GraceProtocol onClose={() => setShowGraceProtocol(false)} />}
+        {showScriptureModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/95 flex flex-col items-center justify-center px-8"
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              className="max-w-lg w-full text-center"
+            >
+              <p className="font-serif text-2xl text-white italic leading-relaxed mb-6">
+                "{armorScriptures[scriptureIndex].text}"
+              </p>
+              <p className="text-base text-primary font-medium mb-10">
+                {armorScriptures[scriptureIndex].reference}
+              </p>
+              <button
+                onClick={() => setScriptureIndex((prev) => (prev + 1) % armorScriptures.length)}
+                className="w-full py-4 rounded-xl bg-primary text-primary-foreground font-bold text-base mb-4"
+              >
+                Next Scripture
+              </button>
+              <button
+                onClick={() => setShowScriptureModal(false)}
+                className="text-white/70 text-sm hover:text-white transition-colors"
+              >
+                Close
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
       </AnimatePresence>
     </AppLayout>
   );
