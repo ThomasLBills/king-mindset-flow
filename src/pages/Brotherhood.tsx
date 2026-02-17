@@ -25,9 +25,9 @@ const BrotherhoodPage = () => {
               <span className="font-medium">EXPECTATIONS:</span>
             </div>
             <ul className="text-sm text-muted-foreground space-y-1">
-              <li>• No explicit details needed — connection is what matters</li>
-              <li>• Restore with gentleness, not judgment</li>
-              <li>• What's shared here stays here</li>
+              <li>• Connection matters more than details</li>
+              <li>• Restore with grace, not condemnation</li>
+              <li>• What's spoken here stays here</li>
             </ul>
           </div>
         </motion.div>
