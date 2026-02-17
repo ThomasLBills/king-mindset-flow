@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Shield, CalendarCheck, Layers, Heart, BookOpen, Sparkles } from "lucide-react";
+import { Shield, CalendarCheck, Heart, BookOpen, Sparkles } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { useKingProfile } from "@/hooks/useKingProfile";
 import { useFreedomStreak } from "@/hooks/useDailyProgress";
@@ -7,7 +7,6 @@ import { useFreedomStreak } from "@/hooks/useDailyProgress";
 const KingProfile = () => {
   const {
     daysConsistent,
-    pillarsCompleted,
     supportConnections,
     breakthroughMoments,
     currentWeekNumber,
@@ -19,7 +18,6 @@ const KingProfile = () => {
 
   const pillars = [
     { icon: CalendarCheck, label: "Days Consistent", value: daysConsistent },
-    { icon: Layers, label: "Pillars Completed", value: pillarsCompleted },
     { icon: Heart, label: "Support Connections", value: supportConnections },
     { icon: BookOpen, label: "Curriculum", value: `Wk ${currentWeekNumber}/${totalWeeks}`, isProgress: true },
     { icon: Sparkles, label: "Breakthroughs", value: breakthroughMoments },
