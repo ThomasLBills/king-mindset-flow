@@ -77,12 +77,12 @@ const DailyCheckIn = ({ onComplete, onNeedSupport }: DailyCheckInProps) => {
   }
 
   return (
-    <div className="card-elevated p-6">
+    <div className="rounded-2xl p-6 bg-[hsl(225_12%_8%)] text-white" style={{ boxShadow: '0 2px 8px -2px rgba(0,0,0,0.12)' }}>
       <div className="flex items-center gap-2 mb-4">
-        <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center">
-          <Heart className="w-4 h-4 text-accent" />
+        <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+          <Heart className="w-4 h-4 text-primary" />
         </div>
-        <h3 className="font-serif text-lg font-semibold">Daily Check-In</h3>
+        <h3 className="font-serif text-lg font-semibold text-white">Daily Check-In</h3>
       </div>
 
       <AnimatePresence mode="wait">
@@ -93,10 +93,10 @@ const DailyCheckIn = ({ onComplete, onNeedSupport }: DailyCheckInProps) => {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
           >
-            <p className="text-muted-foreground mb-1">
+            <p className="text-white/60 mb-1">
               What is present in you right now?
             </p>
-            <p className="text-xs text-muted-foreground/70 mb-4">Select all that apply.</p>
+            <p className="text-xs text-white/40 mb-4">Select all that apply.</p>
             <div className="grid grid-cols-2 gap-2 mb-6">
               {awarenessOptions.map((option) => {
                 const isSelected = selectedAwareness.includes(option.id);
@@ -124,7 +124,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport }: DailyCheckInProps) => {
               <motion.p
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="text-sm text-muted-foreground text-center mb-4"
+                className="text-sm text-white/50 text-center mb-4"
               >
                 Awareness builds strength.
               </motion.p>
@@ -140,7 +140,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport }: DailyCheckInProps) => {
                 className={cn(
                   "flex-1 rounded-xl font-medium h-11",
                   selectedAwareness.length === 0
-                    ? "bg-[hsl(0_0%_92%)] text-[hsl(0_0%_55%)] hover:bg-[hsl(0_0%_92%)]"
+                    ? "bg-white/10 text-white/30 hover:bg-white/10"
                     : "bg-primary text-primary-foreground hover:bg-primary/90"
                 )}
               >
