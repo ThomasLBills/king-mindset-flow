@@ -76,7 +76,7 @@ const ToolsPage = () => {
               whileTap={{ scale: 1.02 }}
               className="py-6 px-10 rounded-xl text-center bg-[#1C1C1E] border-[1.5px] border-primary active:bg-primary active:text-[#0A0A0A] transition-colors duration-200"
             >
-              <span className="block font-bold text-white text-base">I Need Strength</span>
+              <span className="block font-bold text-white text-base">I Need God's Strength</span>
               <span className="block text-sm text-primary mt-1">Stand against temptation</span>
             </motion.button>
             <motion.button
@@ -84,7 +84,7 @@ const ToolsPage = () => {
               whileTap={{ scale: 1.02 }}
               className="py-6 px-10 rounded-xl text-center bg-[#1C1C1E] border-[1.5px] border-primary active:bg-primary active:text-[#0A0A0A] transition-colors duration-200"
             >
-              <span className="block font-bold text-white text-base">I Need Grace</span>
+              <span className="block font-bold text-white text-base">I Need God's Grace</span>
               <span className="block text-sm text-primary mt-1">Return quickly</span>
             </motion.button>
             <motion.button
