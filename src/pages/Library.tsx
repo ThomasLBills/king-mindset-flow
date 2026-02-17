@@ -150,8 +150,14 @@ const LibraryPage = () => {
                 transition={{ delay: index * 0.03 }}
               >
               <button
-                  onClick={() => unlocked && setExpandedWeek(expandedWeek === week.id ? null : week.id)}
-                  disabled={!unlocked}
+                  onClick={() => {
+                    if (unlocked) {
+                      setExpandedWeek(expandedWeek === week.id ? null : week.id);
+                    } else if (index === 0 && !enrollment) {
+                      // Week 1 always tappable for navigation
+                    }
+                  }}
+                  disabled={!unlocked && index !== 0}
                   className="w-full text-left p-4 rounded-2xl bg-[#111111] border-l-4 border-primary transition-all hover:border-primary/80"
                 >
                   <div className="flex items-center gap-4">
@@ -160,13 +166,15 @@ const LibraryPage = () => {
                         "w-11 h-11 rounded-full flex items-center justify-center font-semibold text-sm transition-all",
                         completed
                           ? "bg-primary/15"
-                          : unlocked
+                          : unlocked || index === 0
                           ? "bg-primary/15"
                           : "bg-white/10"
                       )}
                     >
                       {completed ? (
                         <Check className="w-5 h-5 text-primary" />
+                      ) : index === 0 ? (
+                        <BookOpen className="w-5 h-5 text-primary" />
                       ) : unlocked ? (
                         <BookOpen className="w-5 h-5 text-primary" />
                       ) : (
@@ -183,10 +191,10 @@ const LibraryPage = () => {
                         </div>
                       )}
                     </div>
-                    {unlocked && (
+                    {(unlocked || index === 0) && (
                       <ChevronRight
                         className={cn(
-                          "w-5 h-5 text-white/30 transition-transform duration-200",
+                          "w-5 h-5 text-primary transition-transform duration-200",
                           expandedWeek === week.id && "rotate-90"
                         )}
                       />
