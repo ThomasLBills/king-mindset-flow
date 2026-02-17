@@ -25,13 +25,8 @@ const Index = () => {
   return (
     <AppLayout>
       <div className="px-6 py-6 max-w-lg mx-auto">
-        {/* 1. Liberation */}
+        {/* 1. Daily Check-In */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="mb-5">
-          <FreedomStrip />
-        </motion.div>
-
-        {/* 2. Daily Check-In */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mb-5">
           <DailyCheckIn
             onComplete={() => {
               setJustCompleted(true);
@@ -43,6 +38,11 @@ const Index = () => {
             }}
             onNeedSupport={() => setShowReachOut(true)}
           />
+        </motion.div>
+
+        {/* 2. Liberation */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mb-5">
+          <FreedomStrip />
         </motion.div>
 
         {/* Pattern Insight Card */}
