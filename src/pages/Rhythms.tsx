@@ -1,12 +1,14 @@
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import AppLayout from "@/components/layout/AppLayout";
-import { Check, Cross, Users, Dumbbell, Sparkles } from "lucide-react";
+import { Check, Cross, Users, Dumbbell, Sparkles, BookOpen, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
 import FaithSection from "@/components/rhythms/FaithSection";
 import { useDailyCompletions } from "@/hooks/useDailyProgress";
-
+import { useUserEnrollment, useEnroll } from "@/hooks/useCurriculum";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 const pillars = [{
   id: "faith",
   label: "Faith",
@@ -55,6 +57,10 @@ const fitnessItemIds = rhythmItemDefs.fitness.map(i => i.id);
 const digitalWisdomItemIds = digitalWisdomDefs.map(i => i.id);
 
 const RhythmsPage = () => {
+  const navigate = useNavigate();
+  const { data: enrollment, isLoading: enrollLoading } = useUserEnrollment();
+  const enroll = useEnroll();
+
   const [activePillar, setActivePillar] = useState<string>("faith");
   const [faithProgress, setFaithProgress] = useState({ completed: 0, total: 3 });
 
@@ -103,6 +109,57 @@ const RhythmsPage = () => {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="mb-6">
           <Progress value={overallProgress} className="h-2" />
         </motion.div>
+
+        {/* Enrollment Prompt */}
+        {!enrollLoading && !enrollment && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.08 }}
+            className="mb-6 card-elevated p-5 border-2 border-primary/30"
+          >
+            <div className="flex items-center gap-3 mb-3">
+              <div className="p-2.5 rounded-xl bg-primary/10">
+                <BookOpen className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-serif text-lg font-semibold">8-Week Journey</h3>
+                <p className="text-sm text-muted-foreground">Begin the curriculum that transforms Kings</p>
+              </div>
+            </div>
+            <Button
+              onClick={async () => {
+                await enroll.mutateAsync();
+                navigate("/library");
+              }}
+              disabled={enroll.isPending}
+              className="w-full bg-primary text-primary-foreground font-semibold rounded-xl h-11"
+            >
+              <BookOpen className="w-4 h-4 mr-2" />
+              Begin Your Journey
+            </Button>
+          </motion.div>
+        )}
+
+        {enrollment && (
+          <motion.button
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.08 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => navigate("/library")}
+            className="mb-6 card-elevated p-4 w-full text-left flex items-center gap-3"
+          >
+            <div className="p-2 rounded-xl bg-primary/10">
+              <BookOpen className="w-5 h-5 text-primary" />
+            </div>
+            <div className="flex-1">
+              <p className="font-serif font-semibold">Continue Your Journey</p>
+              <p className="text-sm text-muted-foreground">Pick up where you left off</p>
+            </div>
+            <ChevronRight className="w-5 h-5 text-muted-foreground" />
+          </motion.button>
+        )}
 
         {/* Three Pillars */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="grid grid-cols-3 gap-3 mb-6">

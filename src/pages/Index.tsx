@@ -3,23 +3,16 @@ import { motion, AnimatePresence } from "framer-motion";
 import AppLayout from "@/components/layout/AppLayout";
 import DailyCheckIn from "@/components/home/DailyCheckIn";
 import KingProfile from "@/components/home/KingProfile";
-import ToolCard from "@/components/home/ToolCard";
-import WeekProgress from "@/components/home/WeekProgress";
 import FreedomCalendar from "@/components/home/FreedomCalendar";
-import PressureRisingTool from "@/components/tools/PressureRisingTool";
-import TemptationTool from "@/components/tools/TemptationTool";
 import AfterFallTool from "@/components/tools/AfterFallTool";
 import ReachOut from "@/components/brotherhood/ReachOut";
-import { Flame, Shield, Heart } from "lucide-react";
+import { Heart } from "lucide-react";
 import { useDailyCheckIn, useFreedomStreak } from "@/hooks/useDailyProgress";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-
 const Index = () => {
-  const [showPressure, setShowPressure] = useState(false);
-  const [showTemptation, setShowTemptation] = useState(false);
   const [showGrace, setShowGrace] = useState(false);
   const [showReachOut, setShowReachOut] = useState(false);
   const [justCompleted, setJustCompleted] = useState(false);
@@ -59,7 +52,7 @@ const Index = () => {
           </p>
         </motion.div>
 
-        {/* Daily Check-In */}
+        {/* 1. Daily Check-In */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mb-5">
           {!checkInDone ? (
             <DailyCheckIn
@@ -81,50 +74,19 @@ const Index = () => {
           )}
         </motion.div>
 
-        {/* King Profile */}
+        {/* 2. King Profile */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="mb-5">
           <KingProfile />
         </motion.div>
 
-        {/* Freedom Calendar (secondary) */}
+        {/* 3. Freedom Journey Calendar */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mb-5">
           <FreedomCalendar onOpenGraceProtocol={() => setShowGrace(true)} />
         </motion.div>
-
-        {/* Week Progress */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="mb-5">
-          <WeekProgress />
-        </motion.div>
-
-        {/* In-the-Moment Tools */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-          <h2 className="font-serif text-2xl font-semibold mb-4">In-the-Moment Tools</h2>
-          <div className="space-y-4">
-            <ToolCard title="Pressure Rising" description="Notice → Name Truth → Redirect" icon={Flame} variant="pressure" onClick={() => setShowPressure(true)} />
-            <ToolCard title="Active Temptation" description="The way out when you need it now" icon={Shield} variant="temptation" onClick={() => setShowTemptation(true)} />
-            <ToolCard title="After a Fall" description="Grace Protocol: Return quickly" icon={Heart} variant="grace" onClick={() => setShowGrace(true)} />
-          </div>
-        </motion.div>
-
-        {/* Scripture Card */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="mt-6">
-          <div className="scripture-card">
-            <p className="font-serif text-lg text-white/90 leading-relaxed mb-3">
-              "Therefore, there is now no condemnation for those who are in Christ Jesus."
-            </p>
-            <p className="text-sm text-white/60">Romans 8:1</p>
-          </div>
-        </motion.div>
       </div>
 
-      {/* Tool Modals */}
+      {/* Modals */}
       <AnimatePresence>
-        {showPressure && (
-          <PressureRisingTool onClose={() => setShowPressure(false)} onReachOut={() => { setShowPressure(false); setShowReachOut(true); }} />
-        )}
-        {showTemptation && (
-          <TemptationTool onClose={() => setShowTemptation(false)} onReachOut={() => { setShowTemptation(false); setShowReachOut(true); }} />
-        )}
         {showGrace && (
           <AfterFallTool onClose={() => setShowGrace(false)} onReachOut={() => { setShowGrace(false); setShowReachOut(true); }} />
         )}
