@@ -63,31 +63,28 @@ const ToolsPage = () => {
           </p>
         </motion.div>
 
-        {/* Moment Identifier */}
+        {/* Moment Selector Buttons */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05 }}
-          className="mb-6"
+          className="my-8"
         >
-          <h2 className="font-semibold text-base mb-2">Which moment are you in?</h2>
-          <div className="flex items-center gap-0 text-sm">
+          <h2 className="font-semibold text-base mb-4">Which moment are you in?</h2>
+          <div className="flex flex-col sm:flex-row gap-3">
             {[
               { label: "Before", action: () => setShowPressure(true) },
               { label: "During", action: () => setShowTemptation(true) },
               { label: "After", action: () => setShowGraceProtocol(true) },
-            ].map((item, i) => (
-              <>
-                {i > 0 && <span key={`sep-${i}`} className="mx-3 text-border">|</span>}
-                <motion.button
-                  key={item.label}
-                  onClick={item.action}
-                  whileTap={{ scale: 1.05 }}
-                  className="py-4 text-[#666666] hover:underline hover:text-primary active:text-primary transition-colors"
-                >
-                  {item.label}
-                </motion.button>
-              </>
+            ].map((item) => (
+              <motion.button
+                key={item.label}
+                onClick={item.action}
+                whileTap={{ scale: 1.02 }}
+                className="flex-1 py-4 px-8 rounded-xl font-semibold text-white bg-[#1C1C1E] border-[1.5px] border-primary active:bg-primary active:text-[#0A0A0A] transition-colors duration-200"
+              >
+                {item.label}
+              </motion.button>
             ))}
           </div>
         </motion.div>
