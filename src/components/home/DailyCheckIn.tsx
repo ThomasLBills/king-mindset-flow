@@ -233,7 +233,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport }: DailyCheckInProps) => {
                   className={cn(
                     "w-full rounded-xl font-semibold h-12 text-base transition-all duration-200",
                     selectedAwareness.length === 0
-                      ? "bg-white/10 text-white/30 hover:bg-white/10"
+                      ? "bg-white text-[hsl(225_12%_8%)] hover:bg-white/90"
                       : "bg-primary text-[#0A0A0A] font-bold hover:bg-primary/90 shadow-lg shadow-primary/20 animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_1]"
                   )}
                 >
