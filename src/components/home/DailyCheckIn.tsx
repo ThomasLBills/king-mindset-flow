@@ -171,21 +171,24 @@ const DailyCheckIn = ({ onComplete, onNeedSupport }: DailyCheckInProps) => {
               {shuffledOptions.map((option) => {
                 const isSelected = selectedAwareness.includes(option.id);
                 return (
-                  <button
+                  <motion.button
                     key={option.id}
                     onClick={() => toggleAwareness(option.id)}
+                    animate={{ scale: isSelected ? 1.02 : 1 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
                     className={cn(
-                      "relative flex items-center gap-3 p-3 rounded-xl border transition-colors duration-150 text-left",
+                      "relative flex items-center gap-3 p-3 rounded-xl transition-colors duration-150 text-left",
                       isSelected
-                        ? "bg-[hsl(40_30%_96%)] border-primary text-[hsl(0_0%_7%)]"
-                        : "bg-[hsl(40_30%_96%)] border-[hsl(40_20%_88%)] text-[hsl(0_0%_7%)]"
+                        ? "bg-primary text-[#0A0A0A] font-bold"
+                        : "bg-[hsl(225_12%_10%)] text-white"
                     )}
+                    style={{ border: "1.5px solid hsl(40 44% 54%)" }}
                   >
                     <span className="text-sm font-medium">{option.label}</span>
                     {isSelected && (
-                      <Check className="w-3.5 h-3.5 text-primary ml-auto" />
+                      <Check className="w-3.5 h-3.5 text-[#0A0A0A] ml-auto" />
                     )}
-                  </button>
+                  </motion.button>
                 );
               })}
             </div>
@@ -231,7 +234,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport }: DailyCheckInProps) => {
                     "w-full rounded-xl font-semibold h-12 text-base transition-all duration-200",
                     selectedAwareness.length === 0
                       ? "bg-white/10 text-white/30 hover:bg-white/10"
-                      : "bg-primary text-[hsl(225_12%_8%)] hover:bg-primary/90 shadow-lg shadow-primary/20"
+                      : "bg-primary text-[#0A0A0A] font-bold hover:bg-primary/90 shadow-lg shadow-primary/20 animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_1]"
                   )}
                 >
                   {selectedAwareness.length === 0 ? "Select to align" : "I am aligned. Let's Go."}
