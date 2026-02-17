@@ -25,9 +25,9 @@ const FreedomStrip = () => {
         <p className="text-base text-primary text-center mb-3">
           Pieces of New Evidence This Month
         </p>
-        <p className="text-sm text-white text-center">
-          Every check-in, armor use, and declaration builds new neural pathways.
-        </p>
+        
+
+
       </div>
     </div>);
 
