@@ -22,7 +22,7 @@ const BrotherhoodPage = () => {
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="mb-5">
           <div className="rounded-xl bg-card border border-border p-4">
             <div className="mb-2">
-              <span className="font-medium">Expectations</span>
+              <span className="font-medium">EXPECTATIONS:</span>
             </div>
             <ul className="text-sm text-muted-foreground space-y-1">
               <li>• No explicit details needed — connection is what matters</li>
