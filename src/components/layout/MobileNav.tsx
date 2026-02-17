@@ -7,7 +7,7 @@ const navItems = [
   { icon: Home, label: "Home", path: "/app" },
   { icon: Shield, label: "Armor", path: "/tools" },
   { icon: Users, label: "Brothers", path: "/brotherhood" },
-  { icon: BookOpen, label: "Library", path: "/library" },
+  { icon: BookOpen, label: "Path", path: "/library" },
 ];
 
 const MobileNav = () => {
