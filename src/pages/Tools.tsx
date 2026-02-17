@@ -64,15 +64,17 @@ const ToolsPage = () => {
         >
           <button
             onClick={() => setShowReachOut(true)}
-            className="w-full p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-200"
+            className="w-full text-left p-4 rounded-2xl bg-[hsl(225_12%_8%)] border-l-4 border-primary transition-all hover:border-primary/80"
           >
-            <div className="flex items-center justify-center gap-3">
-              <Users className="w-5 h-5 text-primary" />
-              <span className="font-semibold text-white">Reach Out Now</span>
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0">
+                <Users className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-serif text-lg font-bold text-white">Reach Out Now</h3>
+                <p className="text-sm text-white/50">Connect with a brother immediately</p>
+              </div>
             </div>
-            <p className="text-sm text-white/40 mt-1">
-              Connect with a brother immediately
-            </p>
           </button>
         </motion.div>
 
@@ -82,11 +84,11 @@ const ToolsPage = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <div className="bg-white/5 border border-primary/20 rounded-xl p-5">
-            <p className="font-serif text-sm text-white/80 italic leading-relaxed mb-2">
+          <div className="w-full rounded-2xl bg-[hsl(225_12%_8%)] px-6 py-8">
+            <p className="font-serif text-base text-white/85 italic leading-relaxed mb-3">
               "No temptation has overtaken you except what is common to mankind. And God is faithful; he will not let you be tempted beyond what you can bear."
             </p>
-            <p className="text-xs text-primary">1 Corinthians 10:13</p>
+            <p className="text-sm text-primary font-medium">1 Corinthians 10:13</p>
           </div>
         </motion.div>
       </div>
