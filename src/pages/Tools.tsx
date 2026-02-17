@@ -1,11 +1,9 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import AppLayout from "@/components/layout/AppLayout";
-import ToolCard from "@/components/home/ToolCard";
 import PressureRisingTool from "@/components/tools/PressureRisingTool";
 import TemptationTool from "@/components/tools/TemptationTool";
 import GraceProtocol from "@/components/tools/GraceProtocol";
-import { Flame, Shield, Heart } from "lucide-react";
 
 const armorScriptures = [
   {
@@ -92,33 +90,6 @@ const ToolsPage = () => {
               </>
             ))}
           </div>
-        </motion.div>
-
-        {/* Armor Cards */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="space-y-3 mb-8"
-        >
-          <ToolCard
-            title="Pressure Rising"
-            description="Notice → Name Truth → Redirect"
-            icon={Flame}
-            onClick={() => setShowPressure(true)}
-          />
-          <ToolCard
-            title="Active Temptation"
-            description="The way out when you need it now"
-            icon={Shield}
-            onClick={() => setShowTemptation(true)}
-          />
-          <ToolCard
-            title="After a Fall"
-            description="Grace Protocol. Return quickly."
-            icon={Heart}
-            onClick={() => setShowGraceProtocol(true)}
-          />
         </motion.div>
 
         {/* Foundational Scripture */}
