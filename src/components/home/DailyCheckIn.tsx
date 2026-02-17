@@ -6,20 +6,16 @@ import { cn } from "@/lib/utils";
 import { useDailyCheckIn } from "@/hooks/useDailyProgress";
 
 const awarenessOptions = [
-  // Physical
-  { id: "rested", label: "Rested", group: "Physical" },
-  { id: "drained", label: "Drained", group: "Physical" },
-  // Mental / Emotional
-  { id: "calm", label: "Calm", group: "Mental" },
-  { id: "anxious", label: "Anxious", group: "Mental" },
-  { id: "pressured", label: "Pressured", group: "Mental" },
-  { id: "discouraged", label: "Discouraged", group: "Mental" },
-  // Relational
-  { id: "connected", label: "Connected", group: "Relational" },
-  { id: "isolated", label: "Isolated", group: "Relational" },
-  // Spiritual
-  { id: "hopeful", label: "Hopeful", group: "Spiritual" },
-  { id: "grateful", label: "Grateful", group: "Spiritual" },
+  { id: "rested", label: "Rested" },
+  { id: "drained", label: "Drained" },
+  { id: "calm", label: "Calm" },
+  { id: "anxious", label: "Anxious" },
+  { id: "connected", label: "Connected" },
+  { id: "isolated", label: "Isolated" },
+  { id: "hopeful", label: "Hopeful" },
+  { id: "discouraged", label: "Discouraged" },
+  { id: "grateful", label: "Grateful" },
+  { id: "pressured", label: "Pressured" },
 ];
 
 interface DailyCheckInProps {
@@ -74,7 +70,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport }: DailyCheckInProps) => {
         >
           <Check className="w-8 h-8 text-success-foreground" />
         </motion.div>
-        <h3 className="font-serif text-2xl font-semibold mb-2">You're seen</h3>
+        <h3 className="font-serif text-2xl font-semibold mb-2">You are seen.</h3>
         <p className="text-muted-foreground">Grace meets you here. One step at a time.</p>
       </motion.div>
     );
@@ -97,30 +93,41 @@ const DailyCheckIn = ({ onComplete, onNeedSupport }: DailyCheckInProps) => {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
           >
-            <p className="text-muted-foreground mb-4">
+            <p className="text-muted-foreground mb-1">
               What is present in you right now?
             </p>
+            <p className="text-xs text-muted-foreground/70 mb-4">Select all that apply.</p>
             <div className="grid grid-cols-2 gap-2 mb-6">
-              {awarenessOptions.map((option) => (
-                <button
-                  key={option.id}
-                  onClick={() => toggleAwareness(option.id)}
-                  className={cn(
-                    "flex items-center gap-3 p-3 rounded-xl border transition-all duration-200 text-left",
-                    selectedAwareness.includes(option.id)
-                      ? "border-primary bg-primary/10 text-foreground"
-                      : "border-border hover:border-primary/30 hover:bg-muted/50 text-foreground"
-                  )}
-                >
-                  <span className="text-sm font-medium">{option.label}</span>
-                </button>
-              ))}
+              {awarenessOptions.map((option) => {
+                const isSelected = selectedAwareness.includes(option.id);
+                return (
+                  <button
+                    key={option.id}
+                    onClick={() => toggleAwareness(option.id)}
+                    className={cn(
+                      "relative flex items-center gap-3 p-3 rounded-xl border transition-colors duration-150 text-left",
+                      isSelected
+                        ? "border-primary bg-primary/8 text-foreground"
+                        : "border-border hover:border-primary/30 hover:bg-muted/50 text-foreground"
+                    )}
+                  >
+                    <span className="text-sm font-medium">{option.label}</span>
+                    {isSelected && (
+                      <Check className="w-3.5 h-3.5 text-primary ml-auto" />
+                    )}
+                  </button>
+                );
+              })}
             </div>
 
             {showBreathText && (
-              <p className="text-sm text-muted-foreground text-center mb-4">
-                Take a breath. Awareness builds freedom.
-              </p>
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-sm text-muted-foreground text-center mb-4"
+              >
+                Awareness builds strength.
+              </motion.p>
             )}
 
             <div className="flex gap-3">

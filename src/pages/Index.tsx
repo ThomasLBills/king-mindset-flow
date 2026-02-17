@@ -48,10 +48,10 @@ const Index = () => {
       <div className="px-6 py-6 max-w-lg mx-auto">
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
-          <p className="text-sm text-muted-foreground tracking-wide uppercase mb-1">
+          <p className="text-sm text-muted-foreground tracking-wide mb-1">
             {daysFree > 0 ? `Day ${daysFree} of your journey` : "Start steady."}
           </p>
-          <h1 className="font-serif text-3xl font-bold">Good morning, {firstName}.</h1>
+          <h1 className="font-serif text-3xl font-semibold">Good morning, {firstName}.</h1>
         </motion.div>
 
         {/* Daily Check-In */}
