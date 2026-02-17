@@ -5,9 +5,10 @@ import ToolCard from "@/components/home/ToolCard";
 import PressureRisingTool from "@/components/tools/PressureRisingTool";
 import TemptationTool from "@/components/tools/TemptationTool";
 import AfterFallTool from "@/components/tools/AfterFallTool";
+import GraceProtocol from "@/components/tools/GraceProtocol";
 import ReachOut from "@/components/brotherhood/ReachOut";
 import QuickHelpModal from "@/components/tools/QuickHelpModal";
-import { Flame, Shield, Heart, Moon, Users, Zap, Sparkles } from "lucide-react";
+import { Flame, Shield, Heart, Moon, Users, Zap, Sparkles, Cross } from "lucide-react";
 
 const quickCards = [
   { 
@@ -67,6 +68,7 @@ const ToolsPage = () => {
   const [showPressure, setShowPressure] = useState(false);
   const [showTemptation, setShowTemptation] = useState(false);
   const [showGrace, setShowGrace] = useState(false);
+  const [showGraceProtocol, setShowGraceProtocol] = useState(false);
   const [showReachOut, setShowReachOut] = useState(false);
   const [activeQuickHelp, setActiveQuickHelp] = useState<typeof quickCards[0] | null>(null);
 
@@ -82,9 +84,9 @@ const ToolsPage = () => {
             <Sparkles className="w-4 h-4 text-accent" />
             <span className="text-sm text-muted-foreground">Here when you need them</span>
           </div>
-          <h1 className="font-serif text-3xl font-bold mb-2">Your Tools</h1>
+          <h1 className="font-serif text-3xl font-bold mb-2">Your Armor</h1>
           <p className="text-muted-foreground">
-            Choose the tool that matches your moment
+            Choose the armor that matches your moment
           </p>
         </motion.div>
 
@@ -116,6 +118,29 @@ const ToolsPage = () => {
             variant="grace"
             onClick={() => setShowGrace(true)}
           />
+        </motion.div>
+
+        {/* Grace Protocol Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="mb-8"
+        >
+          <button
+            onClick={() => setShowGraceProtocol(true)}
+            className="w-full p-5 rounded-2xl bg-[hsl(225_12%_8%)] border border-primary/20 text-left transition-all hover:border-primary/40"
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0">
+                <Heart className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-serif text-lg font-bold text-white">After a Fall</h3>
+                <p className="text-sm text-white/50">Grace Protocol. Return quickly.</p>
+              </div>
+            </div>
+          </button>
         </motion.div>
 
         {/* Quick Cards */}
@@ -211,6 +236,7 @@ const ToolsPage = () => {
           />
         )}
         {showReachOut && <ReachOut onClose={() => setShowReachOut(false)} />}
+        {showGraceProtocol && <GraceProtocol onClose={() => setShowGraceProtocol(false)} />}
         {activeQuickHelp && (
           <QuickHelpModal
             data={activeQuickHelp}
