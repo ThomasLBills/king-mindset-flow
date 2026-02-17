@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { useRelapseEventLogger } from "@/hooks/useTriggerPatterns";
 import { Shield, ChevronRight, Heart, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,6 +27,7 @@ const FreedomStrip = ({ onOpenGraceProtocol }: FreedomStripProps) => {
   const [currentWeekStart, setCurrentWeekStart] = useState(() => startOfWeek(new Date(), { weekStartsOn: 0 }));
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
   const { startDate, daysFree, resetStreak } = useFreedomStreak();
+  const { logRelapseEvent } = useRelapseEventLogger();
 
   const today = new Date();
 
@@ -44,6 +46,7 @@ const FreedomStrip = ({ onOpenGraceProtocol }: FreedomStripProps) => {
   };
 
   const handleReset = async () => {
+    await logRelapseEvent.mutateAsync();
     await resetStreak.mutateAsync();
     setResetDialogOpen(false);
     if (onOpenGraceProtocol) onOpenGraceProtocol();

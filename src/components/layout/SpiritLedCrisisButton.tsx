@@ -4,6 +4,7 @@ import { Shield, Phone, BookOpen, HandHeart, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
+import { useCrisisEventLogger } from "@/hooks/useTriggerPatterns";
 
 const crisisOptions = [
   { id: "tempted", label: "I am feeling tempted" },
@@ -34,6 +35,7 @@ const SpiritLedCrisisButton = () => {
   const [showPrayer, setShowPrayer] = useState(false);
   const [currentPrayer, setCurrentPrayer] = useState("");
   const navigate = useNavigate();
+  const { logCrisisEvent } = useCrisisEventLogger();
 
   const handleClose = () => {
     setOpen(false);
@@ -48,7 +50,7 @@ const SpiritLedCrisisButton = () => {
     <>
       {/* Floating Action Button */}
       <motion.button
-        onClick={() => setOpen(true)}
+        onClick={() => { setOpen(true); logCrisisEvent.mutate(undefined); }}
         className="fixed z-40 w-14 h-14 rounded-full bg-primary flex items-center justify-center"
         style={{
           bottom: "calc(env(safe-area-inset-bottom, 0px) + 76px)",
