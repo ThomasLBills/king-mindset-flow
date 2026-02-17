@@ -9,7 +9,7 @@ const FreedomStrip = () => {
       {/* Card heading */}
       <div className="flex items-center gap-2 mb-3">
         <Shield className="h-5 w-5 text-primary flex-shrink-0" />
-        <h3 className="font-serif text-lg font-bold text-white">Freedom Journey</h3>
+        <h3 className="font-serif text-lg font-bold text-white">Liberation</h3>
       </div>
 
       {/* Grace message */}
