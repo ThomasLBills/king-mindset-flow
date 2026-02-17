@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import AppLayout from "@/components/layout/AppLayout";
 import DailyCheckIn from "@/components/home/DailyCheckIn";
 import KingProfile from "@/components/home/KingProfile";
-import FreedomCalendar from "@/components/home/FreedomCalendar";
+import FreedomStrip from "@/components/home/FreedomStrip";
 import AfterFallTool from "@/components/tools/AfterFallTool";
 import ReachOut from "@/components/brotherhood/ReachOut";
 import { Heart } from "lucide-react";
@@ -79,9 +79,9 @@ const Index = () => {
           <KingProfile />
         </motion.div>
 
-        {/* 3. Freedom Journey Calendar */}
+        {/* 3. Freedom Journey (compact strip) */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mb-5">
-          <FreedomCalendar onOpenGraceProtocol={() => setShowGrace(true)} />
+          <FreedomStrip onOpenGraceProtocol={() => setShowGrace(true)} />
         </motion.div>
       </div>
 
