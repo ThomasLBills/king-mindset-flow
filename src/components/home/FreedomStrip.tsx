@@ -13,8 +13,8 @@ const FreedomStrip = () => {
       </div>
 
       {/* Grace message */}
-      <p className="text-sm text-white leading-relaxed mb-6">
-        You are already free in Christ. This is evidence you're walking in it.
+      <p className="text-sm text-white leading-relaxed mb-6">You are already free in Christ. This is evidence you're walking in it. Every check-in, armor use, and declaration builds new neural pathways.
+
       </p>
 
       {/* Large evidence counter */}
@@ -29,8 +29,8 @@ const FreedomStrip = () => {
           Every check-in, armor use, and declaration builds new neural pathways.
         </p>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default FreedomStrip;
