@@ -20,7 +20,7 @@ const BrotherhoodPage = () => {
 
         {/* Safe Space Guidelines */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="mb-5">
-          <div className="rounded-xl bg-card border border-border p-4">
+          <div className="rounded-xl bg-card border border-primary p-4">
             <div className="mb-2">
               <span className="font-medium">EXPECTATIONS:</span>
             </div>
