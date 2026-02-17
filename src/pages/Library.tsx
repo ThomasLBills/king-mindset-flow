@@ -95,12 +95,9 @@ const LibraryPage = () => {
     <AppLayout>
       <div className="px-5 py-6">
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
-          <div className="flex items-center gap-2 mb-1">
-            <Sparkles className="w-4 h-4 text-accent" />
-            <span className="text-sm text-muted-foreground">
-              Your Liberation Curriculum
-            </span>
-          </div>
+          <p className="text-sm text-muted-foreground mb-1">
+            Your Liberation Curriculum
+          </p>
           <h1 className="font-serif text-3xl font-bold mb-2">
             The Liberated Path
           </h1>
