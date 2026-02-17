@@ -230,12 +230,12 @@ const DailyCheckIn = ({ onComplete, onNeedSupport }: DailyCheckInProps) => {
                     setTimeout(() => setStep(1), 1000);
                   }}
                   disabled={selectedAwareness.length === 0}
-                  className={cn(
-                    "w-full rounded-xl font-semibold h-12 text-base transition-all duration-200",
-                    selectedAwareness.length === 0
-                      ? "bg-white text-[hsl(225_12%_8%)] hover:bg-white/90"
-                      : "bg-primary text-[#0A0A0A] font-bold hover:bg-primary/90 shadow-lg shadow-primary/20 animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_1]"
-                  )}
+                    className={cn(
+                      "w-full rounded-xl font-bold h-12 text-base transition-all duration-200",
+                      selectedAwareness.length === 0
+                        ? "bg-[#1C1C1E] text-white border-[1.5px] border-primary hover:bg-[#1C1C1E]/80"
+                        : "bg-primary text-[#0A0A0A] hover:bg-primary/90 shadow-lg shadow-primary/20 animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_1]"
+                    )}
                 >
                   {selectedAwareness.length === 0 ? "What is present in you today?" : "I am aligned. Let's Go."}
                 </Button>
