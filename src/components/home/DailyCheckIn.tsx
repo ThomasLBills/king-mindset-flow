@@ -137,7 +137,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport }: DailyCheckInProps) => {
           <Check className="w-8 h-8 text-primary-foreground" />
         </motion.div>
         <h3 className="font-serif text-2xl font-semibold mb-2 text-white">You are seen.</h3>
-        <p className="text-white/60">
+        <p className="text-white">
           {showBreakthroughMsg
             ? "Breakthrough moment recorded. Your King Profile has grown."
             : "Grace meets you here. One step at a time."}
@@ -163,10 +163,10 @@ const DailyCheckIn = ({ onComplete, onNeedSupport }: DailyCheckInProps) => {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
           >
-            <p className="text-white/60 mb-1">
+            <p className="text-white mb-1">
               What is present in you right now?
             </p>
-            <p className="text-xs text-white/40 mb-4">Select all that apply.</p>
+            <p className="text-xs text-white mb-4">Select all that apply.</p>
             <div className="grid grid-cols-2 gap-2 mb-4">
               {shuffledOptions.map((option) => {
                 const isSelected = selectedAwareness.includes(option.id);
@@ -203,7 +203,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport }: DailyCheckInProps) => {
                   className="mb-4 overflow-hidden"
                 >
                   <div className="bg-white/5 border border-primary/20 rounded-xl p-4">
-                    <p className="font-serif text-sm text-white/80 italic leading-relaxed">
+                    <p className="font-serif text-sm text-white italic leading-relaxed">
                       "{activeScripture.text}"
                     </p>
                     <p className="text-xs text-primary mt-2 font-medium">{activeScripture.ref}</p>
@@ -216,7 +216,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport }: DailyCheckInProps) => {
               <motion.p
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="text-sm text-white/50 text-center mb-4"
+                className="text-sm text-white text-center mb-4"
               >
                 Awareness builds strength.
               </motion.p>
@@ -251,10 +251,10 @@ const DailyCheckIn = ({ onComplete, onNeedSupport }: DailyCheckInProps) => {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
           >
-            <p className="text-white/80 font-serif text-lg mb-2">
+            <p className="text-white font-serif text-lg mb-2">
               What do you sense the Spirit saying about what you are feeling?
             </p>
-            <p className="text-xs text-white/40 mb-4">This is optional. Listen quietly.</p>
+            <p className="text-xs text-white mb-4">This is optional. Listen quietly.</p>
             
             <textarea
               value={spiritPrompt}
@@ -276,7 +276,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport }: DailyCheckInProps) => {
               <button
                 onClick={handleComplete}
                 disabled={submitCheckIn.isPending}
-                className="text-sm text-white/40 hover:text-white/60 transition-colors py-2"
+                className="text-sm text-white hover:text-white/80 transition-colors py-2"
               >
                 I will listen throughout the day
               </button>

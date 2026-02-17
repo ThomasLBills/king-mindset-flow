@@ -66,9 +66,9 @@ const FreedomStrip = ({ onOpenGraceProtocol }: FreedomStripProps) => {
         whileTap={{ scale: 0.99 }}
       >
         <Shield className="h-4 w-4 text-primary flex-shrink-0" />
-        <span className="text-sm text-white/70 flex-1 text-left">{getCovenantMessage()}</span>
+        <span className="text-sm text-white flex-1 text-left">{getCovenantMessage()}</span>
         <motion.div animate={{ rotate: expanded ? 90 : 0 }} transition={{ duration: 0.2 }}>
-          <ChevronRight className="h-4 w-4 text-white/30" />
+          <ChevronRight className="h-4 w-4 text-white" />
         </motion.div>
       </motion.button>
 
@@ -86,9 +86,9 @@ const FreedomStrip = ({ onOpenGraceProtocol }: FreedomStripProps) => {
               onClick={(e) => { e.stopPropagation(); setCurrentWeekStart(subWeeks(currentWeekStart, 1)); }}
               className="p-1 hover:bg-white/10 rounded-lg transition-colors"
             >
-              <ChevronLeft className="h-3.5 w-3.5 text-white/40" />
+              <ChevronLeft className="h-3.5 w-3.5 text-white" />
             </button>
-            <span className="text-xs text-white/40">
+            <span className="text-xs text-white">
               {format(currentWeekStart, "MMM d")} – {format(weekEnd, "MMM d")}
             </span>
             <button
@@ -96,7 +96,7 @@ const FreedomStrip = ({ onOpenGraceProtocol }: FreedomStripProps) => {
               className="p-1 hover:bg-white/10 rounded-lg transition-colors"
               disabled={!canGoForward}
             >
-              <ChevronRight className={cn("h-3.5 w-3.5", !canGoForward ? "text-white/10" : "text-white/40")} />
+              <ChevronRight className={cn("h-3.5 w-3.5", !canGoForward ? "text-white/10" : "text-white")} />
             </button>
           </div>
 
@@ -108,7 +108,7 @@ const FreedomStrip = ({ onOpenGraceProtocol }: FreedomStripProps) => {
               const isFuture = isAfter(day, today);
               return (
                 <div key={day.toISOString()} className="flex flex-col items-center gap-0.5">
-                  <span className="text-[9px] text-white/30">{dayLabels[i]}</span>
+                  <span className="text-[9px] text-white">{dayLabels[i]}</span>
                   <div className={cn(
                     "w-7 h-7 flex items-center justify-center text-[11px] rounded-full",
                     isFree && !isToday && "bg-primary/20 text-primary",
@@ -127,7 +127,7 @@ const FreedomStrip = ({ onOpenGraceProtocol }: FreedomStripProps) => {
           {/* Reset link */}
           <Dialog open={resetDialogOpen} onOpenChange={setResetDialogOpen}>
             <DialogTrigger asChild>
-              <button className="text-xs text-white/25 hover:text-white/40 transition-colors flex items-center gap-1.5">
+              <button className="text-xs text-white/50 hover:text-white transition-colors flex items-center gap-1.5">
                 <RotateCcw className="h-3 w-3" />
                 I need to reset my journey
               </button>

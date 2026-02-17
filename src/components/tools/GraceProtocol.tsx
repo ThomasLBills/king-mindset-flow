@@ -83,7 +83,7 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
-          className="text-white/60 text-center mb-8"
+          className="text-white text-center mb-8"
         >
           Your journey continues.
         </motion.p>
@@ -113,9 +113,9 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
       {/* Top bar */}
       <div className="flex items-center justify-between p-4">
         <button onClick={onClose} className="p-2 rounded-full hover:bg-white/10 transition-colors">
-          <X className="w-5 h-5 text-white/50" />
+          <X className="w-5 h-5 text-white" />
         </button>
-        <p className="text-xs text-white/30 font-medium">Grace Protocol</p>
+        <p className="text-xs text-white font-medium">Grace Protocol</p>
         <div className="w-9" />
       </div>
 
@@ -145,7 +145,7 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
               <h2 className="font-serif text-2xl font-bold text-white mb-4 text-center">
                 Stop. You are still His.
               </h2>
-              <p className="text-sm text-white/70 leading-relaxed text-center mb-6 max-w-sm">
+              <p className="text-sm text-white leading-relaxed text-center mb-6 max-w-sm">
                 Before anything else, receive this: there is no condemnation for those who are in Christ Jesus. Not after this. Not ever.
               </p>
               <ScriptureBlock
@@ -163,7 +163,7 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
               <h2 className="font-serif text-2xl font-bold text-white mb-4 text-center">
                 Name it without hiding.
               </h2>
-              <p className="text-sm text-white/70 leading-relaxed text-center mb-6 max-w-sm">
+              <p className="text-sm text-white leading-relaxed text-center mb-6 max-w-sm">
                 God already knows. This is not confession to earn forgiveness. You already have it. This is honesty that breaks shame's power.
               </p>
               <textarea
@@ -173,7 +173,7 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
                 className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm text-white/90 placeholder:text-white/25 resize-none focus:outline-none focus:border-primary/50 transition-colors mb-3"
                 rows={3}
               />
-              <p className="text-xs text-white/40 text-center mb-6">
+              <p className="text-xs text-white text-center mb-6">
                 Shame lives in secrecy. Truth lives in light.
               </p>
               <Button onClick={next} className="w-full rounded-xl font-bold h-12 text-base bg-primary text-[#0A0A0A] hover:bg-primary/90 shadow-lg shadow-primary/20">
@@ -187,7 +187,7 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
               <h2 className="font-serif text-2xl font-bold text-white mb-4 text-center">
                 Shame is a liar.
               </h2>
-              <p className="text-sm text-white/70 leading-relaxed text-center mb-6 max-w-sm">
+              <p className="text-sm text-white leading-relaxed text-center mb-6 max-w-sm">
                 Your failure is not your identity. You are not what you just did. Speak this out loud:
               </p>
               <div className="bg-white/5 border border-primary/20 rounded-xl p-6 mb-8">
@@ -206,7 +206,7 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
               <h2 className="font-serif text-2xl font-bold text-white mb-4 text-center">
                 What led here?
               </h2>
-              <p className="text-sm text-white/70 leading-relaxed text-center mb-6 max-w-sm">
+              <p className="text-sm text-white leading-relaxed text-center mb-6 max-w-sm">
                 Not to punish yourself. But to close the door. Understanding your trigger is an act of wisdom, not weakness.
               </p>
               <div className="space-y-2.5 mb-4 w-full max-w-sm">
@@ -226,7 +226,7 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
                   </motion.button>
                 ))}
               </div>
-              <p className="text-xs text-white/30 text-center mb-6 max-w-sm">
+              <p className="text-xs text-white text-center mb-6 max-w-sm">
                 This is stored privately in Your Patterns to help you see what the Spirit may be showing you over time.
               </p>
               <Button onClick={next} className="w-full rounded-xl font-bold h-12 text-base bg-primary text-[#0A0A0A] hover:bg-primary/90 shadow-lg shadow-primary/20 max-w-sm">
@@ -240,7 +240,7 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
               <h2 className="font-serif text-2xl font-bold text-white mb-4 text-center">
                 You were not made to carry this alone.
               </h2>
-              <p className="text-sm text-white/70 leading-relaxed text-center mb-6 max-w-sm">
+              <p className="text-sm text-white leading-relaxed text-center mb-6 max-w-sm">
                 Brotherhood is not optional in recovery. It is essential. One honest message to a brother right now breaks isolation's grip.
               </p>
               <div className="space-y-3 w-full max-w-sm mb-6">
@@ -272,7 +272,7 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
               <h2 className="font-serif text-2xl font-bold text-white mb-4 text-center">
                 Today is still Day 1 of the rest of your freedom.
               </h2>
-              <p className="text-sm text-white/70 leading-relaxed text-center mb-6 max-w-sm">
+              <p className="text-sm text-white leading-relaxed text-center mb-6 max-w-sm">
                 The enemy wants you to believe this fall disqualifies you. It does not. Grace restores. The Spirit leads. You return. Not in defeat. But in faith.
               </p>
               <ScriptureBlock
@@ -301,7 +301,7 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
         <button
           onClick={handleSkipToReset}
           disabled={resetStreak.isPending || logRelapseEvent.isPending}
-          className="text-xs text-white/25 hover:text-white/40 transition-colors"
+          className="text-xs text-white/50 hover:text-white transition-colors"
         >
           Skip to reset.
         </button>

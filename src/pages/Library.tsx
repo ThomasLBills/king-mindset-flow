@@ -182,9 +182,9 @@ const LibraryPage = () => {
                       )}
                     </div>
                     <div className="flex-1">
-                      <span className="text-xs text-white/50 block mb-0.5">Week {week.week_number}</span>
+                      <span className="text-xs text-white block mb-0.5">Week {week.week_number}</span>
                       <h3 className="font-serif font-bold text-lg text-white">{week.title}</h3>
-                      <p className="text-sm text-white/50">{week.summary || ""}</p>
+                      <p className="text-sm text-white">{week.summary || ""}</p>
                       {unlocked && weekProgress > 0 && weekProgress < 100 && (
                         <div className="mt-2">
                           <Progress value={weekProgress} className="h-1" />
@@ -238,7 +238,7 @@ const LibraryPage = () => {
                                 </div>
                                 <div className="flex-1 text-left">
                                   <span className="text-sm font-medium block text-white">{lesson.title}</span>
-                                  <span className="text-xs text-white/50">
+                                  <span className="text-xs text-white">
                                     {lesson.duration_minutes ? `${lesson.duration_minutes} min` : "Lesson"}
                                     {isComplete && " · Completed"}
                                   </span>
