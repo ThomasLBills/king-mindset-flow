@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import AppLayout from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Lock, Check, BookOpen, Play, Sparkles, Loader2 } from "lucide-react";
+import { ChevronRight, Check, BookOpen, Play, Sparkles, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
 import {
@@ -161,26 +161,6 @@ const LibraryPage = () => {
                   className="w-full text-left p-4 rounded-2xl bg-[#111111] border-l-4 border-primary transition-all hover:border-primary/80"
                 >
                   <div className="flex items-center gap-4">
-                    <div
-                      className={cn(
-                        "w-11 h-11 rounded-full flex items-center justify-center font-semibold text-sm transition-all",
-                        completed
-                          ? "bg-primary/15"
-                          : unlocked || index === 0
-                          ? "bg-primary/15"
-                          : "bg-white/10"
-                      )}
-                    >
-                      {completed ? (
-                        <Check className="w-5 h-5 text-primary" />
-                      ) : index === 0 ? (
-                        <BookOpen className="w-5 h-5 text-primary" />
-                      ) : unlocked ? (
-                        <BookOpen className="w-5 h-5 text-primary" />
-                      ) : (
-                        <Lock className="w-4 h-4 text-primary" />
-                      )}
-                    </div>
                     <div className="flex-1">
                       <span className="text-xs text-white block mb-0.5">Week {week.week_number}</span>
                       <h3 className="font-serif font-bold text-lg text-white">{week.title}</h3>
@@ -191,7 +171,7 @@ const LibraryPage = () => {
                         </div>
                       )}
                     </div>
-                    {(unlocked || index === 0) && (
+                    {unlocked && (
                       <ChevronRight
                         className={cn(
                           "w-5 h-5 text-primary transition-transform duration-200",
