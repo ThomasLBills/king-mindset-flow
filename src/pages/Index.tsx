@@ -7,7 +7,6 @@ import FreedomStrip from "@/components/home/FreedomStrip";
 import PatternInsightCard from "@/components/home/PatternInsightCard";
 import GraceProtocol from "@/components/tools/GraceProtocol";
 import ReachOut from "@/components/brotherhood/ReachOut";
-import { Heart } from "lucide-react";
 import { useDailyCheckIn, useFreedomStreak } from "@/hooks/useDailyProgress";
 import { useTriggerPatterns } from "@/hooks/useTriggerPatterns";
 import { useAuth } from "@/hooks/useAuth";
@@ -60,27 +59,13 @@ const Index = () => {
 
         {/* 1. Daily Check-In */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mb-5">
-          {!checkInDone ? (
-            <DailyCheckIn
-              onComplete={() => {
-                setJustCompleted(true);
-                analyzePatterns.mutate();
-              }}
-              onNeedSupport={() => setShowReachOut(true)}
-            />
-          ) : (
-            <div className="card-elevated p-5">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-success/20 rounded-full flex items-center justify-center">
-                  <Heart className="w-5 h-5 text-success" />
-                </div>
-                <div>
-                  <p className="font-medium">Check-in complete</p>
-                  <p className="text-sm text-muted-foreground">Walking in awareness today</p>
-                </div>
-              </div>
-            </div>
-          )}
+          <DailyCheckIn
+            onComplete={() => {
+              setJustCompleted(true);
+              analyzePatterns.mutate();
+            }}
+            onNeedSupport={() => setShowReachOut(true)}
+          />
         </motion.div>
 
         {/* 2. King Profile */}
