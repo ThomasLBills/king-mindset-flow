@@ -76,7 +76,7 @@ const ToolsPage = () => {
               className="flex-1 py-6 px-10 rounded-xl text-center bg-[#1C1C1E] border-[1.5px] border-primary active:bg-primary active:text-[#0A0A0A] transition-colors duration-200"
             >
               <span className="block font-bold text-white text-base active:text-[#0A0A0A]">I Need Strength</span>
-              <span className="block text-sm text-white/50 mt-1">Stand against temptation</span>
+              <span className="block text-sm text-primary mt-1">Stand against temptation</span>
             </motion.button>
             <motion.button
               onClick={() => setShowGraceProtocol(true)}
@@ -84,7 +84,7 @@ const ToolsPage = () => {
               className="flex-1 py-6 px-10 rounded-xl text-center bg-[#1C1C1E] border-[1.5px] border-primary active:bg-primary active:text-[#0A0A0A] transition-colors duration-200"
             >
               <span className="block font-bold text-white text-base active:text-[#0A0A0A]">I Need Grace</span>
-              <span className="block text-sm text-white/50 mt-1">Return after a fall</span>
+              <span className="block text-sm text-primary mt-1">Return quickly</span>
             </motion.button>
           </div>
         </motion.div>
