@@ -226,7 +226,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport }: DailyCheckInProps) => {
                       : "bg-primary text-[hsl(225_12%_8%)] hover:bg-primary/90 shadow-lg shadow-primary/20"
                   )}
                 >
-                  {selectedAwareness.length === 0 ? "Select to align" : "I am aligned. Let us go."}
+                  {selectedAwareness.length === 0 ? "Select to align" : "I am aligned. Let's Go."}
                 </Button>
               </motion.div>
             </div>
