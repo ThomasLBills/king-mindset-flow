@@ -1,9 +1,8 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import AppLayout from "@/components/layout/AppLayout";
-import PressureRisingTool from "@/components/tools/PressureRisingTool";
-import TemptationTool from "@/components/tools/TemptationTool";
 import GraceProtocol from "@/components/tools/GraceProtocol";
+import { SpiritLedCrisisModal } from "@/components/layout/SpiritLedCrisisButton";
 
 const armorScriptures = [
   {
@@ -43,8 +42,7 @@ const getNextScriptureIndex = () => {
 };
 
 const ToolsPage = () => {
-  const [showPressure, setShowPressure] = useState(false);
-  const [showTemptation, setShowTemptation] = useState(false);
+  const [showCrisisModal, setShowCrisisModal] = useState(false);
   const [showGraceProtocol, setShowGraceProtocol] = useState(false);
 
   const scripture = useMemo(() => armorScriptures[getNextScriptureIndex()], []);
@@ -70,22 +68,24 @@ const ToolsPage = () => {
           transition={{ delay: 0.05 }}
           className="my-8"
         >
-          <h2 className="font-semibold text-base mb-4">Which moment are you in?</h2>
-          <div className="flex flex-col sm:flex-row gap-3">
-            {[
-              { label: "Pressure Rising", action: () => setShowPressure(true) },
-              { label: "Tempted Now", action: () => setShowTemptation(true) },
-              { label: "After a Fall", action: () => setShowGraceProtocol(true) },
-            ].map((item) => (
-              <motion.button
-                key={item.label}
-                onClick={item.action}
-                whileTap={{ scale: 1.02 }}
-                className="flex-1 py-4 px-8 rounded-xl font-semibold text-white bg-[#1C1C1E] border-[1.5px] border-primary active:bg-primary active:text-[#0A0A0A] transition-colors duration-200"
-              >
-                {item.label}
-              </motion.button>
-            ))}
+          <h2 className="font-semibold text-base mb-4">What do you need right now?</h2>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <motion.button
+              onClick={() => setShowCrisisModal(true)}
+              whileTap={{ scale: 1.02 }}
+              className="flex-1 py-6 px-10 rounded-xl text-center bg-[#1C1C1E] border-[1.5px] border-primary active:bg-primary active:text-[#0A0A0A] transition-colors duration-200"
+            >
+              <span className="block font-bold text-white text-base active:text-[#0A0A0A]">I Need Strength</span>
+              <span className="block text-sm text-white/50 mt-1">Stand against temptation</span>
+            </motion.button>
+            <motion.button
+              onClick={() => setShowGraceProtocol(true)}
+              whileTap={{ scale: 1.02 }}
+              className="flex-1 py-6 px-10 rounded-xl text-center bg-[#1C1C1E] border-[1.5px] border-primary active:bg-primary active:text-[#0A0A0A] transition-colors duration-200"
+            >
+              <span className="block font-bold text-white text-base active:text-[#0A0A0A]">I Need Grace</span>
+              <span className="block text-sm text-white/50 mt-1">Return after a fall</span>
+            </motion.button>
           </div>
         </motion.div>
 
@@ -104,20 +104,8 @@ const ToolsPage = () => {
         </motion.div>
       </div>
 
-      {/* Tool Modals */}
       <AnimatePresence>
-        {showPressure && (
-          <PressureRisingTool
-            onClose={() => setShowPressure(false)}
-            onReachOut={() => setShowPressure(false)}
-          />
-        )}
-        {showTemptation && (
-          <TemptationTool
-            onClose={() => setShowTemptation(false)}
-            onReachOut={() => setShowTemptation(false)}
-          />
-        )}
+        {showCrisisModal && <SpiritLedCrisisModal onClose={() => setShowCrisisModal(false)} />}
         {showGraceProtocol && <GraceProtocol onClose={() => setShowGraceProtocol(false)} />}
       </AnimatePresence>
     </AppLayout>
