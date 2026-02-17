@@ -41,6 +41,8 @@ const Index = () => {
   });
 
   const firstName = profile?.first_name || profile?.display_name || "King";
+  const hour = new Date().getHours();
+  const timeGreeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
   const checkInDone = isCheckedIn || justCompleted;
 
   return (
@@ -51,7 +53,7 @@ const Index = () => {
           <p className="text-sm text-muted-foreground tracking-wide mb-1">
             {daysFree > 0 ? `Day ${daysFree} of your journey` : "Start steady."}
           </p>
-          <h1 className="font-serif text-3xl font-semibold">Good morning, {firstName}.</h1>
+          <h1 className="font-serif text-3xl font-semibold">{timeGreeting}, {firstName}.</h1>
         </motion.div>
 
         {/* Daily Check-In */}
