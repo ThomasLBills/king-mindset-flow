@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight, BookOpen, Megaphone, X } from "lucide-react"
 import AppLayout from "@/components/layout/AppLayout";
 import GraceProtocol from "@/components/tools/GraceProtocol";
 import { SpiritLedCrisisModal } from "@/components/layout/SpiritLedCrisisButton";
+import { useEvidenceCounter } from "@/hooks/useEvidenceCounter";
 
 const armorScriptures = [
   {
@@ -48,6 +49,7 @@ const ToolsPage = () => {
   const [scriptureIndex, setScriptureIndex] = useState(0);
   const [showDeclarations, setShowDeclarations] = useState(false);
   const [declarationIndex, setDeclarationIndex] = useState(0);
+  const { addEvidence } = useEvidenceCounter();
 
   return (
     <AppLayout>
@@ -241,7 +243,7 @@ const ToolsPage = () => {
 
               <div className="mt-10 max-w-lg w-full">
                 <button
-                  onClick={() => setShowDeclarations(false)}
+                  onClick={() => { addEvidence.mutate("declaration"); setShowDeclarations(false); }}
                   className="w-full py-4 rounded-xl bg-primary text-[#0A0A0A] font-bold text-base"
                 >
                   I believe this. Close.

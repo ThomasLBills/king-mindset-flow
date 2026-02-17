@@ -5,20 +5,20 @@ import DailyCheckIn from "@/components/home/DailyCheckIn";
 import KingProfile from "@/components/home/KingProfile";
 import FreedomStrip from "@/components/home/FreedomStrip";
 import PatternInsightCard from "@/components/home/PatternInsightCard";
-import GraceProtocol from "@/components/tools/GraceProtocol";
 import ReachOut from "@/components/brotherhood/ReachOut";
-import { useDailyCheckIn, useFreedomStreak } from "@/hooks/useDailyProgress";
+import { useDailyCheckIn } from "@/hooks/useDailyProgress";
 import { useTriggerPatterns } from "@/hooks/useTriggerPatterns";
 import { useAuth } from "@/hooks/useAuth";
+import { useEvidenceCounter } from "@/hooks/useEvidenceCounter";
 
 const Index = () => {
-  const [showGrace, setShowGrace] = useState(false);
   const [showReachOut, setShowReachOut] = useState(false);
   const [justCompleted, setJustCompleted] = useState(false);
 
   const { user } = useAuth();
   const { isCheckedIn } = useDailyCheckIn();
   const { activeInsight, dismissInsight, analyzePatterns } = useTriggerPatterns();
+  const { addEvidence } = useEvidenceCounter();
 
   const checkInDone = isCheckedIn || justCompleted;
   const showInsight = checkInDone && activeInsight && !activeInsight.dismissed;
@@ -28,7 +28,7 @@ const Index = () => {
       <div className="px-6 py-6 max-w-lg mx-auto">
         {/* 1. Freedom Journey */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="mb-5">
-          <FreedomStrip onOpenGraceProtocol={() => setShowGrace(true)} />
+          <FreedomStrip />
         </motion.div>
 
         {/* 2. Daily Check-In */}
@@ -37,6 +37,10 @@ const Index = () => {
             onComplete={() => {
               setJustCompleted(true);
               analyzePatterns.mutate();
+              addEvidence.mutate("check_in");
+            }}
+            onSpiritPromptWritten={() => {
+              addEvidence.mutate("spirit_prompt");
             }}
             onNeedSupport={() => setShowReachOut(true)}
           />
@@ -66,7 +70,6 @@ const Index = () => {
 
       {/* Modals */}
       <AnimatePresence>
-        {showGrace && <GraceProtocol onClose={() => setShowGrace(false)} />}
         {showReachOut && <ReachOut onClose={() => setShowReachOut(false)} />}
       </AnimatePresence>
     </AppLayout>

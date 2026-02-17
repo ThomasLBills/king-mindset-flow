@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 import { useFreedomStreak } from "@/hooks/useDailyProgress";
 import { useRelapseEventLogger } from "@/hooks/useTriggerPatterns";
+import { useEvidenceCounter } from "@/hooks/useEvidenceCounter";
 
 const TOTAL_STEPS = 6;
 
@@ -30,6 +31,7 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
   const navigate = useNavigate();
   const { resetStreak } = useFreedomStreak();
   const { logRelapseEvent } = useRelapseEventLogger();
+  const { addEvidence } = useEvidenceCounter();
 
   const next = () => {
     if (step < TOTAL_STEPS - 1) setStep(step + 1);
@@ -44,6 +46,7 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
   const handleFinalReset = async () => {
     await logRelapseEvent.mutateAsync();
     await resetStreak.mutateAsync();
+    addEvidence.mutate("grace_protocol_complete");
     setShowCompletion(true);
   };
 

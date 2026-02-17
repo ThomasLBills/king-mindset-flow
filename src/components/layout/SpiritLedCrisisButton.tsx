@@ -8,6 +8,7 @@ import { useCrisisEventLogger } from "@/hooks/useTriggerPatterns";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useEvidenceCounter } from "@/hooks/useEvidenceCounter";
 
 const crisisOptions = [
   { id: "tempted", label: "I am feeling tempted" },
@@ -41,6 +42,7 @@ export const SpiritLedCrisisModal = ({ onClose }: { onClose: () => void }) => {
   const { logCrisisEvent } = useCrisisEventLogger();
   const { user } = useAuth();
   const qc = useQueryClient();
+  const { addEvidence } = useEvidenceCounter();
 
   const recordVictory = useMutation({
     mutationFn: async () => {
@@ -66,6 +68,7 @@ export const SpiritLedCrisisModal = ({ onClose }: { onClose: () => void }) => {
 
   const handleVictory = async () => {
     recordVictory.mutate();
+    addEvidence.mutate("crisis_victory");
     setShowVictory(true);
     setTimeout(() => {
       handleClose();

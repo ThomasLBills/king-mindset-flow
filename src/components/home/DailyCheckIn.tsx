@@ -198,9 +198,10 @@ const CollapsedCheckIn = ({ checkInData }: CollapsedCheckInProps) => {
 interface DailyCheckInProps {
   onComplete: () => void;
   onNeedSupport: () => void;
+  onSpiritPromptWritten?: () => void;
 }
 
-const DailyCheckIn = ({ onComplete, onNeedSupport }: DailyCheckInProps) => {
+const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: DailyCheckInProps) => {
   const [step, setStep] = useState(0);
   const [selectedAwareness, setSelectedAwareness] = useState<string[]>([]);
   const [showOverlay, setShowOverlay] = useState(false);
@@ -251,11 +252,13 @@ const DailyCheckIn = ({ onComplete, onNeedSupport }: DailyCheckInProps) => {
   );
 
   const handleComplete = async () => {
+    const hasSpirit = spiritPrompt.trim().length > 0;
     await submitCheckIn.mutateAsync({
       feelings: selectedAwareness,
       needsSupport,
-      spiritResponse: spiritPrompt.trim() || undefined,
+      spiritResponse: hasSpirit ? spiritPrompt.trim() : undefined,
     });
+    if (hasSpirit && onSpiritPromptWritten) onSpiritPromptWritten();
     setShowOverlay(true);
   };
 
