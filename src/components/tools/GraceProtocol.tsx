@@ -220,9 +220,6 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
                   </div>
                   <span className="text-white text-sm font-medium text-left">I commit to reach out to a brother</span>
                 </button>
-                <p className="text-xs text-white mt-3 ml-9">
-                  Text, call, or message someone in your brotherhood. Break isolation now.
-                </p>
               </div>
 
               <Button
