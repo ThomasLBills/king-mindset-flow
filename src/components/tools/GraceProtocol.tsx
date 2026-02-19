@@ -204,7 +204,7 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
                   <div className={`w-6 h-6 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${brotherhoodCommitted ? "bg-primary border-primary" : "border-primary bg-transparent"}`}>
                     {brotherhoodCommitted && <Check className="w-4 h-4 text-[#0A0A0A]" />}
                   </div>
-                  <span className="text-white text-sm font-medium text-left">I committed to reach out to a brother</span>
+                  <span className="text-white text-sm font-medium text-left">I commit to reach out to a brother</span>
                 </button>
                 <p className="text-xs text-white mt-3 ml-9">
                   Text, call, or message someone in your brotherhood. Break isolation now.
