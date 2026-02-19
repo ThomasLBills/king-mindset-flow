@@ -116,7 +116,7 @@ const CollapsedCheckIn = ({ checkInData }: CollapsedCheckInProps) => {
   }, [checkInData.feelings]);
 
   return (
-    <div className="rounded-2xl bg-[#0A0A0A] border-l border-[#C9A84C] overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.15)]">
+    <div className="rounded-2xl bg-[#0A0A0A] border border-[#C9A84C] overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.12)]">
       {/* Collapsed header */}
       <button
         onClick={() => setExpanded(!expanded)}
@@ -256,7 +256,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
 
   return (
     <>
-      <div className="bg-[#0A0A0A] rounded-2xl border-l border-l-[#C9A84C] p-6 text-white shadow-[0_4px_24px_rgba(0,0,0,0.15)]">
+      <div className="bg-[#0A0A0A] rounded-2xl border border-[#C9A84C] p-6 text-white shadow-[0_4px_24px_rgba(0,0,0,0.12)]">
         <h2 className="font-serif text-[1.375rem] font-bold text-white text-center mb-3">Daily Check-In</h2>
 
         <AnimatePresence mode="wait">
