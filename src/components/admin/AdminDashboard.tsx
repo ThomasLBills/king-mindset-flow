@@ -1,20 +1,42 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, CheckCircle, BookOpen, FileText, Plus, Loader2, TrendingUp, GraduationCap, BarChart3 } from "lucide-react";
-import { useAdminStats } from "@/hooks/useAdminCurriculum";
+import { Users, CheckCircle, BookOpen, FileText, Plus, Loader2, TrendingUp, GraduationCap, BarChart3, Calendar } from "lucide-react";
 import { useAdminEngagementStats } from "@/hooks/useAdminEngagement";
+import { useWeeks, useCurriculumSettings } from "@/hooks/useAdminCurriculumNew";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 
+function useAdminCurriculumStats() {
+  return useQuery({
+    queryKey: ["admin-curriculum-stats"],
+    queryFn: async () => {
+      const [profiles, entitlements, weeks, lessons] = await Promise.all([
+        supabase.from("profiles").select("*", { count: "exact", head: true }),
+        supabase.from("entitlements").select("*", { count: "exact", head: true }).eq("active", true),
+        supabase.from("weeks").select("*", { count: "exact", head: true }),
+        supabase.from("curriculum_lessons").select("*", { count: "exact", head: true }).eq("status", "published"),
+      ]);
+      return {
+        totalUsers: profiles.count || 0,
+        activeEntitlements: entitlements.count || 0,
+        totalWeeks: weeks.count || 0,
+        publishedLessons: lessons.count || 0,
+      };
+    },
+  });
+}
+
 const AdminDashboard = () => {
-  const { data: stats, isLoading } = useAdminStats();
+  const { data: stats, isLoading } = useAdminCurriculumStats();
   const { data: engagement, isLoading: engLoading } = useAdminEngagementStats();
   const navigate = useNavigate();
 
   const statCards = [
     { label: "Total Users", value: stats?.totalUsers, icon: Users, color: "text-primary" },
     { label: "Active Subs", value: stats?.activeEntitlements, icon: CheckCircle, color: "text-success" },
-    { label: "Courses", value: stats?.totalCourses, icon: BookOpen, color: "text-accent" },
+    { label: "Weeks", value: stats?.totalWeeks, icon: Calendar, color: "text-accent" },
     { label: "Published Lessons", value: stats?.publishedLessons, icon: FileText, color: "text-primary" },
   ];
 
@@ -72,10 +94,10 @@ const AdminDashboard = () => {
         <CardContent className="pt-6">
           <h3 className="font-serif text-lg font-semibold mb-4">Quick Actions</h3>
           <div className="flex flex-wrap gap-3">
-            <Button onClick={() => navigate("/admin/courses?new=1")} className="gap-2">
-              <Plus className="h-4 w-4" /> New Course
+            <Button onClick={() => navigate("/admin/curriculum")} className="gap-2">
+              <BookOpen className="h-4 w-4" /> Manage Curriculum
             </Button>
-            <Button variant="outline" onClick={() => navigate("/admin/announcements?new=1")} className="gap-2">
+            <Button variant="outline" onClick={() => navigate("/admin/announcements")} className="gap-2">
               <Plus className="h-4 w-4" /> New Announcement
             </Button>
             <Button variant="outline" onClick={() => navigate("/admin/users")}>
