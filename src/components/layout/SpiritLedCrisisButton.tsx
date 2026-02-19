@@ -8,6 +8,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useEvidenceCounter } from "@/hooks/useEvidenceCounter";
+import { useUrgeCounter } from "@/hooks/useUrgeCounter";
 
 const feelingOptions = [
   { id: "pressure", label: "I feel pressure" },
@@ -65,6 +66,7 @@ export const SpiritLedCrisisModal = ({ onClose }: { onClose: () => void }) => {
   const { user } = useAuth();
   const qc = useQueryClient();
   const { addEvidence } = useEvidenceCounter();
+  const { addUrge } = useUrgeCounter();
 
   const selectedTruth = useMemo(
     () => truthStatements[Math.floor(Math.random() * truthStatements.length)],
@@ -97,7 +99,7 @@ export const SpiritLedCrisisModal = ({ onClose }: { onClose: () => void }) => {
 
   const handleVictory = async () => {
     recordVictory.mutate();
-    addEvidence.mutate("crisis_victory");
+    addUrge.mutate();
     setShowVictory(true);
     setTimeout(() => {
       onClose();

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import AppLayout from "@/components/layout/AppLayout";
 import DailyCheckIn from "@/components/home/DailyCheckIn";
 import FreedomStrip from "@/components/home/FreedomStrip";
+import UrgesRedirectedCard from "@/components/home/UrgesRedirectedCard";
 import PatternInsightCard from "@/components/home/PatternInsightCard";
 import ReachOut from "@/components/brotherhood/ReachOut";
 import { useDailyCheckIn } from "@/hooks/useDailyProgress";
@@ -43,6 +44,11 @@ const Index = () => {
         {/* 2. Liberation */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mb-5">
           <FreedomStrip />
+        </motion.div>
+
+        {/* 3. Urges Redirected */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="mb-5">
+          <UrgesRedirectedCard />
         </motion.div>
 
         {/* Pattern Insight Card */}
