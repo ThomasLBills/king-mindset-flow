@@ -1,48 +1,75 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Shield, Phone, BookOpen, HandHeart, X } from "lucide-react";
+import { Shield, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useNavigate } from "react-router-dom";
 import { useCrisisEventLogger } from "@/hooks/useTriggerPatterns";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useEvidenceCounter } from "@/hooks/useEvidenceCounter";
 
-const crisisOptions = [
-  { id: "tempted", label: "I am feeling tempted" },
-  { id: "lonely", label: "I am feeling lonely" },
-  { id: "stressed", label: "I am feeling stressed" },
+const feelingOptions = [
+  { id: "pressure", label: "I feel pressure" },
+  { id: "tired", label: "I'm tired" },
+  { id: "relief", label: "I'm seeking relief" },
 ];
 
-const crisisPrayers = [
-  "Father, I bring this moment to You. I do not have to be strong on my own. Your Spirit lives in me, and that is enough. I choose to stand. I choose truth over the lie. I choose freedom over escape. Strengthen me now. In Jesus' name, amen.",
-  "Lord, right now I feel the pull. But I am not defined by this urge. I am Your son, bought with a price, sealed by Your Spirit. I ask You to flood this moment with Your presence. I do not have to give in. I choose You. In Jesus' name, amen.",
-  "God, I am weak right now and I know it. But Your Word says Your power is made perfect in weakness. So I bring my weakness to You and ask You to be my strength. I will not run to what destroys me. I will run to You. In Jesus' name, amen.",
-  "Father, the enemy wants me to believe I am alone in this. But You are here. You have not left me. You are not disappointed in me. You are fighting for me. Help me stand for just this moment. That is all I need. In Jesus' name, amen.",
-  "Lord Jesus, You were tempted in every way and did not sin. You understand what I feel right now. I ask for the same Spirit that sustained You to sustain me now. I do not have to white-knuckle this. I just have to stay close to You. In Jesus' name, amen.",
-  "God, I confess that I want what I should not want right now. But I also want freedom more. Align my desires with Yours. Replace this craving with Your peace. I trust that You are able to keep me from falling. In Jesus' name, amen.",
-  "Father, I choose to be honest with You in this moment. I am struggling. But honesty before You is the first step to freedom. I do not hide from You. I run to You. Cover me with grace and carry me through. In Jesus' name, amen.",
-  "Lord, I declare that sin has no dominion over me. I am not under law but under grace. The chains are already broken. Help me walk in the freedom that is already mine. I am a new creation. The old has passed away. In Jesus' name, amen.",
+const truthStatements = [
+  "This urge does not define me. I am safe. This feeling will pass.",
+  "I am a new creation in Christ. This urge does not control me.",
+  "I am a son, not a slave. I don't need porn. I need to remember who I am.",
+  "This feeling is temporary. My identity in Christ is permanent.",
+  "I don't need relief from porn. I need to redirect this energy toward life.",
+  "The urge is strong. The Spirit is stronger. I am not alone in this moment.",
 ];
 
-const getCrisisPrayer = (): string => {
-  const index = Math.floor(Math.random() * crisisPrayers.length);
-  return crisisPrayers[index];
-};
+const actionButtons = [
+  {
+    id: "environment",
+    title: "Change environments",
+    subtitle: "Stand up. Walk outside.",
+    helper: "Physical movement interrupts the pattern. Get up now.",
+  },
+  {
+    id: "breathe",
+    title: "Slow the body",
+    subtitle: "Take three deep breaths.",
+    helper: "Slow breathing calms the nervous system. Breathe with me: In for 4. Hold for 4. Out for 6.",
+  },
+  {
+    id: "engage",
+    title: "Engage in action",
+    subtitle: "Text a brother. Pray. Do 10 pushups.",
+    helper: "Connect with something real. Break isolation. Move your body.",
+  },
+];
+
+const StepWrapper = ({ children }: { children: React.ReactNode }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, y: -20 }}
+    className="flex flex-col items-center w-full max-w-sm"
+  >
+    {children}
+  </motion.div>
+);
 
 export const SpiritLedCrisisModal = ({ onClose }: { onClose: () => void }) => {
   const [step, setStep] = useState(0);
-  const [selected, setSelected] = useState<string | null>(null);
-  const [showPrayer, setShowPrayer] = useState(false);
-  const [currentPrayer, setCurrentPrayer] = useState("");
+  const [selectedFeelings, setSelectedFeelings] = useState<string[]>([]);
+  const [selectedAction, setSelectedAction] = useState<string | null>(null);
   const [showVictory, setShowVictory] = useState(false);
-  const navigate = useNavigate();
   const { logCrisisEvent } = useCrisisEventLogger();
   const { user } = useAuth();
   const qc = useQueryClient();
   const { addEvidence } = useEvidenceCounter();
+
+  const selectedTruth = useMemo(
+    () => truthStatements[Math.floor(Math.random() * truthStatements.length)],
+    [step]
+  );
 
   const recordVictory = useMutation({
     mutationFn: async () => {
@@ -62,8 +89,10 @@ export const SpiritLedCrisisModal = ({ onClose }: { onClose: () => void }) => {
     },
   });
 
-  const handleClose = () => {
-    onClose();
+  const toggleFeeling = (id: string) => {
+    setSelectedFeelings((prev) =>
+      prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]
+    );
   };
 
   const handleVictory = async () => {
@@ -71,7 +100,7 @@ export const SpiritLedCrisisModal = ({ onClose }: { onClose: () => void }) => {
     addEvidence.mutate("crisis_victory");
     setShowVictory(true);
     setTimeout(() => {
-      handleClose();
+      onClose();
     }, 1000);
   };
 
@@ -92,21 +121,22 @@ export const SpiritLedCrisisModal = ({ onClose }: { onClose: () => void }) => {
             transition={{ duration: 0.3 }}
             className="absolute inset-0 z-[60] flex flex-col items-center justify-center bg-[#111111]"
           >
+            <Shield className="w-[60px] h-[60px] text-primary mb-6" />
             <motion.h2
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15 }}
-              className="font-serif text-3xl font-bold text-white mb-3 text-center"
+              className="font-serif text-2xl font-bold text-white mb-3 text-center"
             >
-              Victory recorded.
+              New pathway strengthened.
             </motion.h2>
             <motion.p
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="text-white text-lg text-center"
+              className="text-white text-base text-center"
             >
-              You are a King.
+              You are building evidence.
             </motion.p>
           </motion.div>
         )}
@@ -114,151 +144,140 @@ export const SpiritLedCrisisModal = ({ onClose }: { onClose: () => void }) => {
 
       {/* Close button */}
       <div className="flex justify-end p-4">
-        <button onClick={handleClose} className="p-2 rounded-full hover:bg-white/10 transition-colors">
+        <button onClick={onClose} className="p-2 rounded-full hover:bg-white/10 transition-colors">
           <X className="w-5 h-5 text-white" />
         </button>
       </div>
 
-      <div className="flex-1 flex items-center justify-center px-8">
+      <div className="flex-1 flex items-center justify-center px-8 overflow-y-auto">
         <AnimatePresence mode="wait">
+          {/* STEP 1: NOTICE */}
           {step === 0 && (
-            <motion.div
-              key="notice"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="text-center max-w-sm w-full flex flex-col items-center"
-            >
+            <StepWrapper key="notice">
               <Shield className="w-[60px] h-[60px] text-primary mb-6" />
-              <h2 className="font-serif text-2xl font-bold text-white mb-6 text-center">
-                Stop. Breathe. You are not alone.
-              </h2>
-              <div className="bg-white/5 border border-primary/20 rounded-xl p-5 mb-8 w-full">
-                <p className="font-serif text-base text-white italic leading-relaxed">
-                  "No temptation has overtaken you except what is common to mankind. And God is faithful; he will not let you be tempted beyond what you can bear."
-                </p>
-                <p className="text-sm text-primary mt-3 font-medium">1 Corinthians 10:13</p>
-              </div>
-              <Button
-                onClick={() => setStep(1)}
-                className="w-full rounded-xl font-bold h-12 text-base bg-primary text-[#0A0A0A] hover:bg-primary/90"
-              >
-                Continue
-              </Button>
-            </motion.div>
-          )}
-
-          {step === 1 && (
-            <motion.div
-              key="name"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="text-center max-w-sm w-full flex flex-col items-center"
-            >
-              <Shield className="w-[60px] h-[60px] text-primary mb-6" />
-              <h2 className="font-serif text-2xl font-bold text-white mb-4 text-center">
-                Name what is happening right now.
-              </h2>
-              <p className="text-sm text-white text-center mb-6">
-                You are not what you feel. You are who God says you are.
+              <h2 className="font-serif text-2xl font-bold text-white mb-1 text-center">Notice</h2>
+              <p className="text-sm text-white text-center mb-6">Awareness Without Judgment</p>
+              <p className="text-sm text-white text-center mb-6 max-w-sm">
+                The first step is awareness without judgment. Identify what's happening:
               </p>
-              <div className="space-y-3 mb-6 w-full">
-                {crisisOptions.map((opt) => (
+              <div className="space-y-3 mb-4 w-full">
+                {feelingOptions.map((opt) => (
                   <motion.button
                     key={opt.id}
                     whileTap={{ scale: 0.97 }}
-                    onClick={() => setSelected(opt.id)}
+                    onClick={() => toggleFeeling(opt.id)}
                     className={cn(
-                      "w-full p-4 rounded-xl text-left font-medium transition-colors",
-                      selected === opt.id
+                      "w-full p-4 rounded-xl text-center font-medium transition-colors",
+                      selectedFeelings.includes(opt.id)
                         ? "bg-primary text-[#0A0A0A]"
-                        : "bg-[#1C1C1E] border border-primary/30 text-white hover:bg-white/10"
+                        : "bg-[#1C1C1E] border border-primary/30 text-white"
                     )}
                   >
                     {opt.label}
                   </motion.button>
                 ))}
               </div>
+              <p className="text-sm text-white text-center mb-2 max-w-sm">
+                You're not analyzing. You're not condemning yourself. You're simply naming the experience.
+              </p>
+              <p className="text-sm text-white text-center mb-6 max-w-sm">
+                Naming creates distance. Distance reduces compulsion.
+              </p>
               <Button
-                onClick={() => setStep(2)}
-                disabled={!selected}
+                onClick={() => setStep(1)}
+                disabled={selectedFeelings.length === 0}
                 className={cn(
-                  "w-full rounded-xl font-bold h-12 text-base transition-all",
-                  selected
+                  "w-full rounded-xl font-bold h-12 text-base transition-colors",
+                  selectedFeelings.length > 0
                     ? "bg-primary text-[#0A0A0A] hover:bg-primary/90"
-                    : "bg-white/10 text-white/30"
+                    : "bg-[#1C1C1E] border border-primary/30 text-white/50 cursor-not-allowed"
                 )}
               >
                 Continue
               </Button>
-            </motion.div>
+            </StepWrapper>
           )}
 
-          {step === 2 && (
-            <motion.div
-              key="redirect"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="text-center max-w-sm w-full flex flex-col items-center"
-            >
+          {/* STEP 2: NAME THE TRUTH */}
+          {step === 1 && (
+            <StepWrapper key="name">
               <Shield className="w-[60px] h-[60px] text-primary mb-6" />
-              <h2 className="font-serif text-2xl font-bold text-white mb-6 text-center">
-                Do one of these right now:
-              </h2>
-              <div className="space-y-3 mb-6 w-full">
-                <motion.button
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => { window.location.href = "tel:"; }}
-                  className="w-full p-4 rounded-xl bg-primary text-[#0A0A0A] font-semibold flex items-center gap-3"
-                >
-                  <Phone className="w-5 h-5" />
-                  Call a brother
-                </motion.button>
-                <motion.button
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => { handleClose(); navigate("/library"); }}
-                  className="w-full p-4 rounded-xl bg-primary text-[#0A0A0A] font-semibold flex items-center gap-3"
-                >
-                  <BookOpen className="w-5 h-5" />
-                  Read a Rewire card
-                </motion.button>
-                <motion.button
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => { setCurrentPrayer(getCrisisPrayer()); setShowPrayer(true); }}
-                  className="w-full p-4 rounded-xl bg-primary text-[#0A0A0A] font-semibold flex items-center gap-3"
-                >
-                  <HandHeart className="w-5 h-5" />
-                  Pray this out loud
-                </motion.button>
+              <h2 className="font-serif text-2xl font-bold text-white mb-1 text-center">Name The Truth</h2>
+              <p className="text-sm text-white text-center mb-6">Alignment With Reality</p>
+              <p className="text-sm text-white text-center mb-6 max-w-sm">
+                When you've noticed what's happening, anchor to reality. Speak this truth out loud:
+              </p>
+              <div className="bg-white/5 border border-primary/20 rounded-xl p-5 w-full mb-4">
+                <p className="font-serif text-base text-white leading-relaxed text-center">
+                  "{selectedTruth}"
+                </p>
               </div>
+              <p className="text-sm text-white text-center mb-6 max-w-sm">
+                Truth interrupts the old loop. Your brain has been trained to believe porn provides relief. Speaking truth rewrites that belief.
+              </p>
+              <Button
+                onClick={() => setStep(2)}
+                className="w-full rounded-xl font-bold h-12 text-base bg-primary text-[#0A0A0A] hover:bg-primary/90"
+              >
+                Continue
+              </Button>
+            </StepWrapper>
+          )}
 
-              <AnimatePresence>
-                {showPrayer && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="overflow-hidden mb-4 w-full"
-                  >
-                    <div className="bg-white/5 border border-primary/20 rounded-xl p-5 text-left">
-                      <p className="font-serif text-sm text-white italic leading-relaxed">
-                        {currentPrayer}
-                      </p>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
+          {/* STEP 3: NAVIGATE */}
+          {step === 2 && (
+            <StepWrapper key="navigate">
+              <Shield className="w-[60px] h-[60px] text-primary mb-6" />
+              <h2 className="font-serif text-2xl font-bold text-white mb-1 text-center">Navigate</h2>
+              <p className="text-sm text-white text-center mb-6">Choose The Next Aligned Step</p>
+              <p className="text-sm text-white text-center mb-6 max-w-sm">
+                This is where you redirect. Choose one small, embodied response:
+              </p>
+              <div className="space-y-3 mb-4 w-full">
+                {actionButtons.map((action) => (
+                  <div key={action.id}>
+                    <motion.button
+                      whileTap={{ scale: 0.97 }}
+                      onClick={() => setSelectedAction(selectedAction === action.id ? null : action.id)}
+                      className={cn(
+                        "w-full p-4 rounded-xl text-center transition-colors",
+                        selectedAction === action.id
+                          ? "bg-primary text-[#0A0A0A]"
+                          : "bg-[#1C1C1E] border border-primary/30 text-white"
+                      )}
+                    >
+                      <span className="block font-medium">{action.title}</span>
+                      <span className={cn(
+                        "block text-sm mt-1",
+                        selectedAction === action.id ? "text-[#0A0A0A]/70" : "text-white/70"
+                      )}>{action.subtitle}</span>
+                    </motion.button>
+                    <AnimatePresence>
+                      {selectedAction === action.id && (
+                        <motion.p
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="text-sm text-white text-center mt-2 px-2 overflow-hidden"
+                        >
+                          {action.helper}
+                        </motion.p>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                ))}
+              </div>
+              <p className="text-sm text-white text-center mb-6 max-w-sm">
+                You're not trying to beat the urge. You're practicing a different pathway. Every time you practice, the new pathway gets stronger.
+              </p>
               <Button
                 onClick={handleVictory}
                 disabled={recordVictory.isPending}
                 className="w-full rounded-xl font-bold h-12 text-base bg-primary text-[#0A0A0A] hover:bg-primary/90"
               >
-                I stood firm. Record this victory.
+                I redirected the urge. Record this.
               </Button>
-            </motion.div>
+            </StepWrapper>
           )}
         </AnimatePresence>
       </div>
