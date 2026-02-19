@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Shield, MessageCircle } from "lucide-react";
+import { X, Shield, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useFreedomStreak } from "@/hooks/useDailyProgress";
@@ -8,6 +8,18 @@ import { useRelapseEventLogger } from "@/hooks/useTriggerPatterns";
 import { useEvidenceCounter } from "@/hooks/useEvidenceCounter";
 
 const TOTAL_STEPS = 6;
+
+const step1Declarations = [
+  "The verdict is still settled. Romans 8:1 is still true. I am still fully accepted. This failure does not define me.",
+  "I am still His son. This moment doesn't change my identity. The Father still sees me through Christ, not through this failure.",
+  "Grace is not permission to sin. But it is permission to return. I am returning now, not as a slave, but as a son.",
+];
+
+const step2Prayers = [
+  "Father, I fell. I'm not hiding. I'm here. Thank You that this doesn't change my standing. Thank You that I'm still Your son. I receive Your grace right now. Help me learn from this.",
+  "Father, I'm coming to You as a son, not a slave. I failed, but I'm not staying in the shame. Thank You that Romans 8:1 is still true. Help me see what led to this.",
+  "God, I don't deserve Your grace, but that's the point. Thank You that my access to You is through Christ, not through my performance. I'm here. I'm listening. Help me return.",
+];
 
 interface GraceProtocolProps {
   onClose: () => void;
@@ -47,16 +59,19 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
   const [step, setStep] = useState(0);
   const [traceNotes, setTraceNotes] = useState("");
   const [showCompletion, setShowCompletion] = useState(false);
+  const [brotherhoodCommitted, setBrotherhoodCommitted] = useState(false);
   const navigate = useNavigate();
   const { resetStreak } = useFreedomStreak();
   const { logRelapseEvent } = useRelapseEventLogger();
   const { addEvidence } = useEvidenceCounter();
 
+  // Randomly select declaration and prayer once per protocol session
+  const selectedDeclaration = useMemo(() => step1Declarations[Math.floor(Math.random() * step1Declarations.length)], []);
+  const selectedPrayer = useMemo(() => step2Prayers[Math.floor(Math.random() * step2Prayers.length)], []);
+
   const next = () => {
     if (step < TOTAL_STEPS - 1) setStep(step + 1);
   };
-
-  const skip = () => next();
 
   const handleComplete = async () => {
     await logRelapseEvent.mutateAsync();
@@ -108,14 +123,11 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
                 Don't open another tab. Close everything. Stand up. Walk away from the screen.
               </p>
               <p className="text-sm text-white font-semibold mb-3">Speak this out loud:</p>
-              <QuoteBox>
-                "The verdict is still settled. Romans 8:1 is still true. I am still fully accepted. This failure does not define me."
-              </QuoteBox>
+              <QuoteBox>"{selectedDeclaration}"</QuoteBox>
               <p className="text-sm text-white text-center mt-4 mb-6 max-w-sm">
                 You're not suppressing the guilt. You're anchoring to truth before the spiral takes over.
               </p>
               <Button onClick={next} className="w-full rounded-xl font-bold h-12 text-base bg-primary text-[#0A0A0A] hover:bg-primary/90 max-w-sm">Continue</Button>
-              <button onClick={skip} className="text-sm text-white mt-3 hover:text-white/70 transition-colors">Skip</button>
             </StepWrapper>
           )}
 
@@ -128,14 +140,11 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
                 Don't hide. Don't delay. Go to God immediately as a son, not a slave.
               </p>
               <p className="text-sm text-white font-semibold mb-3">Pray this out loud:</p>
-              <QuoteBox>
-                "Father, I fell. I'm not hiding. I'm here. Thank You that this doesn't change my standing. Thank You that I'm still Your son. I receive Your grace right now. Help me learn from this."
-              </QuoteBox>
+              <QuoteBox>"{selectedPrayer}"</QuoteBox>
               <p className="text-sm text-white text-center mt-4 mb-6 max-w-sm">
                 Short. Honest. No performing.
               </p>
               <Button onClick={next} className="w-full rounded-xl font-bold h-12 text-base bg-primary text-[#0A0A0A] hover:bg-primary/90 max-w-sm">Continue</Button>
-              <button onClick={skip} className="text-sm text-white mt-3 hover:text-white/70 transition-colors">Skip</button>
             </StepWrapper>
           )}
 
@@ -166,7 +175,6 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
                 rows={3}
               />
               <Button onClick={next} className="w-full rounded-xl font-bold h-12 text-base bg-primary text-[#0A0A0A] hover:bg-primary/90 max-w-sm">Continue</Button>
-              <button onClick={skip} className="text-sm text-white mt-3 hover:text-white/70 transition-colors">Skip</button>
             </StepWrapper>
           )}
 
@@ -180,28 +188,33 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
               </p>
               <p className="text-sm text-white font-semibold mb-3">Text someone in your brotherhood:</p>
               <QuoteBox italic={false}>
-                I fell tonight. Not spiraling—just being honest. I'm still in the fight.
+                I fell tonight. Not spiraling, just being honest. I'm still in the fight.
               </QuoteBox>
               <p className="text-sm text-white text-center mt-4 mb-4 max-w-sm">
                 You don't need a long conversation. You need to break isolation.
               </p>
-              <div className="space-y-3 w-full max-w-sm mb-2">
-                <Button
-                  onClick={() => { onClose(); navigate("/brotherhood"); }}
-                  className="w-full rounded-xl font-bold h-12 text-base bg-primary text-[#0A0A0A] hover:bg-primary/90 flex items-center justify-center gap-2"
-                >
-                  <MessageCircle className="w-5 h-5" />
-                  Message a brother now
-                </Button>
-                <Button
-                  onClick={next}
-                  variant="outline"
-                  className="w-full rounded-xl font-bold h-12 text-base bg-[#1C1C1E] border-primary/30 text-white hover:bg-white/10"
-                >
-                  I'll reach out later
-                </Button>
-              </div>
-              <button onClick={skip} className="text-sm text-white mt-3 hover:text-white/70 transition-colors">Skip</button>
+
+              {/* Commitment checkbox */}
+              <button
+                onClick={() => setBrotherhoodCommitted(!brotherhoodCommitted)}
+                className="flex items-center gap-3 w-full max-w-sm mb-3"
+              >
+                <div className={`w-6 h-6 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${brotherhoodCommitted ? "bg-primary border-primary" : "border-primary bg-transparent"}`}>
+                  {brotherhoodCommitted && <Check className="w-4 h-4 text-[#0A0A0A]" />}
+                </div>
+                <span className="text-white text-sm font-medium text-left">I committed to reach out to a brother</span>
+              </button>
+              <p className="text-xs text-white text-center mb-6 max-w-sm">
+                Text, call, or message someone in your brotherhood. Break isolation now.
+              </p>
+
+              <Button
+                onClick={next}
+                disabled={!brotherhoodCommitted}
+                className={`w-full rounded-xl font-bold h-12 text-base max-w-sm transition-colors ${brotherhoodCommitted ? "bg-primary text-[#0A0A0A] hover:bg-primary/90" : "bg-[#1C1C1E] border border-primary/30 text-white/50 cursor-not-allowed"}`}
+              >
+                Continue
+              </Button>
             </StepWrapper>
           )}
 
@@ -223,7 +236,6 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
                 The goal is return, not self-punishment.
               </p>
               <Button onClick={next} className="w-full rounded-xl font-bold h-12 text-base bg-primary text-[#0A0A0A] hover:bg-primary/90 max-w-sm">Continue</Button>
-              <button onClick={skip} className="text-sm text-white mt-3 hover:text-white/70 transition-colors">Skip</button>
             </StepWrapper>
           )}
 
