@@ -60,6 +60,7 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
   const [traceNotes, setTraceNotes] = useState("");
   const [showCompletion, setShowCompletion] = useState(false);
   const [brotherhoodCommitted, setBrotherhoodCommitted] = useState(false);
+  const [rhythmsCommitted, setRhythmsCommitted] = useState(false);
   const navigate = useNavigate();
   const { resetStreak } = useFreedomStreak();
   const { logRelapseEvent } = useRelapseEventLogger();
@@ -232,10 +233,30 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
                 "Wake up tomorrow as a son, not a failure",
                 "Continue your daily practices without shame-driven intensity",
               ]} />
-              <p className="text-sm text-white text-center mt-4 mb-6 max-w-sm">
+              <p className="text-sm text-white text-center mt-4 mb-4 max-w-sm">
                 The goal is return, not self-punishment.
               </p>
-              <Button onClick={next} className="w-full rounded-xl font-bold h-12 text-base bg-primary text-[#0A0A0A] hover:bg-primary/90 max-w-sm">Continue</Button>
+
+              <button
+                onClick={() => setRhythmsCommitted(!rhythmsCommitted)}
+                className="flex items-center gap-3 w-full max-w-sm mb-3"
+              >
+                <div className={`w-6 h-6 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${rhythmsCommitted ? "bg-primary border-primary" : "border-primary bg-transparent"}`}>
+                  {rhythmsCommitted && <Check className="w-4 h-4 text-[#0A0A0A]" />}
+                </div>
+                <span className="text-white text-sm font-medium text-left">I commit to return to normal rhythms, not self-punishment</span>
+              </button>
+              <p className="text-xs text-white text-center mb-6 max-w-sm">
+                Go to bed at your normal time. Wake up tomorrow as a son, not a failure.
+              </p>
+
+              <Button
+                onClick={next}
+                disabled={!rhythmsCommitted}
+                className={`w-full rounded-xl font-bold h-12 text-base max-w-sm transition-colors ${rhythmsCommitted ? "bg-primary text-[#0A0A0A] hover:bg-primary/90" : "bg-[#1C1C1E] border border-primary/30 text-white/50 cursor-not-allowed"}`}
+              >
+                Continue
+              </Button>
             </StepWrapper>
           )}
 
