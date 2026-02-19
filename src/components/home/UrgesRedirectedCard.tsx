@@ -56,7 +56,7 @@ const UrgesRedirectedCard = () => {
         disabled={addUrge.isPending}
         className="w-full rounded-xl font-bold h-12 text-base bg-primary text-[#0A0A0A] hover:bg-primary/90"
       >
-        +1 Urge Redirected
+        +1
       </Button>
     </div>
   );
