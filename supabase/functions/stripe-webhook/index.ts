@@ -29,7 +29,19 @@ async function verifyStripeSignature(payload: string, signature: string, secret:
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
 
-  return v1Signatures.includes(expectedSig);
+  // Constant-time comparison to prevent timing attacks
+  const expectedBytes = new TextEncoder().encode(expectedSig);
+  for (const v1Sig of v1Signatures) {
+    const sigBytes = new TextEncoder().encode(v1Sig);
+    if (sigBytes.length === expectedBytes.length) {
+      let mismatch = 0;
+      for (let i = 0; i < sigBytes.length; i++) {
+        mismatch |= sigBytes[i] ^ expectedBytes[i];
+      }
+      if (mismatch === 0) return true;
+    }
+  }
+  return false;
 }
 
 serve(async (req) => {
