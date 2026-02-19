@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import AppLayout from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Check, BookOpen, Play, Sparkles, Loader2 } from "lucide-react";
+import { ChevronRight, Check, BookOpen, Play, Sparkles, Loader2, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
 import {
@@ -95,7 +95,7 @@ const LibraryPage = () => {
     <AppLayout>
       <div className="px-5 py-6">
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
-          <p className="text-sm text-muted-foreground mb-1">
+          <p className="text-xs text-[#C9A84C] uppercase tracking-[1.5px] font-medium mb-1">
             Your Liberation Curriculum
           </p>
           <h1 className="font-serif text-3xl font-bold mb-2">
@@ -158,11 +158,26 @@ const LibraryPage = () => {
                     }
                   }}
                   disabled={!unlocked && index !== 0}
-                  className="w-full text-left p-4 rounded-2xl bg-[#111111] border-l-4 border-primary transition-all hover:border-primary/80"
+                  className={cn(
+                    "w-full text-left p-3.5 rounded-2xl bg-[#111111] border-l-4 border-primary transition-all hover:border-primary/80 relative",
+                    !unlocked && !completed && "opacity-60"
+                  )}
                 >
+                  {/* Status icon top-right */}
+                  {completed && (
+                    <div className="absolute top-3.5 right-3.5">
+                      <Check className="w-5 h-5 text-[#C9A84C]" />
+                    </div>
+                  )}
+                  {!unlocked && !completed && (
+                    <div className="absolute top-3.5 right-3.5">
+                      <Lock className="w-4 h-4 text-[#C9A84C]" />
+                    </div>
+                  )}
+
                   <div className="flex items-center gap-4">
-                    <div className="flex-1">
-                      <span className="text-xs text-white block mb-0.5">Week {week.week_number}</span>
+                    <div className="flex-1 pr-6">
+                      <span className="text-xs text-[#C9A84C] font-medium block mb-0.5">Week {week.week_number}</span>
                       <h3 className="font-serif font-bold text-lg text-white">{week.title}</h3>
                       <p className="text-sm text-white">{week.summary || ""}</p>
                       {unlocked && weekProgress > 0 && weekProgress < 100 && (
@@ -171,7 +186,7 @@ const LibraryPage = () => {
                         </div>
                       )}
                     </div>
-                    {unlocked && (
+                    {unlocked && !completed && (
                       <ChevronRight
                         className={cn(
                           "w-5 h-5 text-primary transition-transform duration-200",
