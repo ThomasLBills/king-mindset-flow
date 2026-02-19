@@ -116,7 +116,7 @@ const CollapsedCheckIn = ({ checkInData }: CollapsedCheckInProps) => {
   }, [checkInData.feelings]);
 
   return (
-    <div className="rounded-2xl bg-[#111111] border-l-4 border-primary overflow-hidden">
+    <div className="rounded-2xl bg-[#0A0A0A] border-l border-[#C9A84C] overflow-hidden">
       {/* Collapsed header */}
       <button
         onClick={() => setExpanded(!expanded)}
@@ -256,8 +256,8 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
 
   return (
     <>
-      <div className="bg-[#111111] rounded-2xl border-l-4 border-l-primary p-6 text-white">
-        <h2 className="font-serif text-xl font-bold text-white text-center mb-2">Daily Check-In</h2>
+      <div className="bg-[#0A0A0A] rounded-2xl border-l border-l-[#C9A84C] p-6 text-white">
+        <h2 className="font-serif text-[1.375rem] font-bold text-white text-center mb-2">Daily Check-In</h2>
 
         <AnimatePresence mode="wait">
           {step === 0 && (
@@ -271,7 +271,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
                 What is present in you right now?
               </p>
               <p className="text-sm text-white text-center mb-6">Select all that apply.</p>
-              <div className="grid grid-cols-2 gap-2 mb-4">
+              <div className="grid grid-cols-2 gap-2.5 mb-4">
                 {shuffledOptions.map((option) => {
                   const isSelected = selectedAwareness.includes(option.id);
                   return (
@@ -281,9 +281,9 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
                       animate={{ scale: isSelected ? 1.02 : 1 }}
                       transition={{ type: "spring", stiffness: 300, damping: 20 }}
                       className={cn(
-                        "relative flex items-center gap-3 p-3 rounded-xl transition-colors duration-150 text-left border-[1.5px] border-primary",
+                        "relative flex items-center justify-center p-3 rounded-xl transition-colors duration-150 text-center border-[1.5px] border-[#C9A84C]",
                         isSelected
-                          ? "bg-primary text-[#0A0A0A] font-bold"
+                          ? "bg-[#C9A84C] text-[#0A0A0A] font-bold"
                           : "bg-[#1A1A1A] text-white"
                       )}
                     >
