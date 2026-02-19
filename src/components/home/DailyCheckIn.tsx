@@ -116,7 +116,7 @@ const CollapsedCheckIn = ({ checkInData }: CollapsedCheckInProps) => {
   }, [checkInData.feelings]);
 
   return (
-    <div className="rounded-2xl bg-[#0A0A0A] border-l border-[#C9A84C] overflow-hidden">
+    <div className="rounded-2xl bg-[#0A0A0A] border-l border-[#C9A84C] overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.15)]">
       {/* Collapsed header */}
       <button
         onClick={() => setExpanded(!expanded)}
@@ -256,8 +256,8 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
 
   return (
     <>
-      <div className="bg-[#0A0A0A] rounded-2xl border-l border-l-[#C9A84C] p-6 text-white">
-        <h2 className="font-serif text-[1.375rem] font-bold text-white text-center mb-2">Daily Check-In</h2>
+      <div className="bg-[#0A0A0A] rounded-2xl border-l border-l-[#C9A84C] p-6 text-white shadow-[0_4px_24px_rgba(0,0,0,0.15)]">
+        <h2 className="font-serif text-[1.375rem] font-bold text-white text-center mb-3">Daily Check-In</h2>
 
         <AnimatePresence mode="wait">
           {step === 0 && (
@@ -271,7 +271,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
                 What is present in you right now?
               </p>
               <p className="text-sm text-white text-center mb-6">Select all that apply.</p>
-              <div className="grid grid-cols-2 gap-2.5 mb-4">
+              <div className="grid grid-cols-2 gap-3 mb-4">
                 {shuffledOptions.map((option) => {
                   const isSelected = selectedAwareness.includes(option.id);
                   return (
