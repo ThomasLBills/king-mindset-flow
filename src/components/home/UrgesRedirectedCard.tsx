@@ -42,12 +42,12 @@ const UrgesRedirectedCard = () => {
 
       <div className="flex justify-center gap-8 mb-6">
         <div className="text-center">
-          <p className="text-4xl font-bold text-primary">{dailyCount}</p>
-          <p className="text-sm text-white font-medium mt-1">Today</p>
+          <p className="text-5xl font-bold text-primary">{dailyCount}</p>
+          <p className="text-base text-white font-medium mt-2">Today</p>
         </div>
         <div className="text-center">
-          <p className="text-4xl font-bold text-primary">{monthlyCount}</p>
-          <p className="text-sm text-white font-medium mt-1">This Month</p>
+          <p className="text-5xl font-bold text-primary">{monthlyCount}</p>
+          <p className="text-base text-white font-medium mt-2">This Month</p>
         </div>
       </div>
 
