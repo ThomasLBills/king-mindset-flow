@@ -69,27 +69,26 @@ const CompletionOverlay = ({ onDone }: { onDone: () => void }) => {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.4 }}
-      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background"
-      style={{ boxShadow: "inset 0 0 120px rgba(212,175,55,0.06)" }}
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/80"
       onAnimationComplete={() => {
         setTimeout(() => onDone(), 1500);
       }}
     >
-      <motion.h2
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="font-serif text-3xl font-bold text-white mb-3 text-center"
+      <motion.div
+        initial={{ scale: 0.5, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ delay: 0.2, type: "spring", stiffness: 200, damping: 15 }}
+        className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mb-4"
       >
-        Your check-in is complete.
-      </motion.h2>
+        <Check className="w-8 h-8 text-primary" />
+      </motion.div>
       <motion.p
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
-        className="text-white text-lg text-center"
+        className="text-white text-xl font-semibold text-center"
       >
-        Walk in freedom today.
+        Complete
       </motion.p>
     </motion.div>
   );
@@ -229,16 +228,9 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
     return last ? scriptureResponses[last] : null;
   }, [selectedAwareness]);
 
-  // Already checked in today — show collapsed card
-  if (isCheckedIn && todayCheckIn) {
-    return (
-      <CollapsedCheckIn
-        checkInData={{
-          feelings: todayCheckIn.feelings || [],
-          spirit_response: todayCheckIn.spirit_response,
-        }}
-      />
-    );
+  // Already checked in today — card is removed entirely
+  if (isCheckedIn && !showOverlay) {
+    return null;
   }
 
   const toggleAwareness = (id: string) => {
