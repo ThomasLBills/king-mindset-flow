@@ -7,7 +7,7 @@ import { ChevronRight, Check, BookOpen, Play, Sparkles, Loader2, Lock } from "lu
 import { cn } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
 import {
-  useAllWeeks,
+  usePublishedWeeks,
   useAllPublishedCurriculumLessons,
   useCurriculumLessonProgress,
   useUserEnrollment,
@@ -21,7 +21,7 @@ const LibraryPage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { data: settings, isLoading: settingsLoading } = useCurriculumSettings();
-  const { data: weeks, isLoading: weeksLoading } = useAllWeeks();
+  const { data: weeks, isLoading: weeksLoading } = usePublishedWeeks();
   const { data: allLessons, isLoading: lessonsLoading } = useAllPublishedCurriculumLessons();
   const { data: progressMap } = useCurriculumLessonProgress();
   const { data: enrollment } = useUserEnrollment();
