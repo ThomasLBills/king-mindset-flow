@@ -59,7 +59,7 @@ const ToolsPage = () => {
               className="py-6 px-10 rounded-xl text-center bg-[#1C1C1E] border-[1.5px] border-primary active:bg-primary active:text-[#0A0A0A] transition-colors duration-200"
             >
               <span className="block font-bold text-white text-base">I Need God's Grace</span>
-              <span className="block text-sm text-primary mt-1">Return quickly</span>
+              <span className="block text-sm text-primary mt-1">R.E.T.U.R.N.</span>
             </motion.button>
             <motion.button
               onClick={() => { setDeclarationIndex(0); setShowDeclarations(true); }}
