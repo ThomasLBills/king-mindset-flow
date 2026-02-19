@@ -41,14 +41,14 @@ const Index = () => {
           />
         </motion.div>
 
-        {/* 2. Liberation */}
+        {/* 2. Urges Redirected */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mb-5">
-          <FreedomStrip />
+          <UrgesRedirectedCard />
         </motion.div>
 
-        {/* 3. Urges Redirected */}
+        {/* 3. Liberation */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="mb-5">
-          <UrgesRedirectedCard />
+          <FreedomStrip />
         </motion.div>
 
         {/* Pattern Insight Card */}
