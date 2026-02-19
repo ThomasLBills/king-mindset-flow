@@ -9,14 +9,14 @@ const FreedomStrip = () => {
       <p className="text-sm text-white text-center mb-6">
         You are already free in Christ. This is the evidence.
       </p>
-      <div className="flex justify-center gap-8 mb-6">
+      <div className="flex justify-center mb-6">
         <div className="text-center">
-          <p className="text-sm text-white font-medium mb-1">This Month</p>
           <p className="text-4xl font-bold text-primary">{isLoading ? "–" : count}</p>
+          <p className="text-sm text-white font-medium mt-1">Pieces of New Evidence This Month</p>
         </div>
       </div>
-    </div>);
-
+    </div>
+  );
 };
 
 export default FreedomStrip;
