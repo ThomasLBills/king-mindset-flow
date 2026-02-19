@@ -7,7 +7,7 @@
 @layer base {
   :root {
     /* Core palette - Warm cream bg, gold accents, dark text */
-    --background: 30 33% 94%;
+    --background: 28 27% 94%;
     --foreground: 0 0% 7%;
 
     --card: 0 0% 100%;

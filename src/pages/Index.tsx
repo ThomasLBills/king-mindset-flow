@@ -25,7 +25,7 @@ const Index = () => {
 
   return (
     <AppLayout>
-      <div className="px-6 py-6 max-w-lg mx-auto">
+      <div className="px-4 py-6 max-w-lg mx-auto">
         {/* 1. Daily Check-In */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="mb-5">
           <DailyCheckIn

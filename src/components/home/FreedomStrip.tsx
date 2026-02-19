@@ -4,7 +4,7 @@ const FreedomStrip = () => {
   const { count, isLoading } = useEvidenceCounter();
 
   return (
-    <div className="bg-[#0A0A0A] rounded-2xl border-l border-l-[#C9A84C] p-6">
+    <div className="bg-[#0A0A0A] rounded-2xl border-l border-l-[#C9A84C] p-6 shadow-[0_4px_24px_rgba(0,0,0,0.15)]">
       <h2 className="font-serif text-xl font-bold text-white text-center mb-2">Liberation</h2>
       <p className="text-sm text-white text-center mb-6">
         You are already free in Christ. This is the evidence.
