@@ -36,9 +36,9 @@ const StepWrapper = ({ children }: { children: React.ReactNode }) => (
   </motion.div>
 );
 
-const QuoteBox = ({ children, italic = true }: { children: React.ReactNode; italic?: boolean }) => (
+const QuoteBox = ({ children }: { children: React.ReactNode }) => (
   <div className="bg-white/5 border border-primary/20 rounded-xl p-5 w-full max-w-sm">
-    <p className={`font-serif text-base text-white leading-relaxed ${italic ? "italic" : ""}`}>
+    <p className="font-serif text-base text-white leading-relaxed">
       {children}
     </p>
   </div>
@@ -188,7 +188,7 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
                 Don't isolate. Shame grows in secrecy.
               </p>
               <p className="text-sm text-white font-semibold mb-3">Text someone in your brotherhood:</p>
-              <QuoteBox italic={false}>
+              <QuoteBox>
                 I fell tonight. Not spiraling, just being honest. I'm still in the fight.
               </QuoteBox>
               <p className="text-sm text-white text-center mt-4 mb-4 max-w-sm">
@@ -196,18 +196,20 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
               </p>
 
               {/* Commitment checkbox */}
-              <button
-                onClick={() => setBrotherhoodCommitted(!brotherhoodCommitted)}
-                className="flex items-center gap-3 w-full max-w-sm mb-3"
-              >
-                <div className={`w-6 h-6 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${brotherhoodCommitted ? "bg-primary border-primary" : "border-primary bg-transparent"}`}>
-                  {brotherhoodCommitted && <Check className="w-4 h-4 text-[#0A0A0A]" />}
-                </div>
-                <span className="text-white text-sm font-medium text-left">I committed to reach out to a brother</span>
-              </button>
-              <p className="text-xs text-white text-center mb-6 max-w-sm">
-                Text, call, or message someone in your brotherhood. Break isolation now.
-              </p>
+              <div className="w-full max-w-sm bg-[#1C1C1E] border-2 border-primary rounded-lg p-4 mb-6">
+                <button
+                  onClick={() => setBrotherhoodCommitted(!brotherhoodCommitted)}
+                  className="flex items-center gap-3 w-full"
+                >
+                  <div className={`w-6 h-6 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${brotherhoodCommitted ? "bg-primary border-primary" : "border-primary bg-transparent"}`}>
+                    {brotherhoodCommitted && <Check className="w-4 h-4 text-[#0A0A0A]" />}
+                  </div>
+                  <span className="text-white text-sm font-medium text-left">I committed to reach out to a brother</span>
+                </button>
+                <p className="text-xs text-white mt-3 ml-9">
+                  Text, call, or message someone in your brotherhood. Break isolation now.
+                </p>
+              </div>
 
               <Button
                 onClick={next}
@@ -237,18 +239,20 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
                 The goal is return, not self-punishment.
               </p>
 
-              <button
-                onClick={() => setRhythmsCommitted(!rhythmsCommitted)}
-                className="flex items-center gap-3 w-full max-w-sm mb-3"
-              >
-                <div className={`w-6 h-6 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${rhythmsCommitted ? "bg-primary border-primary" : "border-primary bg-transparent"}`}>
-                  {rhythmsCommitted && <Check className="w-4 h-4 text-[#0A0A0A]" />}
-                </div>
-                <span className="text-white text-sm font-medium text-left">I commit to return to normal rhythms, not self-punishment</span>
-              </button>
-              <p className="text-xs text-white text-center mb-6 max-w-sm">
-                Go to bed at your normal time. Wake up tomorrow as a son, not a failure.
-              </p>
+              <div className="w-full max-w-sm bg-[#1C1C1E] border-2 border-primary rounded-lg p-4 mb-6">
+                <button
+                  onClick={() => setRhythmsCommitted(!rhythmsCommitted)}
+                  className="flex items-center gap-3 w-full"
+                >
+                  <div className={`w-6 h-6 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${rhythmsCommitted ? "bg-primary border-primary" : "border-primary bg-transparent"}`}>
+                    {rhythmsCommitted && <Check className="w-4 h-4 text-[#0A0A0A]" />}
+                  </div>
+                  <span className="text-white text-sm font-medium text-left">I commit to return to normal rhythms, not self-punishment</span>
+                </button>
+                <p className="text-xs text-white mt-3 ml-9">
+                  Go to bed at your normal time. Wake up tomorrow as a son, not a failure.
+                </p>
+              </div>
 
               <Button
                 onClick={next}
