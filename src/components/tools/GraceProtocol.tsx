@@ -263,9 +263,6 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
                   </div>
                   <span className="text-white text-sm font-medium text-left">I commit to return to normal rhythms, not self-punishment</span>
                 </button>
-                <p className="text-xs text-white mt-3 ml-9">
-                  Go to bed at your normal time. Wake up tomorrow as a son, not a failure.
-                </p>
               </div>
 
               <Button
