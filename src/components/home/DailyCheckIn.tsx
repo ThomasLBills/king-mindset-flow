@@ -1,21 +1,18 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Check, Heart, ChevronDown } from "lucide-react";
+import { Check, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useDailyCheckIn } from "@/hooks/useDailyProgress";
 
 const awarenessOptions = [
-  { id: "rested", label: "Rested" },
-  { id: "ashamed", label: "Ashamed" },
-  { id: "calm", label: "Calm" },
-  { id: "anxious", label: "Anxious" },
-  { id: "connected", label: "Connected" },
-  { id: "isolated", label: "Isolated" },
-  { id: "hopeful", label: "Hopeful" },
-  { id: "discouraged", label: "Discouraged" },
   { id: "grateful", label: "Grateful" },
+  { id: "calm", label: "Calm" },
+  { id: "hopeful", label: "Hopeful" },
+  { id: "connected", label: "Connected" },
+  { id: "anxious", label: "Anxious" },
   { id: "tempted", label: "Tempted" },
+  { id: "ashamed", label: "Ashamed" },
 ];
 
 const scriptureResponses: Record<string, { text: string; ref: string }> = {
@@ -30,18 +27,6 @@ const scriptureResponses: Record<string, { text: string; ref: string }> = {
   tempted: {
     text: "No temptation has overtaken you that is not common to man. God is faithful, and he will not let you be tempted beyond your ability, but with the temptation he will also provide the way of escape, that you may be able to endure it.",
     ref: "1 Corinthians 10:13",
-  },
-  isolated: {
-    text: "And let us consider how to stir up one another to love and good works, not neglecting to meet together, as is the habit of some, but encouraging one another.",
-    ref: "Hebrews 10:24-25",
-  },
-  discouraged: {
-    text: "Fear not, for I am with you; be not dismayed, for I am your God; I will strengthen you, I will help you, I will uphold you with my righteous right hand.",
-    ref: "Isaiah 41:10",
-  },
-  rested: {
-    text: "He makes me lie down in green pastures. He leads me beside still waters. He restores my soul.",
-    ref: "Psalm 23:2-3",
   },
   calm: {
     text: "You keep him in perfect peace whose mind is stayed on you, because he trusts in you.",
@@ -106,9 +91,8 @@ interface CollapsedCheckInProps {
 const CollapsedCheckIn = ({ checkInData }: CollapsedCheckInProps) => {
   const [expanded, setExpanded] = useState(false);
 
-  // Find the scripture that would have been shown for these feelings
   const activeScripture = useMemo(() => {
-    const prioritized = ["ashamed", "tempted", "anxious", "isolated", "discouraged"];
+    const prioritized = ["ashamed", "tempted", "anxious"];
     for (const id of prioritized) {
       if (checkInData.feelings.includes(id)) return scriptureResponses[id];
     }
@@ -117,8 +101,7 @@ const CollapsedCheckIn = ({ checkInData }: CollapsedCheckInProps) => {
   }, [checkInData.feelings]);
 
   return (
-    <div className="rounded-2xl bg-[#111111] border-l-4 border-primary overflow-hidden">
-      {/* Collapsed header */}
+    <div className="rounded-2xl bg-[#111111] border-l-4 border-l-primary overflow-hidden">
       <button
         onClick={() => setExpanded(!expanded)}
         className="w-full flex items-center gap-3 p-4 text-left"
@@ -132,7 +115,6 @@ const CollapsedCheckIn = ({ checkInData }: CollapsedCheckInProps) => {
         </span>
       </button>
 
-      {/* Expanded details */}
       <AnimatePresence>
         {expanded && (
           <motion.div
@@ -143,9 +125,8 @@ const CollapsedCheckIn = ({ checkInData }: CollapsedCheckInProps) => {
             className="overflow-hidden"
           >
             <div className="px-4 pb-5 space-y-4">
-              {/* Emotions */}
               <div>
-                <p className="text-xs text-muted-foreground mb-2">How you were feeling</p>
+                <p className="text-xs text-white/50 mb-2">How you were feeling</p>
                 <div className="flex flex-wrap gap-2">
                   {checkInData.feelings.map((f) => {
                     const label = awarenessOptions.find((o) => o.id === f)?.label || f;
@@ -161,12 +142,11 @@ const CollapsedCheckIn = ({ checkInData }: CollapsedCheckInProps) => {
                 </div>
               </div>
 
-              {/* Scripture */}
               {activeScripture && (
                 <div>
-                  <p className="text-xs text-muted-foreground mb-2">Scripture</p>
+                  <p className="text-xs text-white/50 mb-2">Scripture</p>
                   <div className="bg-white/5 border border-primary/20 rounded-xl p-3">
-                    <p className="font-serif text-sm text-white italic leading-relaxed">
+                    <p className="font-serif text-sm text-white leading-relaxed">
                       "{activeScripture.text}"
                     </p>
                     <p className="text-xs text-primary mt-1.5 font-medium">{activeScripture.ref}</p>
@@ -174,15 +154,13 @@ const CollapsedCheckIn = ({ checkInData }: CollapsedCheckInProps) => {
                 </div>
               )}
 
-              {/* Spirit prompt response */}
               {checkInData.spirit_response && (
                 <div>
-                  <p className="text-xs text-muted-foreground mb-2">What the Spirit said</p>
-                  <p className="text-sm text-white/80 leading-relaxed">{checkInData.spirit_response}</p>
+                  <p className="text-xs text-white/50 mb-2">What the Spirit said</p>
+                  <p className="text-sm text-white leading-relaxed">{checkInData.spirit_response}</p>
                 </div>
               )}
 
-              {/* Locked message */}
               <p className="text-xs text-white/50 text-center pt-1">
                 Check-in is locked until tomorrow. Come back tomorrow morning, King.
               </p>
@@ -202,26 +180,13 @@ interface DailyCheckInProps {
 }
 
 const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: DailyCheckInProps) => {
-  const [step, setStep] = useState(0);
   const [selectedAwareness, setSelectedAwareness] = useState<string[]>([]);
   const [showOverlay, setShowOverlay] = useState(false);
-  const [showBreathText, setShowBreathText] = useState(false);
   const [spiritPrompt, setSpiritPrompt] = useState("");
   const { isCheckedIn, todayCheckIn, submitCheckIn } = useDailyCheckIn();
 
-  // Randomize tile order once per session
-  const shuffledOptions = useMemo(() => {
-    const arr = [...awarenessOptions];
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr;
-  }, []);
-
-  // Get the most relevant scripture for selected emotions
   const activeScripture = useMemo(() => {
-    const prioritized = ["ashamed", "tempted", "anxious", "isolated", "discouraged"];
+    const prioritized = ["ashamed", "tempted", "anxious"];
     for (const id of prioritized) {
       if (selectedAwareness.includes(id)) return scriptureResponses[id];
     }
@@ -229,7 +194,6 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
     return last ? scriptureResponses[last] : null;
   }, [selectedAwareness]);
 
-  // Already checked in today — show collapsed card
   if (isCheckedIn && todayCheckIn) {
     return (
       <CollapsedCheckIn
@@ -248,8 +212,10 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
   };
 
   const needsSupport = selectedAwareness.some((a) =>
-    ["anxious", "tempted", "isolated", "discouraged", "ashamed"].includes(a)
+    ["anxious", "tempted", "ashamed"].includes(a)
   );
+
+  const canComplete = selectedAwareness.length > 0 && spiritPrompt.trim().length > 0;
 
   const handleComplete = async () => {
     const hasSpirit = spiritPrompt.trim().length > 0;
@@ -264,148 +230,107 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
 
   return (
     <>
-      <div className="rounded-2xl p-5 bg-[#111111] border-l-4 border-primary text-white">
-        <h3 className="font-serif text-lg font-semibold text-white text-center mb-4">Daily Check-In</h3>
+      <div className="rounded-2xl bg-[#111111] border-l-4 border-l-primary p-6 text-white">
+        {/* Heading */}
+        <h2 className="font-serif text-xl font-bold text-white text-center mb-2">
+          Daily Check-In
+        </h2>
 
-        <AnimatePresence mode="wait">
-          {step === 0 && (
-            <motion.div
-              key="awareness"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-            >
-              <p className="text-white mb-1">
-                What is present in you right now?
-              </p>
-              <p className="text-xs text-white mb-4">Select all that apply.</p>
-              <div className="grid grid-cols-2 gap-2 mb-4">
-                {shuffledOptions.map((option) => {
-                  const isSelected = selectedAwareness.includes(option.id);
-                  return (
-                    <motion.button
-                      key={option.id}
-                      onClick={() => toggleAwareness(option.id)}
-                      animate={{ scale: isSelected ? 1.02 : 1 }}
-                      transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                      className={cn(
-                        "relative flex items-center gap-3 p-3 rounded-xl transition-colors duration-150 text-left",
-                        isSelected
-                          ? "bg-primary text-[#0A0A0A] font-bold"
-                          : "bg-[hsl(225_12%_10%)] text-white"
-                      )}
-                      style={{ border: "1.5px solid hsl(40 44% 54%)" }}
-                    >
-                      <span className="text-sm font-medium">{option.label}</span>
-                      {isSelected && (
-                        <Check className="w-3.5 h-3.5 text-[#0A0A0A] ml-auto" />
-                      )}
-                    </motion.button>
-                  );
-                })}
-              </div>
+        {/* Theological statement */}
+        <p className="text-sm text-white text-center mb-6">
+          You are a son, not a slave. Name what's present without judgment.
+        </p>
 
-              {/* Contextual Scripture */}
-              <AnimatePresence>
-                {activeScripture && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="mb-4 overflow-hidden"
-                  >
-                    <div className="bg-white/5 border border-primary/20 rounded-xl p-4">
-                      <p className="font-serif text-sm text-white italic leading-relaxed">
-                        "{activeScripture.text}"
-                      </p>
-                      <p className="text-xs text-primary mt-2 font-medium">{activeScripture.ref}</p>
-                    </div>
-                  </motion.div>
+        {/* Emotions heading */}
+        <p className="text-sm text-white font-medium mb-1">
+          What is present in you right now?
+        </p>
+        <p className="text-xs text-white mb-4">Select all that apply.</p>
+
+        {/* Emotion buttons - 2 columns */}
+        <div className="grid grid-cols-2 gap-3 mb-6">
+          {awarenessOptions.map((option) => {
+            const isSelected = selectedAwareness.includes(option.id);
+            return (
+              <motion.button
+                key={option.id}
+                onClick={() => toggleAwareness(option.id)}
+                whileTap={{ scale: 0.97 }}
+                className={cn(
+                  "flex items-center justify-center py-4 px-6 rounded-lg text-sm font-medium transition-colors",
+                  isSelected
+                    ? "bg-primary text-[#0A0A0A] font-bold"
+                    : "bg-[#1C1C1E] border border-primary/30 text-white"
                 )}
-              </AnimatePresence>
+              >
+                {option.label}
+              </motion.button>
+            );
+          })}
+        </div>
 
-              {showBreathText && (
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="text-sm text-white text-center mb-4"
-                >
-                  Awareness builds strength.
-                </motion.p>
-              )}
-
-              {selectedAwareness.length > 0 && (
-                <div className="flex gap-3">
-                  <motion.div
-                    className="flex-1"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    whileTap={{ scale: 0.97, y: -1 }}
-                  >
-                    <Button
-                      onClick={() => {
-                        setShowBreathText(true);
-                        setTimeout(() => setStep(1), 1000);
-                      }}
-                      className="w-full rounded-xl font-bold h-12 text-base bg-primary text-[#0A0A0A] hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all duration-200"
-                    >
-                      I am aligned. Let's Go.
-                    </Button>
-                  </motion.div>
-                </div>
-              )}
-            </motion.div>
-          )}
-
-          {step === 1 && (
+        {/* Contextual Scripture */}
+        <AnimatePresence>
+          {activeScripture && (
             <motion.div
-              key="spirit-prompt"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="mb-6 overflow-hidden"
             >
-              <p className="text-white font-serif text-lg mb-4">
-                What do you sense the Spirit saying about what you are feeling?
-              </p>
-              
-              <textarea
-                value={spiritPrompt}
-                onChange={(e) => setSpiritPrompt(e.target.value)}
-                placeholder="Write what comes to mind..."
-                className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm text-white/90 placeholder:text-white/25 resize-none focus:outline-none focus:border-primary/50 transition-colors"
-                rows={3}
-              />
-
-              <div className="flex flex-col gap-3 mt-4">
-                <Button
-                  onClick={handleComplete}
-                  disabled={submitCheckIn.isPending || spiritPrompt.trim().length === 0}
-                  className={cn(
-                    "w-full rounded-xl font-semibold h-12 text-base shadow-lg transition-all duration-200",
-                    spiritPrompt.trim().length > 0
-                      ? "bg-primary text-[#0A0A0A] hover:bg-primary/90 shadow-primary/20"
-                      : "bg-[hsl(225_12%_10%)] text-muted-foreground border border-primary/30 shadow-none cursor-not-allowed"
-                  )}
-                >
-                  <Check className="w-4 h-4" />
-                  Complete Check-In
-                </Button>
-                {needsSupport && (
-                  <Button
-                    onClick={onNeedSupport}
-                    className="w-full rounded-xl font-medium h-11 bg-white/10 text-white hover:bg-white/15 border border-white/10"
-                  >
-                    <Heart className="w-4 h-4" />
-                    I need support today
-                  </Button>
-                )}
+              <div className="bg-white/5 border border-primary/20 rounded-xl p-4">
+                <p className="font-serif text-sm text-white leading-relaxed">
+                  "{activeScripture.text}"
+                </p>
+                <p className="text-xs text-primary mt-2 font-medium">{activeScripture.ref}</p>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Scripture anchor */}
+        <div className="text-center mb-6">
+          <p className="text-sm text-white">The Spirit helps us in our weakness.</p>
+          <p className="text-sm text-primary font-medium mt-1">Romans 8:26</p>
+        </div>
+
+        {/* Spirit prompt */}
+        <p className="text-sm text-primary font-medium mb-3">
+          What is the Spirit prompting you toward today?
+        </p>
+        <textarea
+          value={spiritPrompt}
+          onChange={(e) => setSpiritPrompt(e.target.value)}
+          className="w-full bg-white/5 border border-primary/30 rounded-xl p-4 text-sm text-white resize-none focus:outline-none focus:border-primary/50 transition-colors mb-6"
+          rows={4}
+        />
+
+        {/* Complete button */}
+        <Button
+          onClick={handleComplete}
+          disabled={!canComplete || submitCheckIn.isPending}
+          className={cn(
+            "w-full rounded-xl font-bold h-12 text-base transition-colors",
+            canComplete
+              ? "bg-primary text-[#0A0A0A] hover:bg-primary/90"
+              : "bg-[#1C1C1E] border border-primary/30 text-white/50 cursor-not-allowed"
+          )}
+        >
+          Complete Check-In
+        </Button>
+
+        {/* Support button */}
+        {needsSupport && selectedAwareness.length > 0 && (
+          <Button
+            onClick={onNeedSupport}
+            className="w-full rounded-xl font-medium h-11 bg-white/10 text-white hover:bg-white/15 border border-white/10 mt-3"
+          >
+            <Heart className="w-4 h-4" />
+            I need support today
+          </Button>
+        )}
       </div>
 
-      {/* Completion Overlay */}
       <AnimatePresence>
         {showOverlay && (
           <CompletionOverlay
