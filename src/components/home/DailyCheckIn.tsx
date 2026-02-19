@@ -390,15 +390,6 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
                   <Check className="w-4 h-4" />
                   Complete Check-In
                 </Button>
-                {needsSupport && (
-                  <Button
-                    onClick={onNeedSupport}
-                    className="w-full rounded-xl font-medium h-11 bg-white/10 text-white hover:bg-white/15 border border-white/10"
-                  >
-                    <Heart className="w-4 h-4" />
-                    I need support today
-                  </Button>
-                )}
               </div>
             </motion.div>
           )}
