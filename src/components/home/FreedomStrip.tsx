@@ -11,8 +11,8 @@ const FreedomStrip = () => {
       </p>
       <div className="flex justify-center mb-6">
         <div className="text-center">
-          <p className="text-4xl font-bold text-primary">{isLoading ? "–" : count}</p>
-          <p className="text-sm text-white font-medium mt-1">Pieces of New Evidence This Month</p>
+          <p className="text-5xl font-bold text-primary">{isLoading ? "–" : count}</p>
+          <p className="text-base text-white font-medium mt-2">Pieces of New Evidence This Month</p>
         </div>
       </div>
     </div>
