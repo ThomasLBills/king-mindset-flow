@@ -12,13 +12,13 @@ const TOTAL_STEPS = 6;
 const step1Declarations = [
   "The verdict is still settled. Romans 8:1 is still true. I am still fully accepted. This failure does not define me.",
   "I am still His son. This moment doesn't change my identity. The Father still sees me through Christ, not through this failure.",
-  "Grace is not permission to sin. But it is permission to return. I am returning now, not as a slave, but as a son.",
+  "Grace is not permission to sin. Grace is permission to return. I am returning now as a son, not as a slave.",
 ];
 
 const step2Prayers = [
   "Father, I fell. I'm not hiding. I'm here. Thank You that this doesn't change my standing. Thank You that I'm still Your son. I receive Your grace right now. Help me learn from this.",
-  "Father, I'm coming to You as a son, not a slave. I failed, but I'm not staying in the shame. Thank You that Romans 8:1 is still true. Help me see what led to this.",
-  "God, I don't deserve Your grace, but that's the point. Thank You that my access to You is through Christ, not through my performance. I'm here. I'm listening. Help me return.",
+  "Father, I'm coming to You as a son, not a slave. I failed, and I'm not staying in the shame. Thank You that Romans 8:1 is still true. Help me see what led to this.",
+  "God, I don't deserve Your grace. That's exactly the point. Thank You that my access to You is through Christ, not through my performance. I'm here. I'm listening. Help me return.",
 ];
 
 interface GraceProtocolProps {
