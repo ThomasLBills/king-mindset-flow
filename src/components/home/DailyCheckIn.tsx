@@ -256,8 +256,8 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
 
   return (
     <>
-      <div className="rounded-2xl p-5 bg-[#111111] border-l-4 border-primary text-white">
-        <h3 className="font-serif text-lg font-semibold text-white text-center mb-4">Daily Check-In</h3>
+      <div className="bg-[#111111] rounded-2xl border-l-4 border-l-primary p-6 text-white">
+        <h2 className="font-serif text-xl font-bold text-white text-center mb-2">Daily Check-In</h2>
 
         <AnimatePresence mode="wait">
           {step === 0 && (
@@ -267,10 +267,10 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
             >
-              <p className="text-white mb-1">
+              <p className="text-sm text-white text-center mb-1">
                 What is present in you right now?
               </p>
-              <p className="text-xs text-white mb-4">Select all that apply.</p>
+              <p className="text-sm text-white text-center mb-6">Select all that apply.</p>
               <div className="grid grid-cols-2 gap-2 mb-4">
                 {shuffledOptions.map((option) => {
                   const isSelected = selectedAwareness.includes(option.id);
@@ -281,12 +281,11 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
                       animate={{ scale: isSelected ? 1.02 : 1 }}
                       transition={{ type: "spring", stiffness: 300, damping: 20 }}
                       className={cn(
-                        "relative flex items-center gap-3 p-3 rounded-xl transition-colors duration-150 text-left",
+                        "relative flex items-center gap-3 p-3 rounded-xl transition-colors duration-150 text-left border-[1.5px] border-primary",
                         isSelected
                           ? "bg-primary text-[#0A0A0A] font-bold"
-                          : "bg-[hsl(225_12%_10%)] text-white"
+                          : "bg-[#1A1A1A] text-white"
                       )}
-                      style={{ border: "1.5px solid hsl(40 44% 54%)" }}
                     >
                       <span className="text-sm font-medium">{option.label}</span>
                       {isSelected && (
