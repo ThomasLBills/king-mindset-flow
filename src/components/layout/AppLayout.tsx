@@ -10,12 +10,9 @@ interface AppLayoutProps {
 const AppLayout = ({ children }: AppLayoutProps) => {
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-40" style={{ backgroundColor: '#0A0A0A', borderBottom: '1px solid #C9A84C', height: '56px' }}>
-        <div className="flex items-center justify-center px-4 h-full relative">
-          <span className="font-serif text-lg font-bold tracking-wide" style={{ color: '#C9A84C' }}>LIBERATED KINGS</span>
-          <div className="absolute right-4">
-            <UserMenu />
-          </div>
+      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-md border-b border-border/50">
+        <div className="flex items-center justify-end px-4 py-3">
+          <UserMenu />
         </div>
       </header>
       <main className="pb-28">
