@@ -13,12 +13,26 @@ const step1Declarations = [
   "The verdict is still settled. Romans 8:1 is still true. I am still fully accepted. This failure does not define me.",
   "I am still His son. This moment doesn't change my identity. The Father still sees me through Christ, not through this failure.",
   "Grace is not permission to sin. Grace is permission to return. I am returning now as a son, not as a slave.",
+  "My access to the Father is through Christ's blood, not my performance. I am coming home, not earning my way back.",
+  "This failure does not disqualify me. Jesus paid for this moment on the cross. I am still covered. I am still His.",
+  "Shame says I'm done. Grace says I can return. I choose grace. I am returning now.",
+  "I am not my worst moment. I am who God says I am. His son. Forgiven. Accepted. Loved.",
+  "The enemy wants me to spiral. God invites me to return. I refuse shame. I receive grace. I am returning now.",
+  "My identity is not up for debate. I am sealed by the Holy Spirit. This failure cannot change what Christ has done.",
+  "I fell. I am not staying down. Romans 8:1 is still true. There is no condemnation. I am returning as a son.",
 ];
 
 const step2Prayers = [
   "Father, I fell. I'm not hiding. I'm here. Thank You that this doesn't change my standing. Thank You that I'm still Your son. I receive Your grace right now. Help me learn from this.",
   "Father, I'm coming to You as a son, not a slave. I failed, and I'm not staying in the shame. Thank You that Romans 8:1 is still true. Help me see what led to this.",
   "God, I don't deserve Your grace. That's exactly the point. Thank You that my access to You is through Christ, not through my performance. I'm here. I'm listening. Help me return.",
+  "Father, I'm not hiding from You. I'm running to You. Thank You that You don't receive me based on what I've done. You receive me because of what Christ has done. I receive that now.",
+  "God, I'm here. Not because I earned it. Because You invited me. Thank You that Your grace is bigger than my failure. I receive it. Help me walk forward.",
+  "Father, I failed. I'm not making excuses. I'm also not staying in the shame. Thank You that my standing is secure in Christ. Help me learn what led to this.",
+  "God, I come to You as Your son. I fell, and I'm not pretending I didn't. Thank You that You don't turn me away. Thank You that grace is real. I receive it now.",
+  "Father, shame is loud right now. Your voice is louder. Thank You that I'm still Yours. Thank You that this moment doesn't define me. Help me see clearly.",
+  "God, I'm not spiraling. I'm returning. Thank You that Your arms are open. Thank You that Your grace is sufficient. I receive it. Help me walk in freedom.",
+  "Father, I don't deserve to be here. That's the gospel. None of us do. Thank You that Christ made a way. I'm here because of Him, not because of me. I receive Your grace.",
 ];
 
 interface GraceProtocolProps {
@@ -66,9 +80,9 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
   const { logRelapseEvent } = useRelapseEventLogger();
   const { addEvidence } = useEvidenceCounter();
 
-  // Randomly select declaration and prayer once per protocol session
-  const selectedDeclaration = useMemo(() => step1Declarations[Math.floor(Math.random() * step1Declarations.length)], []);
-  const selectedPrayer = useMemo(() => step2Prayers[Math.floor(Math.random() * step2Prayers.length)], []);
+  // Randomly select declaration and prayer each time the step loads
+  const selectedDeclaration = useMemo(() => step1Declarations[Math.floor(Math.random() * step1Declarations.length)], [step]);
+  const selectedPrayer = useMemo(() => step2Prayers[Math.floor(Math.random() * step2Prayers.length)], [step]);
 
   const next = () => {
     if (step < TOTAL_STEPS - 1) setStep(step + 1);
