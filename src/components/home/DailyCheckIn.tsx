@@ -6,16 +6,16 @@ import { cn } from "@/lib/utils";
 import { useDailyCheckIn } from "@/hooks/useDailyProgress";
 
 const awarenessOptions = [
-  { id: "rested", label: "Rested" },
-  { id: "ashamed", label: "Ashamed" },
-  { id: "calm", label: "Calm" },
-  { id: "anxious", label: "Anxious" },
-  { id: "connected", label: "Connected" },
-  { id: "isolated", label: "Isolated" },
   { id: "hopeful", label: "Hopeful" },
-  { id: "discouraged", label: "Discouraged" },
   { id: "grateful", label: "Grateful" },
+  { id: "connected", label: "Connected" },
+  { id: "calm", label: "Calm" },
+  { id: "rested", label: "Rested" },
+  { id: "anxious", label: "Anxious" },
+  { id: "discouraged", label: "Discouraged" },
+  { id: "isolated", label: "Isolated" },
   { id: "tempted", label: "Tempted" },
+  { id: "ashamed", label: "Ashamed" },
 ];
 
 const scriptureResponses: Record<string, { text: string; ref: string }> = {
@@ -236,7 +236,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
 
   return (
     <>
-      <div className="bg-[#0A0A0A] rounded-2xl border-[1.5px] border-[#C9A84C] p-6 text-white shadow-[0_4px_24px_rgba(0,0,0,0.12)]">
+      <div className="bg-[#0A0A0A] rounded-2xl border-[1.5px] border-[#C9A84C] p-6 pb-8 text-white shadow-[0_4px_24px_rgba(0,0,0,0.12)]">
         <h2 className="font-serif text-[1.375rem] font-bold text-white text-center mb-3">Daily Check-In</h2>
 
         <AnimatePresence mode="wait">

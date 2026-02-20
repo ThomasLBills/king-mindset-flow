@@ -40,12 +40,13 @@ const UrgesRedirectedCard = () => {
         Every time you redirect an urge, you build a new pathway. Log it here.
       </p>
 
-      <div className="flex justify-center gap-8 mb-6">
-        <div className="text-center">
+      <div className="flex justify-center items-center gap-0 mb-6">
+        <div className="text-center flex-1">
           <p className="text-[56px] font-bold text-primary leading-none">{dailyCount}</p>
           <p className="text-base text-[#FFFFFF] font-medium mt-4">Today</p>
         </div>
-        <div className="text-center">
+        <div className="w-px h-16 bg-[#C9A84C]/20 flex-shrink-0" />
+        <div className="text-center flex-1">
           <p className="text-[56px] font-bold text-primary leading-none">{monthlyCount}</p>
           <p className="text-base text-[#FFFFFF] font-medium mt-4">This Month</p>
         </div>
@@ -54,7 +55,7 @@ const UrgesRedirectedCard = () => {
       <Button
         onClick={handleAdd}
         disabled={addUrge.isPending}
-        className="w-full rounded-xl font-bold h-12 text-xl bg-primary text-[#1A1A1A] hover:bg-primary/90"
+        className="w-full rounded-xl font-bold h-12 text-[20px] bg-primary text-[#1A1A1A] hover:bg-primary/90"
       >
         +1
       </Button>
