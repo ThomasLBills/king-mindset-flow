@@ -26,7 +26,7 @@ const Index = () => {
       <div className="px-6 py-6 max-w-lg mx-auto">
         {/* Personalized Greeting */}
         <div className="py-6 mb-5">
-          <h1 className="font-serif text-2xl font-bold text-[#F5F0E8]">
+          <h1 className="font-serif text-[22px] font-semibold text-[#1A1A1A]">
             {(() => {
               const h = new Date().getHours();
               const greeting = h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
@@ -34,7 +34,7 @@ const Index = () => {
               return `${greeting}, ${firstName}.`;
             })()}
           </h1>
-          <p className="font-serif text-base italic text-muted-foreground mt-1">
+          <p className="font-serif text-[15px] text-[#555555] mt-1">
             Walk in who you already are.
           </p>
         </div>
