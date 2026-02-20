@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Check, Heart, ChevronDown } from "lucide-react";
+import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useDailyCheckIn } from "@/hooks/useDailyProgress";
 
@@ -94,101 +94,56 @@ const CompletionOverlay = ({ onDone }: { onDone: () => void }) => {
   );
 };
 
-// ========== COLLAPSED COMPLETED CARD ==========
-interface CollapsedCheckInProps {
-  checkInData: {
-    feelings: string[];
-    spirit_response: string | null;
-  };
+// ========== COMPACT COMPLETED STATE ==========
+interface CompactCompletedProps {
+  feelings: string[];
+  scripture: { text: string; ref: string } | null;
+  onCheckInAgain: () => void;
 }
 
-const CollapsedCheckIn = ({ checkInData }: CollapsedCheckInProps) => {
-  const [expanded, setExpanded] = useState(false);
-
-  // Find the scripture that would have been shown for these feelings
-  const activeScripture = useMemo(() => {
-    const prioritized = ["ashamed", "tempted", "anxious", "isolated", "discouraged"];
-    for (const id of prioritized) {
-      if (checkInData.feelings.includes(id)) return scriptureResponses[id];
-    }
-    const last = checkInData.feelings[checkInData.feelings.length - 1];
-    return last ? scriptureResponses[last] : null;
-  }, [checkInData.feelings]);
-
+const CompactCompleted = ({ feelings, scripture, onCheckInAgain }: CompactCompletedProps) => {
   return (
-    <div className="rounded-2xl bg-[#0A0A0A] border-[1.5px] border-[#C9A84C] overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.12)]">
-      {/* Collapsed header */}
-      <button
-        onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center gap-3 p-4 text-left"
-      >
-        <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
-          <Check className="w-5 h-5 text-primary" />
+    <div className="bg-[#0A0A0A] rounded-2xl border-[1.5px] border-[#C9A84C] p-5 text-white shadow-[0_4px_24px_rgba(0,0,0,0.12)]">
+      {/* Header with checkmark */}
+      <div className="flex items-center gap-2.5 mb-3">
+        <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+          <Check className="w-4 h-4 text-primary" />
         </div>
-        <p className="font-serif text-base font-bold text-white flex-1">Today's Check-In Complete</p>
-        <span className="text-sm text-primary font-medium">
-          {expanded ? "Close" : "View"}
-        </span>
+        <h2 className="font-serif text-base font-bold text-white">Daily Check-In</h2>
+      </div>
+
+      {/* Emotion pills */}
+      <div className="flex flex-wrap gap-1.5 mb-3">
+        {feelings.map((f) => {
+          const label = awarenessOptions.find((o) => o.id === f)?.label || f;
+          return (
+            <span
+              key={f}
+              className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-primary/15 text-primary border border-primary/30"
+            >
+              {label}
+            </span>
+          );
+        })}
+      </div>
+
+      {/* Scripture */}
+      {scripture && (
+        <div className="bg-white/5 border border-primary/15 rounded-xl p-3 mb-3">
+          <p className="font-serif text-xs text-white/80 italic leading-relaxed">
+            "{scripture.text}"
+          </p>
+          <p className="text-[11px] text-primary mt-1 font-medium">{scripture.ref}</p>
+        </div>
+      )}
+
+      {/* Check in again link */}
+      <button
+        onClick={onCheckInAgain}
+        className="text-xs text-primary/70 hover:text-primary font-medium transition-colors"
+      >
+        Check in again
       </button>
-
-      {/* Expanded details */}
-      <AnimatePresence>
-        {expanded && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            className="overflow-hidden"
-          >
-            <div className="px-4 pb-5 space-y-4">
-              {/* Emotions */}
-              <div>
-                <p className="text-xs text-muted-foreground mb-2">How you were feeling</p>
-                <div className="flex flex-wrap gap-2">
-                  {checkInData.feelings.map((f) => {
-                    const label = awarenessOptions.find((o) => o.id === f)?.label || f;
-                    return (
-                      <span
-                        key={f}
-                        className="px-3 py-1 rounded-full text-xs font-medium text-white border border-primary/40 bg-transparent"
-                      >
-                        {label}
-                      </span>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Scripture */}
-              {activeScripture && (
-                <div>
-                  <p className="text-xs text-muted-foreground mb-2">Scripture</p>
-                  <div className="bg-white/5 border border-primary/20 rounded-xl p-3">
-                    <p className="font-serif text-sm text-white italic leading-relaxed">
-                      "{activeScripture.text}"
-                    </p>
-                    <p className="text-xs text-primary mt-1.5 font-medium">{activeScripture.ref}</p>
-                  </div>
-                </div>
-              )}
-
-              {/* Spirit prompt response */}
-              {checkInData.spirit_response && (
-                <div>
-                  <p className="text-xs text-muted-foreground mb-2">What the Spirit said</p>
-                  <p className="text-sm text-white/80 leading-relaxed">{checkInData.spirit_response}</p>
-                </div>
-              )}
-
-              {/* Locked message */}
-              <p className="text-xs text-white/50 text-center pt-1">
-                Check-in is locked until tomorrow. Come back tomorrow morning, King.
-              </p>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 };
@@ -206,6 +161,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
   const [showOverlay, setShowOverlay] = useState(false);
   const [showBreathText, setShowBreathText] = useState(false);
   const [spiritPrompt, setSpiritPrompt] = useState("");
+  const [redoMode, setRedoMode] = useState(false);
   const { isCheckedIn, todayCheckIn, submitCheckIn } = useDailyCheckIn();
 
   // Randomize tile order once per session
@@ -228,9 +184,33 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
     return last ? scriptureResponses[last] : null;
   }, [selectedAwareness]);
 
-  // Already checked in today — card is removed entirely
-  if (isCheckedIn && !showOverlay) {
-    return null;
+  // Get scripture for the completed check-in data
+  const completedScripture = useMemo(() => {
+    if (!todayCheckIn?.feelings) return null;
+    const feelings = todayCheckIn.feelings as string[];
+    const prioritized = ["ashamed", "tempted", "anxious", "isolated", "discouraged"];
+    for (const id of prioritized) {
+      if (feelings.includes(id)) return scriptureResponses[id];
+    }
+    const last = feelings[feelings.length - 1];
+    return last ? scriptureResponses[last] : null;
+  }, [todayCheckIn]);
+
+  // Show compact completed state if checked in and not redoing
+  if (isCheckedIn && !showOverlay && !redoMode) {
+    return (
+      <CompactCompleted
+        feelings={(todayCheckIn?.feelings as string[]) || []}
+        scripture={completedScripture}
+        onCheckInAgain={() => {
+          setRedoMode(true);
+          setStep(0);
+          setSelectedAwareness([]);
+          setSpiritPrompt("");
+          setShowBreathText(false);
+        }}
+      />
+    );
   }
 
   const toggleAwareness = (id: string) => {
@@ -393,6 +373,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
           <CompletionOverlay
             onDone={() => {
               setShowOverlay(false);
+              setRedoMode(false);
               onComplete();
             }}
           />

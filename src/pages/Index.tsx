@@ -13,15 +13,13 @@ import { useEvidenceCounter } from "@/hooks/useEvidenceCounter";
 
 const Index = () => {
   const [showReachOut, setShowReachOut] = useState(false);
-  const [justCompleted, setJustCompleted] = useState(false);
 
   const { user } = useAuth();
   const { isCheckedIn } = useDailyCheckIn();
   const { activeInsight, dismissInsight, analyzePatterns } = useTriggerPatterns();
   const { addEvidence } = useEvidenceCounter();
 
-  const checkInDone = isCheckedIn || justCompleted;
-  const showInsight = checkInDone && activeInsight && !activeInsight.dismissed;
+  const showInsight = isCheckedIn && activeInsight && !activeInsight.dismissed;
 
   return (
     <AppLayout>
@@ -30,7 +28,6 @@ const Index = () => {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="mb-5">
           <DailyCheckIn
             onComplete={() => {
-              setJustCompleted(true);
               analyzePatterns.mutate();
               addEvidence.mutate("check_in");
             }}
