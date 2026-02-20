@@ -1,11 +1,11 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Search } from "lucide-react";
+import { Loader2, Search, Shield, ShieldOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { motion } from "framer-motion";
@@ -39,6 +39,14 @@ const AdminUsers = () => {
     },
   });
 
+  const { data: roles } = useQuery({
+    queryKey: ["admin-user-roles"],
+    queryFn: async () => {
+      const { data } = await supabase.from("user_roles").select("*");
+      return data || [];
+    },
+  });
+
   const toggleEntitlement = useMutation({
     mutationFn: async ({ userId, active }: { userId: string; active: boolean }) => {
       const { error } = await supabase.functions.invoke("admin-toggle-entitlement", { body: { userId, active } });
@@ -51,8 +59,22 @@ const AdminUsers = () => {
     onError: (err: any) => toast({ title: "Error", description: err.message, variant: "destructive" }),
   });
 
+  const toggleRole = useMutation({
+    mutationFn: async ({ userId, makeAdmin }: { userId: string; makeAdmin: boolean }) => {
+      const { data, error } = await supabase.functions.invoke("admin-toggle-role", { body: { userId, makeAdmin } });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-user-roles"] });
+      toast({ title: "Role updated" });
+    },
+    onError: (err: any) => toast({ title: "Error", description: err.message, variant: "destructive" }),
+  });
+
   const getEntitlement = (userId: string) => entitlements?.find((e) => e.user_id === userId && e.entitlement_type === "course_app_access");
   const getSubscription = (userId: string) => subscriptions?.find((s) => s.user_id === userId);
+  const isAdmin = (userId: string) => roles?.some((r) => r.user_id === userId && r.role === "admin");
 
   const filtered = (profiles || []).filter((p) =>
     !search || p.email.toLowerCase().includes(search.toLowerCase()) || (p.display_name || "").toLowerCase().includes(search.toLowerCase())
@@ -62,7 +84,7 @@ const AdminUsers = () => {
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
       <div>
         <h1 className="font-serif text-2xl font-bold">Users</h1>
-        <p className="text-sm text-muted-foreground">Manage user access and subscriptions</p>
+        <p className="text-sm text-muted-foreground">Manage user access, subscriptions, and roles</p>
       </div>
 
       <div className="relative max-w-sm">
@@ -80,27 +102,48 @@ const AdminUsers = () => {
                 <TableRow>
                   <TableHead>Email</TableHead>
                   <TableHead>Name</TableHead>
+                  <TableHead>Role</TableHead>
                   <TableHead>Entitlement</TableHead>
                   <TableHead>Subscription</TableHead>
-                  <TableHead>Action</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filtered.map((p) => {
                   const ent = getEntitlement(p.user_id);
                   const sub = getSubscription(p.user_id);
+                  const admin = isAdmin(p.user_id);
                   return (
                     <TableRow key={p.user_id}>
                       <TableCell className="text-sm">{p.email}</TableCell>
                       <TableCell className="text-sm">{p.display_name || p.name || "—"}</TableCell>
                       <TableCell>
+                        <Badge variant={admin ? "default" : "secondary"}>{admin ? "Admin" : "User"}</Badge>
+                      </TableCell>
+                      <TableCell>
                         <Badge variant={ent?.active ? "default" : "secondary"}>{ent?.active ? "Active" : "Inactive"}</Badge>
                       </TableCell>
                       <TableCell className="text-sm capitalize">{sub?.status || "—"}</TableCell>
                       <TableCell>
-                        <Button size="sm" variant={ent?.active ? "destructive" : "default"} onClick={() => toggleEntitlement.mutate({ userId: p.user_id, active: !ent?.active })} disabled={toggleEntitlement.isPending}>
-                          {ent?.active ? "Revoke" : "Grant"}
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant={ent?.active ? "destructive" : "default"}
+                            onClick={() => toggleEntitlement.mutate({ userId: p.user_id, active: !ent?.active })}
+                            disabled={toggleEntitlement.isPending}
+                          >
+                            {ent?.active ? "Revoke" : "Grant"}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => toggleRole.mutate({ userId: p.user_id, makeAdmin: !admin })}
+                            disabled={toggleRole.isPending}
+                            className="gap-1"
+                          >
+                            {admin ? <><ShieldOff className="w-3.5 h-3.5" /> Remove Admin</> : <><Shield className="w-3.5 h-3.5" /> Make Admin</>}
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   );
