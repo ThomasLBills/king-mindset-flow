@@ -3,9 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Search, Shield, ShieldOff } from "lucide-react";
+import { Loader2, Search, Shield, ShieldOff, UserPlus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { motion } from "framer-motion";
@@ -14,7 +17,11 @@ const AdminUsers = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
-
+  const [addOpen, setAddOpen] = useState(false);
+  const [newEmail, setNewEmail] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [newName, setNewName] = useState("");
+  const [grantAccess, setGrantAccess] = useState(true);
   const { data: profiles, isLoading } = useQuery({
     queryKey: ["admin-profiles"],
     queryFn: async () => {
@@ -72,6 +79,26 @@ const AdminUsers = () => {
     onError: (err: any) => toast({ title: "Error", description: err.message, variant: "destructive" }),
   });
 
+  const createUser = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.functions.invoke("admin-create-user", {
+        body: { email: newEmail, password: newPassword, name: newName, grantAccess },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-profiles"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-entitlements"] });
+      toast({ title: "User created successfully" });
+      setAddOpen(false);
+      setNewEmail("");
+      setNewPassword("");
+      setNewName("");
+    },
+    onError: (err: any) => toast({ title: "Error creating user", description: err.message, variant: "destructive" }),
+  });
+
   const getEntitlement = (userId: string) => entitlements?.find((e) => e.user_id === userId && e.entitlement_type === "course_app_access");
   const getSubscription = (userId: string) => subscriptions?.find((s) => s.user_id === userId);
   const isAdmin = (userId: string) => roles?.some((r) => r.user_id === userId && r.role === "admin");
@@ -82,9 +109,42 @@ const AdminUsers = () => {
 
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-      <div>
-        <h1 className="font-serif text-2xl font-bold">Users</h1>
-        <p className="text-sm text-muted-foreground">Manage user access, subscriptions, and roles</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="font-serif text-2xl font-bold">Users</h1>
+          <p className="text-sm text-muted-foreground">Manage user access, subscriptions, and roles</p>
+        </div>
+        <Dialog open={addOpen} onOpenChange={setAddOpen}>
+          <DialogTrigger asChild>
+            <Button className="gap-1.5"><UserPlus className="w-4 h-4" /> Add User</Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Create New User</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 pt-2">
+              <div>
+                <Label>Email</Label>
+                <Input type="email" placeholder="user@example.com" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} />
+              </div>
+              <div>
+                <Label>Temporary Password</Label>
+                <Input type="text" placeholder="Set a password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+              </div>
+              <div>
+                <Label>Name (optional)</Label>
+                <Input placeholder="Display name" value={newName} onChange={(e) => setNewName(e.target.value)} />
+              </div>
+              <div className="flex items-center gap-2">
+                <Checkbox id="grant-access" checked={grantAccess} onCheckedChange={(v) => setGrantAccess(!!v)} />
+                <Label htmlFor="grant-access">Grant course access immediately</Label>
+              </div>
+              <Button className="w-full" onClick={() => createUser.mutate()} disabled={createUser.isPending || !newEmail || !newPassword}>
+                {createUser.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Create User"}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       <div className="relative max-w-sm">
