@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import AuthGuard from "@/components/guards/AuthGuard";
 import EntitlementGuard from "@/components/guards/EntitlementGuard";
+import OnboardingGuard from "@/components/guards/OnboardingGuard";
 import AdminGuard from "@/components/guards/AdminGuard";
 import AdminLayout from "@/components/admin/AdminLayout";
 import AdminDashboard from "@/components/admin/AdminDashboard";
@@ -36,6 +37,8 @@ import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import Profile from "./pages/Profile";
 import LessonView from "./pages/LessonView";
+import Onboarding from "./pages/Onboarding";
+import Chat from "./pages/Chat";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -62,14 +65,16 @@ const App = () => (
             {/* Auth-required but no entitlement needed */}
             <Route path="/upgrade" element={<AuthGuard><Upgrade /></AuthGuard>} />
             <Route path="/billing" element={<AuthGuard><Billing /></AuthGuard>} />
+            <Route path="/onboarding" element={<AuthGuard><Onboarding /></AuthGuard>} />
 
-            {/* Entitlement-gated app routes */}
-            <Route path="/app" element={<EntitlementGuard><AppDashboard /></EntitlementGuard>} />
-            <Route path="/tools" element={<EntitlementGuard><Tools /></EntitlementGuard>} />
-            <Route path="/rhythms" element={<EntitlementGuard><Rhythms /></EntitlementGuard>} />
-            <Route path="/brotherhood" element={<EntitlementGuard><Brotherhood /></EntitlementGuard>} />
-            <Route path="/library" element={<EntitlementGuard><Library /></EntitlementGuard>} />
-            <Route path="/library/lesson/:lessonId" element={<EntitlementGuard><LessonView /></EntitlementGuard>} />
+            {/* Entitlement-gated app routes (with onboarding check) */}
+            <Route path="/app" element={<EntitlementGuard><OnboardingGuard><AppDashboard /></OnboardingGuard></EntitlementGuard>} />
+            <Route path="/tools" element={<EntitlementGuard><OnboardingGuard><Tools /></OnboardingGuard></EntitlementGuard>} />
+            <Route path="/rhythms" element={<EntitlementGuard><OnboardingGuard><Rhythms /></OnboardingGuard></EntitlementGuard>} />
+            <Route path="/brotherhood" element={<EntitlementGuard><OnboardingGuard><Brotherhood /></OnboardingGuard></EntitlementGuard>} />
+            <Route path="/library" element={<EntitlementGuard><OnboardingGuard><Library /></OnboardingGuard></EntitlementGuard>} />
+            <Route path="/library/lesson/:lessonId" element={<EntitlementGuard><OnboardingGuard><LessonView /></OnboardingGuard></EntitlementGuard>} />
+            <Route path="/chat" element={<EntitlementGuard><OnboardingGuard><Chat /></OnboardingGuard></EntitlementGuard>} />
             <Route path="/profile" element={<AuthGuard><Profile /></AuthGuard>} />
 
             {/* Admin */}

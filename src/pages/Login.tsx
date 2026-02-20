@@ -16,12 +16,12 @@ const Login = () => {
   const [magicLinkSent, setMagicLinkSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const { signInWithMagicLink, signInWithPassword, user } = useAuth();
-  const { isEntitled } = useEntitlement();
+  const { isEntitled, isLoading: entitlementLoading } = useEntitlement();
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Redirect if already logged in
-  if (user) {
+  // Redirect if already logged in (wait for entitlement check)
+  if (user && !entitlementLoading) {
     if (isEntitled) {
       navigate("/app", { replace: true });
     } else {
@@ -122,15 +122,6 @@ const Login = () => {
                     </button>
                   </div>
                 )}
-                <div className="mt-2 text-center">
-                  <button
-                    type="button"
-                    onClick={() => navigate("/signup")}
-                    className="text-sm text-primary hover:underline"
-                  >
-                    Don't have an account? Sign up
-                  </button>
-                </div>
               </>
             )}
           </CardContent>
