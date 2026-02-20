@@ -7,7 +7,7 @@ const Landing = () => {
   const { user, loading: authLoading } = useAuth();
   const { isEntitled, isLoading: entLoading } = useEntitlement();
 
-  if (authLoading || entLoading) {
+  if (authLoading || (user && entLoading)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />

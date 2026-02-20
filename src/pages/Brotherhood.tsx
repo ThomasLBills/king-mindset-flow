@@ -1,14 +1,47 @@
 import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import AppLayout from "@/components/layout/AppLayout";
-import { Users } from "lucide-react";
+import { Users, Hash, MessageCircle } from "lucide-react";
 import MyBrothersTab from "@/components/brotherhood/MyBrothersTab";
+import ChannelsTab from "@/components/brotherhood/ChannelsTab";
+import MessagesTab from "@/components/brotherhood/MessagesTab";
 import ReachOut from "@/components/brotherhood/ReachOut";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import type { ChatTarget } from "@/hooks/useChat";
 
 const BrotherhoodPage = () => {
   const { user } = useAuth();
   const [showReachOut, setShowReachOut] = useState(false);
+  const [activeTab, setActiveTab] = useState("brothers");
+  const [dmTarget, setDmTarget] = useState<ChatTarget | null>(null);
+
+  const handleStartDM = useCallback(async (brotherUserId: string, name: string) => {
+    if (!user) return;
+    // Check if DM already exists
+    const { data: existing } = await supabase
+      .from("chat_dms")
+      .select("id")
+      .or(`and(user_a.eq.${user.id},user_b.eq.${brotherUserId}),and(user_a.eq.${brotherUserId},user_b.eq.${user.id})`)
+      .maybeSingle();
+
+    let dmId: string;
+    if (existing) {
+      dmId = existing.id;
+    } else {
+      const { data: newDm, error } = await supabase
+        .from("chat_dms")
+        .insert({ user_a: user.id, user_b: brotherUserId })
+        .select("id")
+        .single();
+      if (error || !newDm) return;
+      dmId = newDm.id;
+    }
+
+    setDmTarget({ type: "dm", id: dmId, name });
+    setActiveTab("messages");
+  }, [user]);
 
   return (
     <AppLayout>
@@ -55,8 +88,32 @@ const BrotherhoodPage = () => {
           </button>
         </motion.div>
 
-        {/* My Brothers list */}
-        <MyBrothersTab onStartDM={() => {}} />
+        {/* Tabs: Brothers / Channels / Messages */}
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="w-full mb-4">
+            <TabsTrigger value="brothers" className="flex-1 gap-1.5">
+              <Users className="w-4 h-4" /> Brothers
+            </TabsTrigger>
+            <TabsTrigger value="channels" className="flex-1 gap-1.5">
+              <Hash className="w-4 h-4" /> Channels
+            </TabsTrigger>
+            <TabsTrigger value="messages" className="flex-1 gap-1.5">
+              <MessageCircle className="w-4 h-4" /> Messages
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="brothers">
+            <MyBrothersTab onStartDM={handleStartDM} />
+          </TabsContent>
+
+          <TabsContent value="channels">
+            <ChannelsTab />
+          </TabsContent>
+
+          <TabsContent value="messages">
+            <MessagesTab initialTarget={dmTarget} />
+          </TabsContent>
+        </Tabs>
       </div>
 
       {showReachOut && <ReachOut onClose={() => setShowReachOut(false)} />}
