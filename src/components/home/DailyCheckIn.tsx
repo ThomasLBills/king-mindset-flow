@@ -247,10 +247,9 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
             >
-              <p className="text-sm text-white text-center mb-1">
+              <p className="text-sm text-white text-center mb-6">
                 What is present in you right now?
               </p>
-              <p className="text-sm text-white text-center mb-6">Select all that apply.</p>
               <div className="grid grid-cols-2 gap-3 mb-4">
                 {shuffledOptions.map((option) => {
                   const isSelected = selectedAwareness.includes(option.id);
