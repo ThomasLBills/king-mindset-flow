@@ -23,7 +23,22 @@ const Index = () => {
 
   return (
     <AppLayout>
-      <div className="px-4 py-6 max-w-lg mx-auto">
+      <div className="px-6 py-6 max-w-lg mx-auto">
+        {/* Personalized Greeting */}
+        <div className="py-6 mb-5">
+          <h1 className="font-serif text-2xl font-bold text-[#F5F0E8]">
+            {(() => {
+              const h = new Date().getHours();
+              const greeting = h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
+              const firstName = user?.user_metadata?.name?.split(" ")[0] || user?.user_metadata?.first_name || "King";
+              return `${greeting}, ${firstName}.`;
+            })()}
+          </h1>
+          <p className="font-serif text-base italic text-muted-foreground mt-1">
+            Walk in who you already are.
+          </p>
+        </div>
+
         {/* 1. Daily Check-In */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="mb-5">
           <DailyCheckIn
@@ -63,6 +78,18 @@ const Index = () => {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Scroll hint */}
+        <div className="flex justify-center py-2 opacity-30">
+          <motion.div
+            animate={{ y: [0, 6, 0] }}
+            transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+          >
+            <svg width="20" height="12" viewBox="0 0 20 12" fill="none">
+              <path d="M1 1L10 10L19 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+          </motion.div>
+        </div>
       </div>
 
       {/* Modals */}
