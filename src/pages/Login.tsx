@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -20,14 +20,24 @@ const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Redirect if already logged in (wait for entitlement check)
-  if (user && !entitlementLoading) {
+  // Redirect if already logged in — useEffect to avoid render-time navigation
+  useEffect(() => {
+    if (!user) return;
+    if (entitlementLoading) return;
     if (isEntitled) {
       navigate("/app", { replace: true });
     } else {
       navigate("/upgrade", { replace: true });
     }
-    return null;
+  }, [user, isEntitled, entitlementLoading, navigate]);
+
+  // Show spinner while waiting for auth + entitlement check
+  if (user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
   }
 
   const handleMagicLink = async (e: React.FormEvent) => {

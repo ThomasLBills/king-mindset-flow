@@ -5,7 +5,7 @@ import { useAuth } from "./useAuth";
 export const useEntitlement = () => {
   const { user } = useAuth();
 
-  const { data: isEntitled, isLoading } = useQuery({
+  const { data: isEntitled, isLoading, isFetching, isPending } = useQuery({
     queryKey: ["entitlement", user?.id],
     queryFn: async () => {
       if (!user) return false;
@@ -22,5 +22,8 @@ export const useEntitlement = () => {
     enabled: !!user,
   });
 
-  return { isEntitled: !!isEntitled, isLoading };
+  // When query is disabled (no user), report as loading to prevent premature redirects
+  const effectiveLoading = !user ? false : (isPending && !isFetching ? true : isLoading);
+
+  return { isEntitled: !!isEntitled, isLoading: effectiveLoading };
 };
