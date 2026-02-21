@@ -1,12 +1,12 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-serve(async (req) => {
+Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -48,25 +48,69 @@ serve(async (req) => {
       });
     }
 
-    const { email, password, name, grantAccess } = await req.json();
-    if (!email || !password) {
-      return new Response(JSON.stringify({ error: "Email and password required" }), {
+    const { email, password, name, grantAccess, sendInvite, action } = await req.json();
+
+    // Handle resend invite for existing user
+    if (action === "resend_invite") {
+      if (!email) {
+        return new Response(JSON.stringify({ error: "Email required" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const { data: inviteData, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(email, {
+        redirectTo: "https://liberatedkings.com/login",
+      });
+
+      if (inviteError) throw inviteError;
+
+      console.log(`Admin ${user.id} resent invite to ${email}`);
+      return new Response(JSON.stringify({ success: true, message: "Invite sent" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Create new user
+    if (!email) {
+      return new Response(JSON.stringify({ error: "Email required" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Create user via admin API
-    const { data: newUser, error: createError } = await supabase.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true,
-      user_metadata: { name: name || "" },
-    });
+    let newUserId: string;
 
-    if (createError) throw createError;
+    if (sendInvite) {
+      // Invite flow: creates user + sends invite email (user sets their own password)
+      const { data: inviteData, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(email, {
+        data: { name: name || "" },
+        redirectTo: "https://liberatedkings.com/login",
+      });
 
-    const newUserId = newUser.user.id;
+      if (inviteError) throw inviteError;
+      newUserId = inviteData.user.id;
+      console.log(`Admin ${user.id} invited user ${newUserId} (${email})`);
+    } else {
+      // Manual flow: creates user with password, no email sent
+      if (!password) {
+        return new Response(JSON.stringify({ error: "Password required when not sending invite" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const { data: newUser, error: createError } = await supabase.auth.admin.createUser({
+        email,
+        password,
+        email_confirm: true,
+        user_metadata: { name: name || "" },
+      });
+
+      if (createError) throw createError;
+      newUserId = newUser.user.id;
+      console.log(`Admin ${user.id} created user ${newUserId} (${email})`);
+    }
 
     // Grant entitlement if requested
     if (grantAccess) {
@@ -75,8 +119,6 @@ serve(async (req) => {
         { onConflict: "user_id,entitlement_type" }
       );
     }
-
-    console.log(`Admin ${user.id} created user ${newUserId} (${email})`);
 
     return new Response(JSON.stringify({ success: true, userId: newUserId }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
