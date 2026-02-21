@@ -232,8 +232,8 @@ const LibraryPage = () => {
                                   )}
                                 </div>
                                 <div className="flex-1 text-left">
-                                  <span className="text-sm font-medium block text-white">{lesson.title}</span>
-                                  <span className="text-xs text-white">
+                                  <span className="text-sm font-medium block text-foreground">{lesson.title}</span>
+                                  <span className="text-xs text-muted-foreground">
                                     {lesson.duration_minutes ? `${lesson.duration_minutes} min` : "Lesson"}
                                     {isComplete && " · Completed"}
                                   </span>
