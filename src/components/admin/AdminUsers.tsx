@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Search, Shield, ShieldOff, UserPlus } from "lucide-react";
+import { Loader2, Search, Shield, ShieldOff, UserPlus, Mail } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { motion } from "framer-motion";
@@ -22,6 +22,8 @@ const AdminUsers = () => {
   const [newPassword, setNewPassword] = useState("");
   const [newName, setNewName] = useState("");
   const [grantAccess, setGrantAccess] = useState(true);
+  const [sendInvite, setSendInvite] = useState(true);
+
   const { data: profiles, isLoading } = useQuery({
     queryKey: ["admin-profiles"],
     queryFn: async () => {
@@ -82,7 +84,7 @@ const AdminUsers = () => {
   const createUser = useMutation({
     mutationFn: async () => {
       const { data, error } = await supabase.functions.invoke("admin-create-user", {
-        body: { email: newEmail, password: newPassword, name: newName, grantAccess },
+        body: { email: newEmail, password: sendInvite ? undefined : newPassword, name: newName, grantAccess, sendInvite },
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
@@ -90,13 +92,27 @@ const AdminUsers = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-profiles"] });
       queryClient.invalidateQueries({ queryKey: ["admin-entitlements"] });
-      toast({ title: "User created successfully" });
+      toast({ title: sendInvite ? "Invite sent successfully" : "User created successfully" });
       setAddOpen(false);
       setNewEmail("");
       setNewPassword("");
       setNewName("");
     },
     onError: (err: any) => toast({ title: "Error creating user", description: err.message, variant: "destructive" }),
+  });
+
+  const resendInvite = useMutation({
+    mutationFn: async (email: string) => {
+      const { data, error } = await supabase.functions.invoke("admin-create-user", {
+        body: { email, action: "resend_invite" },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+    },
+    onSuccess: () => {
+      toast({ title: "Invite email sent" });
+    },
+    onError: (err: any) => toast({ title: "Error sending invite", description: err.message, variant: "destructive" }),
   });
 
   const getEntitlement = (userId: string) => entitlements?.find((e) => e.user_id === userId && e.entitlement_type === "course_app_access");
@@ -106,6 +122,8 @@ const AdminUsers = () => {
   const filtered = (profiles || []).filter((p) =>
     !search || p.email.toLowerCase().includes(search.toLowerCase()) || (p.display_name || "").toLowerCase().includes(search.toLowerCase())
   );
+
+  const canCreate = newEmail && (sendInvite || newPassword);
 
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
@@ -128,19 +146,25 @@ const AdminUsers = () => {
                 <Input type="email" placeholder="user@example.com" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} />
               </div>
               <div>
-                <Label>Temporary Password</Label>
-                <Input type="text" placeholder="Set a password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
-              </div>
-              <div>
                 <Label>Name (optional)</Label>
                 <Input placeholder="Display name" value={newName} onChange={(e) => setNewName(e.target.value)} />
               </div>
               <div className="flex items-center gap-2">
+                <Checkbox id="send-invite" checked={sendInvite} onCheckedChange={(v) => setSendInvite(!!v)} />
+                <Label htmlFor="send-invite">Send invite email (user sets their own password)</Label>
+              </div>
+              {!sendInvite && (
+                <div>
+                  <Label>Temporary Password</Label>
+                  <Input type="text" placeholder="Set a password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+                </div>
+              )}
+              <div className="flex items-center gap-2">
                 <Checkbox id="grant-access" checked={grantAccess} onCheckedChange={(v) => setGrantAccess(!!v)} />
                 <Label htmlFor="grant-access">Grant course access immediately</Label>
               </div>
-              <Button className="w-full" onClick={() => createUser.mutate()} disabled={createUser.isPending || !newEmail || !newPassword}>
-                {createUser.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Create User"}
+              <Button className="w-full" onClick={() => createUser.mutate()} disabled={createUser.isPending || !canCreate}>
+                {createUser.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : sendInvite ? "Send Invite" : "Create User"}
               </Button>
             </div>
           </DialogContent>
@@ -185,7 +209,7 @@ const AdminUsers = () => {
                       </TableCell>
                       <TableCell className="text-sm capitalize">{sub?.status || "—"}</TableCell>
                       <TableCell>
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 flex-wrap">
                           <Button
                             size="sm"
                             variant={ent?.active ? "destructive" : "default"}
@@ -202,6 +226,15 @@ const AdminUsers = () => {
                             className="gap-1"
                           >
                             {admin ? <><ShieldOff className="w-3.5 h-3.5" /> Remove Admin</> : <><Shield className="w-3.5 h-3.5" /> Make Admin</>}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => resendInvite.mutate(p.email)}
+                            disabled={resendInvite.isPending}
+                            className="gap-1"
+                          >
+                            <Mail className="w-3.5 h-3.5" /> Send Invite
                           </Button>
                         </div>
                       </TableCell>
