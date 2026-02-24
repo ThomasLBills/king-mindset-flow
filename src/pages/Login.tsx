@@ -69,7 +69,7 @@ const Login = () => {
         <div className="flex justify-center mb-8">
           <img src={lkLogo} alt="Liberated Kings" className="h-16 object-contain" />
         </div>
-        <Card className="card-elevated">
+        <Card className="card-elevated border border-primary/40">
           <CardHeader className="text-center">
             <CardTitle className="font-serif text-2xl">Welcome Back</CardTitle>
             <CardDescription>Sign in to walk in your freedom.</CardDescription>
