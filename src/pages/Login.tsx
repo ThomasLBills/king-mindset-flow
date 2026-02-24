@@ -71,10 +71,10 @@ const Login = () => {
             <img src={lkLogo} alt="Liberated Kings" className="h-10 object-contain invert" />
           </div>
         </div>
-        <Card className="bg-[hsl(0_0%_5%)] border-none text-white">
+        <Card className="card-elevated">
           <CardHeader className="text-center">
-            <CardTitle className="font-serif text-2xl text-white">Welcome Back</CardTitle>
-            <CardDescription className="text-white/70">Sign in to walk in your freedom.</CardDescription>
+            <CardTitle className="font-serif text-2xl">Welcome Back</CardTitle>
+            <CardDescription>Sign in to walk in your freedom.</CardDescription>
           </CardHeader>
           <CardContent>
             {magicLinkSent ? (
