@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Check, ArrowRight, Loader2, AlertCircle } from "lucide-react";
+import lkIcon from "@/assets/lk-icon.png";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -67,6 +68,7 @@ const Checkout = () => {
           }
 
           <div className="text-center mb-8">
+            <img src={lkIcon} alt="Liberated Kings" className="w-14 h-14 mx-auto mb-4" />
             <h1 className="font-serif font-bold mb-2 text-2xl">Continue Walking in Your Freedom</h1>
             <p className="text-muted-foreground">Created to equip you for every step. You are already free in Christ.
 

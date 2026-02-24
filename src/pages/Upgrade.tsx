@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Check, ArrowRight, Loader2, Lock } from "lucide-react";
+import lkIcon from "@/assets/lk-icon.png";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -48,7 +49,7 @@ const Upgrade = () => {
       <div className="max-w-lg mx-auto">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <div className="text-center mb-8">
-            <Lock className="w-10 h-10 text-muted-foreground mx-auto mb-4" />
+            <img src={lkIcon} alt="Liberated Kings" className="w-14 h-14 mx-auto mb-4" />
             <h1 className="font-serif text-3xl font-bold mb-2">Continue Walking in Your Freedom.</h1>
             <p className="text-muted-foreground">Keep your tools, brotherhood, and daily rhythm active.</p>
           </div>
