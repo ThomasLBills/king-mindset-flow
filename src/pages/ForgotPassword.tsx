@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { supabase } from "@/integrations/supabase/client";
 import { Mail, ArrowLeft, Loader2, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import lkLogo from "@/assets/lk-logo-horizontal.png";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -30,9 +31,12 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 gradient-peace">
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-white">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
-        <Card className="card-elevated">
+        <div className="flex justify-center mb-8">
+          <img src={lkLogo} alt="Liberated Kings" className="h-16 object-contain" />
+        </div>
+        <Card className="card-elevated border border-primary/40">
           <CardHeader className="text-center">
             <CardTitle className="font-serif text-2xl">Reset Password</CardTitle>
             <CardDescription>We'll send you a link to reset your password</CardDescription>

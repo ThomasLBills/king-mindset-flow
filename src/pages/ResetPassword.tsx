@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { supabase } from "@/integrations/supabase/client";
 import { Lock, Loader2, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import lkLogo from "@/assets/lk-logo-horizontal.png";
 
 const ResetPassword = () => {
   const [password, setPassword] = useState("");
@@ -38,9 +39,12 @@ const ResetPassword = () => {
 
   if (done) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4 gradient-peace">
+      <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-white">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
-          <Card className="card-elevated">
+          <div className="flex justify-center mb-8">
+            <img src={lkLogo} alt="Liberated Kings" className="h-16 object-contain" />
+          </div>
+          <Card className="card-elevated border border-primary/40">
             <CardContent className="pt-8 text-center space-y-4">
               <CheckCircle className="w-12 h-12 text-success mx-auto" />
               <p className="font-serif text-xl font-semibold">Password Updated</p>
@@ -56,9 +60,12 @@ const ResetPassword = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 gradient-peace">
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-white">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
-        <Card className="card-elevated">
+        <div className="flex justify-center mb-8">
+          <img src={lkLogo} alt="Liberated Kings" className="h-16 object-contain" />
+        </div>
+        <Card className="card-elevated border border-primary/40">
           <CardHeader className="text-center">
             <CardTitle className="font-serif text-2xl">Set New Password</CardTitle>
             <CardDescription>Choose a strong password for your account</CardDescription>
