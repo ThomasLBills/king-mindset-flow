@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useEntitlement } from "@/hooks/useEntitlement";
 import { Mail, Lock, ArrowRight, Loader2, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import lkCrown from "@/assets/lk-crown.png";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -63,12 +64,15 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 gradient-peace">
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-[hsl(0_0%_5%)]">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
-        <Card className="card-elevated">
+        <div className="flex justify-center mb-8">
+          <img src={lkCrown} alt="Liberated Kings" className="w-24 h-24 object-contain" />
+        </div>
+        <Card className="card-elevated border-border/30">
           <CardHeader className="text-center">
             <CardTitle className="font-serif text-2xl">Welcome Back</CardTitle>
-            <CardDescription>Sign in to continue your journey</CardDescription>
+            <CardDescription>Sign in to walk in your freedom.</CardDescription>
           </CardHeader>
           <CardContent>
             {magicLinkSent ? (
