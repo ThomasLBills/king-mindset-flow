@@ -13,7 +13,7 @@ const Privacy = () => (
       <p>Your data is used to provide the Liberated Kings service, track your progress, enable community features, and improve the app experience. We never sell your personal data.</p>
 
       <h2 className="font-serif text-xl font-semibold mt-6 mb-3">3. Data Security</h2>
-      <p>All data is encrypted in transit and at rest. Chat messages and personal reflections are protected by strict access controls — only you and authorized administrators can access your data.</p>
+      <p>All data is encrypted in transit and at rest. Chat messages and personal reflections are protected by strict access controls. Only you and authorized administrators can access your data.</p>
 
       <h2 className="font-serif text-xl font-semibold mt-6 mb-3">4. Brotherhood & Chat Privacy</h2>
       <p>Direct messages are private between you and your brother. Channel messages are visible to channel members. Admins and moderators may review flagged content for safety purposes.</p>
