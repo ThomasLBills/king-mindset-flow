@@ -60,7 +60,7 @@ Deno.serve(async (req) => {
       }
 
       const { data: inviteData, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(email, {
-        redirectTo: "https://liberatedkings.com/login",
+        redirectTo: "https://app.liberatedkings.com/app",
       });
 
       if (inviteError) {
@@ -70,7 +70,7 @@ Deno.serve(async (req) => {
           const { error: linkError } = await supabase.auth.admin.generateLink({
             type: "magiclink",
             email,
-            options: { redirectTo: "https://liberatedkings.com/login" },
+            options: { redirectTo: "https://app.liberatedkings.com/app" },
           });
           if (linkError) throw linkError;
         } else {
@@ -98,7 +98,7 @@ Deno.serve(async (req) => {
       // Invite flow: creates user + sends invite email (user sets their own password)
       const { data: inviteData, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(email, {
         data: { name: name || "" },
-        redirectTo: "https://liberatedkings.com/login",
+        redirectTo: "https://app.liberatedkings.com/app",
       });
 
       if (inviteError) {
@@ -114,7 +114,7 @@ Deno.serve(async (req) => {
           // Re-invite
           const { data: retryData, error: retryError } = await supabase.auth.admin.inviteUserByEmail(email, {
             data: { name: name || "" },
-            redirectTo: "https://liberatedkings.com/login",
+            redirectTo: "https://app.liberatedkings.com/app",
           });
           if (retryError) throw retryError;
           newUserId = retryData.user.id;
