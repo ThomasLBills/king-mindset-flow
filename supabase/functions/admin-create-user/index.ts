@@ -63,7 +63,20 @@ Deno.serve(async (req) => {
         redirectTo: "https://liberatedkings.com/login",
       });
 
-      if (inviteError) throw inviteError;
+      if (inviteError) {
+        // If email_exists, the user is already registered — just generate a magic link / recovery instead
+        if (inviteError.status === 422 && (inviteError as any).code === "email_exists") {
+          // Use generateLink to resend without error
+          const { error: linkError } = await supabase.auth.admin.generateLink({
+            type: "magiclink",
+            email,
+            options: { redirectTo: "https://liberatedkings.com/login" },
+          });
+          if (linkError) throw linkError;
+        } else {
+          throw inviteError;
+        }
+      }
 
       console.log(`Admin ${user.id} resent invite to ${email}`);
       return new Response(JSON.stringify({ success: true, message: "Invite sent" }), {
@@ -88,9 +101,31 @@ Deno.serve(async (req) => {
         redirectTo: "https://liberatedkings.com/login",
       });
 
-      if (inviteError) throw inviteError;
-      newUserId = inviteData.user.id;
-      console.log(`Admin ${user.id} invited user ${newUserId} (${email})`);
+      if (inviteError) {
+        // If user already exists in auth, delete and re-invite
+        if (inviteError.status === 422 && (inviteError as any).code === "email_exists") {
+          console.log(`User ${email} already exists in auth, deleting and re-inviting...`);
+          // Find existing auth user
+          const { data: listData } = await supabase.auth.admin.listUsers();
+          const existingUser = listData?.users?.find((u: any) => u.email === email);
+          if (existingUser) {
+            await supabase.auth.admin.deleteUser(existingUser.id);
+          }
+          // Re-invite
+          const { data: retryData, error: retryError } = await supabase.auth.admin.inviteUserByEmail(email, {
+            data: { name: name || "" },
+            redirectTo: "https://liberatedkings.com/login",
+          });
+          if (retryError) throw retryError;
+          newUserId = retryData.user.id;
+          console.log(`Admin ${user.id} re-invited user ${newUserId} (${email})`);
+        } else {
+          throw inviteError;
+        }
+      } else {
+        newUserId = inviteData.user.id;
+        console.log(`Admin ${user.id} invited user ${newUserId} (${email})`);
+      }
     } else {
       // Manual flow: creates user with password, no email sent
       if (!password) {
@@ -107,9 +142,30 @@ Deno.serve(async (req) => {
         user_metadata: { name: name || "" },
       });
 
-      if (createError) throw createError;
-      newUserId = newUser.user.id;
-      console.log(`Admin ${user.id} created user ${newUserId} (${email})`);
+      if (createError) {
+        if (createError.status === 422 && (createError as any).code === "email_exists") {
+          console.log(`User ${email} already exists in auth, deleting and recreating...`);
+          const { data: listData } = await supabase.auth.admin.listUsers();
+          const existingUser = listData?.users?.find((u: any) => u.email === email);
+          if (existingUser) {
+            await supabase.auth.admin.deleteUser(existingUser.id);
+          }
+          const { data: retryUser, error: retryError } = await supabase.auth.admin.createUser({
+            email,
+            password,
+            email_confirm: true,
+            user_metadata: { name: name || "" },
+          });
+          if (retryError) throw retryError;
+          newUserId = retryUser.user.id;
+          console.log(`Admin ${user.id} recreated user ${newUserId} (${email})`);
+        } else {
+          throw createError;
+        }
+      } else {
+        newUserId = newUser.user.id;
+        console.log(`Admin ${user.id} created user ${newUserId} (${email})`);
+      }
     }
 
     // Grant entitlement if requested
