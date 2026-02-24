@@ -237,7 +237,7 @@ const ReachOut = ({ onClose }: ReachOutProps) => {
       </div>
 
       {/* Footer */}
-      <div className="p-6 border-t border-border">
+      <div className="p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] border-t border-border">
         <Button
           variant="brotherhood"
           size="lg"
