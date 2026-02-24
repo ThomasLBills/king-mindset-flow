@@ -44,6 +44,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       settleFromSession(nextSession);
     });
 
+    // Primary session restore: getSession reads from localStorage.
+    // On mobile Safari / PWA, localStorage may have been cleared.
+    // In that case getSession returns null, but the refresh_token may
+    // still be usable if the browser kept cookies. We handle that gracefully.
     supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
       if (!hasAuthParams || currentSession) {
         settleFromSession(currentSession);
@@ -57,8 +61,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     }, 5000);
 
+    // When the app regains focus (user re-opens tab / PWA), proactively
+    // refresh the session. This handles mobile Safari where the stored
+    // session may be stale or the access token expired while backgrounded.
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        supabase.auth.getSession().then(({ data: { session: freshSession } }) => {
+          if (freshSession) {
+            setSession(freshSession);
+            setUser(freshSession.user);
+          }
+        });
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
     return () => {
       window.clearTimeout(fallbackTimer);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
       subscription.unsubscribe();
     };
   }, []);
