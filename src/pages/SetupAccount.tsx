@@ -31,13 +31,21 @@ const SetupAccount = () => {
     );
 
     if (!hasAuthParams) {
-      // Maybe we already have a session (user navigated here after token was already exchanged)
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        setPageState("ready");
-      } else {
-        setPageState("no-token");
-      }
+      // No params visible — but mobile browsers may have already handed them to the
+      // Supabase client before JS ran, or the client is still exchanging in the
+      // background.  Poll briefly before concluding the token is truly missing.
+      const shortPoll = async (): Promise<boolean> => {
+        const attempts = 6; // 3 seconds total
+        for (let i = 0; i < attempts; i++) {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session) return true;
+          await new Promise((r) => setTimeout(r, 500));
+        }
+        return false;
+      };
+
+      const found = await shortPoll();
+      setPageState(found ? "ready" : "no-token");
       return;
     }
 
