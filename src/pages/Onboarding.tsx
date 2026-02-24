@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 import { ArrowRight, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import lkLogo from "@/assets/lk-logo-horizontal.png";
@@ -17,6 +18,7 @@ type Step = typeof steps[number];
 const Onboarding = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { toast } = useToast();
   const [step, setStep] = useState<Step>("welcome");
   const [firstName, setFirstName] = useState("");
@@ -50,6 +52,7 @@ const Onboarding = () => {
       .from("profiles")
       .update({ onboarding_completed: true })
       .eq("user_id", user.id);
+    await queryClient.invalidateQueries({ queryKey: ["onboarding-check", user.id] });
     setSaving(false);
     navigate("/app", { replace: true });
   };
