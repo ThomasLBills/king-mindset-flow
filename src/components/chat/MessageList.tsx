@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import type { ChatMessage } from "@/hooks/useChat";
@@ -6,6 +6,7 @@ import { format } from "date-fns";
 import { useChatReactions } from "@/hooks/useChatReactions";
 import { SmilePlus } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { supabase } from "@/integrations/supabase/client";
 
 const QUICK_EMOJIS = ["❤️", "👍", "🙏", "🔥", "💪", "😂", "👏", "💯"];
 
@@ -19,6 +20,29 @@ const MessageList = ({ messages, loading }: MessageListProps) => {
   const bottomRef = useRef<HTMLDivElement>(null);
   const messageIds = messages.map(m => m.id);
   const { reactions, toggleReaction } = useChatReactions(messageIds);
+  const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
+
+  // Generate signed URLs for chat-files images
+  useEffect(() => {
+    const imageMessages = messages.filter((m: any) => m.image_url?.includes("chat-files"));
+    if (!imageMessages.length) return;
+
+    const fetchSignedUrls = async () => {
+      const newUrls: Record<string, string> = {};
+      await Promise.all(
+        imageMessages.map(async (msg: any) => {
+          const url = msg.image_url as string;
+          // Extract path after /object/public/chat-files/ or /object/sign/chat-files/
+          const match = url.match(/chat-files\/(.+)$/);
+          if (!match) return;
+          const { data } = await supabase.storage.from("chat-files").createSignedUrl(match[1], 3600);
+          if (data?.signedUrl) newUrls[msg.id] = data.signedUrl;
+        })
+      );
+      setSignedUrls(prev => ({ ...prev, ...newUrls }));
+    };
+    fetchSignedUrls();
+  }, [messages]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -86,7 +110,7 @@ const MessageList = ({ messages, loading }: MessageListProps) => {
               <p className="text-sm mt-0.5 break-words">{msg.content}</p>
               {/* Image attachment */}
               {(msg as any).image_url && (
-                <img src={(msg as any).image_url} alt="attachment" className="mt-2 max-w-xs rounded-lg border border-border" />
+                <img src={signedUrls[msg.id] || (msg as any).image_url} alt="attachment" className="mt-2 max-w-xs rounded-lg border border-border" />
               )}
               {/* Reactions display */}
               {msgReactions.length > 0 && (
