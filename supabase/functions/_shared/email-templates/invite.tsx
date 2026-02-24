@@ -27,15 +27,15 @@ export const InviteEmail = ({
 }: InviteEmailProps) => (
   <Html lang="en" dir="ltr">
     <Head />
-    <Preview>You have been invited to join Liberated Kings</Preview>
+    <Preview>You Have Been Invited to The Liberated Kings.</Preview>
     <Body style={main}>
       <Container style={container}>
         <Heading style={h1}>You Are Invited, King.</Heading>
         <Text style={text}>
-          Someone believes in your journey. You have been invited to join Liberated Kings. Accept the invitation below to create your account and begin.
+          You have been given access to The Liberated Kings app. Accept your invitation below to create your account and begin.
         </Text>
         <Button style={button} href={confirmationUrl}>
-          Accept Invitation
+          Accept My Invitation
         </Button>
         <Hr style={divider} />
         <Text style={footer}>
