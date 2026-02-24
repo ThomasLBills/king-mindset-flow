@@ -100,12 +100,12 @@ const ThankYou = () => {
             ) : (
               <>
                 <CheckCircle className="w-16 h-16 text-accent mx-auto" />
-                <h1 className="font-serif text-2xl font-bold">Thank You!</h1>
+                <h1 className="font-serif text-2xl font-bold">Welcome to The Liberated Kings.</h1>
                 <p className="text-muted-foreground">
-                  We're setting up your access. If this takes more than a minute, check your email for a login link.
+                  You are already free in Christ. The Liberated Path is how you walk in it. We're setting up your access now. Check your email for a login link if it takes more than a minute.
                 </p>
-                <Button onClick={() => navigate("/login")} variant="outline" size="lg">
-                  Go to Login
+                <Button onClick={() => navigate("/login")} size="lg" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
+                  Enter the App <ArrowRight className="w-4 h-4" />
                 </Button>
               </>
             )}
