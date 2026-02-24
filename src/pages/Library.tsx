@@ -2,8 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import AppLayout from "@/components/layout/AppLayout";
-import { Button } from "@/components/ui/button";
-import { ChevronRight, Check, BookOpen, Play, Sparkles, Loader2, Lock } from "lucide-react";
+import { ChevronRight, Check, BookOpen, Play, Loader2, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
 import {
@@ -31,6 +30,13 @@ const LibraryPage = () => {
 
   const isLoading = settingsLoading || weeksLoading || lessonsLoading;
 
+  // Auto-enroll on first visit
+  const [autoEnrolled, setAutoEnrolled] = useState(false);
+  if (!isLoading && user && !enrollment && !enroll.isPending && !autoEnrolled) {
+    setAutoEnrolled(true);
+    enroll.mutate();
+  }
+
   if (isLoading) {
     return (
       <AppLayout>
@@ -48,6 +54,8 @@ const LibraryPage = () => {
   const dripMode = settings?.drip_mode || "weekly";
 
   const isWeekUnlocked = (week: any, index: number) => {
+    // Week 1 is always unlocked for authenticated users
+    if (index === 0) return true;
     if (!enrollment) return false;
     if (dripMode === "immediate") return true;
     // Sequential: previous week must be completed (except week 0)
@@ -87,10 +95,6 @@ const LibraryPage = () => {
     // use a timeout-free approach
   }
 
-  const handleEnroll = async () => {
-    await enroll.mutateAsync();
-  };
-
   return (
     <AppLayout>
       <div className="px-5 py-6">
@@ -106,24 +110,8 @@ const LibraryPage = () => {
           </p>
         </motion.div>
 
-        {/* Enrollment CTA */}
-        {!enrollment && user && (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
-            <div className="p-5 rounded-2xl bg-primary/5 border-2 border-primary/20 text-center">
-              <h2 className="font-serif text-lg font-semibold mb-2">Start Your Journey</h2>
-              <p className="text-sm text-muted-foreground mb-4">
-                Enroll to unlock the curriculum and track your progress.
-              </p>
-              <Button onClick={handleEnroll} disabled={enroll.isPending}>
-                {enroll.isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
-                Enroll Now
-              </Button>
-            </div>
-          </motion.div>
-        )}
-
         {/* Overall Progress */}
-        {enrollment && (
+        {(enrollment || user) && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="mb-6">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-medium">Journey Progress</span>

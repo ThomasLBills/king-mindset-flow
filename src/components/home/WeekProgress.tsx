@@ -33,7 +33,8 @@ const WeekProgress = () => {
     ? differenceInDays(new Date(), new Date(enrollment.enrolled_at))
     : -1;
 
-  const isWeekUnlocked = (week: any) => {
+  const isWeekUnlocked = (week: any, index: number) => {
+    if (index === 0) return true; // Week 1 always unlocked
     if (!enrollment) return false;
     return daysSinceEnrollment >= week.unlock_day_offset;
   };
@@ -47,7 +48,7 @@ const WeekProgress = () => {
     return lessons.every(l => progressMap?.get(l.id)?.status === "completed");
   };
 
-  const currentWeek = weeks?.find(w => isWeekUnlocked(w) && !isWeekComplete(w.id));
+  const currentWeek = weeks?.find((w, i) => isWeekUnlocked(w, i) && !isWeekComplete(w.id));
   const currentWeekNumber = currentWeek?.week_number ?? (completedLessons === totalLessons && totalLessons > 0 ? 8 : 1);
   const weekTitle = currentWeek?.title ?? (overallPercent === 100 ? "Complete!" : "Not enrolled");
   const weekSummary = currentWeek?.summary ?? "";
