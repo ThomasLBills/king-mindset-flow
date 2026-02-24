@@ -48,11 +48,17 @@ const Onboarding = () => {
   const handleComplete = async () => {
     if (!user) return;
     setSaving(true);
-    await supabase
+    const { error } = await supabase
       .from("profiles")
       .update({ onboarding_completed: true })
       .eq("user_id", user.id);
-    await queryClient.invalidateQueries({ queryKey: ["onboarding-check", user.id] });
+    if (error) {
+      toast({ title: "Error completing onboarding", description: error.message, variant: "destructive" });
+      setSaving(false);
+      return;
+    }
+    // Refetch (not just invalidate) so the guard sees the updated value before we navigate
+    await queryClient.refetchQueries({ queryKey: ["onboarding-check", user.id] });
     setSaving(false);
     navigate("/app", { replace: true });
   };
@@ -134,7 +140,7 @@ const Onboarding = () => {
               exit={{ opacity: 0, x: -20 }}
             >
               <div className="flex justify-center">
-                <Button onClick={handleComplete} size="lg" disabled={saving} className="gap-2 bg-amber-500 hover:bg-amber-600 text-white">
+                <Button onClick={handleComplete} size="lg" disabled={saving} className="gap-2">
                   {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <>Walk in Your Freedom <ArrowRight className="w-4 h-4" /></>}
                 </Button>
               </div>
