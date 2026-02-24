@@ -27,10 +27,10 @@ const Checkout = () => {
   const { user } = useAuth();
   const { toast } = useToast();
 
-  const monthlyPrice = 29;
-  const annualPrice = 249;
-  const annualMonthly = Math.round(annualPrice / 12);
-  const savingsPercent = Math.round((1 - annualPrice / (monthlyPrice * 12)) * 100);
+  const monthlyPrice = 9.95;
+  const annualPrice = 84.95;
+  const annualMonthly = 7.08;
+  const savingsPercent = 29;
 
   const handleCheckout = async () => {
     setLoading(true);
