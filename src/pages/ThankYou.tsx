@@ -103,7 +103,7 @@ const ThankYou = () => {
                 <img src={lkIcon} alt="Liberated Kings" className="w-14 h-14 mx-auto" />
                 <h1 className="font-serif text-2xl font-bold">Welcome to The Liberated Kings.</h1>
                 <p className="text-muted-foreground">
-                  Walk in the freedom that is already yours in Christ. Check your email for your login link.
+                  Christ has secured your freedom. This app helps you walk in it daily. Check your email for your login link.
                 </p>
                 <Button onClick={() => navigate("/login")} size="lg" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
                   Enter the App <ArrowRight className="w-4 h-4" />
