@@ -8,11 +8,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 const benefits = [
-  "Lifetime access to all course materials",
-  "In-the-moment tools & support",
-  "Daily rhythms & accountability",
-  "Brotherhood community access",
-  "Grace Protocol, declarations, and spiritual tools",
+  "Daily check-ins to build evidence of your freedom",
+  "Urge redirection tools for in-the-moment pressure",
+  "The Grace Protocol for post-relapse response",
+  "Randomized declarations and prayers to renew your mind daily",
+  "Brotherhood connection with men walking the same path",
+  "Progress tracking through the RAS Evidence Builder",
 ];
 
 const Upgrade = () => {
