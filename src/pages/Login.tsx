@@ -64,17 +64,17 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-[hsl(0_0%_5%)]">
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-white">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
         <div className="flex justify-center mb-8">
-          <div className="bg-white rounded-xl px-6 py-4">
-            <img src={lkLogo} alt="Liberated Kings" className="h-10 object-contain" />
+          <div className="bg-[hsl(0_0%_5%)] rounded-xl px-6 py-4">
+            <img src={lkLogo} alt="Liberated Kings" className="h-10 object-contain invert" />
           </div>
         </div>
-        <Card className="card-elevated border-border/30">
+        <Card className="bg-[hsl(0_0%_5%)] border-none text-white">
           <CardHeader className="text-center">
-            <CardTitle className="font-serif text-2xl">Welcome Back</CardTitle>
-            <CardDescription>Sign in to walk in your freedom.</CardDescription>
+            <CardTitle className="font-serif text-2xl text-white">Welcome Back</CardTitle>
+            <CardDescription className="text-white/70">Sign in to walk in your freedom.</CardDescription>
           </CardHeader>
           <CardContent>
             {magicLinkSent ? (
