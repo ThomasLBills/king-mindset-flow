@@ -205,8 +205,8 @@ const SetupAccount = () => {
         </div>
         <Card className="card-elevated border border-primary/40">
           <CardHeader className="text-center">
-            <CardTitle className="font-serif text-2xl">Create Your Account</CardTitle>
-            <CardDescription>Set a password to secure your account.</CardDescription>
+            <CardTitle className="font-serif text-2xl">Create Your Password</CardTitle>
+            <CardDescription>Choose a strong password for your account.</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -235,7 +235,7 @@ const SetupAccount = () => {
                 />
               </div>
               <Button type="submit" className="w-full" size="lg" disabled={saving}>
-                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <>Continue <ArrowRight className="w-4 h-4" /></>}
+                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Create Password"}
               </Button>
             </form>
           </CardContent>
