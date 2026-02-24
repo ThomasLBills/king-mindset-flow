@@ -59,15 +59,16 @@ const Upgrade = () => {
               className={`flex-1 p-4 rounded-xl border-2 transition-all text-left ${plan === "monthly" ? "border-primary bg-primary/5" : "border-border"}`}
             >
               <p className="font-semibold">Monthly</p>
-              <p className="text-2xl font-bold font-serif">$29<span className="text-sm font-normal text-muted-foreground">/mo</span></p>
+              <p className="text-2xl font-bold font-serif">$9.95<span className="text-sm font-normal text-muted-foreground">/mo</span></p>
             </button>
             <button
               onClick={() => setPlan("annual")}
               className={`flex-1 p-4 rounded-xl border-2 transition-all text-left relative ${plan === "annual" ? "border-primary bg-primary/5" : "border-border"}`}
             >
-              <span className="absolute -top-2.5 right-3 bg-accent text-accent-foreground text-xs font-bold px-2 py-0.5 rounded-full">Save 28%</span>
+              <span className="absolute -top-2.5 right-3 bg-accent text-accent-foreground text-xs font-bold px-2 py-0.5 rounded-full">Save 29%</span>
               <p className="font-semibold">Annual</p>
-              <p className="text-2xl font-bold font-serif">$21<span className="text-sm font-normal text-muted-foreground">/mo</span></p>
+              <p className="text-2xl font-bold font-serif">$7.08<span className="text-sm font-normal text-muted-foreground">/mo</span></p>
+              <p className="text-xs text-muted-foreground">$84.95 billed annually</p>
             </button>
           </div>
 
@@ -85,7 +86,7 @@ const Upgrade = () => {
           </Card>
 
           <Button onClick={handleCheckout} size="xl" className="w-full" disabled={loading}>
-            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Subscribe Now <ArrowRight className="w-5 h-5" /></>}
+            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Subscribe Now — {plan === "monthly" ? "$9.95/mo" : "$84.95/yr"} <ArrowRight className="w-5 h-5" /></>}
           </Button>
 
           <button onClick={signOut} className="block mx-auto mt-4 text-sm text-muted-foreground hover:text-foreground">
