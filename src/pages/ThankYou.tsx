@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle, Loader2, ArrowRight, Mail } from "lucide-react";
+import lkIcon from "@/assets/lk-icon.png";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -99,10 +100,10 @@ const ThankYou = () => {
               </>
             ) : (
               <>
-                <CheckCircle className="w-16 h-16 text-accent mx-auto" />
+                <img src={lkIcon} alt="Liberated Kings" className="w-14 h-14 mx-auto" />
                 <h1 className="font-serif text-2xl font-bold">Welcome to The Liberated Kings.</h1>
                 <p className="text-muted-foreground">
-                  You are already free in Christ. The Liberated Path is how you walk in it. We're setting up your access now. Check your email for a login link if it takes more than a minute.
+                  You are already free in Christ. Check your email for your login link.
                 </p>
                 <Button onClick={() => navigate("/login")} size="lg" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
                   Enter the App <ArrowRight className="w-4 h-4" />
