@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { X, Send, Heart, Shield, MessageCircle, Loader2 } from "lucide-react";
+import { X, Send, Heart, Shield, MessageCircle, Loader2, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useBrothers } from "@/hooks/useBrotherhood";
@@ -43,59 +43,78 @@ const ReachOut = ({ onClose }: ReachOutProps) => {
   const { user } = useAuth();
   const { brothers, isLoading } = useBrothers();
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
-  const [selectedBrother, setSelectedBrother] = useState<string | null>(null);
+  const [selectedBrothers, setSelectedBrothers] = useState<string[]>([]);
   const [sending, setSending] = useState(false);
 
   const currentMessage = selectedTemplate
     ? templates.find((t) => t.id === selectedTemplate)?.message || ""
     : "";
 
+  const toggleBrother = (userId: string) => {
+    setSelectedBrothers((prev) =>
+      prev.includes(userId)
+        ? prev.filter((id) => id !== userId)
+        : [...prev, userId]
+    );
+  };
+
   const handleSend = useCallback(async () => {
-    if (!user || !selectedBrother || !currentMessage) return;
+    if (!user || selectedBrothers.length === 0 || !currentMessage) return;
     setSending(true);
 
     try {
-      // Find or create DM
-      const { data: existing } = await supabase
-        .from("chat_dms")
-        .select("id")
-        .or(
-          `and(user_a.eq.${user.id},user_b.eq.${selectedBrother}),and(user_a.eq.${selectedBrother},user_b.eq.${user.id})`
-        )
-        .limit(1);
+      let sentCount = 0;
 
-      let dmId: string;
-      if (existing && existing.length > 0) {
-        dmId = existing[0].id;
-      } else {
-        const { data: newDm, error } = await supabase
+      for (const brotherId of selectedBrothers) {
+        // Find or create DM
+        const { data: existing } = await supabase
           .from("chat_dms")
-          .insert({ user_a: user.id, user_b: selectedBrother })
           .select("id")
-          .single();
-        if (error || !newDm) throw new Error("Could not create conversation");
-        dmId = newDm.id;
+          .or(
+            `and(user_a.eq.${user.id},user_b.eq.${brotherId}),and(user_a.eq.${brotherId},user_b.eq.${user.id})`
+          )
+          .limit(1);
+
+        let dmId: string;
+        if (existing && existing.length > 0) {
+          dmId = existing[0].id;
+        } else {
+          const { data: newDm, error } = await supabase
+            .from("chat_dms")
+            .insert({ user_a: user.id, user_b: brotherId })
+            .select("id")
+            .single();
+          if (error || !newDm) continue;
+          dmId = newDm.id;
+        }
+
+        // Send the message
+        const { error: msgError } = await supabase.from("chat_messages").insert({
+          content: currentMessage,
+          user_id: user.id,
+          dm_id: dmId,
+        });
+
+        if (!msgError) sentCount++;
       }
 
-      // Send the message
-      const { error: msgError } = await supabase.from("chat_messages").insert({
-        content: currentMessage,
-        user_id: user.id,
-        dm_id: dmId,
-      });
-
-      if (msgError) throw msgError;
-
-      toast.success("Message sent", {
-        description: "Your brother will see it in their messages.",
-      });
-      onClose();
+      if (sentCount > 0) {
+        toast.success(
+          sentCount === 1 ? "Message sent" : `Message sent to ${sentCount} brothers`,
+          { description: "They'll see it in their messages." }
+        );
+        onClose();
+      } else {
+        toast.error("Could not send messages");
+      }
     } catch (e: any) {
       toast.error("Could not send message", { description: e.message });
     } finally {
       setSending(false);
     }
-  }, [user, selectedBrother, currentMessage, onClose]);
+  }, [user, selectedBrothers, currentMessage, onClose]);
+
+  const canSend = selectedBrothers.length > 0 && !!currentMessage && !sending;
 
   return (
     <div className="fixed inset-0 bg-background z-50 flex flex-col">
@@ -109,9 +128,12 @@ const ReachOut = ({ onClose }: ReachOutProps) => {
       </div>
 
       <div className="flex-1 overflow-y-auto px-6 py-6">
-        {/* Brothers */}
+        {/* Brothers — multi-select */}
         <div className="mb-6">
-          <p className="text-sm font-medium mb-3">Who do you want to reach?</p>
+          <p className="text-sm font-medium mb-3">
+            Who do you want to reach?{" "}
+            <span className="text-muted-foreground font-normal">(select one or more)</span>
+          </p>
           {isLoading ? (
             <div className="flex justify-center py-4">
               <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
@@ -122,30 +144,36 @@ const ReachOut = ({ onClose }: ReachOutProps) => {
             </p>
           ) : (
             <div className="flex gap-3 flex-wrap">
-              {brothers.map((brother) => (
-                <button
-                  key={brother.userId}
-                  onClick={() => setSelectedBrother(brother.userId)}
-                  className={cn(
-                    "flex flex-col items-center gap-2 p-3 rounded-xl transition-all",
-                    selectedBrother === brother.userId
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-secondary hover:bg-secondary/80"
-                  )}
-                >
-                  <div
+              {brothers.map((brother) => {
+                const selected = selectedBrothers.includes(brother.userId);
+                return (
+                  <button
+                    key={brother.userId}
+                    onClick={() => toggleBrother(brother.userId)}
                     className={cn(
-                      "w-12 h-12 rounded-full flex items-center justify-center text-sm font-semibold",
-                      selectedBrother === brother.userId
-                        ? "bg-primary-foreground/20"
-                        : "bg-background"
+                      "relative flex flex-col items-center gap-2 p-3 rounded-xl transition-all",
+                      selected
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-secondary hover:bg-secondary/80"
                     )}
                   >
-                    {brother.displayName.slice(0, 2).toUpperCase()}
-                  </div>
-                  <span className="text-sm font-medium">{brother.displayName}</span>
-                </button>
-              ))}
+                    {selected && (
+                      <div className="absolute top-1 right-1 w-5 h-5 rounded-full bg-primary-foreground flex items-center justify-center">
+                        <Check className="w-3 h-3 text-primary" />
+                      </div>
+                    )}
+                    <div
+                      className={cn(
+                        "w-12 h-12 rounded-full flex items-center justify-center text-sm font-semibold",
+                        selected ? "bg-primary-foreground/20" : "bg-background"
+                      )}
+                    >
+                      {brother.displayName.slice(0, 2).toUpperCase()}
+                    </div>
+                    <span className="text-sm font-medium">{brother.displayName}</span>
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
@@ -214,7 +242,7 @@ const ReachOut = ({ onClose }: ReachOutProps) => {
           variant="brotherhood"
           size="lg"
           onClick={handleSend}
-          disabled={!selectedBrother || !currentMessage || sending}
+          disabled={!canSend}
           className="w-full"
         >
           {sending ? (
@@ -222,7 +250,11 @@ const ReachOut = ({ onClose }: ReachOutProps) => {
           ) : (
             <Send className="w-4 h-4" />
           )}
-          {sending ? "Sending…" : "Send Message"}
+          {sending
+            ? "Sending…"
+            : selectedBrothers.length > 1
+              ? `Send to ${selectedBrothers.length} Brothers`
+              : "Send Message"}
         </Button>
       </div>
     </div>
