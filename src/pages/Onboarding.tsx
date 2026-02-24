@@ -130,19 +130,11 @@ const Onboarding = () => {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
             >
-              <Card className="card-elevated border border-primary/40">
-                <CardHeader className="text-center">
-                  <CardTitle className="font-serif text-2xl">You're Ready.</CardTitle>
-                  <CardDescription>
-                    Your journey to freedom starts now. Walk with intention, lean on your brothers, and trust the process.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="flex justify-center">
-                  <Button onClick={handleComplete} size="lg" disabled={saving} className="gap-2">
-                    {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <>Enter the Kingdom <ArrowRight className="w-4 h-4" /></>}
-                  </Button>
-                </CardContent>
-              </Card>
+              <div className="flex justify-center">
+                <Button onClick={handleComplete} size="lg" disabled={saving} className="gap-2 bg-amber-500 hover:bg-amber-600 text-white">
+                  {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <>Walk in Your Freedom <ArrowRight className="w-4 h-4" /></>}
+                </Button>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
