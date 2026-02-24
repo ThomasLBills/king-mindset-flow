@@ -1,8 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Hash, Lock, Pin } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useChannels, useMessages, useJoinChannel, type ChatTarget } from "@/hooks/useChat";
+import { useAdminRole } from "@/hooks/useAdminRole";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import MessageList from "@/components/chat/MessageList";
 import MessageComposer from "@/components/chat/MessageComposer";
 
@@ -11,6 +14,15 @@ const ChannelsTab = () => {
   const [activeChannel, setActiveChannel] = useState<ChatTarget | null>(null);
   const { messages, loading, sendMessage } = useMessages(activeChannel);
   const joinChannel = useJoinChannel();
+  const { isAdmin } = useAdminRole();
+  const { toast } = useToast();
+
+  const handleDeleteMessage = useCallback(async (messageId: string) => {
+    const { error } = await supabase.from("chat_messages").delete().eq("id", messageId);
+    if (error) {
+      toast({ title: "Error", description: "Failed to delete message", variant: "destructive" });
+    }
+  }, [toast]);
 
   // Sort: pinned first, then by sort_order
   const sorted = [...channels].sort((a, b) => {
@@ -40,7 +52,7 @@ const ChannelsTab = () => {
           <h3 className="font-serif text-lg font-semibold">{activeChannel.name}</h3>
           {isLocked && <Lock className="w-3 h-3 text-muted-foreground" />}
         </div>
-        <MessageList messages={messages} loading={loading} />
+        <MessageList messages={messages} loading={loading} isAdmin={isAdmin} onDeleteMessage={handleDeleteMessage} />
         {!isLocked ? (
           <MessageComposer onSend={sendMessage} placeholder={`Message #${activeChannel.name}`} />
         ) : (
