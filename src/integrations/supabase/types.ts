@@ -694,6 +694,7 @@ export type Database = {
         Row: {
           active: boolean
           entitlement_type: string
+          expires_at: string | null
           id: string
           source: string
           updated_at: string
@@ -702,6 +703,7 @@ export type Database = {
         Insert: {
           active?: boolean
           entitlement_type?: string
+          expires_at?: string | null
           id?: string
           source?: string
           updated_at?: string
@@ -710,6 +712,7 @@ export type Database = {
         Update: {
           active?: boolean
           entitlement_type?: string
+          expires_at?: string | null
           id?: string
           source?: string
           updated_at?: string

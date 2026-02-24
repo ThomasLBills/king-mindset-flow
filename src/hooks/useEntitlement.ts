@@ -11,13 +11,17 @@ export const useEntitlement = () => {
       if (!user) return false;
       const { data, error } = await supabase
         .from("entitlements")
-        .select("active")
+        .select("active, expires_at")
         .eq("user_id", user.id)
         .eq("entitlement_type", "course_app_access")
         .eq("active", true)
         .maybeSingle();
-      if (error) return false;
-      return !!data;
+      if (error || !data) return false;
+      // Check if entitlement has expired
+      if (data.expires_at && new Date(data.expires_at) <= new Date()) {
+        return false;
+      }
+      return true;
     },
     enabled: !!user,
   });
