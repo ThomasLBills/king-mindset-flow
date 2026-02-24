@@ -68,16 +68,16 @@ const Checkout = () => {
 
           <div className="text-center mb-8">
             <h1 className="font-serif font-bold mb-2 text-2xl">Continue Walking in Your Freedom</h1>
-            <p className="text-muted-foreground">Choose the plan that works for you</p>
+            <p className="text-muted-foreground">Created to equip you for every step. You are already free in Christ.
+
+
+
+            </p>
           </div>
 
           {/* Plan Toggle */}
           <div className="flex gap-3 mb-6">
-            <button
-              onClick={() => setPlan("monthly")}
-              className={`flex-1 p-4 rounded-xl border-2 transition-all text-left ${
-              plan === "monthly" ? "border-primary bg-primary/5" : "border-border hover:border-primary/30"}`
-              }>
+            <button onClick={() => setPlan("monthly")} className={`flex-1 p-4 rounded-xl border-2 transition-all text-left ${plan === "monthly" ? "border-primary bg-primary/5" : "border-border hover:border-primary/30"}`}>
 
               <p className="font-semibold">Monthly</p>
               <p className="text-2xl font-bold font-serif">${monthlyPrice}<span className="text-sm font-normal text-muted-foreground">/mo</span></p>
