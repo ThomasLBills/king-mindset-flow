@@ -124,7 +124,7 @@ const LibraryPage = () => {
         {/* Weeks */}
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="space-y-3">
           {(weeks ?? []).map((week, index) => {
-            const unlocked = enrollment ? isWeekUnlocked(week, index) : false;
+            const unlocked = isWeekUnlocked(week, index);
             const completed = isWeekCompleted(week.id);
             const isCurrent = week.id === currentWeekId;
             const weekProgress = getWeekProgress(week.id);
