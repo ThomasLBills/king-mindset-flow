@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import type { ChatMessage } from "@/hooks/useChat";
 import { format } from "date-fns";
 import { useChatReactions } from "@/hooks/useChatReactions";
-import { SmilePlus } from "lucide-react";
+import { SmilePlus, Trash2 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -13,9 +13,11 @@ const QUICK_EMOJIS = ["❤️", "👍", "🙏", "🔥", "💪", "😂", "👏", 
 interface MessageListProps {
   messages: ChatMessage[];
   loading: boolean;
+  isAdmin?: boolean;
+  onDeleteMessage?: (messageId: string) => void;
 }
 
-const MessageList = ({ messages, loading }: MessageListProps) => {
+const MessageList = ({ messages, loading, isAdmin, onDeleteMessage }: MessageListProps) => {
   const { user } = useAuth();
   const bottomRef = useRef<HTMLDivElement>(null);
   const messageIds = messages.map(m => m.id);
@@ -106,6 +108,16 @@ const MessageList = ({ messages, loading }: MessageListProps) => {
                     </div>
                   </PopoverContent>
                 </Popover>
+                {/* Admin delete */}
+                {isAdmin && onDeleteMessage && (
+                  <button
+                    onClick={() => onDeleteMessage(msg.id)}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity ml-1 p-0.5 rounded hover:bg-destructive/10"
+                    title="Delete message"
+                  >
+                    <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                  </button>
+                )}
               </div>
               <p className="text-sm mt-0.5 break-words">{msg.content}</p>
               {/* Image attachment */}

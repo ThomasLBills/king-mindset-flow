@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useEntitlement } from "@/hooks/useEntitlement";
 import { Mail, Lock, ArrowRight, Loader2, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import lkLogo from "@/assets/lk-logo-horizontal.png";
 
 const Login = () => {
@@ -44,6 +45,31 @@ const Login = () => {
   const handleMagicLink = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+
+    // Check eligibility first
+    try {
+      const { data, error: checkError } = await supabase.functions.invoke("check-user-eligible", {
+        body: { email: email.trim().toLowerCase() },
+      });
+
+      if (checkError || !data?.eligible) {
+        setLoading(false);
+        const reason = data?.reason;
+        if (reason === "no_account") {
+          toast({ title: "Account not found", description: "No account exists for this email. Please purchase access first.", variant: "destructive" });
+        } else if (reason === "no_entitlement") {
+          toast({ title: "No active access", description: "Your account does not have an active subscription. Please purchase access.", variant: "destructive" });
+        } else {
+          toast({ title: "Unable to verify", description: "Could not verify your account. Please try again.", variant: "destructive" });
+        }
+        return;
+      }
+    } catch {
+      setLoading(false);
+      toast({ title: "Error", description: "Could not verify eligibility. Please try again.", variant: "destructive" });
+      return;
+    }
+
     const { error } = await signInWithMagicLink(email);
     setLoading(false);
     if (error) {

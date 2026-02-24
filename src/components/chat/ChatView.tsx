@@ -1,8 +1,11 @@
 import { Hash, MessageCircle } from "lucide-react";
 import { useMessages, useJoinChannel, type ChatTarget } from "@/hooks/useChat";
+import { useAdminRole } from "@/hooks/useAdminRole";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import MessageList from "./MessageList";
 import MessageComposer from "./MessageComposer";
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 
 interface ChatViewProps {
   target: ChatTarget | null;
@@ -11,6 +14,15 @@ interface ChatViewProps {
 const ChatView = ({ target }: ChatViewProps) => {
   const { messages, loading, sendMessage } = useMessages(target);
   const joinChannel = useJoinChannel();
+  const { isAdmin } = useAdminRole();
+  const { toast } = useToast();
+
+  const handleDeleteMessage = useCallback(async (messageId: string) => {
+    const { error } = await supabase.from("chat_messages").delete().eq("id", messageId);
+    if (error) {
+      toast({ title: "Error", description: "Failed to delete message", variant: "destructive" });
+    }
+  }, [toast]);
 
   // Auto-join channel on selection
   useEffect(() => {
@@ -40,7 +52,7 @@ const ChatView = ({ target }: ChatViewProps) => {
         <h3 className="font-serif text-lg font-semibold">{target.name}</h3>
       </div>
 
-      <MessageList messages={messages} loading={loading} />
+      <MessageList messages={messages} loading={loading} isAdmin={isAdmin} onDeleteMessage={handleDeleteMessage} />
       <MessageComposer
         onSend={sendMessage}
         placeholder={`Message ${target.type === "channel" ? "#" : ""}${target.name}`}

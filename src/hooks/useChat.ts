@@ -123,6 +123,17 @@ export function useMessages(target: ChatTarget | null) {
           .single();
         setMessages(prev => [...prev, { ...msg, profile: profile ?? undefined }]);
       })
+      .on("postgres_changes", {
+        event: "DELETE",
+        schema: "public",
+        table: "chat_messages",
+        filter: target.type === "channel"
+          ? `channel_id=eq.${target.id}`
+          : `dm_id=eq.${target.id}`,
+      }, (payload) => {
+        const deleted = payload.old as { id: string };
+        setMessages(prev => prev.filter(m => m.id !== deleted.id));
+      })
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
