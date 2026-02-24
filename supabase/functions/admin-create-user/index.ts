@@ -63,7 +63,20 @@ Deno.serve(async (req) => {
         redirectTo: "https://liberatedkings.com/login",
       });
 
-      if (inviteError) throw inviteError;
+      if (inviteError) {
+        // If email_exists, the user is already registered — just generate a magic link / recovery instead
+        if (inviteError.status === 422 && (inviteError as any).code === "email_exists") {
+          // Use generateLink to resend without error
+          const { error: linkError } = await supabase.auth.admin.generateLink({
+            type: "magiclink",
+            email,
+            options: { redirectTo: "https://liberatedkings.com/login" },
+          });
+          if (linkError) throw linkError;
+        } else {
+          throw inviteError;
+        }
+      }
 
       console.log(`Admin ${user.id} resent invite to ${email}`);
       return new Response(JSON.stringify({ success: true, message: "Invite sent" }), {
