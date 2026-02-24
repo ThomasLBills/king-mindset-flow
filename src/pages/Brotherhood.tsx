@@ -1,10 +1,9 @@
 import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import AppLayout from "@/components/layout/AppLayout";
-import { Users, Hash, MessageCircle } from "lucide-react";
+import { Users, Hash } from "lucide-react";
 import MyBrothersTab from "@/components/brotherhood/MyBrothersTab";
 import ChannelsTab from "@/components/brotherhood/ChannelsTab";
-import MessagesTab from "@/components/brotherhood/MessagesTab";
 import ReachOut from "@/components/brotherhood/ReachOut";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
@@ -15,7 +14,6 @@ const BrotherhoodPage = () => {
   const { user } = useAuth();
   const [showReachOut, setShowReachOut] = useState(false);
   const [activeTab, setActiveTab] = useState("brothers");
-  const [dmTarget, setDmTarget] = useState<ChatTarget | null>(null);
 
   const handleStartDM = useCallback(async (brotherUserId: string, name: string) => {
     if (!user) return;
@@ -39,8 +37,6 @@ const BrotherhoodPage = () => {
       dmId = newDm.id;
     }
 
-    setDmTarget({ type: "dm", id: dmId, name });
-    setActiveTab("messages");
   }, [user]);
 
   return (
@@ -90,15 +86,12 @@ const BrotherhoodPage = () => {
 
         {/* Tabs: Brothers / Channels / Messages */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="w-full mb-4">
-            <TabsTrigger value="brothers" className="flex-1 gap-1.5">
+          <TabsList className="w-full mb-4 bg-[#0A0A0A] border border-primary/30 p-1">
+            <TabsTrigger value="brothers" className="flex-1 gap-1.5 text-white/50 data-[state=active]:bg-primary data-[state=active]:text-[#0A0A0A] data-[state=active]:shadow-none font-semibold">
               <Users className="w-4 h-4" /> Brothers
             </TabsTrigger>
-            <TabsTrigger value="channels" className="flex-1 gap-1.5">
+            <TabsTrigger value="channels" className="flex-1 gap-1.5 text-white/50 data-[state=active]:bg-primary data-[state=active]:text-[#0A0A0A] data-[state=active]:shadow-none font-semibold">
               <Hash className="w-4 h-4" /> Channels
-            </TabsTrigger>
-            <TabsTrigger value="messages" className="flex-1 gap-1.5">
-              <MessageCircle className="w-4 h-4" /> Messages
             </TabsTrigger>
           </TabsList>
 
@@ -108,10 +101,6 @@ const BrotherhoodPage = () => {
 
           <TabsContent value="channels">
             <ChannelsTab />
-          </TabsContent>
-
-          <TabsContent value="messages">
-            <MessagesTab initialTarget={dmTarget} />
           </TabsContent>
         </Tabs>
       </div>
