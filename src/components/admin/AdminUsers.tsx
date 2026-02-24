@@ -9,10 +9,11 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Loader2, Search, Shield, ShieldOff, UserPlus, Mail, Trash2 } from "lucide-react";
+import { Loader2, Search, Shield, ShieldOff, UserPlus, Mail, Trash2, CalendarDays } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { format } from "date-fns";
 
 const AdminUsers = () => {
   const { toast } = useToast();
@@ -202,14 +203,16 @@ const AdminUsers = () => {
           ) : (
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Entitlement</TableHead>
-                  <TableHead>Subscription</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
+                 <TableRow>
+                   <TableHead>Email</TableHead>
+                   <TableHead>Name</TableHead>
+                   <TableHead>Joined</TableHead>
+                   <TableHead>Role</TableHead>
+                   <TableHead>Entitlement</TableHead>
+                   <TableHead>Source</TableHead>
+                   <TableHead>Subscription</TableHead>
+                   <TableHead>Actions</TableHead>
+                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filtered.map((p) => {
@@ -218,15 +221,19 @@ const AdminUsers = () => {
                   const admin = isAdmin(p.user_id);
                   return (
                     <TableRow key={p.user_id}>
-                      <TableCell className="text-sm">{p.email}</TableCell>
-                      <TableCell className="text-sm">{p.display_name || p.name || "—"}</TableCell>
-                      <TableCell>
-                        <Badge variant={admin ? "default" : "secondary"}>{admin ? "Admin" : "User"}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={ent?.active ? "default" : "secondary"}>{ent?.active ? "Active" : "Inactive"}</Badge>
-                      </TableCell>
-                      <TableCell className="text-sm capitalize">{sub?.status || "—"}</TableCell>
+                       <TableCell className="text-sm">{p.email}</TableCell>
+                       <TableCell className="text-sm">{p.display_name || p.name || "—"}</TableCell>
+                       <TableCell className="text-sm text-muted-foreground">
+                         {format(new Date(p.created_at), "MMM d, yyyy")}
+                       </TableCell>
+                       <TableCell>
+                         <Badge variant={admin ? "default" : "secondary"}>{admin ? "Admin" : "User"}</Badge>
+                       </TableCell>
+                       <TableCell>
+                         <Badge variant={ent?.active ? "default" : "secondary"}>{ent?.active ? "Active" : "Inactive"}</Badge>
+                       </TableCell>
+                       <TableCell className="text-sm capitalize">{ent?.source?.replace("zapier_", "").replace("_", " ") || "—"}</TableCell>
+                       <TableCell className="text-sm capitalize">{sub?.status || "—"}</TableCell>
                       <TableCell>
                         <div className="flex gap-2 flex-wrap">
                           <Button
