@@ -8,7 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useEntitlement } from "@/hooks/useEntitlement";
 import { Mail, Lock, ArrowRight, Loader2, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import lkCrown from "@/assets/lk-crown.png";
+import lkLogo from "@/assets/lk-logo-horizontal.png";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -67,7 +67,9 @@ const Login = () => {
     <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-[hsl(0_0%_5%)]">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
         <div className="flex justify-center mb-8">
-          <img src={lkCrown} alt="Liberated Kings" className="w-24 h-24 object-contain" />
+          <div className="bg-white rounded-xl px-6 py-4">
+            <img src={lkLogo} alt="Liberated Kings" className="h-10 object-contain" />
+          </div>
         </div>
         <Card className="card-elevated border-border/30">
           <CardHeader className="text-center">
