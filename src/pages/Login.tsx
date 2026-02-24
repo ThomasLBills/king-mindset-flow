@@ -67,7 +67,7 @@ const Login = () => {
     <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-white">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
         <div className="flex justify-center mb-8">
-          <img src={lkLogo} alt="Liberated Kings" className="h-10 object-contain" />
+          <img src={lkLogo} alt="Liberated Kings" className="h-16 object-contain" />
         </div>
         <Card className="card-elevated">
           <CardHeader className="text-center">
