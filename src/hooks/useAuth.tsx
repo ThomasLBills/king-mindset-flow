@@ -20,6 +20,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Detect if a magic-link / recovery token is present in the URL hash.
+    // If so, Supabase will exchange it asynchronously, so we must NOT
+    // flip loading→false from getSession (which returns null before the exchange).
+    const hash = window.location.hash;
+    const hasAuthToken = hash.includes("access_token") || hash.includes("type=recovery") || hash.includes("type=magiclink");
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
@@ -27,9 +33,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
 
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
+      // Only settle loading from getSession if there is NO pending token exchange
+      if (!hasAuthToken || session) {
+        setSession(session);
+        setUser(session?.user ?? null);
+        setLoading(false);
+      }
+      // else: wait for onAuthStateChange to fire after token exchange
     });
 
     return () => subscription.unsubscribe();
