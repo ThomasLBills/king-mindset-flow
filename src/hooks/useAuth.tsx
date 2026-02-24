@@ -20,29 +20,45 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Detect if a magic-link / recovery token is present in the URL hash.
-    // If so, Supabase will exchange it asynchronously, so we must NOT
-    // flip loading→false from getSession (which returns null before the exchange).
-    const hash = window.location.hash;
-    const hasAuthToken = hash.includes("access_token") || hash.includes("type=recovery") || hash.includes("type=magiclink");
+    const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+    const searchParams = new URLSearchParams(window.location.search);
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
+    const hasAuthParams =
+      ["access_token", "refresh_token", "code", "token_hash", "type", "error", "error_code"].some(
+        (key) => hashParams.has(key) || searchParams.has(key)
+      );
+
+    let settled = false;
+    const settleFromSession = (nextSession: Session | null) => {
+      settled = true;
+      setSession(nextSession);
+      setUser(nextSession?.user ?? null);
       setLoading(false);
+    };
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      settleFromSession(nextSession);
     });
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      // Only settle loading from getSession if there is NO pending token exchange
-      if (!hasAuthToken || session) {
-        setSession(session);
-        setUser(session?.user ?? null);
+    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+      // If callback params are present, auth exchange may still be in-flight.
+      // Wait for onAuthStateChange unless we already have a session.
+      if (!hasAuthParams || currentSession) {
+        settleFromSession(currentSession);
+      }
+    });
+
+    // Prevent indefinite loading for invalid/expired links where auth state event may not fire.
+    const fallbackTimer = window.setTimeout(() => {
+      if (!settled) {
         setLoading(false);
       }
-      // else: wait for onAuthStateChange to fire after token exchange
-    });
+    }, 5000);
 
-    return () => subscription.unsubscribe();
+    return () => {
+      window.clearTimeout(fallbackTimer);
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signInWithMagicLink = async (email: string) => {
