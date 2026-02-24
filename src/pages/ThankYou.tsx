@@ -2,25 +2,19 @@ import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { CheckCircle, Loader2, ArrowRight, Mail } from "lucide-react";
+import { CheckCircle, Loader2, ArrowRight } from "lucide-react";
 import lkIcon from "@/assets/lk-icon.png";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 
 const ThankYou = () => {
   const [searchParams] = useSearchParams();
   const sessionId = searchParams.get("session_id");
   const [verifying, setVerifying] = useState(true);
   const [verified, setVerified] = useState(false);
-  const [email, setEmail] = useState("");
-  const [magicLinkSent, setMagicLinkSent] = useState(false);
-  const [sendingLink, setSendingLink] = useState(false);
-  const { user, signInWithMagicLink } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToast();
 
   useEffect(() => {
     if (!sessionId) {
@@ -34,7 +28,6 @@ const ThankYou = () => {
         });
         if (error) throw error;
         setVerified(data?.verified === true);
-        if (data?.customerEmail) setEmail(data.customerEmail);
       } catch {
         // webhook may still be processing
       } finally {
@@ -43,18 +36,6 @@ const ThankYou = () => {
     };
     verify();
   }, [sessionId]);
-
-  const handleSendMagicLink = async () => {
-    if (!email) return;
-    setSendingLink(true);
-    const { error } = await signInWithMagicLink(email);
-    setSendingLink(false);
-    if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else {
-      setMagicLinkSent(true);
-    }
-  };
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 gradient-peace">
@@ -72,38 +53,16 @@ const ThankYou = () => {
                 <CheckCircle className="w-16 h-16 text-success mx-auto" />
                 <h1 className="font-serif text-2xl font-bold">Welcome to the Brotherhood</h1>
                 <p className="text-muted-foreground">Your access is ready.</p>
-
-                {user ? (
-                  <Button onClick={() => navigate("/app")} size="lg" className="w-full">
-                    Go to Dashboard <ArrowRight className="w-4 h-4" />
-                  </Button>
-                ) : magicLinkSent ? (
-                  <div className="space-y-2">
-                    <Mail className="w-8 h-8 text-primary mx-auto" />
-                    <p className="text-sm">Login link sent to <strong>{email}</strong></p>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    <p className="text-sm text-muted-foreground">Sign in to access your dashboard</p>
-                    <Input
-                      type="email"
-                      placeholder="your@email.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="text-center"
-                    />
-                    <Button onClick={handleSendMagicLink} size="lg" className="w-full" disabled={sendingLink || !email}>
-                      {sendingLink ? <Loader2 className="w-4 h-4 animate-spin" /> : "Send me a login link"}
-                    </Button>
-                  </div>
-                )}
+                <Button onClick={() => navigate(user ? "/app" : "/login")} size="lg" className="w-full">
+                  {user ? "Go to Dashboard" : "Sign In"} <ArrowRight className="w-4 h-4" />
+                </Button>
               </>
             ) : (
               <>
                 <img src={lkIcon} alt="Liberated Kings" className="w-14 h-14 mx-auto" />
                 <h1 className="font-serif text-2xl font-bold">Welcome to The Liberated Kings.</h1>
                 <p className="text-muted-foreground">
-                  Christ has secured your freedom. This app helps you walk in it daily. Check your email for your login link.
+                  Christ has secured your freedom. This app helps you walk in it daily. Sign in with your email and password to get started.
                 </p>
                 <Button onClick={() => navigate("/login")} size="lg" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
                   Enter the App <ArrowRight className="w-4 h-4" />
