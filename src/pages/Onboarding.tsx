@@ -76,12 +76,12 @@ const Onboarding = () => {
                 <CardHeader className="text-center">
                   <CardTitle className="font-serif text-2xl">Welcome, King.</CardTitle>
                   <CardDescription>
-                    You've taken the first step toward freedom. Let's set up your profile so your brothers can find you.
+                    You are already free in Christ. Let's set up your profile so your brothers know you are here.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="flex justify-center">
                   <Button onClick={() => setStep("profile")} size="lg" className="gap-2">
-                    Let's Go <ArrowRight className="w-4 h-4" />
+                    Begin <ArrowRight className="w-4 h-4" />
                   </Button>
                 </CardContent>
               </Card>
