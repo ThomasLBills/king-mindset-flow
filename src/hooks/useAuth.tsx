@@ -6,7 +6,6 @@ interface AuthContextType {
   session: Session | null;
   user: User | null;
   loading: boolean;
-  signInWithMagicLink: (email: string) => Promise<{ error: Error | null }>;
   signInWithPassword: (email: string, password: string) => Promise<{ error: Error | null }>;
   signUp: (email: string, password: string, name?: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
@@ -37,33 +36,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, nextSession) => {
-      // Skip INITIAL_SESSION — we use getSession() for the initial load
-      // to avoid a race where this fires with null before the persisted
-      // session is fully restored, which causes a premature redirect to /login.
       if (event === 'INITIAL_SESSION') return;
       settleFromSession(nextSession);
     });
 
-    // Primary session restore: getSession reads from localStorage.
-    // On mobile Safari / PWA, localStorage may have been cleared.
-    // In that case getSession returns null, but the refresh_token may
-    // still be usable if the browser kept cookies. We handle that gracefully.
     supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
       if (!hasAuthParams || currentSession) {
         settleFromSession(currentSession);
       }
     });
 
-    // Prevent indefinite loading for invalid/expired links where auth state event may not fire.
     const fallbackTimer = window.setTimeout(() => {
       if (!settled) {
         setLoading(false);
       }
     }, 5000);
 
-    // When the app regains focus (user re-opens tab / PWA), proactively
-    // refresh the session. This handles mobile Safari where the stored
-    // session may be stale or the access token expired while backgrounded.
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible") {
         supabase.auth.getSession().then(({ data: { session: freshSession } }) => {
@@ -83,14 +71,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       subscription.unsubscribe();
     };
   }, []);
-
-  const signInWithMagicLink = async (email: string) => {
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: { emailRedirectTo: `${window.location.origin}/app` },
-    });
-    return { error: error as Error | null };
-  };
 
   const signInWithPassword = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -114,7 +94,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ session, user, loading, signInWithMagicLink, signInWithPassword, signUp, signOut }}>
+    <AuthContext.Provider value={{ session, user, loading, signInWithPassword, signUp, signOut }}>
       {children}
     </AuthContext.Provider>
   );

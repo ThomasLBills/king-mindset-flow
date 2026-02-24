@@ -28,11 +28,14 @@ const ResetPassword = () => {
       return;
     }
     setLoading(true);
+    // Sign out first so we don't auto-navigate into the app
     const { error } = await supabase.auth.updateUser({ password });
     setLoading(false);
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
+      // Sign out so they have to sign in with their new password
+      await supabase.auth.signOut();
       setDone(true);
     }
   };
@@ -48,8 +51,8 @@ const ResetPassword = () => {
             <CardContent className="pt-8 text-center space-y-4">
               <CheckCircle className="w-12 h-12 text-success mx-auto" />
               <p className="font-serif text-xl font-semibold">Password Updated</p>
-              <p className="text-sm text-muted-foreground">You can now sign in with your new password.</p>
-              <Button onClick={() => navigate("/login")} className="w-full" size="lg">
+              <p className="text-sm text-muted-foreground">Sign in to continue.</p>
+              <Button onClick={() => navigate("/login?message=Password+updated.+Sign+in+to+continue.")} className="w-full" size="lg">
                 Go to Login
               </Button>
             </CardContent>

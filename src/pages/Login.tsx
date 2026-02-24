@@ -6,23 +6,30 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { useEntitlement } from "@/hooks/useEntitlement";
-import { Mail, Lock, ArrowRight, Loader2, CheckCircle } from "lucide-react";
+import { Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import lkLogo from "@/assets/lk-logo-horizontal.png";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [mode, setMode] = useState<"magic" | "password">("magic");
-  const [magicLinkSent, setMagicLinkSent] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { signInWithMagicLink, signInWithPassword, user } = useAuth();
+  const { signInWithPassword, user } = useAuth();
   const { isEntitled, isLoading: entitlementLoading } = useEntitlement();
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Redirect if already logged in — useEffect to avoid render-time navigation
+  // Check for success message from password reset
+  const [successMessage] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    const msg = params.get("message");
+    if (msg) {
+      // Clean the URL
+      window.history.replaceState({}, "", "/login");
+    }
+    return msg;
+  });
+
   useEffect(() => {
     if (!user) return;
     if (entitlementLoading) return;
@@ -33,7 +40,6 @@ const Login = () => {
     }
   }, [user, isEntitled, entitlementLoading, navigate]);
 
-  // Show spinner while waiting for auth + entitlement check
   if (user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -42,44 +48,7 @@ const Login = () => {
     );
   }
 
-  const handleMagicLink = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
-    // Check eligibility first
-    try {
-      const { data, error: checkError } = await supabase.functions.invoke("check-user-eligible", {
-        body: { email: email.trim().toLowerCase() },
-      });
-
-      if (checkError || !data?.eligible) {
-        setLoading(false);
-        const reason = data?.reason;
-        if (reason === "no_account") {
-          toast({ title: "Account not found", description: "No account exists for this email. Please purchase access first.", variant: "destructive" });
-        } else if (reason === "no_entitlement") {
-          toast({ title: "No active access", description: "Your account does not have an active subscription. Please purchase access.", variant: "destructive" });
-        } else {
-          toast({ title: "Unable to verify", description: "Could not verify your account. Please try again.", variant: "destructive" });
-        }
-        return;
-      }
-    } catch {
-      setLoading(false);
-      toast({ title: "Error", description: "Could not verify eligibility. Please try again.", variant: "destructive" });
-      return;
-    }
-
-    const { error } = await signInWithMagicLink(email);
-    setLoading(false);
-    if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else {
-      setMagicLinkSent(true);
-    }
-  };
-
-  const handlePassword = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     const { error } = await signInWithPassword(email, password);
@@ -101,69 +70,47 @@ const Login = () => {
             <CardDescription>Sign in to walk in your freedom.</CardDescription>
           </CardHeader>
           <CardContent>
-            {magicLinkSent ? (
-              <div className="text-center py-6 space-y-4">
-                <CheckCircle className="w-12 h-12 text-success mx-auto" />
-                <p className="font-medium">Check your email</p>
-                <p className="text-sm text-muted-foreground">
-                  We sent a login link to <strong>{email}</strong>
-                </p>
-                <Button variant="ghost" onClick={() => setMagicLinkSent(false)}>
-                  Try again
-                </Button>
+            {successMessage && (
+              <div className="mb-4 p-3 rounded-lg bg-success/10 text-success text-sm text-center font-medium">
+                {successMessage}
               </div>
-            ) : (
-              <>
-                {mode === "magic" ? (
-                  <form onSubmit={handleMagicLink} className="space-y-4">
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                      <Input
-                        type="email"
-                        placeholder="your@email.com"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="pl-10"
-                        required
-                      />
-                    </div>
-                    <Button type="submit" className="w-full" size="lg" disabled={loading}>
-                      {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <>Send Magic Link <ArrowRight className="w-4 h-4" /></>}
-                    </Button>
-                  </form>
-                ) : (
-                  <form onSubmit={handlePassword} className="space-y-4">
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                      <Input type="email" placeholder="your@email.com" value={email} onChange={(e) => setEmail(e.target.value)} className="pl-10" required />
-                    </div>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                      <Input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="pl-10" required />
-                    </div>
-                    <Button type="submit" className="w-full" size="lg" disabled={loading}>
-                      {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <>Sign In <ArrowRight className="w-4 h-4" /></>}
-                    </Button>
-                  </form>
-                )}
-                <div className="mt-4 text-center">
-                  <button
-                    type="button"
-                    onClick={() => setMode(mode === "magic" ? "password" : "magic")}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {mode === "magic" ? "Use password instead" : "Use magic link instead"}
-                  </button>
-                </div>
-                {mode === "password" && (
-                  <div className="mt-2 text-center">
-                    <button type="button" onClick={() => navigate("/forgot-password")} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                      Forgot password?
-                    </button>
-                  </div>
-                )}
-              </>
             )}
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="relative">
+                <Mail className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                <Input
+                  type="email"
+                  placeholder="your@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="pl-10"
+                  required
+                />
+              </div>
+              <div className="relative">
+                <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                <Input
+                  type="password"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="pl-10"
+                  required
+                />
+              </div>
+              <Button type="submit" className="w-full" size="lg" disabled={loading}>
+                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <>Sign In <ArrowRight className="w-4 h-4" /></>}
+              </Button>
+            </form>
+            <div className="mt-3 text-center">
+              <button
+                type="button"
+                onClick={() => navigate("/forgot-password")}
+                className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Forgot password?
+              </button>
+            </div>
           </CardContent>
         </Card>
       </motion.div>

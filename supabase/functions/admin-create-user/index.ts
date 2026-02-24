@@ -59,18 +59,18 @@ Deno.serve(async (req) => {
         });
       }
 
+      // Generate an invite link that lands on the setup-account page
       const { data: inviteData, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(email, {
-        redirectTo: "https://app.liberatedkings.com/app",
+        redirectTo: "https://app.liberatedkings.com/setup-account",
       });
 
       if (inviteError) {
-        // If email_exists, the user is already registered — just generate a magic link / recovery instead
         if (inviteError.status === 422 && (inviteError as any).code === "email_exists") {
-          // Use generateLink to resend without error
+          // User exists — generate a recovery link so they can reset their password
           const { error: linkError } = await supabase.auth.admin.generateLink({
-            type: "magiclink",
+            type: "recovery",
             email,
-            options: { redirectTo: "https://app.liberatedkings.com/app" },
+            options: { redirectTo: "https://app.liberatedkings.com/reset-password" },
           });
           if (linkError) throw linkError;
         } else {
@@ -95,26 +95,24 @@ Deno.serve(async (req) => {
     let newUserId: string;
 
     if (sendInvite) {
-      // Invite flow: creates user + sends invite email (user sets their own password)
+      // Invite flow: creates user + sends invite email
+      // The invite link redirects to /setup-account where user sets their password
       const { data: inviteData, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(email, {
         data: { name: name || "" },
-        redirectTo: "https://app.liberatedkings.com/app",
+        redirectTo: "https://app.liberatedkings.com/setup-account",
       });
 
       if (inviteError) {
-        // If user already exists in auth, delete and re-invite
         if (inviteError.status === 422 && (inviteError as any).code === "email_exists") {
           console.log(`User ${email} already exists in auth, deleting and re-inviting...`);
-          // Find existing auth user
           const { data: listData } = await supabase.auth.admin.listUsers();
           const existingUser = listData?.users?.find((u: any) => u.email === email);
           if (existingUser) {
             await supabase.auth.admin.deleteUser(existingUser.id);
           }
-          // Re-invite
           const { data: retryData, error: retryError } = await supabase.auth.admin.inviteUserByEmail(email, {
             data: { name: name || "" },
-            redirectTo: "https://app.liberatedkings.com/app",
+            redirectTo: "https://app.liberatedkings.com/setup-account",
           });
           if (retryError) throw retryError;
           newUserId = retryData.user.id;
