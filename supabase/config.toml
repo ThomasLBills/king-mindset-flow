@@ -3,3 +3,5 @@ project_id = "ahsadpsvknpsdwgrdecu"
 [functions]
   [functions.auth-email-hook]
     verify_jwt = false
+  [functions.zapier-provision-user]
+    verify_jwt = false
