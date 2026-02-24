@@ -8,11 +8,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 const benefits = [
-  "Full 8-week course curriculum",
+  "Lifetime access to all course materials",
   "In-the-moment tools & support",
   "Daily rhythms & accountability",
   "Brotherhood community access",
-  "Resource library & guides",
+  "Grace Protocol, declarations, and spiritual tools",
 ];
 
 const Upgrade = () => {
@@ -48,8 +48,8 @@ const Upgrade = () => {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <div className="text-center mb-8">
             <Lock className="w-10 h-10 text-muted-foreground mx-auto mb-4" />
-            <h1 className="font-serif text-3xl font-bold mb-2">Unlock Full Access</h1>
-            <p className="text-muted-foreground">Subscribe to access the course and app</p>
+            <h1 className="font-serif text-3xl font-bold mb-2">Continue Walking in Your Freedom.</h1>
+            <p className="text-muted-foreground">Keep your tools, brotherhood, and daily rhythm active.</p>
           </div>
 
           <div className="flex gap-3 mb-6">
@@ -75,7 +75,7 @@ const Upgrade = () => {
               <ul className="space-y-2.5">
                 {benefits.map((b) => (
                   <li key={b} className="flex items-center gap-3 text-sm">
-                    <Check className="w-4 h-4 text-success shrink-0" />
+                    <Check className="w-4 h-4 text-primary shrink-0" />
                     {b}
                   </li>
                 ))}
