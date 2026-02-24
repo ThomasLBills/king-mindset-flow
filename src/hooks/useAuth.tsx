@@ -36,13 +36,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setLoading(false);
     };
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, nextSession) => {
+      // Skip INITIAL_SESSION — we use getSession() for the initial load
+      // to avoid a race where this fires with null before the persisted
+      // session is fully restored, which causes a premature redirect to /login.
+      if (event === 'INITIAL_SESSION') return;
       settleFromSession(nextSession);
     });
 
     supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
-      // If callback params are present, auth exchange may still be in-flight.
-      // Wait for onAuthStateChange unless we already have a session.
       if (!hasAuthParams || currentSession) {
         settleFromSession(currentSession);
       }
