@@ -7,3 +7,5 @@ project_id = "ahsadpsvknpsdwgrdecu"
     verify_jwt = false
   [functions.check-user-eligible]
     verify_jwt = false
+  [functions.admin-user-logins]
+    verify_jwt = false

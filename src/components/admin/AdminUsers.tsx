@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Loader2, Search, Shield, ShieldOff, UserPlus, Mail, Trash2, CalendarDays } from "lucide-react";
+import { Loader2, Search, Shield, ShieldOff, UserPlus, Mail, Trash2, CalendarDays, LogIn, Trophy } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { motion } from "framer-motion";
@@ -54,6 +54,23 @@ const AdminUsers = () => {
     queryKey: ["admin-user-roles"],
     queryFn: async () => {
       const { data } = await supabase.from("user_roles").select("*");
+      return data || [];
+    },
+  });
+
+  const { data: loginData } = useQuery({
+    queryKey: ["admin-user-logins"],
+    queryFn: async () => {
+      const { data, error } = await supabase.functions.invoke("admin-user-logins");
+      if (error) return [];
+      return (data?.users || []) as Array<{ id: string; last_sign_in_at: string | null }>;
+    },
+  });
+
+  const { data: evidenceEvents } = useQuery({
+    queryKey: ["admin-evidence-events"],
+    queryFn: async () => {
+      const { data } = await supabase.from("evidence_events").select("user_id");
       return data || [];
     },
   });
@@ -138,6 +155,8 @@ const AdminUsers = () => {
   const getEntitlement = (userId: string) => entitlements?.find((e) => e.user_id === userId && e.entitlement_type === "course_app_access");
   const getSubscription = (userId: string) => subscriptions?.find((s) => s.user_id === userId);
   const isAdmin = (userId: string) => roles?.some((r) => r.user_id === userId && r.role === "admin");
+  const getLastLogin = (userId: string) => loginData?.find((u) => u.id === userId)?.last_sign_in_at;
+  const getLiberationCount = (userId: string) => evidenceEvents?.filter((e) => e.user_id === userId).length || 0;
 
   const filtered = (profiles || []).filter((p) =>
     !search || p.email.toLowerCase().includes(search.toLowerCase()) || (p.display_name || "").toLowerCase().includes(search.toLowerCase())
@@ -207,6 +226,8 @@ const AdminUsers = () => {
                    <TableHead>Email</TableHead>
                    <TableHead>Name</TableHead>
                    <TableHead>Joined</TableHead>
+                   <TableHead>Last Login</TableHead>
+                   <TableHead>Liberations</TableHead>
                    <TableHead>Role</TableHead>
                    <TableHead>Entitlement</TableHead>
                    <TableHead>Source</TableHead>
@@ -219,12 +240,30 @@ const AdminUsers = () => {
                   const ent = getEntitlement(p.user_id);
                   const sub = getSubscription(p.user_id);
                   const admin = isAdmin(p.user_id);
+                  const lastLogin = getLastLogin(p.user_id);
+                  const liberations = getLiberationCount(p.user_id);
                   return (
                     <TableRow key={p.user_id}>
                        <TableCell className="text-sm">{p.email}</TableCell>
                        <TableCell className="text-sm">{p.display_name || p.name || "—"}</TableCell>
                        <TableCell className="text-sm text-muted-foreground">
                          {format(new Date(p.created_at), "MMM d, yyyy")}
+                       </TableCell>
+                       <TableCell className="text-sm text-muted-foreground">
+                         {lastLogin ? (
+                           <span className="flex items-center gap-1">
+                             <LogIn className="w-3.5 h-3.5 text-success" />
+                             {format(new Date(lastLogin), "MMM d, yyyy")}
+                           </span>
+                         ) : (
+                           <span className="text-muted-foreground/60">Never</span>
+                         )}
+                       </TableCell>
+                       <TableCell>
+                         <span className="flex items-center gap-1 text-sm font-medium">
+                           <Trophy className="w-3.5 h-3.5 text-primary" />
+                           {liberations}
+                         </span>
                        </TableCell>
                        <TableCell>
                          <Badge variant={admin ? "default" : "secondary"}>{admin ? "Admin" : "User"}</Badge>
