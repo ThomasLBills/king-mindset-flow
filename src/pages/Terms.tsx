@@ -13,7 +13,7 @@ const Terms = () => (
       <p>Access requires an active subscription (monthly or annual). Payments are processed via Stripe. You may cancel at any time; access continues until the end of your billing period.</p>
 
       <h2 className="font-serif text-xl font-semibold mt-6 mb-3">3. Community Guidelines</h2>
-      <ul>
+      <ul className="list-disc pl-5 space-y-2">
         <li>No explicit content or triggering details in chat</li>
         <li>Treat all brothers with respect and dignity</li>
         <li>What's shared stays confidential</li>
