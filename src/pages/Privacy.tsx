@@ -22,7 +22,7 @@ const Privacy = () => (
       <p>Your data is retained as long as your account is active. You may request deletion of your account and associated data at any time by contacting support.</p>
 
       <h2 className="font-serif text-xl font-semibold mt-6 mb-3">6. Contact</h2>
-      <p>For privacy questions, contact us at <strong>hello@riseupkings.com</strong>.</p>
+      <p>For privacy questions, contact us at <strong>hello@liberatedkings.com</strong>.</p>
     </div>
   </AppLayout>
 );
