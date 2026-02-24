@@ -117,7 +117,7 @@ const ReachOut = ({ onClose }: ReachOutProps) => {
   const canSend = selectedBrothers.length > 0 && !!currentMessage && !sending;
 
   return (
-    <div className="fixed inset-0 bg-background z-50 flex flex-col">
+    <div className="fixed inset-0 bg-background z-[60] flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-border">
         <button onClick={onClose} className="p-2 -ml-2">
