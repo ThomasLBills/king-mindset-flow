@@ -221,8 +221,8 @@ const ResetPassword = () => {
         </div>
         <Card className="card-elevated border border-primary/40">
           <CardHeader className="text-center">
-            <CardTitle className="font-serif text-2xl">Set New Password</CardTitle>
-            <CardDescription>Choose a strong password for your account</CardDescription>
+            <CardTitle className="font-serif text-2xl">Reset Your Password</CardTitle>
+            <CardDescription>Enter your new password below.</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
