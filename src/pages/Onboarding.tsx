@@ -90,7 +90,7 @@ const Onboarding = () => {
                 </CardHeader>
                 <CardContent className="flex justify-center">
                   <Button onClick={() => setStep("profile")} size="lg" className="gap-2">
-                    Begin <ArrowRight className="w-4 h-4" />
+                    Accept My Invitation <ArrowRight className="w-4 h-4" />
                   </Button>
                 </CardContent>
               </Card>
