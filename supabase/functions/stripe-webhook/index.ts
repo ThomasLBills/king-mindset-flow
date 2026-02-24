@@ -178,21 +178,23 @@ async function resolveUserId(
       .maybeSingle();
     if (profile) return profile.user_id;
 
-    // 4. Create auth user via admin API if not found
-    const { data: newUser, error } = await supabase.auth.admin.createUser({
-      email: customerEmail,
-      email_confirm: true,
-      user_metadata: { name: "" },
+    // 4. Invite user via admin API so they receive the "Create Your Password" email
+    const { data: inviteData, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(customerEmail, {
+      data: { name: "" },
+      redirectTo: "https://app.liberatedkings.com/setup-account",
     });
-    if (error) {
+    if (inviteError) {
       // User might exist in auth but not profiles - try listing
-      const { data: users } = await supabase.auth.admin.listUsers();
-      const existing = users?.users?.find((u: any) => u.email === customerEmail);
-      if (existing) return existing.id;
-      console.error("Failed to create/find user:", error);
+      if (inviteError.status === 422 && (inviteError as any).code === "email_exists") {
+        const { data: users } = await supabase.auth.admin.listUsers();
+        const existing = users?.users?.find((u: any) => u.email === customerEmail);
+        if (existing) return existing.id;
+      }
+      console.error("Failed to invite/find user:", inviteError);
       return null;
     }
-    return newUser.user.id;
+    console.log("Stripe purchase: invited new user", inviteData.user.id, customerEmail);
+    return inviteData.user.id;
   }
 
   return null;
