@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +17,7 @@ const ChangePassword = () => {
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -40,6 +42,7 @@ const ChangePassword = () => {
         .eq("user_id", user!.id);
 
       toast({ title: "Password updated", description: "Your new password has been set." });
+      await queryClient.refetchQueries({ queryKey: ["onboarding-check", user!.id] });
       navigate("/app", { replace: true });
     } catch (err: any) {
       toast({ title: "Error", description: err.message || "Failed to update password", variant: "destructive" });
