@@ -100,6 +100,21 @@ Deno.serve(async (req) => {
     if (existingProfile) {
       userId = existingProfile.user_id;
       console.log("User already exists:", userId);
+
+      // If user still hasn't set their password, generate a fresh temp password
+      // so Zapier/GHL can always retrieve it
+      const { data: profileFlags } = await supabase
+        .from("profiles")
+        .select("must_change_password, temp_password")
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      if (profileFlags?.must_change_password && !profileFlags?.temp_password) {
+        tempPassword = generateTempPassword();
+        await supabase.auth.admin.updateUserById(userId, { password: tempPassword });
+        await supabase.from("profiles").update({ temp_password: tempPassword }).eq("user_id", userId);
+        console.log("Generated new temp password for existing uninitialized user:", userId);
+      }
     } else {
       // Create user with a temporary password
       tempPassword = generateTempPassword();
