@@ -79,17 +79,6 @@ const Index = () => {
           )}
         </AnimatePresence>
 
-        {/* Scroll hint */}
-        <div className="flex justify-center py-2 opacity-30">
-          <motion.div
-            animate={{ y: [0, 6, 0] }}
-            transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-          >
-            <svg width="20" height="12" viewBox="0 0 20 12" fill="none">
-              <path d="M1 1L10 10L19 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-          </motion.div>
-        </div>
       </div>
 
       {/* Modals */}
