@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { Hash, Lock, Pin } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useChannels, useMessages, useJoinChannel, type ChatTarget } from "@/hooks/useChat";
+import { useUnread } from "@/contexts/UnreadContext";
+import NotificationBadge from "@/components/ui/notification-badge";
 import { useAdminRole } from "@/hooks/useAdminRole";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -16,6 +18,7 @@ const ChannelsTab = () => {
   const joinChannel = useJoinChannel();
   const { isAdmin } = useAdminRole();
   const { toast } = useToast();
+  const { counts, markAsRead } = useUnread();
 
   const handleDeleteMessage = useCallback(async (messageId: string) => {
     const { error } = await supabase.from("chat_messages").delete().eq("id", messageId);
@@ -36,6 +39,7 @@ const ChannelsTab = () => {
     const target: ChatTarget = { type: "channel", id: ch.id, name: ch.name };
     setActiveChannel(target);
     joinChannel(ch.id);
+    markAsRead(ch.id, "channel");
   };
 
   if (activeChannel) {
@@ -77,7 +81,10 @@ const ChannelsTab = () => {
             onClick={() => handleSelect(ch)}
             className="flex items-center gap-3 w-full p-4 rounded-xl bg-card border border-border hover:border-primary/30 transition-colors text-left"
           >
-            <Hash className="w-5 h-5 text-muted-foreground shrink-0" />
+            <div className="relative shrink-0">
+              <Hash className="w-5 h-5 text-muted-foreground" />
+              <NotificationBadge count={counts.byConversation[ch.id] || 0} dot />
+            </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <span className="font-medium">{ch.name}</span>

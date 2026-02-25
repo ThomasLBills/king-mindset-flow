@@ -346,6 +346,45 @@ export type Database = {
           },
         ]
       }
+      chat_read_cursors: {
+        Row: {
+          channel_id: string | null
+          dm_id: string | null
+          id: string
+          last_read_at: string
+          user_id: string
+        }
+        Insert: {
+          channel_id?: string | null
+          dm_id?: string | null
+          id?: string
+          last_read_at?: string
+          user_id: string
+        }
+        Update: {
+          channel_id?: string | null
+          dm_id?: string | null
+          id?: string
+          last_read_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_read_cursors_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "chat_channels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_read_cursors_dm_id_fkey"
+            columns: ["dm_id"]
+            isOneToOne: false
+            referencedRelation: "chat_dms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       course_progress: {
         Row: {
           course_id: string
