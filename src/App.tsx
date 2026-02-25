@@ -41,6 +41,7 @@ import Profile from "./pages/Profile";
 import LessonView from "./pages/LessonView";
 import Onboarding from "./pages/Onboarding";
 import Chat from "./pages/Chat";
+import ChangePassword from "./pages/ChangePassword";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -67,6 +68,7 @@ const App = () => (
             <Route path="/terms" element={<Terms />} />
 
             {/* Auth-required but no entitlement needed */}
+            <Route path="/change-password" element={<AuthGuard><ChangePassword /></AuthGuard>} />
             <Route path="/upgrade" element={<AuthGuard><Upgrade /></AuthGuard>} />
             <Route path="/billing" element={<AuthGuard><Billing /></AuthGuard>} />
             <Route path="/onboarding" element={<AuthGuard><Onboarding /></AuthGuard>} />

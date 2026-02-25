@@ -20,7 +20,7 @@ const OnboardingGuard = ({ children }: { children: React.ReactNode }) => {
     queryFn: async () => {
       const { data } = await supabase
         .from("profiles")
-        .select("onboarding_completed")
+        .select("onboarding_completed, must_change_password")
         .eq("user_id", user!.id)
         .single();
       return data;
@@ -37,6 +37,10 @@ const OnboardingGuard = ({ children }: { children: React.ReactNode }) => {
 
   if (!user) {
     return <Navigate to="/login" replace />;
+  }
+
+  if (profile?.must_change_password) {
+    return <Navigate to="/change-password" replace />;
   }
 
   if (profile && !profile.onboarding_completed) {
