@@ -42,8 +42,15 @@ const ChangePassword = () => {
         .eq("user_id", user!.id);
 
       toast({ title: "Password updated", description: "Your new password has been set." });
-      await queryClient.refetchQueries({ queryKey: ["onboarding-check", user!.id] });
-      navigate("/app", { replace: true });
+      // Invalidate cache so guards pick up the new state
+      queryClient.removeQueries({ queryKey: ["onboarding-check", user!.id] });
+      // Navigate directly to onboarding (or app if already completed) to avoid guard race conditions
+      const { data: freshProfile } = await supabase
+        .from("profiles")
+        .select("onboarding_completed")
+        .eq("user_id", user!.id)
+        .single();
+      navigate(freshProfile?.onboarding_completed ? "/app" : "/onboarding", { replace: true });
     } catch (err: any) {
       toast({ title: "Error", description: err.message || "Failed to update password", variant: "destructive" });
     } finally {
