@@ -54,7 +54,23 @@ Deno.serve(async (req) => {
       });
     }
 
-    return new Response(JSON.stringify({ eligible: true, password_set: profile.password_set ?? false }), {
+    const passwordSet = profile.password_set ?? false;
+
+    // If user has not set a password, re-send the invite email so they get a fresh link
+    if (!passwordSet) {
+      try {
+        await supabase.auth.admin.inviteUserByEmail(normalizedEmail, {
+          data: { name: "" },
+          redirectTo: "https://app.liberatedkings.com/setup-account",
+        });
+        console.log("Re-sent invite to", normalizedEmail);
+      } catch (inviteErr) {
+        // If invite fails (e.g. rate limit), still return the status — user can try again later
+        console.error("Failed to re-send invite:", inviteErr);
+      }
+    }
+
+    return new Response(JSON.stringify({ eligible: true, password_set: passwordSet }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err) {
