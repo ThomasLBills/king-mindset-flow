@@ -2,6 +2,8 @@ import { Home, Shield, Users, BookOpen } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
+import NotificationBadge from "@/components/ui/notification-badge";
+import { useUnread } from "@/contexts/UnreadContext";
 
 const navItems = [
   { icon: Home, label: "Home", path: "/app" },
@@ -13,12 +15,14 @@ const navItems = [
 const MobileNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { counts } = useUnread();
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50" style={{ paddingBottom: 'env(safe-area-inset-bottom)', backgroundColor: '#FFFFFF', borderTop: '1px solid #E5E5E5' }}>
       <div className="flex items-center justify-around px-2 py-2">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
+          const showBadge = item.path === "/brotherhood" && counts.total > 0;
           return (
             <button
               key={item.path}
@@ -39,8 +43,11 @@ const MobileNav = () => {
                   transition={{ type: "spring", stiffness: 500, damping: 35 }}
                 />
               )}
-              <item.icon className={cn("relative z-10 h-5 w-5 mb-1", isActive && "stroke-[2.5]")} />
-              <span className={cn("relative z-10 text-xs font-medium", isActive && "font-semibold")}>
+              <div className="relative">
+                <item.icon className={cn("relative z-10 h-5 w-5", isActive && "stroke-[2.5]")} />
+                {showBadge && <NotificationBadge count={counts.total} />}
+              </div>
+              <span className={cn("relative z-10 text-xs font-medium mt-1", isActive && "font-semibold")}>
                 {item.label}
               </span>
             </button>

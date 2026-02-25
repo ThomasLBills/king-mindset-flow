@@ -9,10 +9,12 @@ import MessagesTab from "@/components/brotherhood/MessagesTab";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { useUnread } from "@/contexts/UnreadContext";
 import type { ChatTarget } from "@/hooks/useChat";
 
 const BrotherhoodPage = () => {
   const { user } = useAuth();
+  const { markAsRead } = useUnread();
   const [showReachOut, setShowReachOut] = useState(false);
   const [activeTab, setActiveTab] = useState("brothers");
   const [dmTarget, setDmTarget] = useState<ChatTarget | null>(null);
@@ -39,7 +41,8 @@ const BrotherhoodPage = () => {
     }
 
     setDmTarget({ type: "dm", id: dmId, name });
-  }, [user]);
+    markAsRead(dmId, "dm");
+  }, [user, markAsRead]);
 
   const handleReachOutClose = useCallback(() => {
     setShowReachOut(false);

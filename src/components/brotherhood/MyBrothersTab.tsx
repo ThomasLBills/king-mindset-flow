@@ -5,6 +5,10 @@ import { Input } from "@/components/ui/input";
 import { MessageCircle, UserPlus, X, Check, Search, Loader2, UserMinus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useBrothers, useSearchUsers } from "@/hooks/useBrotherhood";
+import { useUnread } from "@/contexts/UnreadContext";
+import { useDMs } from "@/hooks/useChat";
+import { useAuth } from "@/hooks/useAuth";
+import NotificationBadge from "@/components/ui/notification-badge";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -22,6 +26,7 @@ interface MyBrothersTabProps {
 }
 
 const MyBrothersTab = ({ onStartDM }: MyBrothersTabProps) => {
+  const { user } = useAuth();
   const {
     brothers, pendingRequests, maxBrothers, isLoading, atCapacity,
     sendRequest, acceptRequest, declineRequest, removeBrother,
@@ -30,6 +35,16 @@ const MyBrothersTab = ({ onStartDM }: MyBrothersTabProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const { data: searchResults = [], isLoading: searching } = useSearchUsers(searchQuery);
   const [removeTarget, setRemoveTarget] = useState<{ connectionId: string; name: string } | null>(null);
+  const { counts } = useUnread();
+  const { dms } = useDMs();
+
+  // Build a map: brother userId → dm id (for unread lookup)
+  const brotherDmMap = new Map<string, string>();
+  dms.forEach((dm) => {
+    // user_a and user_b are on the DM row; the "other" user is the brother
+    const otherUserId = dm.user_a === user?.id ? dm.user_b : dm.user_a;
+    brotherDmMap.set(otherUserId, dm.id);
+  });
 
   const handleSendRequest = async (userId: string) => {
     try {
@@ -167,10 +182,13 @@ const MyBrothersTab = ({ onStartDM }: MyBrothersTabProps) => {
                 </div>
                 <button
                   onClick={() => onStartDM(brother.userId, brother.displayName)}
-                  className="p-2 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors"
+                  className="relative p-2 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors"
                   aria-label={`Message ${brother.displayName}`}
                 >
                   <MessageCircle className="w-4 h-4" />
+                  {brotherDmMap.has(brother.userId) && (
+                    <NotificationBadge count={counts.byConversation[brotherDmMap.get(brother.userId)!] || 0} dot />
+                  )}
                 </button>
                 <button
                   onClick={() => setRemoveTarget({ connectionId: brother.connectionId, name: brother.displayName })}

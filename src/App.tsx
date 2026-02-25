@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
+import { UnreadProvider } from "@/contexts/UnreadContext";
 import AuthGuard from "@/components/guards/AuthGuard";
 import EntitlementGuard from "@/components/guards/EntitlementGuard";
 import OnboardingGuard from "@/components/guards/OnboardingGuard";
@@ -48,6 +49,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
+        <UnreadProvider>
         <Toaster />
         <Sonner />
         <BrowserRouter>
@@ -95,6 +97,7 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
+        </UnreadProvider>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
