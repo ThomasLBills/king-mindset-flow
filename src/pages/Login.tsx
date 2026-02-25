@@ -6,14 +6,16 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { useEntitlement } from "@/hooks/useEntitlement";
-import { Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
+import { Mail, Lock, ArrowRight, Loader2, MailOpen } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import lkLogo from "@/assets/lk-logo-horizontal.png";
+import { supabase } from "@/integrations/supabase/client";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [needsPasswordSetup, setNeedsPasswordSetup] = useState(false);
   const { signInWithPassword, user } = useAuth();
   const { isEntitled, isLoading: entitlementLoading } = useEntitlement();
   const navigate = useNavigate();
@@ -24,7 +26,6 @@ const Login = () => {
     const params = new URLSearchParams(window.location.search);
     const msg = params.get("message");
     if (msg) {
-      // Clean the URL
       window.history.replaceState({}, "", "/login");
     }
     return msg;
@@ -52,11 +53,53 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
     const { error } = await signInWithPassword(email, password);
-    setLoading(false);
     if (error) {
+      // Check if this user exists but hasn't set a password yet
+      try {
+        const { data } = await supabase.functions.invoke("check-user-eligible", {
+          body: { email },
+        });
+        if (data?.eligible && data?.password_set === false) {
+          setNeedsPasswordSetup(true);
+          setLoading(false);
+          return;
+        }
+      } catch {
+        // Ignore — fall through to normal error
+      }
+      setLoading(false);
       toast({ title: "Error", description: error.message, variant: "destructive" });
     }
+    setLoading(false);
   };
+
+  // Show "check your email" state for users who haven't set a password
+  if (needsPasswordSetup) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-white">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
+          <div className="flex justify-center mb-8">
+            <img src={lkLogo} alt="Liberated Kings" className="h-16 object-contain" />
+          </div>
+          <Card className="card-elevated border border-primary/40">
+            <CardContent className="pt-8 pb-8 text-center space-y-4">
+              <MailOpen className="w-12 h-12 text-primary mx-auto" />
+              <p className="font-serif text-xl font-semibold">Check Your Email</p>
+              <p className="text-sm text-muted-foreground">
+                We sent a setup link to <span className="font-medium text-foreground">{email}</span>. Open that email and click the link to create your password and access the app.
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Don't see it? Check your spam folder or contact support.
+              </p>
+              <Button variant="outline" onClick={() => setNeedsPasswordSetup(false)} className="w-full" size="lg">
+                Back to Sign In
+              </Button>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-white">

@@ -29,7 +29,7 @@ Deno.serve(async (req) => {
     // Check if user exists in profiles
     const { data: profile } = await supabase
       .from("profiles")
-      .select("user_id")
+      .select("user_id, password_set")
       .eq("email", normalizedEmail)
       .maybeSingle();
 
@@ -54,7 +54,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    return new Response(JSON.stringify({ eligible: true }), {
+    return new Response(JSON.stringify({ eligible: true, password_set: profile.password_set ?? false }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err) {
