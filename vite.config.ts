@@ -20,6 +20,7 @@ export default defineConfig(({ mode }) => ({
       registerType: "autoUpdate",
       injectRegister: "auto",
       workbox: {
+        globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
         navigateFallback: "/index.html",
         navigateFallbackDenylist: [/^\/~oauth/],
         // Don't precache large assets
