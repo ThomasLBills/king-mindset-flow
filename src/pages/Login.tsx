@@ -84,12 +84,12 @@ const Login = () => {
           <Card className="card-elevated border border-primary/40">
             <CardContent className="pt-8 pb-8 text-center space-y-4">
               <MailOpen className="w-12 h-12 text-primary mx-auto" />
-              <p className="font-serif text-xl font-semibold">Check Your Email</p>
+              <p className="font-serif text-xl font-semibold">Create Your Password</p>
               <p className="text-sm text-muted-foreground">
-                We sent a setup link to <span className="font-medium text-foreground">{email}</span>. Open that email and click the link to create your password and access the app.
+                We just sent a fresh setup link to <span className="font-medium text-foreground">{email}</span>. Open that email and click the link to create your password and access the app.
               </p>
               <p className="text-xs text-muted-foreground">
-                Don't see it? Check your spam folder or contact support.
+                Don't see it? Check your spam folder, or try again in a few minutes.
               </p>
               <Button variant="outline" onClick={() => setNeedsPasswordSetup(false)} className="w-full" size="lg">
                 Back to Sign In
