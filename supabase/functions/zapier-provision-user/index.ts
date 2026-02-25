@@ -146,7 +146,7 @@ Deno.serve(async (req) => {
         name: name || "",
         display_name: name || "",
         first_name: name || "",
-        ...(isNewUser ? { must_change_password: true, password_set: false } : {}),
+        ...(isNewUser ? { must_change_password: true, password_set: false, temp_password: tempPassword || null } : {}),
       },
       { onConflict: "user_id" }
     );
@@ -197,10 +197,18 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Existing user — retrieve stored temp password if available
+    const { data: existingProfileData } = await supabase
+      .from("profiles")
+      .select("temp_password")
+      .eq("user_id", userId!)
+      .maybeSingle();
+
     return new Response(JSON.stringify({
       success: true,
       user_id: userId!,
       is_new_user: false,
+      ...(existingProfileData?.temp_password ? { temporary_password: existingProfileData.temp_password } : {}),
       message: "User already exists",
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
