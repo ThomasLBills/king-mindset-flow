@@ -183,15 +183,26 @@ Deno.serve(async (req) => {
       status: "paid",
     });
 
-    console.log("Provisioned user via Zapier, plan:", plan_key);
+    console.log("Provisioned user via Zapier, plan:", plan_key, "isNewUser:", isNewUser);
 
-    // Return temp password for new users so Zapier can pass it to GHL
-    const response: Record<string, unknown> = { success: true, user_id: userId! };
+    // Build response with clear new vs existing user distinction
     if (isNewUser && tempPassword) {
-      response.temporary_password = tempPassword;
+      return new Response(JSON.stringify({
+        success: true,
+        user_id: userId!,
+        temporary_password: tempPassword,
+        is_new_user: true,
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    return new Response(JSON.stringify(response), {
+    return new Response(JSON.stringify({
+      success: true,
+      user_id: userId!,
+      is_new_user: false,
+      message: "User already exists",
+    }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err: any) {
