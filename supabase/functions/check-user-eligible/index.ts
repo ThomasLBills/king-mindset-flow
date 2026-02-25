@@ -56,16 +56,34 @@ Deno.serve(async (req) => {
 
     const passwordSet = profile.password_set ?? false;
 
-    // If user has not set a password, re-send the invite email so they get a fresh link
+    // If user has not set a password, generate a verification code and re-send invite
     if (!passwordSet) {
       try {
+        // Invalidate old codes
+        await supabase
+          .from("verification_codes")
+          .update({ used: true })
+          .eq("email", normalizedEmail)
+          .eq("used", false);
+
+        // Generate new code
+        const codeArr = new Uint32Array(1);
+        crypto.getRandomValues(codeArr);
+        const verificationCode = String(codeArr[0] % 1000000).padStart(6, "0");
+
+        await supabase.from("verification_codes").insert({
+          email: normalizedEmail,
+          code: verificationCode,
+          expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+        });
+
+        // Re-send invite to trigger the email hook (which will use the code template)
         await supabase.auth.admin.inviteUserByEmail(normalizedEmail, {
           data: { name: "" },
           redirectTo: "https://app.liberatedkings.com/setup-account",
         });
-        console.log("Re-sent invite to", normalizedEmail);
+        console.log("Re-sent invite with verification code to", normalizedEmail);
       } catch (inviteErr) {
-        // If invite fails (e.g. rate limit), still return the status — user can try again later
         console.error("Failed to re-send invite:", inviteErr);
       }
     }

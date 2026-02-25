@@ -149,6 +149,33 @@ serve(async (req) => {
   });
 });
 
+function generateVerificationCode(): string {
+  const arr = new Uint32Array(1);
+  crypto.getRandomValues(arr);
+  return String(arr[0] % 1000000).padStart(6, "0");
+}
+
+async function storeVerificationCode(email: string, supabase: any): Promise<void> {
+  // Invalidate previous codes
+  await supabase
+    .from("verification_codes")
+    .update({ used: true })
+    .eq("email", email)
+    .eq("used", false);
+
+  // Generate new code
+  const code = generateVerificationCode();
+  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+
+  await supabase.from("verification_codes").insert({
+    email,
+    code,
+    expires_at: expiresAt,
+  });
+
+  console.log("Stored verification code for", email);
+}
+
 async function resolveUserId(
   customerEmail: string,
   stripeCustomerId: string,
@@ -171,15 +198,22 @@ async function resolveUserId(
 
   // 3. Find by email in profiles
   if (customerEmail) {
+    const normalizedEmail = customerEmail.trim().toLowerCase();
+
     const { data: profile } = await supabase
       .from("profiles")
       .select("user_id")
-      .eq("email", customerEmail)
+      .eq("email", normalizedEmail)
       .maybeSingle();
     if (profile) return profile.user_id;
 
-    // 4. Invite user via admin API so they receive the "Create Your Password" email
-    const { data: inviteData, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(customerEmail, {
+    // 4. Generate verification code BEFORE inviting so the auth-email-hook
+    //    can render the code template instead of the invite link template
+    await storeVerificationCode(normalizedEmail, supabase);
+
+    // 5. Invite user via admin API — this triggers the auth-email-hook
+    //    which will find the verification code and send the code email
+    const { data: inviteData, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(normalizedEmail, {
       data: { name: "" },
       redirectTo: "https://app.liberatedkings.com/setup-account",
     });
@@ -187,13 +221,13 @@ async function resolveUserId(
       // User might exist in auth but not profiles - try listing
       if (inviteError.status === 422 && (inviteError as any).code === "email_exists") {
         const { data: users } = await supabase.auth.admin.listUsers();
-        const existing = users?.users?.find((u: any) => u.email === customerEmail);
+        const existing = users?.users?.find((u: any) => u.email === normalizedEmail);
         if (existing) return existing.id;
       }
       console.error("Failed to invite/find user:", inviteError);
       return null;
     }
-    console.log("Stripe purchase: invited new user", inviteData.user.id, customerEmail);
+    console.log("Stripe purchase: invited new user", inviteData.user.id, normalizedEmail);
     return inviteData.user.id;
   }
 

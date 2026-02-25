@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { useEntitlement } from "@/hooks/useEntitlement";
-import { Mail, Lock, ArrowRight, Loader2, MailOpen } from "lucide-react";
+import { Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import lkLogo from "@/assets/lk-logo-horizontal.png";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,7 +15,6 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [needsPasswordSetup, setNeedsPasswordSetup] = useState(false);
   const { signInWithPassword, user } = useAuth();
   const { isEntitled, isLoading: entitlementLoading } = useEntitlement();
   const navigate = useNavigate();
@@ -60,8 +59,9 @@ const Login = () => {
           body: { email },
         });
         if (data?.eligible && data?.password_set === false) {
-          setNeedsPasswordSetup(true);
+          // Redirect to setup-account — check-user-eligible already sent a code
           setLoading(false);
+          navigate("/setup-account");
           return;
         }
       } catch {
@@ -73,33 +73,8 @@ const Login = () => {
     setLoading(false);
   };
 
-  // Show "check your email" state for users who haven't set a password
-  if (needsPasswordSetup) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-white">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
-          <div className="flex justify-center mb-8">
-            <img src={lkLogo} alt="Liberated Kings" className="h-16 object-contain" />
-          </div>
-          <Card className="card-elevated border border-primary/40">
-            <CardContent className="pt-8 pb-8 text-center space-y-4">
-              <MailOpen className="w-12 h-12 text-primary mx-auto" />
-              <p className="font-serif text-xl font-semibold">Create Your Password</p>
-              <p className="text-sm text-muted-foreground">
-                We just sent a fresh setup link to <span className="font-medium text-foreground">{email}</span>. Open that email and click the link to create your password and access the app.
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Don't see it? Check your spam folder, or try again in a few minutes.
-              </p>
-              <Button variant="outline" onClick={() => setNeedsPasswordSetup(false)} className="w-full" size="lg">
-                Back to Sign In
-              </Button>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </div>
-    );
-  }
+
+
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-white">
@@ -145,14 +120,25 @@ const Login = () => {
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <>Sign In <ArrowRight className="w-4 h-4" /></>}
               </Button>
             </form>
-            <div className="mt-3 text-center">
-              <button
-                type="button"
-                onClick={() => navigate("/forgot-password")}
-                className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Forgot password?
-              </button>
+            <div className="mt-3 text-center space-y-1.5">
+              <div>
+                <button
+                  type="button"
+                  onClick={() => navigate("/forgot-password")}
+                  className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Forgot password?
+                </button>
+              </div>
+              <div>
+                <button
+                  type="button"
+                  onClick={() => navigate("/setup-account")}
+                  className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  New here? Set up your account
+                </button>
+              </div>
             </div>
           </CardContent>
         </Card>

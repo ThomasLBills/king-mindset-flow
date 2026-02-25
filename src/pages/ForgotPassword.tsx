@@ -27,32 +27,27 @@ const ForgotPassword = () => {
       });
 
       if (data?.eligible && data?.password_set === false) {
-        // User was invited but never set a password — check-user-eligible
-        // already re-sent the invite email, so just show success
-        setSent(true);
+        // User hasn't set a password — send them a verification code
+        // and redirect to the setup account page
+        await supabase.functions.invoke("send-verification-code", {
+          body: { email },
+        });
         setLoading(false);
+        navigate("/setup-account");
         return;
       }
-
-      // Normal reset flow for users who have set a password (or unknown users)
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
-      });
-      if (error) {
-        toast({ title: "Error", description: error.message, variant: "destructive" });
-      } else {
-        setSent(true);
-      }
     } catch {
-      // If the eligibility check fails, fall back to normal reset
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
-      });
-      if (error) {
-        toast({ title: "Error", description: error.message, variant: "destructive" });
-      } else {
-        setSent(true);
-      }
+      // If check fails, fall through to normal reset
+    }
+
+    // Normal reset flow for users who have a password (or unknown users)
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } else {
+      setSent(true);
     }
 
     setLoading(false);

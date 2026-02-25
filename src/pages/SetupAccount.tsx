@@ -1,111 +1,27 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
-import { Lock, Loader2, ArrowRight, AlertTriangle, Copy, CheckCircle } from "lucide-react";
+import { Mail, Lock, KeyRound, Loader2, ArrowRight, ArrowLeft, RefreshCw, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import lkLogo from "@/assets/lk-logo-horizontal.png";
 
-type PageState = "loading" | "no-token" | "error" | "ready";
+type PageState = "form" | "expired" | "submitting";
 
 const SetupAccount = () => {
-  const [pageState, setPageState] = useState<PageState>("loading");
+  const [email, setEmail] = useState("");
+  const [code, setCode] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
-  const [saving, setSaving] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [pageState, setPageState] = useState<PageState>("form");
+  const [resending, setResending] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-
-  const exchangeToken = useCallback(async () => {
-    const hash = window.location.hash.replace(/^#/, "");
-    const hashParams = new URLSearchParams(hash);
-    const searchParams = new URLSearchParams(window.location.search);
-
-    // Check if auth params exist in either hash or query
-    const hasAuthParams = ["access_token", "refresh_token", "token_hash", "type", "code"].some(
-      (key) => hashParams.has(key) || searchParams.has(key)
-    );
-
-    if (!hasAuthParams) {
-      // No params visible — but mobile browsers may have already handed them to the
-      // Supabase client before JS ran, or the client is still exchanging in the
-      // background.  Poll briefly before concluding the token is truly missing.
-      const shortPoll = async (): Promise<boolean> => {
-        const attempts = 6; // 3 seconds total
-        for (let i = 0; i < attempts; i++) {
-          const { data: { session } } = await supabase.auth.getSession();
-          if (session) return true;
-          await new Promise((r) => setTimeout(r, 500));
-        }
-        return false;
-      };
-
-      const found = await shortPoll();
-      setPageState(found ? "ready" : "no-token");
-      return;
-    }
-
-    // Wait for the auth state change listener to process the token
-    // The Supabase client automatically exchanges tokens from the URL
-    // We just need to wait for it to settle
-    const maxWait = 15000;
-    const interval = 500;
-    let elapsed = 0;
-
-    const poll = async (): Promise<boolean> => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) return true;
-      elapsed += interval;
-      if (elapsed >= maxWait) return false;
-      await new Promise((r) => setTimeout(r, interval));
-      return poll();
-    };
-
-    const success = await poll();
-    if (success) {
-      // Clean up hash/query so it doesn't re-trigger
-      window.history.replaceState(null, "", window.location.pathname);
-      setPageState("ready");
-    } else {
-      setPageState("error");
-    }
-  }, []);
-
-  useEffect(() => {
-    exchangeToken();
-  }, [exchangeToken]);
-
-  // Also listen for auth state changes in case token exchange happens after initial check
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session && pageState === "loading") {
-        setPageState("ready");
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, [pageState]);
-
-  const handleCopyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(window.location.href);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 3000);
-    } catch {
-      // Fallback for older browsers
-      const input = document.createElement("input");
-      input.value = window.location.href;
-      document.body.appendChild(input);
-      input.select();
-      document.execCommand("copy");
-      document.body.removeChild(input);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 3000);
-    }
-  };
+  const { signInWithPassword } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -117,44 +33,52 @@ const SetupAccount = () => {
       toast({ title: "Password too short", description: "Must be at least 6 characters.", variant: "destructive" });
       return;
     }
-    setSaving(true);
-    const { error } = await supabase.auth.updateUser({ password });
-    if (error) {
-      setSaving(false);
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else {
-      // Mark password as set in profile
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        await supabase.from("profiles").update({ password_set: true }).eq("user_id", user.id);
+
+    setPageState("submitting");
+
+    const { data, error } = await supabase.functions.invoke("verify-code-set-password", {
+      body: { email: email.trim(), code: code.trim(), password },
+    });
+
+    if (error || !data?.success) {
+      const errMsg = data?.error || error?.message || "Something went wrong";
+      if (errMsg === "expired") {
+        setPageState("expired");
+        return;
       }
-      setSaving(false);
+      setPageState("form");
+      toast({ title: "Error", description: errMsg === "expired" ? "Code expired" : errMsg, variant: "destructive" });
+      return;
+    }
+
+    // Password set successfully — sign in automatically
+    const { error: signInError } = await signInWithPassword(email.trim(), password);
+    if (signInError) {
+      toast({ title: "Password created!", description: "Please sign in with your new password." });
+      navigate("/login", { replace: true });
+    } else {
+      // Will auto-redirect via Login's useEffect or navigate to onboarding
       navigate("/app", { replace: true });
     }
   };
 
-  // --- Loading state ---
-  if (pageState === "loading") {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-white">
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="w-full max-w-md text-center">
-          <div className="flex justify-center mb-8">
-            <img src={lkLogo} alt="Liberated Kings" className="h-16 object-contain" />
-          </div>
-          <Card className="card-elevated border border-primary/40">
-            <CardContent className="pt-8 pb-8 text-center space-y-4">
-              <Loader2 className="w-10 h-10 animate-spin text-primary mx-auto" />
-              <p className="font-serif text-xl font-semibold">Setting up your account...</p>
-              <p className="text-sm text-muted-foreground">Please wait while we verify your invite link.</p>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </div>
-    );
-  }
+  const handleResendCode = async () => {
+    if (!email.trim()) {
+      toast({ title: "Enter your email first", variant: "destructive" });
+      return;
+    }
+    setResending(true);
+    await supabase.functions.invoke("send-verification-code", {
+      body: { email: email.trim() },
+    });
+    setResending(false);
+    setCode("");
+    setPageState("form");
+    toast({ title: "New code sent!", description: "Check your email for a fresh verification code." });
+  };
 
-  // --- No token / in-app browser state ---
-  if (pageState === "no-token") {
+  // --- Expired code state ---
+  if (pageState === "expired") {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-white">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
@@ -164,20 +88,16 @@ const SetupAccount = () => {
           <Card className="card-elevated border border-primary/40">
             <CardContent className="pt-8 pb-8 text-center space-y-4">
               <AlertTriangle className="w-12 h-12 text-primary mx-auto" />
-              <p className="font-serif text-xl font-semibold">Open in Your Browser</p>
+              <p className="font-serif text-xl font-semibold">Code Expired</p>
               <p className="text-sm text-muted-foreground">
-                For the best experience, please open this link in Safari or Chrome. Email apps can sometimes prevent the link from working properly.
+                Your verification code has expired. Click below to receive a new one.
               </p>
-              <Button onClick={handleCopyLink} className="w-full" size="lg">
-                {copied ? (
-                  <><CheckCircle className="w-4 h-4 mr-2" /> Link Copied!</>
-                ) : (
-                  <><Copy className="w-4 h-4 mr-2" /> Copy Link to Clipboard</>
-                )}
+              <Button onClick={handleResendCode} className="w-full" size="lg" disabled={resending}>
+                {resending ? <Loader2 className="w-4 h-4 animate-spin" /> : <><RefreshCw className="w-4 h-4 mr-2" /> Resend Code</>}
               </Button>
-              <p className="text-xs text-muted-foreground">
-                After copying, open Safari or Chrome and paste the link in the address bar.
-              </p>
+              <button type="button" onClick={() => navigate("/login")} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <ArrowLeft className="w-3 h-3 inline mr-1" /> Back to login
+              </button>
             </CardContent>
           </Card>
         </motion.div>
@@ -185,32 +105,7 @@ const SetupAccount = () => {
     );
   }
 
-  // --- Error / expired token state ---
-  if (pageState === "error") {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-white">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
-          <div className="flex justify-center mb-8">
-            <img src={lkLogo} alt="Liberated Kings" className="h-16 object-contain" />
-          </div>
-          <Card className="card-elevated border border-primary/40">
-            <CardContent className="pt-8 pb-8 text-center space-y-4">
-              <AlertTriangle className="w-12 h-12 text-destructive mx-auto" />
-              <p className="font-serif text-xl font-semibold">Link Expired</p>
-              <p className="text-sm text-muted-foreground">
-                This invite link has expired or is no longer valid. Please contact your admin for a new one.
-              </p>
-              <Button variant="outline" onClick={() => navigate("/login", { replace: true })} className="w-full" size="lg">
-                Go to Login
-              </Button>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </div>
-    );
-  }
-
-  // --- Ready: show password form ---
+  // --- Main form ---
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-white">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
@@ -219,16 +114,41 @@ const SetupAccount = () => {
         </div>
         <Card className="card-elevated border border-primary/40">
           <CardHeader className="text-center">
-            <CardTitle className="font-serif text-2xl">Create Your Password</CardTitle>
-            <CardDescription>Choose a strong password for your account.</CardDescription>
+            <CardTitle className="font-serif text-2xl">Create Your Account</CardTitle>
+            <CardDescription>Enter the verification code from your email and choose a password.</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="relative">
+                <Mail className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                <Input
+                  type="email"
+                  placeholder="your@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="pl-10"
+                  required
+                />
+              </div>
+              <div className="relative">
+                <KeyRound className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                <Input
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]{6}"
+                  maxLength={6}
+                  placeholder="6-digit verification code"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                  className="pl-10 text-center tracking-[0.3em] font-mono text-lg"
+                  required
+                />
+              </div>
+              <div className="relative">
                 <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                 <Input
                   type="password"
-                  placeholder="Password (min 6 characters)"
+                  placeholder="Create password (min 6 characters)"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="pl-10"
@@ -248,10 +168,25 @@ const SetupAccount = () => {
                   minLength={6}
                 />
               </div>
-              <Button type="submit" className="w-full" size="lg" disabled={saving}>
-                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Create Password"}
+              <Button type="submit" className="w-full" size="lg" disabled={pageState === "submitting"}>
+                {pageState === "submitting" ? <Loader2 className="w-4 h-4 animate-spin" /> : <>Create Account <ArrowRight className="w-4 h-4" /></>}
               </Button>
             </form>
+            <div className="mt-4 space-y-2 text-center">
+              <button
+                type="button"
+                onClick={handleResendCode}
+                disabled={resending}
+                className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {resending ? "Sending..." : "Didn't get a code? Resend it"}
+              </button>
+              <div>
+                <button type="button" onClick={() => navigate("/login")} className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+                  <ArrowLeft className="w-3 h-3 inline mr-1" /> Back to login
+                </button>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </motion.div>
