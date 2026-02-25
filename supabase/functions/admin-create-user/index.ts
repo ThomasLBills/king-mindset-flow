@@ -59,17 +59,30 @@ Deno.serve(async (req) => {
         });
       }
 
-      // Generate an invite link that lands on the setup-account page
-      const { data: inviteData, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(email, {
+      const normalizedEmail = email.trim().toLowerCase();
+
+      // Generate a new verification code
+      await supabase.from("verification_codes").update({ used: true }).eq("email", normalizedEmail).eq("used", false);
+      const codeArr = new Uint32Array(1);
+      crypto.getRandomValues(codeArr);
+      const verificationCode = String(codeArr[0] % 1000000).padStart(6, "0");
+      await supabase.from("verification_codes").insert({
+        email: normalizedEmail,
+        code: verificationCode,
+        expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+      });
+
+      // Re-send the invite which triggers the email hook (will use code template)
+      const { error: inviteError } = await supabase.auth.admin.inviteUserByEmail(normalizedEmail, {
         redirectTo: "https://app.liberatedkings.com/setup-account",
       });
 
       if (inviteError) {
         if (inviteError.status === 422 && (inviteError as any).code === "email_exists") {
-          // User exists — generate a recovery link so they can reset their password
+          // User exists and confirmed — send a recovery link instead
           const { error: linkError } = await supabase.auth.admin.generateLink({
             type: "recovery",
-            email,
+            email: normalizedEmail,
             options: { redirectTo: "https://app.liberatedkings.com/reset-password" },
           });
           if (linkError) throw linkError;
@@ -78,7 +91,7 @@ Deno.serve(async (req) => {
         }
       }
 
-      console.log(`Admin ${user.id} resent invite to ${email}`);
+      console.log(`Admin ${user.id} resent invite (with verification code) to ${normalizedEmail}`);
       return new Response(JSON.stringify({ success: true, message: "Invite sent" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -95,8 +108,21 @@ Deno.serve(async (req) => {
     let newUserId: string;
 
     if (sendInvite) {
-      // Invite flow: creates user + sends invite email
-      // The invite link redirects to /setup-account where user sets their password
+      const normalizedEmail = email.trim().toLowerCase();
+
+      // Generate verification code before inviting so the auth-email-hook
+      // renders the code template instead of the invite link template
+      await supabase.from("verification_codes").update({ used: true }).eq("email", normalizedEmail).eq("used", false);
+      const codeArr = new Uint32Array(1);
+      crypto.getRandomValues(codeArr);
+      const verificationCode = String(codeArr[0] % 1000000).padStart(6, "0");
+      await supabase.from("verification_codes").insert({
+        email: normalizedEmail,
+        code: verificationCode,
+        expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+      });
+
+      // Invite flow: creates user + sends invite email (hook will use code template)
       const { data: inviteData, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(email, {
         data: { name: name || "" },
         redirectTo: "https://app.liberatedkings.com/setup-account",

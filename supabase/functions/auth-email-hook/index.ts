@@ -2,11 +2,13 @@ import * as React from 'npm:react@18.3.1'
 import { renderAsync } from 'npm:@react-email/components@0.0.22'
 import { sendLovableEmail, parseEmailWebhookPayload } from 'npm:@lovable.dev/email-js'
 import { WebhookError, verifyWebhookRequest } from 'npm:@lovable.dev/webhooks-js'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { SignupEmail } from '../_shared/email-templates/signup.tsx'
 import { InviteEmail } from '../_shared/email-templates/invite.tsx'
 import { RecoveryEmail } from '../_shared/email-templates/recovery.tsx'
 import { EmailChangeEmail } from '../_shared/email-templates/email-change.tsx'
 import { ReauthenticationEmail } from '../_shared/email-templates/reauthentication.tsx'
+import { VerificationCodeEmail } from '../_shared/email-templates/verification-code.tsx'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -201,7 +203,10 @@ async function handleWebhook(req: Request): Promise<Response> {
     )
   }
 
-  const templateProps = {
+  // Determine which template and subject to use
+  let ActiveTemplate: React.ComponentType<any> = EmailTemplate
+  let activeSubject = EMAIL_SUBJECTS[resolvedType] || 'Notification'
+  let templateProps: Record<string, any> = {
     siteName: SITE_NAME,
     siteUrl: `https://${ROOT_DOMAIN}`,
     recipient: payload.data.email,
@@ -211,8 +216,40 @@ async function handleWebhook(req: Request): Promise<Response> {
     newEmail: payload.data.new_email,
   }
 
-  const html = await renderAsync(React.createElement(EmailTemplate, templateProps))
-  const text = await renderAsync(React.createElement(EmailTemplate, templateProps), {
+  // For invite emails, check if there's a pending verification code
+  // If so, render the verification code email instead
+  if (resolvedType === 'invite') {
+    try {
+      const supabase = createClient(
+        Deno.env.get('SUPABASE_URL')!,
+        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+      )
+      const recipientEmail = payload.data.email?.toLowerCase()
+      if (recipientEmail) {
+        const { data: codeRecord } = await supabase
+          .from('verification_codes')
+          .select('code')
+          .eq('email', recipientEmail)
+          .eq('used', false)
+          .gt('expires_at', new Date().toISOString())
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle()
+
+        if (codeRecord) {
+          console.log('Found verification code for invite, using code template', { email: recipientEmail, run_id })
+          ActiveTemplate = VerificationCodeEmail
+          activeSubject = 'Your Liberated Kings verification code'
+          templateProps = { code: codeRecord.code }
+        }
+      }
+    } catch (lookupErr) {
+      console.error('Failed to check verification codes, using default invite template:', lookupErr)
+    }
+  }
+
+  const html = await renderAsync(React.createElement(ActiveTemplate, templateProps))
+  const text = await renderAsync(React.createElement(ActiveTemplate, templateProps), {
     plainText: true,
   })
 
@@ -233,7 +270,7 @@ async function handleWebhook(req: Request): Promise<Response> {
         to: payload.data.email,
         from: `${SITE_NAME} <noreply@${FROM_DOMAIN}>`,
         sender_domain: SENDER_DOMAIN,
-        subject: EMAIL_SUBJECTS[resolvedType] || 'Notification',
+        subject: activeSubject,
         html,
         text,
         purpose: 'transactional',
