@@ -3,13 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Loader2, Search, Shield, ShieldOff, UserPlus, Mail, Trash2, CalendarDays, LogIn, Trophy } from "lucide-react";
+import { Loader2, Search, Shield, ShieldOff, UserPlus, Trash2, CalendarDays, LogIn, Trophy, Copy, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { motion } from "framer-motion";
@@ -21,10 +21,12 @@ const AdminUsers = () => {
   const [search, setSearch] = useState("");
   const [addOpen, setAddOpen] = useState(false);
   const [newEmail, setNewEmail] = useState("");
-  const [newPassword, setNewPassword] = useState("");
   const [newName, setNewName] = useState("");
   const [grantAccess, setGrantAccess] = useState(true);
-  const [sendInvite, setSendInvite] = useState(true);
+
+  // Credential modal state
+  const [credentialModal, setCredentialModal] = useState<{ email: string; tempPassword: string } | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const { data: profiles, isLoading } = useQuery({
     queryKey: ["admin-profiles"],
@@ -103,42 +105,28 @@ const AdminUsers = () => {
   const createUser = useMutation({
     mutationFn: async () => {
       const { data, error } = await supabase.functions.invoke("admin-create-user", {
-        body: { email: newEmail, password: sendInvite ? undefined : newPassword, name: newName, grantAccess, sendInvite },
+        body: { email: newEmail, name: newName, grantAccess },
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
+      return data as { tempPassword: string; email: string };
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["admin-profiles"] });
       queryClient.invalidateQueries({ queryKey: ["admin-entitlements"] });
-      toast({ title: sendInvite ? "Invite sent successfully" : "User created successfully" });
       setAddOpen(false);
       setNewEmail("");
-      setNewPassword("");
       setNewName("");
+      // Show credential modal
+      setCredentialModal({ email: data.email, tempPassword: data.tempPassword });
+      setCopied(false);
     },
     onError: (err: any) => toast({ title: "Error creating user", description: err.message, variant: "destructive" }),
   });
 
-  const resendInvite = useMutation({
-    mutationFn: async (email: string) => {
-      const { data, error } = await supabase.functions.invoke("admin-create-user", {
-        body: { email, action: "resend_invite" },
-      });
-      if (error) throw error;
-      if (data?.error) throw new Error(data.error);
-    },
-    onSuccess: () => {
-      toast({ title: "Invite email sent" });
-    },
-    onError: (err: any) => toast({ title: "Error sending invite", description: err.message, variant: "destructive" }),
-  });
-
   const deleteUser = useMutation({
     mutationFn: async (userId: string) => {
-      const { data, error } = await supabase.functions.invoke("admin-delete-user", {
-        body: { userId },
-      });
+      const { data, error } = await supabase.functions.invoke("admin-delete-user", { body: { userId } });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
     },
@@ -162,7 +150,13 @@ const AdminUsers = () => {
     !search || p.email.toLowerCase().includes(search.toLowerCase()) || (p.display_name || "").toLowerCase().includes(search.toLowerCase())
   );
 
-  const canCreate = newEmail && (sendInvite || newPassword);
+  const handleCopyPassword = async () => {
+    if (!credentialModal) return;
+    await navigator.clipboard.writeText(credentialModal.tempPassword);
+    setCopied(true);
+    toast({ title: "Password copied to clipboard" });
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
@@ -189,26 +183,51 @@ const AdminUsers = () => {
                 <Input placeholder="Display name" value={newName} onChange={(e) => setNewName(e.target.value)} />
               </div>
               <div className="flex items-center gap-2">
-                <Checkbox id="send-invite" checked={sendInvite} onCheckedChange={(v) => setSendInvite(!!v)} />
-                <Label htmlFor="send-invite">Send invite email (user sets their own password)</Label>
-              </div>
-              {!sendInvite && (
-                <div>
-                  <Label>Temporary Password</Label>
-                  <Input type="text" placeholder="Set a password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
-                </div>
-              )}
-              <div className="flex items-center gap-2">
                 <Checkbox id="grant-access" checked={grantAccess} onCheckedChange={(v) => setGrantAccess(!!v)} />
                 <Label htmlFor="grant-access">Grant course access immediately</Label>
               </div>
-              <Button className="w-full" onClick={() => createUser.mutate()} disabled={createUser.isPending || !canCreate}>
-                {createUser.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : sendInvite ? "Send Invite" : "Create User"}
+              <p className="text-xs text-muted-foreground">
+                A temporary password will be generated. No email will be sent — you'll share the credentials manually.
+              </p>
+              <Button className="w-full" onClick={() => createUser.mutate()} disabled={createUser.isPending || !newEmail}>
+                {createUser.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Create User"}
               </Button>
             </div>
           </DialogContent>
         </Dialog>
       </div>
+
+      {/* Credential Modal */}
+      <Dialog open={!!credentialModal} onOpenChange={(open) => { if (!open) setCredentialModal(null); }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>User Created Successfully</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div>
+              <Label className="text-muted-foreground text-xs">Email</Label>
+              <p className="text-sm font-medium">{credentialModal?.email}</p>
+            </div>
+            <div>
+              <Label className="text-muted-foreground text-xs">Temporary Password</Label>
+              <div className="mt-1 flex items-center gap-2">
+                <code className="flex-1 rounded-md border bg-muted px-4 py-3 text-xl font-mono font-bold tracking-widest text-center select-all">
+                  {credentialModal?.tempPassword}
+                </code>
+                <Button variant="outline" size="icon" onClick={handleCopyPassword} className="shrink-0">
+                  {copied ? <Check className="w-4 h-4 text-success" /> : <Copy className="w-4 h-4" />}
+                </Button>
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Share this password with the user. They will be asked to set their own password when they sign in.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button onClick={() => setCredentialModal(null)} className="w-full">Done</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <div className="relative max-w-sm">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -291,15 +310,6 @@ const AdminUsers = () => {
                             className="gap-1"
                           >
                             {admin ? <><ShieldOff className="w-3.5 h-3.5" /> Remove Admin</> : <><Shield className="w-3.5 h-3.5" /> Make Admin</>}
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => resendInvite.mutate(p.email)}
-                            disabled={resendInvite.isPending}
-                            className="gap-1"
-                          >
-                            <Mail className="w-3.5 h-3.5" /> Send Invite
                           </Button>
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
