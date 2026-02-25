@@ -1087,6 +1087,7 @@ export type Database = {
           last_name: string | null
           name: string | null
           onboarding_completed: boolean
+          password_set: boolean
           phone: string | null
           timezone: string | null
           updated_at: string
@@ -1101,6 +1102,7 @@ export type Database = {
           last_name?: string | null
           name?: string | null
           onboarding_completed?: boolean
+          password_set?: boolean
           phone?: string | null
           timezone?: string | null
           updated_at?: string
@@ -1115,6 +1117,7 @@ export type Database = {
           last_name?: string | null
           name?: string | null
           onboarding_completed?: boolean
+          password_set?: boolean
           phone?: string | null
           timezone?: string | null
           updated_at?: string

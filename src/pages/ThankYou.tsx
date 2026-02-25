@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { CheckCircle, Loader2, ArrowRight } from "lucide-react";
+import { CheckCircle, Loader2, ArrowRight, MailOpen } from "lucide-react";
 import lkIcon from "@/assets/lk-icon.png";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -48,24 +48,27 @@ const ThankYou = () => {
                 <p className="font-medium">Processing your payment…</p>
                 <p className="text-sm text-muted-foreground">This may take a moment</p>
               </>
-            ) : verified ? (
+            ) : verified && user ? (
               <>
                 <CheckCircle className="w-16 h-16 text-success mx-auto" />
                 <h1 className="font-serif text-2xl font-bold">Welcome to the Brotherhood</h1>
                 <p className="text-muted-foreground">Your access is ready.</p>
-                <Button onClick={() => navigate(user ? "/app" : "/login")} size="lg" className="w-full">
-                  {user ? "Go to Dashboard" : "Sign In"} <ArrowRight className="w-4 h-4" />
+                <Button onClick={() => navigate("/app")} size="lg" className="w-full">
+                  Go to Dashboard <ArrowRight className="w-4 h-4" />
                 </Button>
               </>
             ) : (
               <>
-                <img src={lkIcon} alt="Liberated Kings" className="w-14 h-14 mx-auto" />
-                <h1 className="font-serif text-2xl font-bold">Welcome to The Liberated Kings.</h1>
+                <MailOpen className="w-16 h-16 text-primary mx-auto" />
+                <h1 className="font-serif text-2xl font-bold">Welcome to The Liberated Kings</h1>
                 <p className="text-muted-foreground">
-                  Christ has secured your freedom. This app helps you walk in it daily. Sign in with your email and password to get started.
+                  Check your email for a link to create your password and access the app.
                 </p>
-                <Button onClick={() => navigate("/login")} size="lg" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
-                  Enter the App <ArrowRight className="w-4 h-4" />
+                <p className="text-sm text-muted-foreground">
+                  Don't see it? Check your spam folder. The email will come from a noreply address.
+                </p>
+                <Button variant="outline" onClick={() => navigate("/login")} size="lg" className="w-full">
+                  Already set your password? Sign In <ArrowRight className="w-4 h-4" />
                 </Button>
               </>
             )}

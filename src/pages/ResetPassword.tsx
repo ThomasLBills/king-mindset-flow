@@ -103,10 +103,16 @@ const ResetPassword = () => {
     }
     setSaving(true);
     const { error } = await supabase.auth.updateUser({ password });
-    setSaving(false);
     if (error) {
+      setSaving(false);
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
+      // Mark password as set in profile
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from("profiles").update({ password_set: true }).eq("user_id", user.id);
+      }
+      setSaving(false);
       await supabase.auth.signOut();
       setPageState("done");
     }
