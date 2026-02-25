@@ -85,31 +85,28 @@ Deno.serve(async (req) => {
       expires_at: expiresAt,
     });
 
-    // Re-send the invite email — this triggers the auth-email-hook
-    // which will detect the pending verification code and render the code template
-    try {
-      await supabase.auth.admin.inviteUserByEmail(normalizedEmail, {
-        data: { name: "" },
+    console.log("Generated verification code for", normalizedEmail);
+
+    // Try inviteUserByEmail first (works for unconfirmed users)
+    const { error: inviteErr } = await supabase.auth.admin.inviteUserByEmail(normalizedEmail, {
+      data: { name: "" },
+      redirectTo: "https://app.liberatedkings.com/setup-account",
+    });
+
+    if (inviteErr) {
+      console.log("inviteUserByEmail failed (user likely confirmed), trying password reset trigger:", inviteErr.message);
+      // For already-confirmed users, use resetPasswordForEmail to trigger auth-email-hook
+      // The hook will detect the pending verification code and send the code email instead
+      const { error: resetErr } = await supabase.auth.resetPasswordForEmail(normalizedEmail, {
         redirectTo: "https://app.liberatedkings.com/setup-account",
       });
-      console.log("Verification code sent to", normalizedEmail, "code:", code);
-    } catch (inviteErr: any) {
-      // If invite fails (user already confirmed), try generating a magiclink
-      // which also triggers the email hook
-      console.log("Invite failed, trying magiclink trigger:", inviteErr?.message);
-      try {
-        // Use resetPasswordForEmail as a fallback email trigger
-        // The hook will still check for verification codes
-        const { error: resetErr } = await supabase.auth.admin.generateLink({
-          type: "magiclink",
-          email: normalizedEmail,
-        });
-        if (resetErr) {
-          console.error("Magiclink generation also failed:", resetErr.message);
-        }
-      } catch (e) {
-        console.error("All email trigger methods failed:", e);
+      if (resetErr) {
+        console.error("resetPasswordForEmail also failed:", resetErr.message);
+      } else {
+        console.log("Triggered password reset email for", normalizedEmail, "(hook will send code instead)");
       }
+    } else {
+      console.log("Invite email triggered for", normalizedEmail);
     }
 
     return new Response(JSON.stringify({ sent: true }), {

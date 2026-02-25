@@ -216,9 +216,10 @@ async function handleWebhook(req: Request): Promise<Response> {
     newEmail: payload.data.new_email,
   }
 
-  // For invite emails, check if there's a pending verification code
-  // If so, render the verification code email instead
-  if (resolvedType === 'invite') {
+  // For invite OR recovery emails, check if there's a pending verification code
+  // If so, render the verification code email instead of the default template
+  // This handles: new user invites AND resend-code triggers via resetPasswordForEmail
+  if (resolvedType === 'invite' || resolvedType === 'recovery') {
     try {
       const supabase = createClient(
         Deno.env.get('SUPABASE_URL')!,

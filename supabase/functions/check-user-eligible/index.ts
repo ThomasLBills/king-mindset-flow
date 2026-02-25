@@ -5,6 +5,12 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+function generateCode(): string {
+  const arr = new Uint32Array(1);
+  crypto.getRandomValues(arr);
+  return String(arr[0] % 1000000).padStart(6, "0");
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -56,7 +62,7 @@ Deno.serve(async (req) => {
 
     const passwordSet = profile.password_set ?? false;
 
-    // If user has not set a password, generate a verification code and re-send invite
+    // If user has not set a password, generate a verification code and trigger email
     if (!passwordSet) {
       try {
         // Invalidate old codes
@@ -67,31 +73,41 @@ Deno.serve(async (req) => {
           .eq("used", false);
 
         // Generate new code
-        const codeArr = new Uint32Array(1);
-        crypto.getRandomValues(codeArr);
-        const verificationCode = String(codeArr[0] % 1000000).padStart(6, "0");
-
+        const code = generateCode();
         await supabase.from("verification_codes").insert({
           email: normalizedEmail,
-          code: verificationCode,
+          code,
           expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
         });
 
-        // Re-send invite to trigger the email hook (which will use the code template)
-        await supabase.auth.admin.inviteUserByEmail(normalizedEmail, {
+        // Try invite first, fall back to password reset for confirmed users
+        const { error: inviteErr } = await supabase.auth.admin.inviteUserByEmail(normalizedEmail, {
           data: { name: "" },
           redirectTo: "https://app.liberatedkings.com/setup-account",
         });
-        console.log("Re-sent invite with verification code to", normalizedEmail);
-      } catch (inviteErr) {
-        console.error("Failed to re-send invite:", inviteErr);
+
+        if (inviteErr) {
+          console.log("Invite failed for existing user, using password reset trigger:", inviteErr.message);
+          const { error: resetErr } = await supabase.auth.resetPasswordForEmail(normalizedEmail, {
+            redirectTo: "https://app.liberatedkings.com/setup-account",
+          });
+          if (resetErr) {
+            console.error("Password reset trigger also failed:", resetErr.message);
+          } else {
+            console.log("Password reset email triggered for", normalizedEmail, "(hook will send code)");
+          }
+        } else {
+          console.log("Invite email triggered with verification code for", normalizedEmail);
+        }
+      } catch (triggerErr: any) {
+        console.error("Failed to trigger verification email:", triggerErr);
       }
     }
 
     return new Response(JSON.stringify({ eligible: true, password_set: passwordSet }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
-  } catch (err) {
+  } catch (err: any) {
     console.error("check-user-eligible error:", err.message);
     return new Response(JSON.stringify({ error: "Internal error" }), {
       status: 500,
