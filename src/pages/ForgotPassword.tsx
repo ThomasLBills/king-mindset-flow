@@ -19,15 +19,43 @@ const ForgotPassword = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
-    setLoading(false);
-    if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else {
-      setSent(true);
+
+    try {
+      // Check if user exists and whether they've set a password
+      const { data } = await supabase.functions.invoke("check-user-eligible", {
+        body: { email },
+      });
+
+      if (data?.eligible && data?.password_set === false) {
+        // User was invited but never set a password — check-user-eligible
+        // already re-sent the invite email, so just show success
+        setSent(true);
+        setLoading(false);
+        return;
+      }
+
+      // Normal reset flow for users who have set a password (or unknown users)
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) {
+        toast({ title: "Error", description: error.message, variant: "destructive" });
+      } else {
+        setSent(true);
+      }
+    } catch {
+      // If the eligibility check fails, fall back to normal reset
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) {
+        toast({ title: "Error", description: error.message, variant: "destructive" });
+      } else {
+        setSent(true);
+      }
     }
+
+    setLoading(false);
   };
 
   return (
@@ -47,7 +75,7 @@ const ForgotPassword = () => {
                 <CheckCircle className="w-12 h-12 text-success mx-auto" />
                 <p className="font-medium">Check your email</p>
                 <p className="text-sm text-muted-foreground">
-                  We sent a reset link to <strong>{email}</strong>
+                  We sent a link to <strong>{email}</strong> to help you access your account.
                 </p>
                 <Button variant="ghost" onClick={() => navigate("/login")}>
                   <ArrowLeft className="w-4 h-4 mr-2" /> Back to login
