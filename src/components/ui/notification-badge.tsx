@@ -24,7 +24,7 @@ const NotificationBadge = ({ count, className, dot }: NotificationBadgeProps) =>
   return (
     <span
       className={cn(
-        "absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold px-1 border-2 border-background",
+        "absolute -top-1.5 -right-1.5 min-w-[16px] h-[16px] flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[9px] font-bold leading-none px-[3px] border-[1.5px] border-background",
         className
       )}
     >
