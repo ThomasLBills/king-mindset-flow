@@ -5,6 +5,7 @@ import { Users, Hash } from "lucide-react";
 import MyBrothersTab from "@/components/brotherhood/MyBrothersTab";
 import ChannelsTab from "@/components/brotherhood/ChannelsTab";
 import ReachOut from "@/components/brotherhood/ReachOut";
+import MessagesTab from "@/components/brotherhood/MessagesTab";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,10 +15,10 @@ const BrotherhoodPage = () => {
   const { user } = useAuth();
   const [showReachOut, setShowReachOut] = useState(false);
   const [activeTab, setActiveTab] = useState("brothers");
+  const [dmTarget, setDmTarget] = useState<ChatTarget | null>(null);
 
   const handleStartDM = useCallback(async (brotherUserId: string, name: string) => {
     if (!user) return;
-    // Check if DM already exists
     const { data: existing } = await supabase
       .from("chat_dms")
       .select("id")
@@ -37,7 +38,26 @@ const BrotherhoodPage = () => {
       dmId = newDm.id;
     }
 
+    setDmTarget({ type: "dm", id: dmId, name });
   }, [user]);
+
+  const handleReachOutClose = useCallback(() => {
+    setShowReachOut(false);
+  }, []);
+
+  const handleReachOutSent = useCallback((target: ChatTarget) => {
+    setShowReachOut(false);
+    setDmTarget(target);
+  }, []);
+
+  // If a DM conversation is active, show it full-screen within the layout
+  if (dmTarget) {
+    return (
+      <AppLayout>
+        <MessagesTab initialTarget={dmTarget} onBack={() => setDmTarget(null)} />
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout>
@@ -84,7 +104,7 @@ const BrotherhoodPage = () => {
           </button>
         </motion.div>
 
-        {/* Tabs: Brothers / Channels / Messages */}
+        {/* Tabs: Brothers / Channels */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="w-full mb-4 bg-[#0A0A0A] border border-primary/30 p-1">
             <TabsTrigger value="brothers" className="flex-1 gap-1.5 text-white/50 data-[state=active]:bg-primary data-[state=active]:text-[#0A0A0A] data-[state=active]:shadow-none font-semibold">
@@ -105,7 +125,7 @@ const BrotherhoodPage = () => {
         </Tabs>
       </div>
 
-      {showReachOut && <ReachOut onClose={() => setShowReachOut(false)} />}
+      {showReachOut && <ReachOut onClose={handleReachOutClose} onSent={handleReachOutSent} />}
     </AppLayout>
   );
 };

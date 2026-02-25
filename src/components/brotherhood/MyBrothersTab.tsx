@@ -2,10 +2,20 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MessageCircle, UserPlus, X, Check, Search, Loader2 } from "lucide-react";
+import { MessageCircle, UserPlus, X, Check, Search, Loader2, UserMinus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useBrothers, useSearchUsers } from "@/hooks/useBrotherhood";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface MyBrothersTabProps {
   onStartDM: (brotherUserId: string, name: string) => void;
@@ -19,6 +29,7 @@ const MyBrothersTab = ({ onStartDM }: MyBrothersTabProps) => {
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const { data: searchResults = [], isLoading: searching } = useSearchUsers(searchQuery);
+  const [removeTarget, setRemoveTarget] = useState<{ connectionId: string; name: string } | null>(null);
 
   const handleSendRequest = async (userId: string) => {
     try {
@@ -28,6 +39,18 @@ const MyBrothersTab = ({ onStartDM }: MyBrothersTabProps) => {
       setSearchQuery("");
     } catch {
       toast.error("Could not send request. You may already have a connection.");
+    }
+  };
+
+  const handleRemove = async () => {
+    if (!removeTarget) return;
+    try {
+      await removeBrother.mutateAsync(removeTarget.connectionId);
+      toast.success(`${removeTarget.name} removed from your brothers`);
+    } catch {
+      toast.error("Could not remove brother");
+    } finally {
+      setRemoveTarget(null);
     }
   };
 
@@ -145,14 +168,40 @@ const MyBrothersTab = ({ onStartDM }: MyBrothersTabProps) => {
                 <button
                   onClick={() => onStartDM(brother.userId, brother.displayName)}
                   className="p-2 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors"
+                  aria-label={`Message ${brother.displayName}`}
                 >
                   <MessageCircle className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setRemoveTarget({ connectionId: brother.connectionId, name: brother.displayName })}
+                  className="p-2 rounded-lg hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive"
+                  aria-label={`Remove ${brother.displayName}`}
+                >
+                  <UserMinus className="w-4 h-4" />
                 </button>
               </div>
             ))}
           </div>
         )}
       </motion.div>
+
+      {/* Remove confirmation dialog */}
+      <AlertDialog open={!!removeTarget} onOpenChange={(open) => !open && setRemoveTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove Brother</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to remove {removeTarget?.name} from your brothers? This will remove the connection for both of you.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleRemove} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Remove
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

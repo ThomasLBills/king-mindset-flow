@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { useBrothers } from "@/hooks/useBrotherhood";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import type { ChatTarget } from "@/hooks/useChat";
 
 const templates = [
   {
@@ -37,9 +38,10 @@ const templates = [
 
 interface ReachOutProps {
   onClose: () => void;
+  onSent?: (target: ChatTarget) => void;
 }
 
-const ReachOut = ({ onClose }: ReachOutProps) => {
+const ReachOut = ({ onClose, onSent }: ReachOutProps) => {
   const { user } = useAuth();
   const { brothers, isLoading } = useBrothers();
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
@@ -64,8 +66,12 @@ const ReachOut = ({ onClose }: ReachOutProps) => {
 
     try {
       let sentCount = 0;
+      let lastDmTarget: ChatTarget | null = null;
 
       for (const brotherId of selectedBrothers) {
+        const brother = brothers.find(b => b.userId === brotherId);
+        const brotherName = brother?.displayName || "Brother";
+
         // Find or create DM
         const { data: existing } = await supabase
           .from("chat_dms")
@@ -95,7 +101,10 @@ const ReachOut = ({ onClose }: ReachOutProps) => {
           dm_id: dmId,
         });
 
-        if (!msgError) sentCount++;
+        if (!msgError) {
+          sentCount++;
+          lastDmTarget = { type: "dm", id: dmId, name: brotherName };
+        }
       }
 
       if (sentCount > 0) {
@@ -103,7 +112,12 @@ const ReachOut = ({ onClose }: ReachOutProps) => {
           sentCount === 1 ? "Message sent" : `Message sent to ${sentCount} brothers`,
           { description: "They'll see it in their messages." }
         );
-        onClose();
+        // If only one brother was messaged, navigate to that DM
+        if (sentCount === 1 && lastDmTarget && onSent) {
+          onSent(lastDmTarget);
+        } else {
+          onClose();
+        }
       } else {
         toast.error("Could not send messages");
       }
@@ -112,7 +126,7 @@ const ReachOut = ({ onClose }: ReachOutProps) => {
     } finally {
       setSending(false);
     }
-  }, [user, selectedBrothers, currentMessage, onClose]);
+  }, [user, selectedBrothers, currentMessage, brothers, onClose, onSent]);
 
   const canSend = selectedBrothers.length > 0 && !!currentMessage && !sending;
 
