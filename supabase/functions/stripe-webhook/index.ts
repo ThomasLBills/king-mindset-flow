@@ -309,13 +309,15 @@ async function processSubscription(subscription: any, userId: string, supabase: 
     { onConflict: "stripe_subscription_id" }
   );
 
-  // Upsert entitlement
+  // Upsert entitlement — active subscribers get no expiry (permanent while subscribed)
+  // Trial users who subscribe get their expiry cleared
   await supabase.from("entitlements").upsert(
     {
       user_id: userId,
       entitlement_type: "course_app_access",
       active: isActive,
       source: "stripe",
+      expires_at: isActive ? null : new Date(subscription.current_period_end * 1000).toISOString(),
     },
     { onConflict: "user_id,entitlement_type" }
   );
