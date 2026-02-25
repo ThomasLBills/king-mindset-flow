@@ -154,13 +154,15 @@ Deno.serve(async (req) => {
       console.error("Profile upsert error:", profileError.message);
     }
 
-    // 3. Upsert entitlement
+    // 3. Upsert entitlement with 60-day trial expiry
+    const trialExpiresAt = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString();
     const { error: entitlementError } = await supabase.from("entitlements").upsert(
       {
         user_id: userId!,
         entitlement_type: "course_app_access",
         active: true,
         source: `zapier_${plan_key}`,
+        expires_at: trialExpiresAt,
       },
       { onConflict: "user_id,entitlement_type" }
     );
