@@ -13,6 +13,59 @@ function generateVerificationCode(): string {
   return String(arr[0] % 1000000).padStart(6, "0");
 }
 
+function buildVerificationEmailHtml(code: string): string {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"></head>
+<body style="background-color:#ffffff;font-family:'Inter',Arial,sans-serif">
+  <div style="padding:40px 32px;max-width:480px;margin:0 auto">
+    <h1 style="font-family:'Crimson Pro',Georgia,serif;font-size:26px;font-weight:600;color:#1A1A1A;margin:0 0 16px">Welcome to Liberated Kings</h1>
+    <p style="font-size:15px;color:#555555;line-height:1.6;margin:0 0 28px">Go to <strong>app.liberatedkings.com</strong> and click &ldquo;New here? Set up your account&rdquo; to create your account using the code below:</p>
+    <div style="background-color:#F9F5EB;border-radius:12px;padding:20px;text-align:center;margin:0 0 28px;border:1px solid rgba(201,168,76,0.3)">
+      <p style="font-size:36px;font-weight:700;color:#1A1A1A;letter-spacing:8px;margin:0;font-family:'Inter',Arial,sans-serif">${code}</p>
+    </div>
+    <p style="font-size:15px;color:#555555;line-height:1.6;margin:0 0 28px">This code expires in 24 hours.</p>
+    <hr style="border-color:rgba(201,168,76,0.2);margin:32px 0">
+    <p style="font-size:12px;color:#999999;margin:0;line-height:1.5">If you were not expecting this, you can safely disregard this message.</p>
+  </div>
+</body>
+</html>`;
+}
+
+async function sendEmailViaResend(to: string, code: string): Promise<boolean> {
+  const resendApiKey = Deno.env.get("RESEND_API_KEY");
+  if (!resendApiKey) {
+    console.error("RESEND_API_KEY not configured — cannot send verification email");
+    return false;
+  }
+
+  const html = buildVerificationEmailHtml(code);
+
+  const resp = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${resendApiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: "Liberated Kings <noreply@notify.liberatedkings.com>",
+      to: [to],
+      subject: "Your Liberated Kings verification code",
+      html,
+    }),
+  });
+
+  if (!resp.ok) {
+    const errBody = await resp.text();
+    console.error("Resend API error:", resp.status, errBody);
+    return false;
+  }
+
+  const result = await resp.json();
+  console.log("Verification email sent via Resend:", result.id, "to:", to);
+  return true;
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -98,40 +151,38 @@ Deno.serve(async (req) => {
       userId = existingProfile.user_id;
       console.log("User already exists:", userId);
     } else {
-      // Generate verification code BEFORE inviting so auth-email-hook renders code template
-      await storeVerificationCode(normalizedEmail, supabase);
-
-      // Use inviteUserByEmail — this triggers auth-email-hook which will send the code email
-      const { data: inviteData, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(normalizedEmail, {
-        data: { name: name || "" },
-        redirectTo: "https://app.liberatedkings.com/setup-account",
+      // Create user directly (no invite email — we send verification code separately)
+      const { data: userData, error: createError } = await supabase.auth.admin.createUser({
+        email: normalizedEmail,
+        email_confirm: true,
+        user_metadata: { name: name || "" },
       });
 
-      if (inviteError) {
+      if (createError) {
         // User might exist in auth but not profiles
-        if ((inviteError as any).code === "email_exists" || inviteError.status === 422) {
+        if ((createError as any).code === "email_exists" || createError.status === 422) {
           const { data: users } = await supabase.auth.admin.listUsers();
           const existing = users?.users?.find((u: any) => u.email === normalizedEmail);
           if (existing) {
             userId = existing.id;
             console.log("User exists in auth but not profiles:", userId);
           } else {
-            console.error("Failed to invite or find user:", inviteError);
+            console.error("Failed to create or find user:", createError);
             return new Response(JSON.stringify({ error: "Failed to provision user" }), {
               status: 500,
               headers: { ...corsHeaders, "Content-Type": "application/json" },
             });
           }
         } else {
-          console.error("Invite error:", inviteError);
+          console.error("Create user error:", createError);
           return new Response(JSON.stringify({ error: "Failed to provision user" }), {
             status: 500,
             headers: { ...corsHeaders, "Content-Type": "application/json" },
           });
         }
       } else {
-        userId = inviteData.user.id;
-        console.log("Invited new user:", userId, normalizedEmail);
+        userId = userData.user.id;
+        console.log("Created new user:", userId, normalizedEmail);
       }
     }
 
@@ -177,6 +228,13 @@ Deno.serve(async (req) => {
       status: "paid",
     });
 
+    // 5. Generate verification code and send email directly via Resend
+    const code = await storeVerificationCode(normalizedEmail, supabase);
+    const emailSent = await sendEmailViaResend(normalizedEmail, code);
+    if (!emailSent) {
+      console.error("Failed to send verification email to", normalizedEmail);
+    }
+
     console.log("Provisioned user via Zapier, plan:", plan_key);
 
     return new Response(JSON.stringify({ success: true, user_id: userId }), {
@@ -191,7 +249,7 @@ Deno.serve(async (req) => {
   }
 });
 
-async function storeVerificationCode(email: string, supabase: any): Promise<void> {
+async function storeVerificationCode(email: string, supabase: any): Promise<string> {
   // Invalidate previous codes
   await supabase
     .from("verification_codes")
@@ -209,4 +267,5 @@ async function storeVerificationCode(email: string, supabase: any): Promise<void
   });
 
   console.log("Stored verification code for", email);
+  return code;
 }

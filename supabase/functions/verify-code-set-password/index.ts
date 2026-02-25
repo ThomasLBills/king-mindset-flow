@@ -75,7 +75,7 @@ Deno.serve(async (req) => {
     }
 
     // Set the password via admin API
-    const { error: updateErr } = await supabase.auth.admin.updateUser(profile.user_id, {
+    const { error: updateErr } = await supabase.auth.admin.updateUserById(profile.user_id, {
       password,
       email_confirm: true, // Ensure email is confirmed
     });
