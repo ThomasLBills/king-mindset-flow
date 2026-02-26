@@ -115,7 +115,6 @@ const ToolsPage = () => {
                 ))}
               </div>
 
-              <Megaphone className="w-[60px] h-[60px] text-primary mb-6 modal-icon" />
 
               <div className="relative max-w-lg w-full flex items-center">
                 <button
