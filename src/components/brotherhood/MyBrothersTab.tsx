@@ -181,8 +181,9 @@ const MyBrothersTab = ({ onStartDM }: MyBrothersTabProps) => {
                   <p className="font-medium">{brother.displayName}</p>
                 </div>
                 <button
+                  type="button"
                   onClick={() => onStartDM(brother.userId, brother.displayName)}
-                  className="relative p-2 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors"
+                  className="relative z-10 p-2 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors"
                   aria-label={`Message ${brother.displayName}`}
                 >
                   <MessageCircle className="w-4 h-4" />
@@ -191,6 +192,7 @@ const MyBrothersTab = ({ onStartDM }: MyBrothersTabProps) => {
                   )}
                 </button>
                 <button
+                  type="button"
                   onClick={() => setRemoveTarget({ connectionId: brother.connectionId, name: brother.displayName })}
                   className="p-2 rounded-lg hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive"
                   aria-label={`Remove ${brother.displayName}`}
