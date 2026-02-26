@@ -38,7 +38,6 @@ const GratitudeModal = ({ onClose }: GratitudeModalProps) => {
         className="modal-fullscreen bg-[#111111] items-center justify-center"
       >
         <div className="flex flex-col items-center justify-center flex-1 px-8">
-          <Heart className="w-[60px] h-[60px] text-primary mb-6 modal-icon" />
           <h2 className="font-serif text-2xl font-bold text-white text-center">
             Gratitude recorded. Eyes trained on grace.
           </h2>
@@ -66,7 +65,6 @@ const GratitudeModal = ({ onClose }: GratitudeModalProps) => {
           animate={{ opacity: 1, y: 0 }}
           className="flex flex-col items-center w-full max-w-sm"
         >
-          <Heart className="w-[60px] h-[60px] text-primary mb-6 modal-icon" />
           <h2 className="font-serif text-2xl font-bold text-white mb-2 text-center">
             What Are You Grateful For Today?
           </h2>
