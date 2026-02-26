@@ -106,7 +106,6 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
         animate={{ opacity: 1 }}
         className="fixed inset-0 z-50 bg-[#111111] flex flex-col items-center justify-center px-8"
       >
-        <Shield className="w-[60px] h-[60px] text-primary mb-6" />
         <h2 className="font-serif text-2xl font-bold text-white text-center">
           You returned. You are still His.
         </h2>
