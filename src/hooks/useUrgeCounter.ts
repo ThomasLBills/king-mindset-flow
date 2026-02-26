@@ -9,7 +9,12 @@ const getMonthStart = (): string => {
 
 const getTodayStart = (): string => {
   const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}T00:00:00`;
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  // Build local midnight and convert to ISO with correct offset so Supabase compares in the user's local day
+  const localMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  return localMidnight.toISOString();
 };
 
 export function useUrgeCounter() {
