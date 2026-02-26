@@ -119,7 +119,7 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 bg-[#111111] flex flex-col"
+      className="modal-fullscreen bg-[#111111]"
     >
       <div className="flex justify-end p-4">
         <button onClick={onClose} className="p-2 rounded-full hover:bg-white/10 transition-colors">
@@ -127,12 +127,12 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
         </button>
       </div>
 
-      <div className="flex-1 flex items-center justify-center px-8 overflow-y-auto">
+      <div className="modal-fullscreen-body">
         <AnimatePresence mode="wait">
           {/* STEP 1: RECOGNIZE THE TRUTH */}
           {step === 0 && (
             <StepWrapper key="r">
-              <Shield className="w-[60px] h-[60px] text-primary mb-6" />
+              <Shield className="w-[60px] h-[60px] text-primary mb-6 modal-icon" />
               <h2 className="font-serif text-2xl font-bold text-white mb-4 text-center">Recognize The Truth</h2>
               <p className="text-sm text-white leading-relaxed text-center mb-4 max-w-sm">
                 Don't open another tab. Close everything. Stand up. Walk away from the screen.
@@ -149,7 +149,7 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
           {/* STEP 2: ENGAGE THE FATHER */}
           {step === 1 && (
             <StepWrapper key="e">
-              <Shield className="w-[60px] h-[60px] text-primary mb-6" />
+              <Shield className="w-[60px] h-[60px] text-primary mb-6 modal-icon" />
               <h2 className="font-serif text-2xl font-bold text-white mb-4 text-center">Engage The Father</h2>
               <p className="text-sm text-white leading-relaxed text-center mb-4 max-w-sm">
                 Don't hide. Don't delay. Go to God immediately as a son, not a slave.
@@ -166,7 +166,7 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
           {/* STEP 3: TRACE WHAT HAPPENED */}
           {step === 2 && (
             <StepWrapper key="t">
-              <Shield className="w-[60px] h-[60px] text-primary mb-6" />
+              <Shield className="w-[60px] h-[60px] text-primary mb-6 modal-icon" />
               <h2 className="font-serif text-2xl font-bold text-white mb-4 text-center">Trace What Happened</h2>
               <p className="text-sm text-white leading-relaxed text-center mb-4 max-w-sm">
                 Shame says: "You're disgusting. You'll never change."{"\n\n"}
@@ -196,7 +196,7 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
           {/* STEP 4: UPROOT ISOLATION */}
           {step === 3 && (
             <StepWrapper key="u">
-              <Shield className="w-[60px] h-[60px] text-primary mb-6" />
+              <Shield className="w-[60px] h-[60px] text-primary mb-6 modal-icon" />
               <h2 className="font-serif text-2xl font-bold text-white mb-4 text-center">Uproot Isolation</h2>
               <p className="text-sm text-white leading-relaxed text-center mb-4 max-w-sm">
                 Don't isolate. Shame grows in secrecy.
@@ -235,7 +235,7 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
           {/* STEP 5: RESUME NORMAL RHYTHMS */}
           {step === 4 && (
             <StepWrapper key="r2">
-              <Shield className="w-[60px] h-[60px] text-primary mb-6" />
+              <Shield className="w-[60px] h-[60px] text-primary mb-6 modal-icon" />
               <h2 className="font-serif text-2xl font-bold text-white mb-4 text-center">Resume Normal Rhythms</h2>
               <p className="text-sm text-white leading-relaxed text-center mb-4 max-w-sm">
                 Don't punish yourself. Don't try to earn back your standing through extra disciplines.
@@ -275,7 +275,7 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
           {/* STEP 6: NAVIGATE FORWARD */}
           {step === 5 && (
             <StepWrapper key="n">
-              <Shield className="w-[60px] h-[60px] text-primary mb-6" />
+              <Shield className="w-[60px] h-[60px] text-primary mb-6 modal-icon" />
               <h2 className="font-serif text-2xl font-bold text-white mb-4 text-center">Navigate Forward</h2>
               <p className="text-sm text-white leading-relaxed text-center mb-4 max-w-sm">
                 After the shame has settled, reflect:

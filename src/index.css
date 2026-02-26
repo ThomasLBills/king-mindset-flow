@@ -259,6 +259,43 @@
   .week-card.unlocked {
     @apply border-border hover:border-primary/40 hover:shadow-sm;
   }
+
+  /* Fullscreen modal / tool overlay — scrollable, safe on short screens */
+  .modal-fullscreen {
+    @apply fixed inset-0 z-50 flex flex-col;
+  }
+
+  .modal-fullscreen-body {
+    @apply flex-1 flex flex-col items-center px-8 overflow-y-auto;
+    padding-top: 1rem;
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 2rem);
+  }
+
+  /* On taller screens, vertically centre content */
+  @media (min-height: 700px) {
+    .modal-fullscreen-body {
+      justify-content: center;
+    }
+  }
+
+  /* On shorter screens, shrink icons & spacing */
+  @media (max-height: 699px) {
+    .modal-fullscreen-body .modal-icon {
+      width: 40px;
+      height: 40px;
+      margin-bottom: 0.75rem;
+    }
+    .modal-fullscreen-body h2 {
+      font-size: 1.25rem;
+      margin-bottom: 0.5rem;
+    }
+    .modal-fullscreen-body .mb-6 {
+      margin-bottom: 0.75rem;
+    }
+    .modal-fullscreen-body .mb-4 {
+      margin-bottom: 0.5rem;
+    }
+  }
 }
 
 @layer utilities {
