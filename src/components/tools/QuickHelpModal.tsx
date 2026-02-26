@@ -29,7 +29,7 @@ const QuickHelpModal = ({ data, onClose, onReachOut }: QuickHelpModalProps) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-background z-50 flex flex-col overflow-auto"
+      className="modal-fullscreen bg-background overflow-auto"
     >
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-border">

@@ -84,7 +84,7 @@ const ToolsPage = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-[#111111] flex flex-col"
+            className="modal-fullscreen bg-[#111111]"
           >
             {/* Close button */}
             <div className="flex justify-end p-4">
@@ -93,7 +93,7 @@ const ToolsPage = () => {
               </button>
             </div>
 
-            <div className="flex-1 flex flex-col items-center justify-center px-8">
+            <div className="modal-fullscreen-body">
               {/* Progress dots */}
               <div className="flex gap-2 mb-8">
                 {declarations.map((_, i) => (
@@ -104,7 +104,7 @@ const ToolsPage = () => {
                 ))}
               </div>
 
-              <Megaphone className="w-[60px] h-[60px] text-primary mb-6" />
+              <Megaphone className="w-[60px] h-[60px] text-primary mb-6 modal-icon" />
 
               <div className="relative max-w-lg w-full flex items-center">
                 <button

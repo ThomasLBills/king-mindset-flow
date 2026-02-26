@@ -111,7 +111,7 @@ export const SpiritLedCrisisModal = ({ onClose }: { onClose: () => void }) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 bg-[#111111] flex flex-col"
+      className="modal-fullscreen bg-[#111111]"
     >
       {/* Victory Overlay */}
       <AnimatePresence>
@@ -123,7 +123,7 @@ export const SpiritLedCrisisModal = ({ onClose }: { onClose: () => void }) => {
             transition={{ duration: 0.3 }}
             className="absolute inset-0 z-[60] flex flex-col items-center justify-center bg-[#111111]"
           >
-            <Shield className="w-[60px] h-[60px] text-primary mb-6" />
+            <Shield className="w-[60px] h-[60px] text-primary mb-6 modal-icon" />
             <motion.h2
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -151,12 +151,12 @@ export const SpiritLedCrisisModal = ({ onClose }: { onClose: () => void }) => {
         </button>
       </div>
 
-      <div className="flex-1 flex items-center justify-center px-8 overflow-y-auto">
+      <div className="modal-fullscreen-body">
         <AnimatePresence mode="wait">
           {/* STEP 1: NOTICE */}
           {step === 0 && (
             <StepWrapper key="notice">
-              <Shield className="w-[60px] h-[60px] text-primary mb-6" />
+              <Shield className="w-[60px] h-[60px] text-primary mb-6 modal-icon" />
               <h2 className="font-serif text-2xl font-bold text-white mb-1 text-center">Notice</h2>
               <p className="text-sm text-white text-center mb-6">Awareness Without Judgment</p>
               <p className="text-sm text-white text-center mb-6 max-w-sm">
@@ -203,7 +203,7 @@ export const SpiritLedCrisisModal = ({ onClose }: { onClose: () => void }) => {
           {/* STEP 2: NAME THE TRUTH */}
           {step === 1 && (
             <StepWrapper key="name">
-              <Shield className="w-[60px] h-[60px] text-primary mb-6" />
+              <Shield className="w-[60px] h-[60px] text-primary mb-6 modal-icon" />
               <h2 className="font-serif text-2xl font-bold text-white mb-1 text-center">Name The Truth</h2>
               <p className="text-sm text-white text-center mb-6">Alignment With Reality</p>
               <p className="text-sm text-white text-center mb-6 max-w-sm">
@@ -229,7 +229,7 @@ export const SpiritLedCrisisModal = ({ onClose }: { onClose: () => void }) => {
           {/* STEP 3: NAVIGATE */}
           {step === 2 && (
             <StepWrapper key="navigate">
-              <Shield className="w-[60px] h-[60px] text-primary mb-6" />
+              <Shield className="w-[60px] h-[60px] text-primary mb-6 modal-icon" />
               <h2 className="font-serif text-2xl font-bold text-white mb-1 text-center">Navigate</h2>
               <p className="text-sm text-white text-center mb-6">Choose The Next Aligned Step</p>
               <p className="text-sm text-white text-center mb-6 max-w-sm">
