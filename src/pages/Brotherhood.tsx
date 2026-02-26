@@ -43,9 +43,11 @@ const BrotherhoodPage = () => {
       dmId = existing.id;
     } else {
       console.log("[handleStartDM] Creating new DM between", user.id, "and", brotherUserId);
+      // chat_dms has CHECK (user_a < user_b), so normalize ordering before insert
+      const [userA, userB] = [user.id, brotherUserId].sort();
       const { data: newDm, error } = await supabase
         .from("chat_dms")
-        .insert({ user_a: user.id, user_b: brotherUserId })
+        .insert({ user_a: userA, user_b: userB })
         .select("id")
         .single();
       if (error) {
