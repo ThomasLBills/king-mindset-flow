@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Megaphone, X } from "lucide-react";
 import AppLayout from "@/components/layout/AppLayout";
 import GraceProtocol from "@/components/tools/GraceProtocol";
+import GratitudeModal from "@/components/tools/GratitudeModal";
 import { SpiritLedCrisisModal } from "@/components/layout/SpiritLedCrisisButton";
 import { useEvidenceCounter } from "@/hooks/useEvidenceCounter";
 

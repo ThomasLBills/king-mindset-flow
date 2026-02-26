@@ -26,7 +26,7 @@ export function useGratitude() {
         .eq("entry_date", todayStr)
         .maybeSingle();
       if (error) throw error;
-      return data as { entry_1: string; entry_2: string; entry_3: string } | null;
+      return data as unknown as { entry_1: string; entry_2: string; entry_3: string } | null;
     },
   });
 
