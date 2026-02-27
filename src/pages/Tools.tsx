@@ -1,20 +1,128 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight, Megaphone, X } from "lucide-react";
+import { X, Check } from "lucide-react";
 import AppLayout from "@/components/layout/AppLayout";
 import GraceProtocol from "@/components/tools/GraceProtocol";
 import GratitudeModal from "@/components/tools/GratitudeModal";
 import { SpiritLedCrisisModal } from "@/components/layout/SpiritLedCrisisButton";
 import { useEvidenceCounter } from "@/hooks/useEvidenceCounter";
-
+import { Button } from "@/components/ui/button";
 
 const declarations = [
-{ text: "I am a child of God, and He loves me unconditionally.", reference: "John 1:12, Romans 8:38-39" },
-{ text: "I have been redeemed and forgiven of my sins through the sacrifice of Jesus on the cross.", reference: "Ephesians 1:7" },
-{ text: "I am a new creation in Christ, and my old self has passed away.", reference: "2 Corinthians 5:17" },
-{ text: "I have been given a spirit of power, love, and self-discipline, not fear.", reference: "2 Timothy 1:7" },
-{ text: "I am free in Christ. The chains are broken.", reference: "Galatians 5:1" },
-{ text: "I am being transformed by the renewing of my mind.", reference: "Romans 12:2" }];
+  { text: "I am a child of God, and He loves me unconditionally.", reference: "John 1:12, Romans 8:38-39" },
+  { text: "I have been redeemed and forgiven of my sins through the sacrifice of Jesus on the cross.", reference: "Ephesians 1:7" },
+  { text: "I am a new creation in Christ, and my old self has passed away.", reference: "2 Corinthians 5:17" },
+  { text: "I have been given a spirit of power, love, and self-discipline, not fear.", reference: "2 Timothy 1:7" },
+  { text: "I am free in Christ. The chains are broken.", reference: "Galatians 5:1" },
+  { text: "I am being transformed by the renewing of my mind.", reference: "Romans 12:2" },
+];
+
+// ========== Declarations Modal ==========
+const DeclarationsModal = ({ onClose }: { onClose: () => void }) => {
+  const [showCompletion, setShowCompletion] = useState(false);
+  const { addEvidence } = useEvidenceCounter();
+
+  const selectedDeclaration = useMemo(
+    () => declarations[Math.floor(Math.random() * declarations.length)],
+    []
+  );
+
+  const handleBelieve = () => {
+    addEvidence.mutate("declaration");
+    setShowCompletion(true);
+    setTimeout(() => {
+      onClose();
+    }, 1500);
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="modal-fullscreen bg-[#111111]"
+    >
+      {/* Completion Overlay */}
+      <AnimatePresence>
+        {showCompletion && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="absolute inset-0 z-[60] flex flex-col items-center justify-center bg-[#111111]"
+          >
+            <motion.div
+              initial={{ scale: 0.5, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.15, type: "spring", stiffness: 200, damping: 15 }}
+              className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mb-4"
+            >
+              <Check className="w-8 h-8 text-primary" />
+            </motion.div>
+            <motion.h2
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="font-serif text-2xl font-bold text-white mb-3 text-center"
+            >
+              Truth declared.
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.45 }}
+              className="text-white text-base text-center"
+            >
+              You are building evidence.
+            </motion.p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Close button */}
+      <div className="flex justify-end p-4">
+        <button onClick={onClose} className="p-2 rounded-full hover:bg-white/10 transition-colors">
+          <X className="w-5 h-5 text-white" />
+        </button>
+      </div>
+
+      <div className="modal-fullscreen-body">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col items-center w-full max-w-sm"
+        >
+          <h2 className="font-serif text-2xl font-bold text-white mb-1 text-center">Speak Truth Over Myself</h2>
+          <p className="text-sm text-white text-center mb-6">Declare Who God Says You Are</p>
+          <p className="text-sm text-white text-center mb-6 max-w-sm">
+            Your identity is not up for debate. Speak this truth out loud:
+          </p>
+
+          <div className="bg-white/5 border border-primary/20 rounded-xl p-5 w-full mb-4">
+            <p className="font-serif text-lg text-white leading-relaxed text-center italic">
+              "{selectedDeclaration.text}"
+            </p>
+            <p className="text-sm text-primary mt-3 font-medium text-center">
+              {selectedDeclaration.reference}
+            </p>
+          </div>
+
+          <p className="text-sm text-white text-center mb-8 max-w-sm">
+            Say it out loud. Let your ears hear what your mouth declares. Your brain rewires when you speak truth.
+          </p>
+
+          <Button
+            onClick={handleBelieve}
+            className="w-full rounded-xl font-bold h-12 text-base bg-primary text-[#0A0A0A] hover:bg-primary/90"
+          >
+            I believe this.
+          </Button>
+        </motion.div>
+      </div>
+    </motion.div>
+  );
+};
 
 
 const ToolsPage = () => {
@@ -22,8 +130,6 @@ const ToolsPage = () => {
   const [showGraceProtocol, setShowGraceProtocol] = useState(false);
   const [showDeclarations, setShowDeclarations] = useState(false);
   const [showGratitude, setShowGratitude] = useState(false);
-  const [declarationIndex, setDeclarationIndex] = useState(0);
-  const { addEvidence } = useEvidenceCounter();
 
   return (
     <AppLayout>
@@ -64,7 +170,7 @@ const ToolsPage = () => {
               <span className="block text-sm text-primary mt-1">R.E.T.U.R.N.</span>
             </motion.button>
             <motion.button
-              onClick={() => {setDeclarationIndex(0);setShowDeclarations(true);}}
+              onClick={() => setShowDeclarations(true)}
               whileTap={{ scale: 1.02 }}
               className="py-6 px-10 rounded-xl text-center bg-[#1C1C1E] border-[1.5px] border-primary active:bg-primary active:text-[#0A0A0A] transition-colors duration-200">
 
@@ -87,80 +193,7 @@ const ToolsPage = () => {
         {showCrisisModal && <SpiritLedCrisisModal onClose={() => setShowCrisisModal(false)} />}
         {showGraceProtocol && <GraceProtocol onClose={() => setShowGraceProtocol(false)} />}
         {showGratitude && <GratitudeModal onClose={() => setShowGratitude(false)} />}
-
-
-        {/* Modal 4: Declarations */}
-        {showDeclarations &&
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="modal-fullscreen bg-[#111111]">
-
-            {/* Close button */}
-            <div className="flex justify-end p-4">
-              <button onClick={() => setShowDeclarations(false)} className="p-2 rounded-full hover:bg-white/10 transition-colors">
-                <X className="w-5 h-5 text-white" />
-              </button>
-            </div>
-
-            <div className="modal-fullscreen-body">
-              {/* Progress dots */}
-              <div className="flex gap-2 mb-8">
-                {declarations.map((_, i) =>
-              <div
-                key={i}
-                className={`w-2 h-2 rounded-full transition-colors ${i === declarationIndex ? 'bg-primary' : 'bg-white/30'}`} />
-
-              )}
-              </div>
-
-
-              <div className="relative max-w-lg w-full flex items-center">
-                <button
-                onClick={() => setDeclarationIndex((prev) => (prev - 1 + declarations.length) % declarations.length)}
-                className="absolute -left-4 sm:-left-8 text-white/50 hover:text-white transition-colors z-10">
-
-                  <ChevronLeft className="w-8 h-8" />
-                </button>
-
-                <AnimatePresence mode="wait">
-                  <motion.div
-                  key={declarationIndex}
-                  initial={{ opacity: 0, x: 40 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -40 }}
-                  transition={{ duration: 0.25 }}
-                  className="text-center w-full px-8">
-
-                    <p className="font-serif text-2xl text-white font-bold leading-relaxed mb-6">
-                      "{declarations[declarationIndex].text}"
-                    </p>
-                    <p className="text-base text-primary font-medium">
-                      {declarations[declarationIndex].reference}
-                    </p>
-                  </motion.div>
-                </AnimatePresence>
-
-                <button
-                onClick={() => setDeclarationIndex((prev) => (prev + 1) % declarations.length)}
-                className="absolute -right-4 sm:-right-8 text-white/50 hover:text-white transition-colors z-10">
-
-                  <ChevronRight className="w-8 h-8" />
-                </button>
-              </div>
-
-              <div className="mt-10 max-w-lg w-full">
-                <button
-                onClick={() => {addEvidence.mutate("declaration");setShowDeclarations(false);}}
-                className="w-full py-4 rounded-xl bg-primary text-[#0A0A0A] font-bold text-base">
-
-                  I believe this. Close.
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        }
+        {showDeclarations && <DeclarationsModal onClose={() => setShowDeclarations(false)} />}
       </AnimatePresence>
     </AppLayout>);
 
