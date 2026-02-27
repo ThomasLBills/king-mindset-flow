@@ -20,29 +20,19 @@ const BrotherhoodPage = () => {
   const [dmTarget, setDmTarget] = useState<ChatTarget | null>(null);
 
   const handleStartDM = useCallback(async (brotherUserId: string, name: string) => {
-    if (!user) {
-      console.error("[handleStartDM] No authenticated user");
-      return;
-    }
-    console.log("[handleStartDM] Starting DM with", brotherUserId, name);
+    if (!user) return;
 
     // Look up existing DM
-    const { data: existing, error: lookupError } = await supabase
+    const { data: existing } = await supabase
       .from("chat_dms")
       .select("id")
       .or(`and(user_a.eq.${user.id},user_b.eq.${brotherUserId}),and(user_a.eq.${brotherUserId},user_b.eq.${user.id})`)
       .maybeSingle();
 
-    if (lookupError) {
-      console.error("[handleStartDM] Lookup error:", lookupError);
-    }
-
     let dmId: string;
     if (existing) {
-      console.log("[handleStartDM] Found existing DM:", existing.id);
       dmId = existing.id;
     } else {
-      console.log("[handleStartDM] Creating new DM between", user.id, "and", brotherUserId);
       // chat_dms has CHECK (user_a < user_b), so normalize ordering before insert
       const [userA, userB] = [user.id, brotherUserId].sort();
       const { data: newDm, error } = await supabase
@@ -50,15 +40,7 @@ const BrotherhoodPage = () => {
         .insert({ user_a: userA, user_b: userB })
         .select("id")
         .single();
-      if (error) {
-        console.error("[handleStartDM] Insert error:", error.message, error.details, error.hint);
-        return;
-      }
-      if (!newDm) {
-        console.error("[handleStartDM] Insert returned no data");
-        return;
-      }
-      console.log("[handleStartDM] Created new DM:", newDm.id);
+      if (error || !newDm) return;
       dmId = newDm.id;
     }
 
