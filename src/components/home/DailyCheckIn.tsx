@@ -314,7 +314,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
                 </motion.p>
               )}
 
-              {selectedAwareness.length > 0 && (
+              {selectedAwareness && (
                 <div className="flex gap-3">
                   <motion.div
                     className="flex-1"
