@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
@@ -9,8 +9,10 @@ const awarenessOptions = [
   { id: "hopeful", label: "Hopeful" },
   { id: "grateful", label: "Grateful" },
   { id: "connected", label: "Connected" },
+  { id: "peaceful", label: "Peaceful" },
   { id: "calm", label: "Calm" },
   { id: "rested", label: "Rested" },
+  { id: "tired", label: "Tired" },
   { id: "anxious", label: "Anxious" },
   { id: "discouraged", label: "Discouraged" },
   { id: "isolated", label: "Isolated" },
@@ -58,6 +60,14 @@ const scriptureResponses: Record<string, { text: string; ref: string }> = {
   grateful: {
     text: "Give thanks in all circumstances; for this is the will of God in Christ Jesus for you.",
     ref: "1 Thessalonians 5:18",
+  },
+  tired: {
+    text: "Come to me, all who labor and are heavy laden, and I will give you rest.",
+    ref: "Matthew 11:28",
+  },
+  peaceful: {
+    text: "And the peace of God, which surpasses all understanding, will guard your hearts and your minds in Christ Jesus.",
+    ref: "Philippians 4:7",
   },
 };
 
@@ -160,8 +170,9 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
   const [selectedAwareness, setSelectedAwareness] = useState<string[]>([]);
   const [showOverlay, setShowOverlay] = useState(false);
   const [showBreathText, setShowBreathText] = useState(false);
-  const [spiritPrompt, setSpiritPrompt] = useState("");
+  const [hasTypedSpirit, setHasTypedSpirit] = useState(false);
   const [redoMode, setRedoMode] = useState(false);
+  const spiritRef = useRef<HTMLTextAreaElement>(null);
   const { isCheckedIn, todayCheckIn, submitCheckIn } = useDailyCheckIn();
 
   // Randomize tile order once per session
@@ -176,7 +187,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
 
   // Get the most relevant scripture for selected emotions
   const activeScripture = useMemo(() => {
-    const prioritized = ["ashamed", "tempted", "anxious", "isolated", "discouraged"];
+    const prioritized = ["ashamed", "tempted", "anxious", "isolated", "discouraged", "tired"];
     for (const id of prioritized) {
       if (selectedAwareness.includes(id)) return scriptureResponses[id];
     }
@@ -188,7 +199,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
   const completedScripture = useMemo(() => {
     if (!todayCheckIn?.feelings) return null;
     const feelings = todayCheckIn.feelings as string[];
-    const prioritized = ["ashamed", "tempted", "anxious", "isolated", "discouraged"];
+    const prioritized = ["ashamed", "tempted", "anxious", "isolated", "discouraged", "tired"];
     for (const id of prioritized) {
       if (feelings.includes(id)) return scriptureResponses[id];
     }
@@ -206,7 +217,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
           setRedoMode(true);
           setStep(0);
           setSelectedAwareness([]);
-          setSpiritPrompt("");
+          setHasTypedSpirit(false);
           setShowBreathText(false);
         }}
       />
@@ -223,12 +234,18 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
     ["anxious", "tempted", "isolated", "discouraged", "ashamed"].includes(a)
   );
 
+  const handleSpiritInput = () => {
+    const val = spiritRef.current?.value.trim() || "";
+    setHasTypedSpirit(val.length > 0);
+  };
+
   const handleComplete = async () => {
-    const hasSpirit = spiritPrompt.trim().length > 0;
+    const spiritText = spiritRef.current?.value.trim() || "";
+    const hasSpirit = spiritText.length > 0;
     await submitCheckIn.mutateAsync({
       feelings: selectedAwareness,
       needsSupport,
-      spiritResponse: hasSpirit ? spiritPrompt.trim() : undefined,
+      spiritResponse: hasSpirit ? spiritText : undefined,
     });
     if (hasSpirit && onSpiritPromptWritten) onSpiritPromptWritten();
     setShowOverlay(true);
@@ -339,8 +356,10 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
               </p>
               
               <textarea
-                value={spiritPrompt}
-                onChange={(e) => setSpiritPrompt(e.target.value)}
+                ref={spiritRef}
+                defaultValue=""
+                onBlur={handleSpiritInput}
+                onInput={handleSpiritInput}
                 placeholder="Write what comes to mind..."
                 className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm text-white/90 placeholder:text-white/25 resize-none focus:outline-none focus:border-primary/50 transition-colors"
                 rows={3}
@@ -349,10 +368,10 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
               <div className="flex flex-col gap-3 mt-4">
                 <Button
                   onClick={handleComplete}
-                  disabled={submitCheckIn.isPending || spiritPrompt.trim().length === 0}
+                  disabled={submitCheckIn.isPending || !hasTypedSpirit}
                   className={cn(
                     "w-full rounded-xl font-semibold h-12 text-base shadow-lg transition-all duration-200",
-                    spiritPrompt.trim().length > 0
+                    hasTypedSpirit
                       ? "bg-primary text-[#0A0A0A] hover:bg-primary/90 shadow-primary/20"
                       : "bg-[hsl(225_12%_10%)] text-muted-foreground border border-primary/30 shadow-none cursor-not-allowed"
                   )}

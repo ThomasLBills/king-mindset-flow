@@ -26,7 +26,10 @@ const MobileNav = () => {
           return (
             <button
               key={item.path}
-              onClick={() => navigate(item.path)}
+              onClick={() => {
+                navigate(item.path);
+                window.scrollTo({ top: 0, left: 0 });
+              }}
               className={cn(
                 "relative flex flex-col items-center justify-center min-w-[64px] py-2 px-3 rounded-xl transition-all duration-200",
                 isActive
