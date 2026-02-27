@@ -167,7 +167,7 @@ interface DailyCheckInProps {
 
 const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: DailyCheckInProps) => {
   const [step, setStep] = useState(0);
-  const [selectedAwareness, setSelectedAwareness] = useState<string[]>([]);
+  const [selectedAwareness, setSelectedAwareness] = useState<string | null>(null);
   const [showOverlay, setShowOverlay] = useState(false);
   const [showBreathText, setShowBreathText] = useState(false);
   const [hasTypedSpirit, setHasTypedSpirit] = useState(false);
@@ -187,12 +187,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
 
   // Get the most relevant scripture for selected emotions
   const activeScripture = useMemo(() => {
-    const prioritized = ["ashamed", "tempted", "anxious", "isolated", "discouraged", "tired"];
-    for (const id of prioritized) {
-      if (selectedAwareness.includes(id)) return scriptureResponses[id];
-    }
-    const last = selectedAwareness[selectedAwareness.length - 1];
-    return last ? scriptureResponses[last] : null;
+    return selectedAwareness ? scriptureResponses[selectedAwareness] ?? null : null;
   }, [selectedAwareness]);
 
   // Get scripture for the completed check-in data
@@ -216,7 +211,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
         onCheckInAgain={() => {
           setRedoMode(true);
           setStep(0);
-          setSelectedAwareness([]);
+          setSelectedAwareness(null);
           setHasTypedSpirit(false);
           setShowBreathText(false);
         }}
@@ -225,14 +220,12 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
   }
 
   const toggleAwareness = (id: string) => {
-    setSelectedAwareness((prev) =>
-      prev.includes(id) ? prev.filter((a) => a !== id) : [...prev, id]
-    );
+    setSelectedAwareness((prev) => prev === id ? null : id);
   };
 
-  const needsSupport = selectedAwareness.some((a) =>
-    ["anxious", "tempted", "isolated", "discouraged", "ashamed"].includes(a)
-  );
+  const needsSupport = selectedAwareness
+    ? ["anxious", "tempted", "isolated", "discouraged", "ashamed"].includes(selectedAwareness)
+    : false;
 
   const handleSpiritInput = () => {
     const val = spiritRef.current?.value.trim() || "";
@@ -243,7 +236,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
     const spiritText = spiritRef.current?.value.trim() || "";
     const hasSpirit = spiritText.length > 0;
     await submitCheckIn.mutateAsync({
-      feelings: selectedAwareness,
+      feelings: selectedAwareness ? [selectedAwareness] : [],
       needsSupport,
       spiritResponse: hasSpirit ? spiritText : undefined,
     });
@@ -269,7 +262,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
               </p>
               <div className="grid grid-cols-2 gap-3 mb-4">
                 {shuffledOptions.map((option) => {
-                  const isSelected = selectedAwareness.includes(option.id);
+                  const isSelected = selectedAwareness === option.id;
                   return (
                     <motion.button
                       key={option.id}
@@ -321,7 +314,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
                 </motion.p>
               )}
 
-              {selectedAwareness.length > 0 && (
+              {selectedAwareness && (
                 <div className="flex gap-3">
                   <motion.div
                     className="flex-1"
