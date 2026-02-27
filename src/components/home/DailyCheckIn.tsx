@@ -167,7 +167,7 @@ interface DailyCheckInProps {
 
 const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: DailyCheckInProps) => {
   const [step, setStep] = useState(0);
-  const [selectedAwareness, setSelectedAwareness] = useState<string[]>([]);
+  const [selectedAwareness, setSelectedAwareness] = useState<string | null>(null);
   const [showOverlay, setShowOverlay] = useState(false);
   const [showBreathText, setShowBreathText] = useState(false);
   const [hasTypedSpirit, setHasTypedSpirit] = useState(false);
