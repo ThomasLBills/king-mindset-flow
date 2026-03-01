@@ -36,16 +36,15 @@ export function useUrgeCounter() {
     },
   });
 
-  const { data: monthlyCount = 0 } = useQuery({
-    queryKey: ["urge-count-monthly", user?.id],
+  const { data: lifetimeCount = 0 } = useQuery({
+    queryKey: ["urge-count-lifetime", user?.id],
     enabled: !!user,
     queryFn: async () => {
       const { count, error } = await supabase
         .from("evidence_events")
         .select("*", { count: "exact", head: true })
         .eq("user_id", user!.id)
-        .eq("event_type", "urge_redirected")
-        .gte("created_at", getMonthStart());
+        .eq("event_type", "urge_redirected");
       if (error) throw error;
       return count ?? 0;
     },
@@ -62,10 +61,10 @@ export function useUrgeCounter() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["urge-count-daily"] });
-      qc.invalidateQueries({ queryKey: ["urge-count-monthly"] });
+      qc.invalidateQueries({ queryKey: ["urge-count-lifetime"] });
       qc.invalidateQueries({ queryKey: ["evidence-count"] });
     },
   });
 
-  return { dailyCount, monthlyCount, addUrge };
+  return { dailyCount, lifetimeCount, addUrge };
 }

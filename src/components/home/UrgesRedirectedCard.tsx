@@ -4,7 +4,7 @@ import { useUrgeCounter } from "@/hooks/useUrgeCounter";
 import { Button } from "@/components/ui/button";
 
 const UrgesRedirectedCard = () => {
-  const { dailyCount, monthlyCount, addUrge } = useUrgeCounter();
+  const { dailyCount, lifetimeCount, addUrge } = useUrgeCounter();
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   const handleAdd = () => {
@@ -47,8 +47,8 @@ const UrgesRedirectedCard = () => {
         </div>
         <div className="w-px h-16 bg-[#C9A84C]/20 flex-shrink-0" />
         <div className="text-center flex-1">
-          <p className="text-[56px] font-bold text-primary leading-none">{monthlyCount}</p>
-          <p className="text-base text-[#FFFFFF] font-medium mt-4">This Month</p>
+          <p className="text-[56px] font-bold text-primary leading-none">{lifetimeCount}</p>
+          <p className="text-base text-[#FFFFFF] font-medium mt-4">Lifetime</p>
         </div>
       </div>
 
