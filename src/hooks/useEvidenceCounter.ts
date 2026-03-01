@@ -15,12 +15,10 @@ export function useEvidenceCounter() {
     queryKey: ["evidence-count", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const monthStart = getMonthStart();
       const { count, error } = await supabase
         .from("evidence_events")
         .select("*", { count: "exact", head: true })
-        .eq("user_id", user!.id)
-        .gte("created_at", monthStart);
+        .eq("user_id", user!.id);
       if (error) throw error;
       return count ?? 0;
     },
