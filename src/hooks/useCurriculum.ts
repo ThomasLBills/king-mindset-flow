@@ -104,6 +104,7 @@ export function useUserEnrollment() {
       const { data, error } = await supabase
         .from("user_enrollments")
         .select("*")
+        .eq("user_id", user!.id)
         .maybeSingle();
       if (error) throw error;
       return data;
