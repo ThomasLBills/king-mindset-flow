@@ -58,16 +58,7 @@ const LibraryPage = () => {
     if (index === 0) return true;
     if (!enrollment) return false;
     if (dripMode === "immediate") return true;
-    // Sequential: previous week must be completed (except week 0)
-    if (index > 0 && weeks) {
-      const prevWeek = weeks[index - 1];
-      if (prevWeek && !isWeekCompleted(prevWeek.id)) {
-        // Still respect day offset even if prev is complete
-        if (daysSinceEnrollment < week.unlock_day_offset) return false;
-        // If day offset passed but prev not done, still locked (sequential)
-        return false;
-      }
-    }
+    // Time-based unlock: week unlocks once enough days have passed since enrollment
     return daysSinceEnrollment >= week.unlock_day_offset;
   };
 

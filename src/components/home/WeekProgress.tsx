@@ -34,7 +34,7 @@ const WeekProgress = () => {
     : -1;
 
   const isWeekUnlocked = (week: any, index: number) => {
-    if (index === 0) return true; // Week 1 always unlocked
+    if (index === 0) return true;
     if (!enrollment) return false;
     return daysSinceEnrollment >= week.unlock_day_offset;
   };
