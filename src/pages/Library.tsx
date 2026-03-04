@@ -152,7 +152,7 @@ const LibraryPage = () => {
                     <div className="absolute top-3.5 right-3.5 flex flex-col items-center gap-0.5">
                       <Lock className="w-4 h-4 text-[#C9A84C]" />
                       {enrollment && (
-                        <span className="text-[10px] text-muted-foreground whitespace-nowrap">
+                        <span className="text-[10px] text-white/50 whitespace-nowrap">
                           {format(addDays(new Date(enrollment.enrolled_at), week.unlock_day_offset), "MMM d")}
                         </span>
                       )}
