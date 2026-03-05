@@ -30,13 +30,6 @@ const LibraryPage = () => {
 
   const isLoading = settingsLoading || weeksLoading || lessonsLoading;
 
-  // Auto-enroll on first visit
-  const [autoEnrolled, setAutoEnrolled] = useState(false);
-  if (!isLoading && user && !enrollment && !enroll.isPending && !autoEnrolled) {
-    setAutoEnrolled(true);
-    enroll.mutate();
-  }
-
   if (isLoading) {
     return (
       <AppLayout>
