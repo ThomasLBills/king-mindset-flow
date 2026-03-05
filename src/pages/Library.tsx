@@ -10,7 +10,6 @@ import {
   useAllPublishedCurriculumLessons,
   useCurriculumLessonProgress,
   useUserEnrollment,
-  useEnroll,
   useCurriculumSettings,
 } from "@/hooks/useCurriculum";
 import { useAuth } from "@/hooks/useAuth";
@@ -24,18 +23,11 @@ const LibraryPage = () => {
   const { data: allLessons, isLoading: lessonsLoading } = useAllPublishedCurriculumLessons();
   const { data: progressMap } = useCurriculumLessonProgress();
   const { data: enrollment } = useUserEnrollment();
-  const enroll = useEnroll();
+  
 
   const [expandedWeek, setExpandedWeek] = useState<string | null>(null);
 
   const isLoading = settingsLoading || weeksLoading || lessonsLoading;
-
-  // Auto-enroll on first visit
-  const [autoEnrolled, setAutoEnrolled] = useState(false);
-  if (!isLoading && user && !enrollment && !enroll.isPending && !autoEnrolled) {
-    setAutoEnrolled(true);
-    enroll.mutate();
-  }
 
   if (isLoading) {
     return (
