@@ -10,7 +10,6 @@ import {
   useAllPublishedCurriculumLessons,
   useCurriculumLessonProgress,
   useUserEnrollment,
-  useEnroll,
   useCurriculumSettings,
 } from "@/hooks/useCurriculum";
 import { useAuth } from "@/hooks/useAuth";
@@ -24,7 +23,7 @@ const LibraryPage = () => {
   const { data: allLessons, isLoading: lessonsLoading } = useAllPublishedCurriculumLessons();
   const { data: progressMap } = useCurriculumLessonProgress();
   const { data: enrollment } = useUserEnrollment();
-  const enroll = useEnroll();
+  
 
   const [expandedWeek, setExpandedWeek] = useState<string | null>(null);
 
