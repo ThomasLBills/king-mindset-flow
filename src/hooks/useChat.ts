@@ -66,7 +66,7 @@ export function useDMs() {
 export function useMessages(target: ChatTarget | null) {
   const { user } = useAuth();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(!!target);
 
   const fetchMessages = useCallback(async () => {
     if (!target) return;

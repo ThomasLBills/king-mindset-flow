@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, useMemo } from "react";
+import { useRef, useEffect, useState, useMemo, useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import type { ChatMessage } from "@/hooks/useChat";
@@ -47,34 +47,41 @@ const MessageList = ({ messages, loading, isAdmin, onDeleteMessage }: MessageLis
     fetchSignedUrls();
   }, [messages]);
 
-  // Force scroll to bottom using MutationObserver + fallback timeout
-  useEffect(() => {
+  // Stable scroll-to-bottom helper
+  const scrollToBottom = useCallback(() => {
     const el = containerRef.current;
-    if (!el || loading) return;
+    if (el) {
+      el.scrollTop = el.scrollHeight;
+    }
+  }, []);
 
-    const scrollToBottom = () => {
-      if (containerRef.current) {
-        containerRef.current.scrollTop = containerRef.current.scrollHeight;
-      }
-    };
+  // Scroll to bottom whenever messages change (load or new message)
+  useEffect(() => {
+    if (loading || messages.length === 0) return;
 
-    // MutationObserver fires after DOM children finish rendering
-    const observer = new MutationObserver(() => {
-      scrollToBottom();
-    });
-    observer.observe(el, { childList: true, subtree: true });
-
-    // Immediate + fallback
+    // Immediate
     scrollToBottom();
-    const t1 = setTimeout(scrollToBottom, 100);
-    const t2 = setTimeout(scrollToBottom, 300);
+
+    // Staggered fallbacks for images/embeds that expand after paint
+    const t1 = setTimeout(scrollToBottom, 50);
+    const t2 = setTimeout(scrollToBottom, 150);
+    const t3 = setTimeout(scrollToBottom, 400);
+
+    // MutationObserver for dynamic content (images loading, etc.)
+    const el = containerRef.current;
+    let observer: MutationObserver | undefined;
+    if (el) {
+      observer = new MutationObserver(scrollToBottom);
+      observer.observe(el, { childList: true, subtree: true, attributes: true });
+    }
 
     return () => {
-      observer.disconnect();
       clearTimeout(t1);
       clearTimeout(t2);
+      clearTimeout(t3);
+      observer?.disconnect();
     };
-  }, [messages.length, loading]);
+  }, [messages.length, loading, scrollToBottom]);
 
   if (loading) {
     return (
