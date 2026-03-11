@@ -47,8 +47,8 @@ const MessageList = ({ messages, loading, isAdmin, onDeleteMessage }: MessageLis
   }, [messages]);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages.length]);
+    bottomRef.current?.scrollIntoView({ behavior: "instant" });
+  }, [messages.length, loading]);
 
   if (loading) {
     return (
