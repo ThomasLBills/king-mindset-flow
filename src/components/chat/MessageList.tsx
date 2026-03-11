@@ -110,7 +110,7 @@ const MessageList = ({ messages, loading, isAdmin, onDeleteMessage }: MessageLis
   }
 
   return (
-    <div ref={containerRef} className="flex-1 min-h-0 overflow-y-auto px-4 py-4 space-y-4">
+    <div ref={containerRef} className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-4 pt-4 pb-2 space-y-4">
       {messages.map((msg) => {
         const isOwn = msg.user_id === user?.id;
         const displayName = msg.profile?.display_name || msg.profile?.first_name || "User";
