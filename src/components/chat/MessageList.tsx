@@ -180,7 +180,6 @@ const MessageList = ({ messages, loading, isAdmin, onDeleteMessage }: MessageLis
                 const videoId = vimeoMatch[1];
                 const hash = vimeoMatch[2];
                 const embedSrc = `https://player.vimeo.com/video/${videoId}?dnt=1${hash ? `&h=${hash}` : ''}&playsinline=1&responsive=1`;
-                const vimeoUrl = `https://vimeo.com/${videoId}${hash ? `/${hash}` : ''}`;
                 return (
                   <div className="mt-2 rounded-lg overflow-hidden border border-border w-full max-w-[480px]">
                     <div className="relative w-full aspect-video">
@@ -196,14 +195,6 @@ const MessageList = ({ messages, loading, isAdmin, onDeleteMessage }: MessageLis
                         loading="lazy"
                       />
                     </div>
-                    <a
-                      href={vimeoUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block px-3 py-1.5 text-xs text-primary hover:underline bg-card"
-                    >
-                      Open on Vimeo ↗
-                    </a>
                   </div>
                 );
               })()}
