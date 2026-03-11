@@ -129,6 +129,8 @@ export function useBrothers() {
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: ["brothers"] });
     queryClient.invalidateQueries({ queryKey: ["brotherhood-pending"] });
+    queryClient.invalidateQueries({ queryKey: ["brotherhood-outgoing"] });
+    queryClient.invalidateQueries({ queryKey: ["brotherhood-declined"] });
   };
 
   const sendRequest = useMutation({
