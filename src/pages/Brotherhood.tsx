@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import AppLayout from "@/components/layout/AppLayout";
-import { Users, Hash } from "lucide-react";
+import { Users, Hash, Lock } from "lucide-react";
 import MyBrothersTab from "@/components/brotherhood/MyBrothersTab";
 import ChannelsTab from "@/components/brotherhood/ChannelsTab";
 import ReachOut from "@/components/brotherhood/ReachOut";
@@ -10,7 +10,12 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useUnread } from "@/contexts/UnreadContext";
-import type { ChatTarget } from "@/hooks/useChat";
+import { useMessages, useJoinChannel, type ChatTarget } from "@/hooks/useChat";
+import { useAdminRole } from "@/hooks/useAdminRole";
+import { useToast } from "@/hooks/use-toast";
+import { useChannels } from "@/hooks/useChat";
+import MessageList from "@/components/chat/MessageList";
+import MessageComposer from "@/components/chat/MessageComposer";
 
 const BrotherhoodPage = () => {
   const { user } = useAuth();
@@ -18,11 +23,11 @@ const BrotherhoodPage = () => {
   const [showReachOut, setShowReachOut] = useState(false);
   const [activeTab, setActiveTab] = useState("brothers");
   const [dmTarget, setDmTarget] = useState<ChatTarget | null>(null);
+  const [channelTarget, setChannelTarget] = useState<ChatTarget | null>(null);
 
   const handleStartDM = useCallback(async (brotherUserId: string, name: string) => {
     if (!user) return;
 
-    // Look up existing DM
     const { data: existing } = await supabase
       .from("chat_dms")
       .select("id")
@@ -33,7 +38,6 @@ const BrotherhoodPage = () => {
     if (existing) {
       dmId = existing.id;
     } else {
-      // chat_dms has CHECK (user_a < user_b), so normalize ordering before insert
       const [userA, userB] = [user.id, brotherUserId].sort();
       const { data: newDm, error } = await supabase
         .from("chat_dms")
@@ -66,6 +70,18 @@ const BrotherhoodPage = () => {
     );
   }
 
+  // If a channel is active, show full-screen chat replacing the landing page entirely
+  if (channelTarget) {
+    return (
+      <AppLayout>
+        <ChannelChatView
+          target={channelTarget}
+          onBack={() => setChannelTarget(null)}
+        />
+      </AppLayout>
+    );
+  }
+
   return (
     <AppLayout>
       <div className="px-5 py-6">
@@ -74,7 +90,6 @@ const BrotherhoodPage = () => {
           <p className="text-muted-foreground text-sm">Freedom is sustained together</p>
         </motion.div>
 
-        {/* Safe Space Guidelines */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="mb-5">
           <div className="rounded-xl bg-card border border-primary p-4">
             <div className="mb-2">
@@ -88,7 +103,6 @@ const BrotherhoodPage = () => {
           </div>
         </motion.div>
 
-        {/* Reach Out Now */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -111,7 +125,6 @@ const BrotherhoodPage = () => {
           </button>
         </motion.div>
 
-        {/* Tabs: Brothers / Channels */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="w-full mb-4 bg-[#0A0A0A] border border-primary/30 p-1">
             <TabsTrigger value="brothers" className="flex-1 gap-1.5 text-white/50 data-[state=active]:bg-primary data-[state=active]:text-[#0A0A0A] data-[state=active]:shadow-none font-semibold">
@@ -127,13 +140,56 @@ const BrotherhoodPage = () => {
           </TabsContent>
 
           <TabsContent value="channels">
-            <ChannelsTab />
+            <ChannelsTab onSelectChannel={setChannelTarget} />
           </TabsContent>
         </Tabs>
       </div>
 
       {showReachOut && <ReachOut onClose={handleReachOutClose} onSent={handleReachOutSent} />}
     </AppLayout>
+  );
+};
+
+/** Full-screen channel chat view — completely replaces the Brotherhood landing page */
+const ChannelChatView = ({ target, onBack }: { target: ChatTarget; onBack: () => void }) => {
+  const { messages, loading, sendMessage } = useMessages(target);
+  const joinChannel = useJoinChannel();
+  const { isAdmin } = useAdminRole();
+  const { toast } = useToast();
+  const { channels } = useChannels();
+
+  const ch = channels.find(c => c.id === target.id);
+  const isLocked = (ch as any)?.is_locked;
+
+  // Auto-join
+  useState(() => { joinChannel(target.id); });
+
+  const handleDeleteMessage = useCallback(async (messageId: string) => {
+    const { error } = await supabase.from("chat_messages").delete().eq("id", messageId);
+    if (error) {
+      toast({ title: "Error", description: "Failed to delete message", variant: "destructive" });
+    }
+  }, [toast]);
+
+  return (
+    <div className="fixed inset-x-0 flex flex-col bg-background z-40" style={{ top: '57px', bottom: 'calc(65px + env(safe-area-inset-bottom))' }}>
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-border shrink-0">
+        <button onClick={onBack} className="text-sm text-primary font-medium">
+          ← Back
+        </button>
+        <Hash className="w-4 h-4 text-muted-foreground" />
+        <h3 className="font-serif text-lg font-semibold">{target.name}</h3>
+        {isLocked && <Lock className="w-3 h-3 text-muted-foreground" />}
+      </div>
+      <MessageList messages={messages} loading={loading} isAdmin={isAdmin} onDeleteMessage={handleDeleteMessage} />
+      {!isLocked || isAdmin ? (
+        <MessageComposer onSend={sendMessage} placeholder="Message…" />
+      ) : (
+        <div className="p-3 text-center text-sm text-muted-foreground border-t border-border bg-card shrink-0">
+          This channel is view only.
+        </div>
+      )}
+    </div>
   );
 };
 
