@@ -86,6 +86,34 @@ export function useBrothers() {
     },
   });
 
+  // Track outgoing pending requests to prevent duplicate sends
+  const { data: outgoingPendingIds = [] } = useQuery({
+    queryKey: ["brotherhood-outgoing", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("brotherhood_connections")
+        .select("recipient_id")
+        .eq("status", "pending")
+        .eq("requester_id", user!.id);
+      return data?.map(c => c.recipient_id) ?? [];
+    },
+  });
+
+  // Track declined connections to prevent re-requesting
+  const { data: declinedIds = [] } = useQuery({
+    queryKey: ["brotherhood-declined", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("brotherhood_connections")
+        .select("requester_id, recipient_id")
+        .eq("status", "declined")
+        .or(`requester_id.eq.${user!.id},recipient_id.eq.${user!.id}`);
+      return data?.map(c => c.requester_id === user!.id ? c.recipient_id : c.requester_id) ?? [];
+    },
+  });
+
   const { data: maxBrothers = 5 } = useQuery({
     queryKey: ["max-brothers"],
     queryFn: async () => {
