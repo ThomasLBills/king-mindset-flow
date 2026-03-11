@@ -58,9 +58,9 @@ const ChannelsTab = () => {
         </div>
         <MessageList messages={messages} loading={loading} isAdmin={isAdmin} onDeleteMessage={handleDeleteMessage} />
         {!isLocked ? (
-          <MessageComposer onSend={sendMessage} placeholder={`Message #${activeChannel.name}`} />
+          <MessageComposer onSend={sendMessage} placeholder="Message…" />
         ) : isAdmin ? (
-          <MessageComposer onSend={sendMessage} placeholder={`Message #${activeChannel.name}`} />
+          <MessageComposer onSend={sendMessage} placeholder="Message…" />
         ) : (
           <div className="p-3 text-center text-sm text-muted-foreground border-t border-border bg-card">
             This channel is view only.
