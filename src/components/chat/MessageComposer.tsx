@@ -62,7 +62,7 @@ const MessageComposer = ({ onSend, placeholder = "Type a message…" }: MessageC
   };
 
   return (
-    <div className="border-t border-border p-3 flex items-end gap-2 bg-card">
+    <div className="sticky bottom-0 border-t border-border p-4 flex items-end gap-2 bg-card z-30">
       {/* Image upload */}
       <input
         ref={fileInputRef}
