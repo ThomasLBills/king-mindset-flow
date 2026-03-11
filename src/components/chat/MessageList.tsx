@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, useMemo, useLayoutEffect } from "react";
+import { useRef, useEffect, useState, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import type { ChatMessage } from "@/hooks/useChat";
