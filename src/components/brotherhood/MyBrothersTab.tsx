@@ -69,7 +69,12 @@ const MyBrothersTab = ({ onStartDM }: MyBrothersTabProps) => {
     }
   };
 
-  const existingIds = new Set([...brothers.map(b => b.userId), ...pendingRequests.map(b => b.userId)]);
+  const existingIds = new Set([
+    ...brothers.map(b => b.userId),
+    ...pendingRequests.map(b => b.userId),
+    ...outgoingPendingIds,
+    ...declinedIds,
+  ]);
 
   return (
     <div className="space-y-6">
