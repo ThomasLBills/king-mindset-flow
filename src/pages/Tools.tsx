@@ -9,16 +9,16 @@ import { useEvidenceCounter } from "@/hooks/useEvidenceCounter";
 import { Button } from "@/components/ui/button";
 
 const declarations = [
-  { text: "I am a child of God, and He loves me unconditionally.", reference: "John 1:12, Romans 8:38-39" },
-  { text: "I have been redeemed and forgiven of my sins through the sacrifice of Jesus on the cross.", reference: "Ephesians 1:7" },
-  { text: "I am a new creation in Christ, and my old self has passed away.", reference: "2 Corinthians 5:17" },
-  { text: "I have been given a spirit of power, love, and self-discipline, not fear.", reference: "2 Timothy 1:7" },
-  { text: "I am free in Christ. The chains are broken.", reference: "Galatians 5:1" },
-  { text: "I am being transformed by the renewing of my mind.", reference: "Romans 12:2" },
-];
+{ text: "I am a child of God, and He loves me unconditionally.", reference: "John 1:12, Romans 8:38-39" },
+{ text: "I have been redeemed and forgiven of my sins through the sacrifice of Jesus on the cross.", reference: "Ephesians 1:7" },
+{ text: "I am a new creation in Christ, and my old self has passed away.", reference: "2 Corinthians 5:17" },
+{ text: "I have been given a spirit of power, love, and self-discipline, not fear.", reference: "2 Timothy 1:7" },
+{ text: "I am free in Christ. The chains are broken.", reference: "Galatians 5:1" },
+{ text: "I am being transformed by the renewing of my mind.", reference: "Romans 12:2" }];
+
 
 // ========== Declarations Modal ==========
-const DeclarationsModal = ({ onClose }: { onClose: () => void }) => {
+const DeclarationsModal = ({ onClose }: {onClose: () => void;}) => {
   const [showCompletion, setShowCompletion] = useState(false);
   const { addEvidence } = useEvidenceCounter();
 
@@ -40,44 +40,44 @@ const DeclarationsModal = ({ onClose }: { onClose: () => void }) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="modal-fullscreen bg-[#111111]"
-    >
+      className="modal-fullscreen bg-[#111111]">
+      
       {/* Completion Overlay */}
       <AnimatePresence>
-        {showCompletion && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="absolute inset-0 z-[60] flex flex-col items-center justify-center bg-[#111111]"
-          >
+        {showCompletion &&
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+          className="absolute inset-0 z-[60] flex flex-col items-center justify-center bg-[#111111]">
+          
             <motion.div
-              initial={{ scale: 0.5, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.15, type: "spring", stiffness: 200, damping: 15 }}
-              className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mb-4"
-            >
+            initial={{ scale: 0.5, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.15, type: "spring", stiffness: 200, damping: 15 }}
+            className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mb-4">
+            
               <Check className="w-8 h-8 text-primary" />
             </motion.div>
             <motion.h2
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="font-serif text-2xl font-bold text-white mb-3 text-center"
-            >
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="font-serif text-2xl font-bold text-white mb-3 text-center">
+            
               Truth declared.
             </motion.h2>
             <motion.p
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.45 }}
-              className="text-white text-base text-center"
-            >
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.45 }}
+            className="text-white text-base text-center">
+            
               You are building evidence.
             </motion.p>
           </motion.div>
-        )}
+        }
       </AnimatePresence>
 
       {/* Close button */}
@@ -91,8 +91,8 @@ const DeclarationsModal = ({ onClose }: { onClose: () => void }) => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col items-center w-full max-w-sm"
-        >
+          className="flex flex-col items-center w-full max-w-sm">
+          
           <h2 className="font-serif text-2xl font-bold text-white mb-1 text-center">Speak Truth Over Myself</h2>
           <p className="text-sm text-white text-center mb-6">Declare Who God Says You Are</p>
           <p className="text-sm text-white text-center mb-6 max-w-sm">
@@ -114,14 +114,14 @@ const DeclarationsModal = ({ onClose }: { onClose: () => void }) => {
 
           <Button
             onClick={handleBelieve}
-            className="w-full rounded-xl font-bold h-12 text-base bg-primary text-[#0A0A0A] hover:bg-primary/90"
-          >
+            className="w-full rounded-xl font-bold h-12 text-base bg-primary text-[#0A0A0A] hover:bg-primary/90">
+            
             I believe this.
           </Button>
         </motion.div>
       </div>
-    </motion.div>
-  );
+    </motion.div>);
+
 };
 
 
@@ -175,7 +175,7 @@ const ToolsPage = () => {
               className="py-6 px-10 rounded-xl text-center bg-[#1C1C1E] border-[1.5px] border-primary active:bg-primary active:text-[#0A0A0A] transition-colors duration-200">
 
               <span className="block font-bold text-white text-base">Speak Truth Over Myself</span>
-              <span className="block text-sm text-primary mt-1">Declare who God says you are.</span>
+              <span className="block text-sm text-primary mt-1">Declare. Believe. Receive.</span>
             </motion.button>
             <motion.button
               onClick={() => setShowGratitude(true)}
