@@ -47,20 +47,21 @@ const MessageList = ({ messages, loading, isAdmin, onDeleteMessage }: MessageLis
     fetchSignedUrls();
   }, [messages]);
 
-  // Force scroll to bottom with delay to ensure DOM is fully rendered
+  // Force scroll to bottom after messages render
   useEffect(() => {
-    if (loading) return;
+    if (loading || messages.length === 0) return;
     const scrollToBottom = () => {
-      if (containerRef.current) {
-        containerRef.current.scrollTop = containerRef.current.scrollHeight;
+      const el = containerRef.current;
+      if (el) {
+        el.scrollTop = el.scrollHeight;
       }
     };
-    // Immediate attempt
-    scrollToBottom();
-    // Delayed attempt to catch after images/embeds render
-    const t1 = setTimeout(scrollToBottom, 150);
-    const t2 = setTimeout(scrollToBottom, 400);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
+    // Fire after DOM paint with increasing delays for images/embeds
+    const t0 = setTimeout(scrollToBottom, 50);
+    const t1 = setTimeout(scrollToBottom, 100);
+    const t2 = setTimeout(scrollToBottom, 300);
+    const t3 = setTimeout(scrollToBottom, 600);
+    return () => { clearTimeout(t0); clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, [messages.length, loading]);
 
   if (loading) {
