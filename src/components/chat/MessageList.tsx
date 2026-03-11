@@ -128,14 +128,17 @@ const MessageList = ({ messages, loading, isAdmin, onDeleteMessage }: MessageLis
                 const hash = vimeoMatch[2];
                 const embedSrc = `https://player.vimeo.com/video/${videoId}?dnt=1${hash ? `&h=${hash}` : ''}`;
                 return (
-                  <div className="mt-2 rounded-lg overflow-hidden border border-border" style={{ maxWidth: 480 }}>
-                    <div style={{ position: "relative", paddingBottom: "56.25%", height: 0 }}>
+                  <div className="mt-2 rounded-lg overflow-hidden border border-border w-full" style={{ maxWidth: 480 }}>
+                    <div className="relative w-full" style={{ paddingBottom: "56.25%", height: 0 }}>
                       <iframe
                         src={embedSrc}
-                        style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
+                        className="absolute top-0 left-0 w-full h-full"
                         frameBorder="0"
                         allow="autoplay; fullscreen; picture-in-picture"
                         allowFullScreen
+                        // @ts-ignore
+                        webkitallowfullscreen="true"
+                        mozallowfullscreen="true"
                         title="Vimeo video"
                       />
                     </div>
