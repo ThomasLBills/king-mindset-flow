@@ -62,12 +62,20 @@ const MessageList = ({ messages, loading, isAdmin, onDeleteMessage }: MessageLis
     // Immediate
     scrollToBottom();
 
-    // Staggered fallbacks for images/embeds that expand after paint
-    const t1 = setTimeout(scrollToBottom, 50);
-    const t2 = setTimeout(scrollToBottom, 150);
-    const t3 = setTimeout(scrollToBottom, 400);
+    // Use rAF to ensure we scroll after the browser has painted
+    const raf1 = requestAnimationFrame(() => {
+      scrollToBottom();
+      // Nested rAF catches the frame after layout
+      requestAnimationFrame(scrollToBottom);
+    });
 
-    // MutationObserver for dynamic content (images loading, etc.)
+    // Staggered fallbacks for images/embeds that load asynchronously
+    const t1 = setTimeout(scrollToBottom, 100);
+    const t2 = setTimeout(scrollToBottom, 300);
+    const t3 = setTimeout(scrollToBottom, 600);
+    const t4 = setTimeout(scrollToBottom, 1000);
+
+    // MutationObserver for dynamic content (images loading, reactions, etc.)
     const el = containerRef.current;
     let observer: MutationObserver | undefined;
     if (el) {
@@ -76,9 +84,11 @@ const MessageList = ({ messages, loading, isAdmin, onDeleteMessage }: MessageLis
     }
 
     return () => {
+      cancelAnimationFrame(raf1);
       clearTimeout(t1);
       clearTimeout(t2);
       clearTimeout(t3);
+      clearTimeout(t4);
       observer?.disconnect();
     };
   }, [messages.length, loading, scrollToBottom]);
