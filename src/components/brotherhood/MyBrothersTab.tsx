@@ -28,7 +28,7 @@ interface MyBrothersTabProps {
 const MyBrothersTab = ({ onStartDM }: MyBrothersTabProps) => {
   const { user } = useAuth();
   const {
-    brothers, pendingRequests, maxBrothers, isLoading, atCapacity,
+    brothers, pendingRequests, outgoingPendingIds, declinedIds, maxBrothers, isLoading, atCapacity,
     sendRequest, acceptRequest, declineRequest, removeBrother,
   } = useBrothers();
   const [showSearch, setShowSearch] = useState(false);
