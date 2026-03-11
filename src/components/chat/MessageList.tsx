@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, useMemo } from "react";
+import { useRef, useEffect, useState, useMemo, useLayoutEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import type { ChatMessage } from "@/hooks/useChat";
@@ -20,6 +20,7 @@ interface MessageListProps {
 const MessageList = ({ messages, loading, isAdmin, onDeleteMessage }: MessageListProps) => {
   const { user } = useAuth();
   const bottomRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const messageIds = messages.map(m => m.id);
   const { reactions, toggleReaction } = useChatReactions(messageIds);
   const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
@@ -46,8 +47,22 @@ const MessageList = ({ messages, loading, isAdmin, onDeleteMessage }: MessageLis
     fetchSignedUrls();
   }, [messages]);
 
+  // Force scroll to bottom after DOM renders
+  useLayoutEffect(() => {
+    if (!loading && containerRef.current) {
+      containerRef.current.scrollTop = containerRef.current.scrollHeight;
+    }
+  }, [messages.length, loading]);
+
+  // Also use requestAnimationFrame as a fallback for images/embeds
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "instant" });
+    if (!loading && containerRef.current) {
+      requestAnimationFrame(() => {
+        if (containerRef.current) {
+          containerRef.current.scrollTop = containerRef.current.scrollHeight;
+        }
+      });
+    }
   }, [messages.length, loading]);
 
   if (loading) {
@@ -67,7 +82,7 @@ const MessageList = ({ messages, loading, isAdmin, onDeleteMessage }: MessageLis
   }
 
   return (
-    <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+    <div ref={containerRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
       {messages.map((msg) => {
         const isOwn = msg.user_id === user?.id;
         const displayName = msg.profile?.display_name || msg.profile?.first_name || "User";
