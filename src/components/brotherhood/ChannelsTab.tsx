@@ -11,7 +11,11 @@ import { useToast } from "@/hooks/use-toast";
 import MessageList from "@/components/chat/MessageList";
 import MessageComposer from "@/components/chat/MessageComposer";
 
-const ChannelsTab = () => {
+interface ChannelsTabProps {
+  onSelectChannel?: (target: ChatTarget) => void;
+}
+
+const ChannelsTab = ({ onSelectChannel }: ChannelsTabProps) => {
   const { channels } = useChannels();
   const [activeChannel, setActiveChannel] = useState<ChatTarget | null>(null);
   const { messages, loading, sendMessage } = useMessages(activeChannel);
