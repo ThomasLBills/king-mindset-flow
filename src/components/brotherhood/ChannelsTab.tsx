@@ -47,7 +47,7 @@ const ChannelsTab = () => {
     const isLocked = (ch as any)?.is_locked;
 
     return (
-      <div className="flex flex-col h-[calc(100vh-200px)]">
+      <div className="flex flex-col h-[calc(100vh-160px)] pb-[env(safe-area-inset-bottom)]">
         <div className="flex items-center gap-2 px-4 py-3 border-b border-border">
           <button onClick={() => setActiveChannel(null)} className="text-sm text-primary font-medium">
             ← Back

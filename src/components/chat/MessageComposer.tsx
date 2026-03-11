@@ -62,7 +62,7 @@ const MessageComposer = ({ onSend, placeholder = "Type a message…" }: MessageC
   };
 
   return (
-    <div className="border-t border-border p-3 flex items-end gap-2 bg-card">
+    <div className="sticky bottom-0 border-t border-border p-4 flex items-end gap-2 bg-card z-30">
       {/* Image upload */}
       <input
         ref={fileInputRef}
@@ -114,7 +114,7 @@ const MessageComposer = ({ onSend, placeholder = "Type a message…" }: MessageC
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
         rows={1}
-        className="flex-1 resize-none bg-secondary rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring placeholder:text-muted-foreground min-h-[40px] max-h-[120px]"
+        className="flex-1 resize-none bg-secondary rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring placeholder:text-muted-foreground min-h-[44px] max-h-[120px]"
         style={{ height: "auto", overflow: "auto" }}
       />
       <Button
