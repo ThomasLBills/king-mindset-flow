@@ -20,6 +20,7 @@ interface MessageListProps {
 const MessageList = ({ messages, loading, isAdmin, onDeleteMessage }: MessageListProps) => {
   const { user } = useAuth();
   const bottomRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const messageIds = messages.map(m => m.id);
   const { reactions, toggleReaction } = useChatReactions(messageIds);
   const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
