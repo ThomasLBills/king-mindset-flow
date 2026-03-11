@@ -138,20 +138,23 @@ const MessageList = ({ messages, loading, isAdmin, onDeleteMessage }: MessageLis
                 <span className="text-xs text-muted-foreground">
                   {format(new Date(msg.created_at), "h:mm a")}
                 </span>
-                {/* Reaction trigger */}
+                {/* Reaction trigger - visible on mobile */}
                 <Popover>
                   <PopoverTrigger asChild>
-                    <button className="opacity-0 group-hover:opacity-100 transition-opacity ml-1 p-0.5 rounded hover:bg-secondary">
-                      <SmilePlus className="w-3.5 h-3.5 text-muted-foreground" />
+                    <button className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity ml-1 p-1.5 -m-1 rounded-lg active:bg-secondary touch-manipulation">
+                      <SmilePlus className="w-4 h-4 text-muted-foreground" />
                     </button>
                   </PopoverTrigger>
                   <PopoverContent side="top" className="w-auto p-2 bg-card border-border z-50">
-                    <div className="flex gap-1">
+                    <div className="flex gap-0.5">
                       {QUICK_EMOJIS.map(emoji => (
                         <button
                           key={emoji}
-                          onClick={() => toggleReaction(msg.id, emoji)}
-                          className="text-lg hover:scale-125 transition-transform p-1 rounded hover:bg-secondary"
+                          onPointerDown={(e) => {
+                            e.preventDefault();
+                            toggleReaction(msg.id, emoji);
+                          }}
+                          className="text-xl min-w-[40px] min-h-[40px] flex items-center justify-center rounded-lg active:scale-110 active:bg-secondary transition-transform touch-manipulation"
                         >
                           {emoji}
                         </button>
