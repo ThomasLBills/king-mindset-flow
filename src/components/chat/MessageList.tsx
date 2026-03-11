@@ -120,6 +120,25 @@ const MessageList = ({ messages, loading, isAdmin, onDeleteMessage }: MessageLis
                 )}
               </div>
               <p className="text-sm mt-0.5 break-words">{msg.content}</p>
+              {/* Vimeo embed */}
+              {(() => {
+                const vimeoMatch = msg.content.match(/(?:https?:\/\/)?(?:www\.)?(?:vimeo\.com|player\.vimeo\.com\/video)\/(\d+)/);
+                if (!vimeoMatch) return null;
+                return (
+                  <div className="mt-2 rounded-lg overflow-hidden border border-border" style={{ maxWidth: 480 }}>
+                    <div style={{ position: "relative", paddingBottom: "56.25%", height: 0 }}>
+                      <iframe
+                        src={`https://player.vimeo.com/video/${vimeoMatch[1]}?dnt=1`}
+                        style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
+                        frameBorder="0"
+                        allow="autoplay; fullscreen; picture-in-picture"
+                        allowFullScreen
+                        title="Vimeo video"
+                      />
+                    </div>
+                  </div>
+                );
+              })()}
               {/* Image attachment */}
               {(msg as any).image_url && (
                 <img src={signedUrls[msg.id] || (msg as any).image_url} alt="attachment" className="mt-2 max-w-xs rounded-lg border border-border" />
