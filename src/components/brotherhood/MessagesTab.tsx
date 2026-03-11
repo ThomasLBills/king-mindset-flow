@@ -33,7 +33,7 @@ const MessagesTab = ({ initialTarget, onBack }: MessagesTabProps) => {
           <h3 className="font-serif text-lg font-semibold">{activeTarget.name}</h3>
         </div>
         <MessageList messages={messages} loading={loading} />
-        <MessageComposer onSend={sendMessage} placeholder={`Message ${activeTarget.name}`} />
+        <MessageComposer onSend={sendMessage} placeholder="Message…" />
       </div>
     );
   }
