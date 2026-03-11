@@ -119,7 +119,9 @@ const MessageList = ({ messages, loading, isAdmin, onDeleteMessage }: MessageLis
                   </button>
                 )}
               </div>
-              <p className="text-sm mt-0.5 break-words">{msg.content}</p>
+              <p className="text-sm mt-0.5 break-words">
+                {msg.content.replace(/https?:\/\/(?:www\.)?vimeo\.com\/\d+(?:\/[a-f0-9]+)?(?:\?[^\s]*)?\s*/g, '').trim()}
+              </p>
               {/* Vimeo embed */}
               {(() => {
                 const vimeoMatch = msg.content.match(/(?:https?:\/\/)?(?:www\.)?vimeo\.com\/(\d+)(?:\/([a-f0-9]+))?/);
