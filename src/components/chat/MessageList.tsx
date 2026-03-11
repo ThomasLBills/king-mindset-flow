@@ -47,8 +47,22 @@ const MessageList = ({ messages, loading, isAdmin, onDeleteMessage }: MessageLis
     fetchSignedUrls();
   }, [messages]);
 
+  // Force scroll to bottom after DOM renders
+  useLayoutEffect(() => {
+    if (!loading && containerRef.current) {
+      containerRef.current.scrollTop = containerRef.current.scrollHeight;
+    }
+  }, [messages.length, loading]);
+
+  // Also use requestAnimationFrame as a fallback for images/embeds
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "instant" });
+    if (!loading && containerRef.current) {
+      requestAnimationFrame(() => {
+        if (containerRef.current) {
+          containerRef.current.scrollTop = containerRef.current.scrollHeight;
+        }
+      });
+    }
   }, [messages.length, loading]);
 
   if (loading) {
