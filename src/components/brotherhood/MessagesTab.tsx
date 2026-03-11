@@ -24,7 +24,7 @@ const MessagesTab = ({ initialTarget, onBack }: MessagesTabProps) => {
 
   if (activeTarget) {
     return (
-      <div className="flex flex-col h-[calc(100vh-200px)]">
+      <div className="fixed inset-x-0 flex flex-col bg-background z-40" style={{ top: 'calc(57px + env(safe-area-inset-top, 0px))', bottom: 'calc(65px + env(safe-area-inset-bottom, 0px))' }}>
         <div className="flex items-center gap-2 px-4 py-3 border-b border-border">
           <button onClick={handleBack} className="p-1 rounded-lg hover:bg-secondary transition-colors">
             <ArrowLeft className="w-5 h-5" />
