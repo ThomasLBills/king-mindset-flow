@@ -41,17 +41,21 @@ const ChannelsTab = ({ onSelectChannel }: ChannelsTabProps) => {
 
   const handleSelect = (ch: typeof channels[0]) => {
     const target: ChatTarget = { type: "channel", id: ch.id, name: ch.name };
-    setActiveChannel(target);
     joinChannel(ch.id);
     markAsRead(ch.id, "channel");
+    if (onSelectChannel) {
+      onSelectChannel(target);
+    } else {
+      setActiveChannel(target);
+    }
   };
 
-  if (activeChannel) {
+  if (activeChannel && !onSelectChannel) {
     const ch = channels.find(c => c.id === activeChannel.id);
     const isLocked = (ch as any)?.is_locked;
 
     return (
-      <div className="fixed inset-x-0 flex flex-col" style={{ top: '57px', bottom: 'calc(65px + env(safe-area-inset-bottom))' }}>
+      <div className="fixed inset-x-0 flex flex-col bg-background z-40" style={{ top: '57px', bottom: 'calc(65px + env(safe-area-inset-bottom))' }}>
         <div className="flex items-center gap-2 px-4 py-3 border-b border-border shrink-0">
           <button onClick={() => setActiveChannel(null)} className="text-sm text-primary font-medium">
             ← Back
