@@ -28,22 +28,22 @@ const BrotherhoodPage = () => {
   const handleStartDM = useCallback(async (brotherUserId: string, name: string) => {
     if (!user) return;
 
-    const { data: existing } = await supabase
-      .from("chat_dms")
-      .select("id")
-      .or(`and(user_a.eq.${user.id},user_b.eq.${brotherUserId}),and(user_a.eq.${brotherUserId},user_b.eq.${user.id})`)
-      .maybeSingle();
+    const { data: existing } = await supabase.
+    from("chat_dms").
+    select("id").
+    or(`and(user_a.eq.${user.id},user_b.eq.${brotherUserId}),and(user_a.eq.${brotherUserId},user_b.eq.${user.id})`).
+    maybeSingle();
 
     let dmId: string;
     if (existing) {
       dmId = existing.id;
     } else {
       const [userA, userB] = [user.id, brotherUserId].sort();
-      const { data: newDm, error } = await supabase
-        .from("chat_dms")
-        .insert({ user_a: userA, user_b: userB })
-        .select("id")
-        .single();
+      const { data: newDm, error } = await supabase.
+      from("chat_dms").
+      insert({ user_a: userA, user_b: userB }).
+      select("id").
+      single();
       if (error || !newDm) return;
       dmId = newDm.id;
     }
@@ -66,8 +66,8 @@ const BrotherhoodPage = () => {
     return (
       <AppLayout>
         <MessagesTab initialTarget={dmTarget} onBack={() => setDmTarget(null)} />
-      </AppLayout>
-    );
+      </AppLayout>);
+
   }
 
   // If a channel is active, show full-screen chat replacing the landing page entirely
@@ -76,10 +76,10 @@ const BrotherhoodPage = () => {
       <AppLayout>
         <ChannelChatView
           target={channelTarget}
-          onBack={() => setChannelTarget(null)}
-        />
-      </AppLayout>
-    );
+          onBack={() => setChannelTarget(null)} />
+        
+      </AppLayout>);
+
   }
 
   return (
@@ -93,7 +93,7 @@ const BrotherhoodPage = () => {
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="mb-5">
           <div className="rounded-xl bg-card border border-primary p-4">
             <div className="mb-2">
-              <span className="font-medium">EXPECTATIONS:</span>
+              <span className="font-medium">BROTHERHOOD GROUND RULES:</span>
             </div>
             <ul className="text-sm text-muted-foreground space-y-1">
               <li>• Connection matters more than details</li>
@@ -107,12 +107,12 @@ const BrotherhoodPage = () => {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="mb-5"
-        >
+          className="mb-5">
+          
           <button
             onClick={() => setShowReachOut(true)}
-            className="w-full text-left p-4 rounded-2xl bg-[#111111] border-l-4 border-primary transition-all hover:border-primary/80"
-          >
+            className="w-full text-left p-4 rounded-2xl bg-[#111111] border-l-4 border-primary transition-all hover:border-primary/80">
+            
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0">
                 <Users className="w-6 h-6 text-primary" />
@@ -146,23 +146,23 @@ const BrotherhoodPage = () => {
       </div>
 
       {showReachOut && <ReachOut onClose={handleReachOutClose} onSent={handleReachOutSent} />}
-    </AppLayout>
-  );
+    </AppLayout>);
+
 };
 
 /** Full-screen channel chat view — completely replaces the Brotherhood landing page */
-const ChannelChatView = ({ target, onBack }: { target: ChatTarget; onBack: () => void }) => {
+const ChannelChatView = ({ target, onBack }: {target: ChatTarget;onBack: () => void;}) => {
   const { messages, loading, sendMessage } = useMessages(target);
   const joinChannel = useJoinChannel();
   const { isAdmin } = useAdminRole();
   const { toast } = useToast();
   const { channels } = useChannels();
 
-  const ch = channels.find(c => c.id === target.id);
+  const ch = channels.find((c) => c.id === target.id);
   const isLocked = (ch as any)?.is_locked;
 
   // Auto-join
-  useState(() => { joinChannel(target.id); });
+  useState(() => {joinChannel(target.id);});
 
   const handleDeleteMessage = useCallback(async (messageId: string) => {
     const { error } = await supabase.from("chat_messages").delete().eq("id", messageId);
@@ -182,15 +182,15 @@ const ChannelChatView = ({ target, onBack }: { target: ChatTarget; onBack: () =>
         {isLocked && <Lock className="w-3 h-3 text-muted-foreground" />}
       </div>
       <MessageList messages={messages} loading={loading} isAdmin={isAdmin} onDeleteMessage={handleDeleteMessage} />
-      {!isLocked || isAdmin ? (
-        <MessageComposer onSend={sendMessage} placeholder="Message…" />
-      ) : (
-        <div className="p-3 text-center text-sm text-muted-foreground border-t border-border bg-card shrink-0">
+      {!isLocked || isAdmin ?
+      <MessageComposer onSend={sendMessage} placeholder="Message…" /> :
+
+      <div className="p-3 text-center text-sm text-muted-foreground border-t border-border bg-card shrink-0">
           This channel is view only.
         </div>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 };
 
 export default BrotherhoodPage;
