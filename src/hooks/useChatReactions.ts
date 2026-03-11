@@ -52,13 +52,18 @@ export function useChatReactions(messageIds: string[]) {
 
   const toggleReaction = useCallback(async (messageId: string, emoji: string) => {
     if (!user) return;
-    const existing = reactions[messageId]?.find(r => r.emoji === emoji && r.reacted);
+    // Check directly from DB to avoid stale closure
+    const { data: existing } = await supabase
+      .from("chat_reactions")
+      .select("id")
+      .match({ message_id: messageId, user_id: user.id, emoji })
+      .maybeSingle();
     if (existing) {
-      await supabase.from("chat_reactions").delete().match({ message_id: messageId, user_id: user.id, emoji });
+      await supabase.from("chat_reactions").delete().eq("id", existing.id);
     } else {
       await supabase.from("chat_reactions").insert({ message_id: messageId, user_id: user.id, emoji });
     }
-  }, [user, reactions]);
+  }, [user]);
 
   return { reactions, toggleReaction };
 }
