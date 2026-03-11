@@ -47,11 +47,10 @@ const MessageList = ({ messages, loading, isAdmin, onDeleteMessage }: MessageLis
     fetchSignedUrls();
   }, [messages]);
 
-  // Stable scroll-to-bottom helper
+  // Stable scroll-to-bottom helper using bottomRef for reliability
   const scrollToBottom = useCallback(() => {
-    const el = containerRef.current;
-    if (el) {
-      el.scrollTop = el.scrollHeight;
+    if (bottomRef.current) {
+      bottomRef.current.scrollIntoView({ block: "end" });
     }
   }, []);
 
@@ -62,26 +61,34 @@ const MessageList = ({ messages, loading, isAdmin, onDeleteMessage }: MessageLis
     // Immediate
     scrollToBottom();
 
-    // Use rAF to ensure we scroll after the browser has painted
+    // rAF to catch post-paint layout
     const raf1 = requestAnimationFrame(() => {
       scrollToBottom();
-      // Nested rAF catches the frame after layout
       requestAnimationFrame(scrollToBottom);
     });
 
-    // Staggered fallbacks for images/embeds that load asynchronously
+    // Staggered fallbacks for async content (images, embeds)
     const t1 = setTimeout(scrollToBottom, 100);
     const t2 = setTimeout(scrollToBottom, 300);
     const t3 = setTimeout(scrollToBottom, 600);
-    const t4 = setTimeout(scrollToBottom, 1000);
+    const t4 = setTimeout(scrollToBottom, 1200);
 
-    // MutationObserver for dynamic content (images loading, reactions, etc.)
+    // MutationObserver for dynamic DOM changes
     const el = containerRef.current;
     let observer: MutationObserver | undefined;
     if (el) {
       observer = new MutationObserver(scrollToBottom);
       observer.observe(el, { childList: true, subtree: true, attributes: true });
     }
+
+    // Listen for image loads within the container
+    const images = el?.querySelectorAll("img") ?? [];
+    const handleImageLoad = () => scrollToBottom();
+    images.forEach(img => {
+      if (!img.complete) {
+        img.addEventListener("load", handleImageLoad);
+      }
+    });
 
     return () => {
       cancelAnimationFrame(raf1);
@@ -90,6 +97,7 @@ const MessageList = ({ messages, loading, isAdmin, onDeleteMessage }: MessageLis
       clearTimeout(t3);
       clearTimeout(t4);
       observer?.disconnect();
+      images.forEach(img => img.removeEventListener("load", handleImageLoad));
     };
   }, [messages.length, loading, scrollToBottom]);
 
