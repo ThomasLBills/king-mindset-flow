@@ -55,7 +55,7 @@ const ChatView = ({ target }: ChatViewProps) => {
       <MessageList messages={messages} loading={loading} isAdmin={isAdmin} onDeleteMessage={handleDeleteMessage} />
       <MessageComposer
         onSend={sendMessage}
-        placeholder={`Message ${target.type === "channel" ? "#" : ""}${target.name}`}
+        placeholder="Message…"
       />
     </div>
   );
