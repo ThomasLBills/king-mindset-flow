@@ -145,7 +145,7 @@ const MessageList = ({ messages, loading, isAdmin, onDeleteMessage }: MessageLis
                       <SmilePlus className="w-4 h-4 text-muted-foreground" />
                     </button>
                   </PopoverTrigger>
-                  <PopoverContent side="top" className="w-auto p-2 bg-card border-border z-50">
+                  <PopoverContent side="top" className="w-auto p-2 bg-card border-border z-50 !animate-none !duration-0">
                     <div className="flex gap-0.5">
                       {QUICK_EMOJIS.map(emoji => (
                         <button
