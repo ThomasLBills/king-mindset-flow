@@ -172,7 +172,7 @@ const ChannelChatView = ({ target, onBack }: { target: ChatTarget; onBack: () =>
   }, [toast]);
 
   return (
-    <div className="fixed inset-x-0 flex flex-col bg-background z-40" style={{ top: '57px', bottom: 'calc(65px + env(safe-area-inset-bottom))' }}>
+    <div className="fixed inset-x-0 flex flex-col bg-background z-40" style={{ top: 'calc(57px + env(safe-area-inset-top, 0px))', bottom: 'calc(65px + env(safe-area-inset-bottom, 0px))' }}>
       <div className="flex items-center gap-2 px-4 py-3 border-b border-border shrink-0">
         <button onClick={onBack} className="text-sm text-primary font-medium">
           ← Back

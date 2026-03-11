@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, useMemo, useLayoutEffect } from "react";
+import { useRef, useEffect, useState, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import type { ChatMessage } from "@/hooks/useChat";
@@ -47,22 +47,20 @@ const MessageList = ({ messages, loading, isAdmin, onDeleteMessage }: MessageLis
     fetchSignedUrls();
   }, [messages]);
 
-  // Force scroll to bottom after DOM renders
-  useLayoutEffect(() => {
-    if (!loading && containerRef.current) {
-      containerRef.current.scrollTop = containerRef.current.scrollHeight;
-    }
-  }, [messages.length, loading]);
-
-  // Also use requestAnimationFrame as a fallback for images/embeds
+  // Force scroll to bottom with delay to ensure DOM is fully rendered
   useEffect(() => {
-    if (!loading && containerRef.current) {
-      requestAnimationFrame(() => {
-        if (containerRef.current) {
-          containerRef.current.scrollTop = containerRef.current.scrollHeight;
-        }
-      });
-    }
+    if (loading) return;
+    const scrollToBottom = () => {
+      if (containerRef.current) {
+        containerRef.current.scrollTop = containerRef.current.scrollHeight;
+      }
+    };
+    // Immediate attempt
+    scrollToBottom();
+    // Delayed attempt to catch after images/embeds render
+    const t1 = setTimeout(scrollToBottom, 150);
+    const t2 = setTimeout(scrollToBottom, 400);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
   }, [messages.length, loading]);
 
   if (loading) {
