@@ -126,22 +126,31 @@ const MessageList = ({ messages, loading, isAdmin, onDeleteMessage }: MessageLis
                 if (!vimeoMatch) return null;
                 const videoId = vimeoMatch[1];
                 const hash = vimeoMatch[2];
-                const embedSrc = `https://player.vimeo.com/video/${videoId}?dnt=1${hash ? `&h=${hash}` : ''}`;
+                const embedSrc = `https://player.vimeo.com/video/${videoId}?dnt=1${hash ? `&h=${hash}` : ''}&playsinline=1&responsive=1`;
+                const vimeoUrl = `https://vimeo.com/${videoId}${hash ? `/${hash}` : ''}`;
                 return (
-                  <div className="mt-2 rounded-lg overflow-hidden border border-border w-full" style={{ maxWidth: 480 }}>
-                    <div className="relative w-full" style={{ paddingBottom: "56.25%", height: 0 }}>
+                  <div className="mt-2 rounded-lg overflow-hidden border border-border w-full max-w-[480px]">
+                    <div className="relative w-full aspect-video">
                       <iframe
                         src={embedSrc}
-                        className="absolute top-0 left-0 w-full h-full"
+                        className="absolute inset-0 w-full h-full"
                         frameBorder="0"
-                        allow="autoplay; fullscreen; picture-in-picture"
+                        allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
                         allowFullScreen
-                        // @ts-ignore
-                        webkitallowfullscreen="true"
-                        mozallowfullscreen="true"
+                        {...{ webkitallowfullscreen: "", mozallowfullscreen: "" } as any}
                         title="Vimeo video"
+                        sandbox="allow-scripts allow-same-origin allow-popups allow-presentation"
+                        loading="lazy"
                       />
                     </div>
+                    <a
+                      href={vimeoUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block px-3 py-1.5 text-xs text-primary hover:underline bg-card"
+                    >
+                      Open on Vimeo ↗
+                    </a>
                   </div>
                 );
               })()}
