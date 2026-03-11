@@ -180,6 +180,8 @@ export function useBrothers() {
   return {
     brothers,
     pendingRequests,
+    outgoingPendingIds,
+    declinedIds,
     maxBrothers,
     isLoading,
     atCapacity: brothers.length >= maxBrothers,
