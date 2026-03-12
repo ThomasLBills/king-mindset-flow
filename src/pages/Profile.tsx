@@ -25,7 +25,7 @@ const Profile = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { allInsights } = useTriggerPatterns();
+  
 
   const { data: profile, isLoading } = useQuery({
     queryKey: ["my-profile", user?.id],
