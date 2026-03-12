@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { X, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import { useGratitude } from "@/hooks/useGratitude";
 
 interface GratitudeModalProps {
@@ -14,6 +15,7 @@ const GratitudeModal = ({ onClose }: GratitudeModalProps) => {
   const [entry2, setEntry2] = useState("");
   const [entry3, setEntry3] = useState("");
   const [showCompletion, setShowCompletion] = useState(false);
+  const navigate = useNavigate();
 
   const allFilled = entry1.trim() && entry2.trim() && entry3.trim();
 
@@ -24,7 +26,10 @@ const GratitudeModal = ({ onClose }: GratitudeModalProps) => {
       {
         onSuccess: () => {
           setShowCompletion(true);
-          setTimeout(() => onClose(), 1500);
+          setTimeout(() => {
+            onClose();
+            navigate("/app");
+          }, 1500);
         },
       }
     );

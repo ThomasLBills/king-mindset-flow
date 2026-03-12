@@ -7,6 +7,7 @@ import { useCrisisEventLogger } from "@/hooks/useTriggerPatterns";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 import { useEvidenceCounter } from "@/hooks/useEvidenceCounter";
 import { useUrgeCounter } from "@/hooks/useUrgeCounter";
 
@@ -67,6 +68,7 @@ export const SpiritLedCrisisModal = ({ onClose }: { onClose: () => void }) => {
   const qc = useQueryClient();
   const { addEvidence } = useEvidenceCounter();
   const { addUrge } = useUrgeCounter();
+  const navigate = useNavigate();
 
   const selectedTruth = useMemo(
     () => truthStatements[Math.floor(Math.random() * truthStatements.length)],
@@ -103,6 +105,7 @@ export const SpiritLedCrisisModal = ({ onClose }: { onClose: () => void }) => {
     setShowVictory(true);
     setTimeout(() => {
       onClose();
+      navigate("/app");
     }, 1000);
   };
 
