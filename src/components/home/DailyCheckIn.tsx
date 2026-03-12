@@ -334,80 +334,67 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
             >
-              <p className="text-sm text-white text-center mb-6">
-                What is present in you right now?
-              </p>
-              <div className="grid grid-cols-2 gap-3 mb-2">
-                {visibleOptions.map((option) => {
-                  const isSelected = selectedAwareness === option.id;
-                  return (
-                    <motion.button
-                      key={option.id}
-                      onClick={() => toggleAwareness(option.id)}
-                      animate={{ scale: isSelected ? 1.02 : 1 }}
-                      transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                      className={cn(
-                        "relative flex items-center justify-center p-3 rounded-xl transition-colors duration-150 text-center border-[1.5px] border-[#C9A84C]",
-                        isSelected
-                          ? "bg-[#C9A84C] text-[#0A0A0A] font-bold"
-                          : "bg-[#1A1A1A] text-white"
-                      )}
-                    >
-                      <span className="text-sm font-medium">{option.label}</span>
-                      {isSelected && (
-                        <Check className="w-3.5 h-3.5 text-[#0A0A0A] ml-auto" />
-                      )}
-                    </motion.button>
-                  );
-                })}
-              </div>
-
-              {!showMore && (
-                <button
-                  onClick={() => setShowMore(true)}
-                  className="text-xs text-primary/70 hover:text-primary font-medium transition-colors mb-4 block mx-auto"
-                >
-                  Show more
-                </button>
-              )}
-
-              {/* Contextual Scripture */}
-              <AnimatePresence>
-                {activeScripture && (
+              <AnimatePresence mode="wait">
+                {!selectedAwareness ? (
                   <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="mb-4 overflow-hidden"
+                    key="grid"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0, transition: { duration: 0.15 } }}
                   >
-                    <div className="bg-white/5 border border-primary/20 rounded-xl p-4">
-                      <p className="font-serif text-sm text-white italic leading-relaxed">
-                        "{activeScripture.text}"
-                      </p>
-                      <p className="text-xs text-primary mt-2 font-medium">{activeScripture.ref}</p>
+                    <p className="text-sm text-white text-center mb-6">
+                      What is present in you right now?
+                    </p>
+                    <div className="grid grid-cols-2 gap-3 mb-2">
+                      {visibleOptions.map((option) => (
+                        <motion.button
+                          key={option.id}
+                          onClick={() => toggleAwareness(option.id)}
+                          whileTap={{ scale: 0.97 }}
+                          className="relative flex items-center justify-center p-3 rounded-xl transition-colors duration-150 text-center border-[1.5px] border-primary bg-[#1A1A1A] text-white"
+                        >
+                          <span className="text-sm font-medium">{option.label}</span>
+                        </motion.button>
+                      ))}
                     </div>
+
+                    {!showMore && (
+                      <button
+                        onClick={() => setShowMore(true)}
+                        className="text-xs text-primary/70 hover:text-primary font-medium transition-colors mb-4 block mx-auto"
+                      >
+                        Show more
+                      </button>
+                    )}
                   </motion.div>
-                )}
-              </AnimatePresence>
-
-              {showBreathText && (
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="text-sm text-white text-center mb-4"
-                >
-                  Awareness builds strength.
-                </motion.p>
-              )}
-
-              {selectedAwareness && (
-                <div className="flex gap-3">
+                ) : (
                   <motion.div
-                    className="flex-1"
+                    key="focused"
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    whileTap={{ scale: 0.97, y: -1 }}
+                    exit={{ opacity: 0, transition: { duration: 0.15 } }}
+                    className="flex flex-col items-center"
                   >
+                    <button
+                      onClick={() => setSelectedAwareness(null)}
+                      className="self-start text-xs text-primary/70 hover:text-primary font-medium transition-colors mb-4"
+                    >
+                      ← Back
+                    </button>
+
+                    <span className="px-4 py-1.5 rounded-full text-sm font-bold bg-primary text-[#0A0A0A] mb-5">
+                      {awarenessOptions.find((o) => o.id === selectedAwareness)?.label}
+                    </span>
+
+                    {activeScripture && (
+                      <div className="w-full bg-white/5 border border-primary/20 rounded-xl p-4 mb-5">
+                        <p className="font-serif text-sm text-white italic leading-relaxed">
+                          "{activeScripture.text}"
+                        </p>
+                        <p className="text-xs text-primary mt-2 font-medium">{activeScripture.ref}</p>
+                      </div>
+                    )}
+
                     <Button
                       onClick={() => {
                         setShowBreathText(true);
@@ -417,9 +404,19 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
                     >
                       I am aligned. Let's Go.
                     </Button>
+
+                    {showBreathText && (
+                      <motion.p
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="text-sm text-white text-center mt-3"
+                      >
+                        Awareness builds strength.
+                      </motion.p>
+                    )}
                   </motion.div>
-                </div>
-              )}
+                )}
+              </AnimatePresence>
             </motion.div>
           )}
 
