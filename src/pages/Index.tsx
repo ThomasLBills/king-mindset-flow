@@ -4,10 +4,8 @@ import AppLayout from "@/components/layout/AppLayout";
 import DailyCheckIn from "@/components/home/DailyCheckIn";
 import FreedomStrip from "@/components/home/FreedomStrip";
 import UrgesRedirectedCard from "@/components/home/UrgesRedirectedCard";
-import PatternInsightCard from "@/components/home/PatternInsightCard";
 import ReachOut from "@/components/brotherhood/ReachOut";
 import { useDailyCheckIn } from "@/hooks/useDailyProgress";
-import { useTriggerPatterns } from "@/hooks/useTriggerPatterns";
 import { useAuth } from "@/hooks/useAuth";
 import { useEvidenceCounter } from "@/hooks/useEvidenceCounter";
 
@@ -16,10 +14,7 @@ const Index = () => {
 
   const { user } = useAuth();
   const { isCheckedIn } = useDailyCheckIn();
-  const { activeInsight, dismissInsight, analyzePatterns } = useTriggerPatterns();
   const { addEvidence } = useEvidenceCounter();
-
-  const showInsight = isCheckedIn && activeInsight && !activeInsight.dismissed;
 
   return (
     <AppLayout>
@@ -43,7 +38,6 @@ const Index = () => {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="mb-5">
           <DailyCheckIn
             onComplete={() => {
-              analyzePatterns.mutate();
               addEvidence.mutate("check_in");
             }}
             onSpiritPromptWritten={() => {
@@ -62,23 +56,6 @@ const Index = () => {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="mb-5">
           <FreedomStrip />
         </motion.div>
-
-        {/* Pattern Insight Card */}
-        <AnimatePresence>
-          {showInsight && activeInsight && (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="mb-5">
-              <PatternInsightCard
-                title={activeInsight.title}
-                message={activeInsight.message}
-                scriptureRef={activeInsight.scripture_reference}
-                scriptureText={activeInsight.scripture_text}
-                actionStep={activeInsight.action_step}
-                onDismiss={() => dismissInsight.mutate(activeInsight.id)}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
-
 
       </div>
 
