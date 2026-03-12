@@ -79,6 +79,18 @@ const Index = () => {
           )}
         </AnimatePresence>
 
+        {/* TEMP DEMO — remove after review */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-5">
+          <PatternInsightCard
+            title="Pattern Detected: Isolation Before Relapse"
+            message="Over the past 3 weeks, you've checked in feeling 'Isolated' 4 times — and 3 of those were within 48 hours of a fall. Isolation may be a key trigger for you."
+            scriptureRef="Hebrews 10:24-25"
+            scriptureText="And let us consider how to stir up one another to love and good works, not neglecting to meet together, as is the habit of some, but encouraging one another."
+            actionStep="Reach out to a brother next time you feel isolated — before it escalates."
+            onDismiss={() => {}}
+          />
+        </motion.div>
+
       </div>
 
       {/* Modals */}
