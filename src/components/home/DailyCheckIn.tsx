@@ -5,7 +5,7 @@ import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useDailyCheckIn } from "@/hooks/useDailyProgress";
 
-const awarenessOptions = [
+const coreOptions = [
   { id: "hopeful", label: "Hopeful" },
   { id: "grateful", label: "Grateful" },
   { id: "connected", label: "Connected" },
@@ -19,6 +19,23 @@ const awarenessOptions = [
   { id: "tempted", label: "Tempted" },
   { id: "ashamed", label: "Ashamed" },
 ];
+
+const extraOptions = [
+  { id: "angry", label: "Angry" },
+  { id: "frustrated", label: "Frustrated" },
+  { id: "overwhelmed", label: "Overwhelmed" },
+  { id: "restless", label: "Restless" },
+  { id: "numb", label: "Numb" },
+  { id: "lonely", label: "Lonely" },
+  { id: "confident", label: "Confident" },
+  { id: "convicted", label: "Convicted" },
+  { id: "bored", label: "Bored" },
+  { id: "stressed", label: "Stressed" },
+  { id: "fear", label: "Fear" },
+  { id: "rejection", label: "Rejection" },
+];
+
+const awarenessOptions = [...coreOptions, ...extraOptions];
 
 const scriptureResponses: Record<string, { text: string; ref: string }> = {
   anxious: {
@@ -66,8 +83,56 @@ const scriptureResponses: Record<string, { text: string; ref: string }> = {
     ref: "Matthew 11:28",
   },
   peaceful: {
-    text: "And the peace of God, which surpasses all understanding, will guard your hearts and your minds in Christ Jesus.",
-    ref: "Philippians 4:7",
+    text: "Peace I leave with you; my peace I give to you. Not as the world gives do I give to you. Let not your hearts be troubled, neither let them be afraid.",
+    ref: "John 14:27",
+  },
+  angry: {
+    text: "Be angry and do not sin; ponder in your own hearts on your beds, and be silent.",
+    ref: "Psalm 4:4",
+  },
+  frustrated: {
+    text: "Trust in the Lord with all your heart, and do not lean on your own understanding. In all your ways acknowledge him, and he will make straight your paths.",
+    ref: "Proverbs 3:5-6",
+  },
+  overwhelmed: {
+    text: "God is our refuge and strength, a very present help in trouble.",
+    ref: "Psalm 46:1",
+  },
+  restless: {
+    text: "For God alone my soul waits in silence; from him comes my salvation.",
+    ref: "Psalm 62:1",
+  },
+  numb: {
+    text: "And I will give you a new heart, and a new spirit I will put within you. And I will remove the heart of stone from your flesh and give you a heart of flesh.",
+    ref: "Ezekiel 36:26",
+  },
+  lonely: {
+    text: "God settles the solitary in a home; he leads out the prisoners to prosperity, but the rebellious dwell in a parched land.",
+    ref: "Psalm 68:6",
+  },
+  confident: {
+    text: "I can do all things through him who strengthens me.",
+    ref: "Philippians 4:13",
+  },
+  convicted: {
+    text: "If we confess our sins, he is faithful and just to forgive us our sins and to cleanse us from all unrighteousness.",
+    ref: "1 John 1:9",
+  },
+  bored: {
+    text: "Whatever you do, work heartily, as for the Lord and not for men.",
+    ref: "Colossians 3:23",
+  },
+  stressed: {
+    text: "Casting all your anxieties on him, because he cares for you.",
+    ref: "1 Peter 5:7",
+  },
+  fear: {
+    text: "For God gave us a spirit not of fear but of power and love and self-control.",
+    ref: "2 Timothy 1:7",
+  },
+  rejection: {
+    text: "Even as he chose us in him before the foundation of the world, that we should be holy and blameless before him. In love he predestined us for adoption to himself as sons through Jesus Christ, according to the purpose of his will.",
+    ref: "Ephesians 1:4-5",
   },
 };
 
@@ -172,18 +237,30 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
   const [showBreathText, setShowBreathText] = useState(false);
   const [hasTypedSpirit, setHasTypedSpirit] = useState(false);
   const [redoMode, setRedoMode] = useState(false);
+  const [showMore, setShowMore] = useState(false);
   const spiritRef = useRef<HTMLTextAreaElement>(null);
   const { isCheckedIn, todayCheckIn, submitCheckIn } = useDailyCheckIn();
 
-  // Randomize tile order once per session
-  const shuffledOptions = useMemo(() => {
-    const arr = [...awarenessOptions];
+  // Randomize core and extra tiles independently once per session
+  const shuffledCore = useMemo(() => {
+    const arr = [...coreOptions];
     for (let i = arr.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [arr[i], arr[j]] = [arr[j], arr[i]];
     }
     return arr;
   }, []);
+
+  const shuffledExtra = useMemo(() => {
+    const arr = [...extraOptions];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }, []);
+
+  const visibleOptions = showMore ? [...shuffledCore, ...shuffledExtra] : shuffledCore;
 
   // Get the most relevant scripture for selected emotions
   const activeScripture = useMemo(() => {
@@ -260,8 +337,8 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
               <p className="text-sm text-white text-center mb-6">
                 What is present in you right now?
               </p>
-              <div className="grid grid-cols-2 gap-3 mb-4">
-                {shuffledOptions.map((option) => {
+              <div className="grid grid-cols-2 gap-3 mb-2">
+                {visibleOptions.map((option) => {
                   const isSelected = selectedAwareness === option.id;
                   return (
                     <motion.button
@@ -284,6 +361,15 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
                   );
                 })}
               </div>
+
+              {!showMore && (
+                <button
+                  onClick={() => setShowMore(true)}
+                  className="text-xs text-primary/70 hover:text-primary font-medium transition-colors mb-4 block mx-auto"
+                >
+                  Show more
+                </button>
+              )}
 
               {/* Contextual Scripture */}
               <AnimatePresence>
