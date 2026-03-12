@@ -15,6 +15,7 @@ const GratitudeModal = ({ onClose }: GratitudeModalProps) => {
   const [entry2, setEntry2] = useState("");
   const [entry3, setEntry3] = useState("");
   const [showCompletion, setShowCompletion] = useState(false);
+  const navigate = useNavigate();
 
   const allFilled = entry1.trim() && entry2.trim() && entry3.trim();
 
