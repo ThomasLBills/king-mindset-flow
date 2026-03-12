@@ -26,7 +26,10 @@ const GratitudeModal = ({ onClose }: GratitudeModalProps) => {
       {
         onSuccess: () => {
           setShowCompletion(true);
-          setTimeout(() => onClose(), 1500);
+          setTimeout(() => {
+            onClose();
+            navigate("/app");
+          }, 1500);
         },
       }
     );

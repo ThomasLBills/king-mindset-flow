@@ -105,6 +105,7 @@ export const SpiritLedCrisisModal = ({ onClose }: { onClose: () => void }) => {
     setShowVictory(true);
     setTimeout(() => {
       onClose();
+      navigate("/app");
     }, 1000);
   };
 

@@ -28,11 +28,14 @@ const DeclarationsModal = ({ onClose }: {onClose: () => void;}) => {
     []
   );
 
+  const navigate = useNavigate();
+
   const handleBelieve = () => {
     addEvidence.mutate("declaration");
     setShowCompletion(true);
     setTimeout(() => {
       onClose();
+      navigate("/app");
     }, 1500);
   };
 
