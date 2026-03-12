@@ -7,8 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { User, Shield, Loader2, Save, LogOut, Eye } from "lucide-react";
-import { useTriggerPatterns } from "@/hooks/useTriggerPatterns";
+import { User, Shield, Loader2, Save, LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
@@ -26,7 +25,7 @@ const Profile = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { allInsights } = useTriggerPatterns();
+  
 
   const { data: profile, isLoading } = useQuery({
     queryKey: ["my-profile", user?.id],
@@ -212,41 +211,6 @@ const Profile = () => {
           </Card>
         </motion.div>
 
-        {/* Your Patterns */}
-        {allInsights.length > 0 && (
-          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-            <Card className="card-elevated mb-6">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Eye className="w-5 h-5" /> Your Patterns
-                </CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  Evidence of self-awareness developing over time
-                </p>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {allInsights.map((insight) => (
-                  <div
-                    key={insight.id}
-                    className="border-l-2 border-l-primary pl-4 py-3"
-                  >
-                    <p className="text-sm font-medium mb-1">{insight.message}</p>
-                    <p className="text-xs text-muted-foreground italic">
-                      {insight.scripture_reference}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {new Date(insight.surfaced_at).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      })}
-                    </p>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          </motion.div>
-        )}
       </div>
     </AppLayout>
   );
