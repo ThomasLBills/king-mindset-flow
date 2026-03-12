@@ -337,8 +337,8 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
               <p className="text-sm text-white text-center mb-6">
                 What is present in you right now?
               </p>
-              <div className="grid grid-cols-2 gap-3 mb-4">
-                {shuffledOptions.map((option) => {
+              <div className="grid grid-cols-2 gap-3 mb-2">
+                {visibleOptions.map((option) => {
                   const isSelected = selectedAwareness === option.id;
                   return (
                     <motion.button
@@ -361,6 +361,15 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
                   );
                 })}
               </div>
+
+              {!showMore && (
+                <button
+                  onClick={() => setShowMore(true)}
+                  className="text-xs text-primary/70 hover:text-primary font-medium transition-colors mb-4 block mx-auto"
+                >
+                  Show more
+                </button>
+              )}
 
               {/* Contextual Scripture */}
               <AnimatePresence>
