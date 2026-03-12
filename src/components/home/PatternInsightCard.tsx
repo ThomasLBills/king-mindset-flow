@@ -37,7 +37,7 @@ const PatternInsightCard = ({
       </p>
 
       {/* Scripture */}
-      <div className="bg-white/5 border border-primary/20 rounded-xl p-4 mb-4">
+      <div className="bg-[#0A0A0A] border border-primary/20 rounded-xl p-4 mb-4">
         <p className="text-xs text-primary/70 mb-1.5 font-medium">
           Here is what the Spirit may be saying:
         </p>
@@ -48,8 +48,7 @@ const PatternInsightCard = ({
       </div>
 
       {/* Action step */}
-      <div className="bg-white/5 rounded-xl p-4 mb-4">
-        <p className="text-xs text-white/50 mb-1 font-medium uppercase tracking-wider">Your next step</p>
+      <div className="bg-[#0A0A0A] rounded-xl p-4 mb-4">
         <p className="text-sm text-white/75 leading-relaxed">{actionStep}</p>
       </div>
 
