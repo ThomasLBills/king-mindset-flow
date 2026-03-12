@@ -373,25 +373,25 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, transition: { duration: 0.15 } }}
-                    className="flex flex-col items-center"
+                    className="flex flex-col items-center w-full"
                   >
                     <button
                       onClick={() => setSelectedAwareness(null)}
-                      className="self-start text-xs text-primary/70 hover:text-primary font-medium transition-colors mb-4"
+                      className="self-start text-xs text-primary/70 hover:text-primary font-medium transition-colors mb-4 touch-manipulation min-h-[32px] flex items-center"
                     >
                       ← Back
                     </button>
 
-                    <span className="px-4 py-1.5 rounded-full text-sm font-bold bg-primary text-[#0A0A0A] mb-5">
+                    <span className="px-5 py-2 rounded-full text-base font-bold bg-primary text-[#0A0A0A] mb-5">
                       {awarenessOptions.find((o) => o.id === selectedAwareness)?.label}
                     </span>
 
                     {activeScripture && (
-                      <div className="w-full bg-white/5 border border-primary/20 rounded-xl p-4 mb-5">
-                        <p className="font-serif text-sm text-white italic leading-relaxed">
+                      <div className="w-full bg-white/5 border border-primary/20 rounded-xl p-4 sm:p-5 mb-5">
+                        <p className="font-serif text-sm sm:text-base text-white italic leading-relaxed break-words">
                           "{activeScripture.text}"
                         </p>
-                        <p className="text-xs text-primary mt-2 font-medium">{activeScripture.ref}</p>
+                        <p className="text-xs sm:text-sm text-primary mt-2 font-medium">{activeScripture.ref}</p>
                       </div>
                     )}
 
@@ -400,7 +400,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
                         setShowBreathText(true);
                         setTimeout(() => setStep(1), 1000);
                       }}
-                      className="w-full rounded-xl font-bold h-12 text-base bg-primary text-[#0A0A0A] hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all duration-200"
+                      className="w-full rounded-xl font-bold h-12 text-base bg-primary text-[#0A0A0A] hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all duration-200 touch-manipulation"
                     >
                       I am aligned. Let's Go.
                     </Button>
