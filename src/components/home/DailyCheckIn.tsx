@@ -291,6 +291,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
           setSelectedAwareness(null);
           setHasTypedSpirit(false);
           setShowBreathText(false);
+          setShowMore(false);
         }}
       />
     );
