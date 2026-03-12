@@ -178,7 +178,7 @@ interface CompactCompletedProps {
 
 const CompactCompleted = ({ feelings, scripture, onCheckInAgain }: CompactCompletedProps) => {
   return (
-    <div className="bg-[#0A0A0A] rounded-2xl border-[1.5px] border-[#C9A84C] p-5 text-white shadow-[0_4px_24px_rgba(0,0,0,0.12)]">
+    <div className="bg-[#0A0A0A] rounded-2xl border-[1.5px] border-[#C9A84C] p-5 text-white shadow-[0_4px_24px_rgba(0,0,0,0.12)] max-w-[calc(390px-48px)] mx-auto">
       {/* Header with checkmark */}
       <div className="flex items-center gap-2.5 mb-3">
         <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
