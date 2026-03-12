@@ -56,18 +56,10 @@ const DeclarationsModal = ({ onClose }: {onClose: () => void;}) => {
           transition={{ duration: 0.3 }}
           className="absolute inset-0 z-[60] flex flex-col items-center justify-center bg-[#111111]">
           
-            <motion.div
-            initial={{ scale: 0.5, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.15, type: "spring", stiffness: 200, damping: 15 }}
-            className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mb-4">
-            
-              <Check className="w-8 h-8 text-primary" />
-            </motion.div>
             <motion.h2
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
+            transition={{ delay: 0.15 }}
             className="font-serif text-2xl font-bold text-white mb-3 text-center">
             
               Truth declared.
@@ -75,7 +67,7 @@ const DeclarationsModal = ({ onClose }: {onClose: () => void;}) => {
             <motion.p
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.45 }}
+            transition={{ delay: 0.3 }}
             className="text-white text-base text-center">
             
               You are building evidence.
