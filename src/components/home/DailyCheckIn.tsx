@@ -7,17 +7,17 @@ import { useDailyCheckIn } from "@/hooks/useDailyProgress";
 
 const coreOptions = [
   { id: "hopeful", label: "Hopeful" },
-  { id: "grateful", label: "Grateful" },
-  { id: "connected", label: "Connected" },
-  { id: "peaceful", label: "Peaceful" },
   { id: "calm", label: "Calm" },
   { id: "rested", label: "Rested" },
+  { id: "grateful", label: "Grateful" },
+  { id: "tempted", label: "Tempted" },
   { id: "tired", label: "Tired" },
+  { id: "peaceful", label: "Peaceful" },
+  { id: "isolated", label: "Isolated" },
+  { id: "ashamed", label: "Ashamed" },
+  { id: "connected", label: "Connected" },
   { id: "anxious", label: "Anxious" },
   { id: "discouraged", label: "Discouraged" },
-  { id: "isolated", label: "Isolated" },
-  { id: "tempted", label: "Tempted" },
-  { id: "ashamed", label: "Ashamed" },
 ];
 
 const extraOptions = [
@@ -241,16 +241,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
   const spiritRef = useRef<HTMLTextAreaElement>(null);
   const { isCheckedIn, todayCheckIn, submitCheckIn } = useDailyCheckIn();
 
-  // Randomize core and extra tiles independently once per session
-  const shuffledCore = useMemo(() => {
-    const arr = [...coreOptions];
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr;
-  }, []);
-
+  // Extra options shuffled once per session; core options stay in fixed order
   const shuffledExtra = useMemo(() => {
     const arr = [...extraOptions];
     for (let i = arr.length - 1; i > 0; i--) {
@@ -260,7 +251,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
     return arr;
   }, []);
 
-  const visibleOptions = showMore ? [...shuffledCore, ...shuffledExtra] : shuffledCore;
+  const visibleOptions = showMore ? [...coreOptions, ...shuffledExtra] : coreOptions;
 
   // Get the most relevant scripture for selected emotions
   const activeScripture = useMemo(() => {
