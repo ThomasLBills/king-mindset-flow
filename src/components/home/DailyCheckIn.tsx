@@ -237,18 +237,30 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
   const [showBreathText, setShowBreathText] = useState(false);
   const [hasTypedSpirit, setHasTypedSpirit] = useState(false);
   const [redoMode, setRedoMode] = useState(false);
+  const [showMore, setShowMore] = useState(false);
   const spiritRef = useRef<HTMLTextAreaElement>(null);
   const { isCheckedIn, todayCheckIn, submitCheckIn } = useDailyCheckIn();
 
-  // Randomize tile order once per session
-  const shuffledOptions = useMemo(() => {
-    const arr = [...awarenessOptions];
+  // Randomize core and extra tiles independently once per session
+  const shuffledCore = useMemo(() => {
+    const arr = [...coreOptions];
     for (let i = arr.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [arr[i], arr[j]] = [arr[j], arr[i]];
     }
     return arr;
   }, []);
+
+  const shuffledExtra = useMemo(() => {
+    const arr = [...extraOptions];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }, []);
+
+  const visibleOptions = showMore ? [...shuffledCore, ...shuffledExtra] : shuffledCore;
 
   // Get the most relevant scripture for selected emotions
   const activeScripture = useMemo(() => {
