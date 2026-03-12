@@ -1,11 +1,11 @@
-import { Hash, MessageCircle } from "lucide-react";
-import { useMessages, useJoinChannel, type ChatTarget } from "@/hooks/useChat";
+import { Hash, MessageCircle, Lock } from "lucide-react";
+import { useMessages, useJoinChannel, useChannels, type ChatTarget } from "@/hooks/useChat";
 import { useAdminRole } from "@/hooks/useAdminRole";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import MessageList from "./MessageList";
 import MessageComposer from "./MessageComposer";
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useMemo } from "react";
 
 interface ChatViewProps {
   target: ChatTarget | null;
@@ -14,8 +14,17 @@ interface ChatViewProps {
 const ChatView = ({ target }: ChatViewProps) => {
   const { messages, loading, sendMessage } = useMessages(target);
   const joinChannel = useJoinChannel();
+  const { channels } = useChannels();
   const { isAdmin } = useAdminRole();
   const { toast } = useToast();
+
+  const isLockedChannel = useMemo(() => {
+    if (!target || target.type !== "channel") return false;
+    const channel = channels.find(c => c.id === target.id);
+    return channel?.is_locked === true;
+  }, [target, channels]);
+
+  const canPost = !isLockedChannel || isAdmin;
 
   const handleDeleteMessage = useCallback(async (messageId: string) => {
     const { error } = await supabase.from("chat_messages").delete().eq("id", messageId);
@@ -53,10 +62,17 @@ const ChatView = ({ target }: ChatViewProps) => {
       </div>
 
       <MessageList messages={messages} loading={loading} isAdmin={isAdmin} onDeleteMessage={handleDeleteMessage} />
-      <MessageComposer
-        onSend={sendMessage}
-        placeholder="Message…"
-      />
+      {canPost ? (
+        <MessageComposer
+          onSend={sendMessage}
+          placeholder="Message…"
+        />
+      ) : (
+        <div className="border-t border-border p-4 flex items-center justify-center gap-2 bg-card shrink-0 text-muted-foreground">
+          <Lock className="w-4 h-4" />
+          <span className="text-sm">This channel is view only</span>
+        </div>
+      )}
     </div>
   );
 };
