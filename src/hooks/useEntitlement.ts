@@ -10,6 +10,19 @@ export const useEntitlement = () => {
     queryFn: async () => {
       if (!user) return { entitled: false, expired: false };
 
+      // Verify we have a valid session before querying — if the JWT expired
+      // the RLS-protected query returns empty results and we'd wrongly
+      // redirect the user to the paywall.
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData.session) {
+        // Session lost/expired — try to refresh it
+        const { data: refreshed } = await supabase.auth.refreshSession();
+        if (!refreshed.session) {
+          // Truly no session — can't trust any query result
+          throw new Error("Session expired");
+        }
+      }
+
       // Check entitlement
       const { data: entitlement, error } = await supabase
         .from("entitlements")
@@ -19,7 +32,12 @@ export const useEntitlement = () => {
         .eq("active", true)
         .maybeSingle();
 
-      if (error || !entitlement) return { entitled: false, expired: false };
+      if (error) {
+        // Query failed (possibly auth issue) — don't assume "not entitled"
+        throw new Error(error.message);
+      }
+
+      if (!entitlement) return { entitled: false, expired: false };
 
       // Check if expired
       const isExpired = entitlement.expires_at
@@ -43,10 +61,16 @@ export const useEntitlement = () => {
       return { entitled: false, expired: true };
     },
     enabled: !!user,
+    retry: 2,
+    retryDelay: 1000,
   });
 
-  // When query is disabled (no user), report as loading to prevent premature redirects
-  const effectiveLoading = !user ? false : (isPending && !isFetching ? true : isLoading);
+  // When query is disabled (no user), report as not loading
+  // When query is enabled but hasn't resolved yet (or errored), report as loading
+  // to prevent premature redirects
+  const effectiveLoading = !user
+    ? false
+    : isPending || isLoading || isFetching;
 
   return {
     isEntitled: !!data?.entitled,
