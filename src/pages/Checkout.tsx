@@ -14,7 +14,7 @@ const benefits = [
 "Daily check-ins to build evidence of your freedom",
 "Urge redirection tools for in-the-moment pressure",
 "The Grace Protocol for post-relapse response",
-"Randomized declarations and prayers to renew your mind daily",
+"Declarations and prayers to renew your mind daily",
 "Brotherhood connection with men walking the same path",
 "Progress tracking through the RAS Evidence Builder"];
 
