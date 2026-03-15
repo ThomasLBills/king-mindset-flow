@@ -4,6 +4,7 @@ import AppLayout from "@/components/layout/AppLayout";
 import DailyCheckIn from "@/components/home/DailyCheckIn";
 import FreedomStrip from "@/components/home/FreedomStrip";
 import UrgesRedirectedCard from "@/components/home/UrgesRedirectedCard";
+import ArmorActivatedCard from "@/components/home/ArmorActivatedCard";
 import ReachOut from "@/components/brotherhood/ReachOut";
 import { useDailyCheckIn } from "@/hooks/useDailyProgress";
 import { useAuth } from "@/hooks/useAuth";
