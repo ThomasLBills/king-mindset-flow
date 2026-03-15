@@ -85,9 +85,10 @@ const ReachOut = ({ onClose, onSent }: ReachOutProps) => {
         if (existing && existing.length > 0) {
           dmId = existing[0].id;
         } else {
+          const [userA, userB] = [user.id, brotherId].sort();
           const { data: newDm, error } = await supabase
             .from("chat_dms")
-            .insert({ user_a: user.id, user_b: brotherId })
+            .insert({ user_a: userA, user_b: userB })
             .select("id")
             .single();
           if (error || !newDm) continue;

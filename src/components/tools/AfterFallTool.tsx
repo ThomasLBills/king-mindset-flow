@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Heart, Check, Users, X, ArrowRight, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 
 const graceSteps = [
   {
@@ -50,6 +51,7 @@ const AfterFallTool = ({ onClose, onReachOut }: AfterFallToolProps) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
   const [showCompletion, setShowCompletion] = useState(false);
+  const navigate = useNavigate();
 
   const markComplete = (stepId: string) => {
     setCompletedSteps([...completedSteps, stepId]);
@@ -96,7 +98,7 @@ const AfterFallTool = ({ onClose, onReachOut }: AfterFallToolProps) => {
             <Users className="w-4 h-4" />
             Check in with a brother
           </Button>
-          <Button variant="calm" size="lg" onClick={onClose} className="w-full">
+          <Button variant="calm" size="lg" onClick={() => { onClose(); navigate("/app"); }} className="w-full">
             Return Home
           </Button>
         </div>

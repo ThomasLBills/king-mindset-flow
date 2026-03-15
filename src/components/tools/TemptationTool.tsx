@@ -13,6 +13,7 @@ import {
   MessageCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 
 const wayOutSteps = [
   {
@@ -60,6 +61,7 @@ interface TemptationToolProps {
 const TemptationTool = ({ onClose, onReachOut }: TemptationToolProps) => {
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
   const [showVictory, setShowVictory] = useState(false);
+  const navigate = useNavigate();
 
   const toggleStep = (stepId: string) => {
     const newCompleted = completedSteps.includes(stepId)
@@ -100,7 +102,7 @@ const TemptationTool = ({ onClose, onReachOut }: TemptationToolProps) => {
         </p>
 
         <div className="w-full max-w-sm space-y-3">
-          <Button variant="tool" size="lg" onClick={onClose} className="w-full">
+          <Button variant="tool" size="lg" onClick={() => { onClose(); navigate("/app"); }} className="w-full">
             Return Home
           </Button>
           <Button variant="calm" size="lg" onClick={onReachOut} className="w-full">
