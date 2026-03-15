@@ -51,6 +51,7 @@ const AfterFallTool = ({ onClose, onReachOut }: AfterFallToolProps) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
   const [showCompletion, setShowCompletion] = useState(false);
+  const navigate = useNavigate();
 
   const markComplete = (stepId: string) => {
     setCompletedSteps([...completedSteps, stepId]);
