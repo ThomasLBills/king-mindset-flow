@@ -63,6 +63,7 @@ export function useUrgeCounter() {
       qc.invalidateQueries({ queryKey: ["urge-count-daily"] });
       qc.invalidateQueries({ queryKey: ["urge-count-lifetime"] });
       qc.invalidateQueries({ queryKey: ["evidence-count"] });
+      qc.invalidateQueries({ queryKey: ["community-armor-stats"] });
     },
   });
 
