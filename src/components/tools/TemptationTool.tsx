@@ -61,6 +61,7 @@ interface TemptationToolProps {
 const TemptationTool = ({ onClose, onReachOut }: TemptationToolProps) => {
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
   const [showVictory, setShowVictory] = useState(false);
+  const navigate = useNavigate();
 
   const toggleStep = (stepId: string) => {
     const newCompleted = completedSteps.includes(stepId)
