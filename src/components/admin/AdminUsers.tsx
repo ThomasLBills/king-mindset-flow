@@ -69,11 +69,11 @@ const AdminUsers = () => {
     },
   });
 
-  const { data: evidenceEvents } = useQuery({
-    queryKey: ["admin-evidence-events"],
+  const { data: evidenceCounts } = useQuery({
+    queryKey: ["admin-evidence-counts"],
     queryFn: async () => {
-      const { data } = await supabase.from("evidence_events").select("user_id");
-      return data || [];
+      const { data } = await supabase.rpc("get_evidence_counts_by_user");
+      return (data || []) as Array<{ user_id: string; evidence_count: number }>;
     },
   });
 
@@ -144,7 +144,7 @@ const AdminUsers = () => {
   const getSubscription = (userId: string) => subscriptions?.find((s) => s.user_id === userId);
   const isAdmin = (userId: string) => roles?.some((r) => r.user_id === userId && r.role === "admin");
   const getLastLogin = (userId: string) => loginData?.find((u) => u.id === userId)?.last_sign_in_at;
-  const getLiberationCount = (userId: string) => evidenceEvents?.filter((e) => e.user_id === userId).length || 0;
+  const getLiberationCount = (userId: string) => evidenceCounts?.find((e) => e.user_id === userId)?.evidence_count || 0;
 
   const filtered = (profiles || []).filter((p) =>
     !search || p.email.toLowerCase().includes(search.toLowerCase()) || (p.display_name || "").toLowerCase().includes(search.toLowerCase())

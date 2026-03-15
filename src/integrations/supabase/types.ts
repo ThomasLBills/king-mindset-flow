@@ -1541,6 +1541,13 @@ export type Database = {
     }
     Functions: {
       get_community_armor_stats: { Args: never; Returns: Json }
+      get_evidence_counts_by_user: {
+        Args: never
+        Returns: {
+          evidence_count: number
+          user_id: string
+        }[]
+      }
       has_active_entitlement: {
         Args: { _type?: string; _user_id: string }
         Returns: boolean
