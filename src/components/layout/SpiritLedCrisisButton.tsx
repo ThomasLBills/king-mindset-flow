@@ -101,7 +101,7 @@ export const SpiritLedCrisisModal = ({ onClose }: { onClose: () => void }) => {
 
   const handleVictory = async () => {
     recordVictory.mutate();
-    addUrge.mutate();
+    addEvidence.mutate("declaration");
     setShowVictory(true);
     setTimeout(() => {
       onClose();

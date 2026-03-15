@@ -44,9 +44,6 @@ export function useGratitude() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["gratitude-today"] });
-      // 3 entries = 3 evidence pieces
-      addEvidence.mutate("gratitude");
-      addEvidence.mutate("gratitude");
       addEvidence.mutate("gratitude");
     },
   });
