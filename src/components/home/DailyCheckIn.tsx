@@ -7,32 +7,24 @@ import { useDailyCheckIn } from "@/hooks/useDailyProgress";
 
 const coreOptions = [
   { id: "hopeful", label: "Hopeful" },
-  { id: "calm", label: "Calm" },
-  { id: "rested", label: "Rested" },
-  { id: "grateful", label: "Grateful" },
   { id: "tempted", label: "Tempted" },
-  { id: "tired", label: "Tired" },
-  { id: "peaceful", label: "Peaceful" },
-  { id: "isolated", label: "Isolated" },
-  { id: "ashamed", label: "Ashamed" },
-  { id: "connected", label: "Connected" },
+  { id: "grateful", label: "Grateful" },
   { id: "anxious", label: "Anxious" },
-  { id: "discouraged", label: "Discouraged" },
 ];
 
 const extraOptions = [
-  { id: "angry", label: "Angry" },
-  { id: "frustrated", label: "Frustrated" },
+  { id: "calm", label: "Calm" },
+  { id: "tired", label: "Tired" },
+  { id: "discouraged", label: "Discouraged" },
+  { id: "ashamed", label: "Ashamed" },
+  { id: "peaceful", label: "Peaceful" },
+  { id: "isolated", label: "Isolated" },
+  { id: "connected", label: "Connected" },
+  { id: "rested", label: "Rested" },
   { id: "overwhelmed", label: "Overwhelmed" },
-  { id: "restless", label: "Restless" },
-  { id: "numb", label: "Numb" },
+  { id: "angry", label: "Angry" },
   { id: "lonely", label: "Lonely" },
-  { id: "confident", label: "Confident" },
-  { id: "convicted", label: "Convicted" },
-  { id: "bored", label: "Bored" },
-  { id: "stressed", label: "Stressed" },
   { id: "fear", label: "Fear" },
-  { id: "rejection", label: "Rejection" },
 ];
 
 const awarenessOptions = [...coreOptions, ...extraOptions];
