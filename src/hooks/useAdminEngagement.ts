@@ -5,15 +5,14 @@ export function useAdminEngagementStats() {
   return useQuery({
     queryKey: ["admin-engagement-stats"],
     queryFn: async () => {
-      const [enrollments, progress, completedLessons] = await Promise.all([
+      const [enrollments, completedProgress, publishedLessons] = await Promise.all([
         supabase.from("user_enrollments").select("*", { count: "exact", head: true }),
-        supabase.from("curriculum_lesson_progress").select("lesson_id, status"),
+        supabase.from("curriculum_lesson_progress").select("*", { count: "exact", head: true }).eq("status", "completed"),
         supabase.from("curriculum_lessons").select("*", { count: "exact", head: true }).eq("status", "published"),
       ]);
 
-      const progressData = progress.data ?? [];
-      const completed = progressData.filter(p => p.status === "completed").length;
-      const totalPossible = (enrollments.count ?? 0) * (completedLessons.count ?? 0);
+      const completed = completedProgress.count ?? 0;
+      const totalPossible = (enrollments.count ?? 0) * (publishedLessons.count ?? 0);
       const completionRate = totalPossible > 0 ? Math.round((completed / totalPossible) * 100) : 0;
 
       return {
