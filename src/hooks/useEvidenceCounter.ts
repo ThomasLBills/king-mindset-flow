@@ -35,6 +35,7 @@ export function useEvidenceCounter() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["evidence-count"] });
+      qc.invalidateQueries({ queryKey: ["community-armor-stats"] });
     },
   });
 

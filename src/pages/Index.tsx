@@ -4,6 +4,7 @@ import AppLayout from "@/components/layout/AppLayout";
 import DailyCheckIn from "@/components/home/DailyCheckIn";
 import FreedomStrip from "@/components/home/FreedomStrip";
 import UrgesRedirectedCard from "@/components/home/UrgesRedirectedCard";
+import ArmorActivatedCard from "@/components/home/ArmorActivatedCard";
 import ReachOut from "@/components/brotherhood/ReachOut";
 import { useDailyCheckIn } from "@/hooks/useDailyProgress";
 import { useAuth } from "@/hooks/useAuth";
@@ -52,8 +53,13 @@ const Index = () => {
           <UrgesRedirectedCard />
         </motion.div>
 
-        {/* 3. Liberation */}
+        {/* 3. Armor Activated */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="mb-5">
+          <ArmorActivatedCard />
+        </motion.div>
+
+        {/* 4. Liberation */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mb-5">
           <FreedomStrip />
         </motion.div>
 
