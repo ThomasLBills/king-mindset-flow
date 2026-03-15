@@ -67,7 +67,7 @@ export const SpiritLedCrisisModal = ({ onClose }: { onClose: () => void }) => {
   const { user } = useAuth();
   const qc = useQueryClient();
   const { addEvidence } = useEvidenceCounter();
-  const { addUrge } = useUrgeCounter();
+  
   const navigate = useNavigate();
 
   const selectedTruth = useMemo(
