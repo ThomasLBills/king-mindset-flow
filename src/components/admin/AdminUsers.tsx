@@ -268,7 +268,7 @@ const AdminUsers = () => {
                  </TableRow>
               </TableHeader>
               <TableBody>
-                {filtered.map((p) => {
+                {paged.map((p) => {
                   const ent = getEntitlement(p.user_id);
                   const sub = getSubscription(p.user_id);
                   const admin = isAdmin(p.user_id);
