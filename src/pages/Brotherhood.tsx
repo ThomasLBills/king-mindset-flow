@@ -162,7 +162,7 @@ const ChannelChatView = ({ target, onBack }: {target: ChatTarget;onBack: () => v
   const isLocked = (ch as any)?.is_locked;
 
   // Auto-join
-  useState(() => {joinChannel(target.id);});
+  useEffect(() => { joinChannel(target.id); }, [target.id, joinChannel]);
 
   const handleDeleteMessage = useCallback(async (messageId: string) => {
     const { error } = await supabase.from("chat_messages").delete().eq("id", messageId);
