@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { useEvidenceCounter } from "@/hooks/useEvidenceCounter";
-import { useUrgeCounter } from "@/hooks/useUrgeCounter";
+
 
 const feelingOptions = [
   { id: "pressure", label: "I feel pressure" },
@@ -67,7 +67,7 @@ export const SpiritLedCrisisModal = ({ onClose }: { onClose: () => void }) => {
   const { user } = useAuth();
   const qc = useQueryClient();
   const { addEvidence } = useEvidenceCounter();
-  const { addUrge } = useUrgeCounter();
+  
   const navigate = useNavigate();
 
   const selectedTruth = useMemo(
@@ -101,7 +101,7 @@ export const SpiritLedCrisisModal = ({ onClose }: { onClose: () => void }) => {
 
   const handleVictory = async () => {
     recordVictory.mutate();
-    addUrge.mutate();
+    addEvidence.mutate("declaration");
     setShowVictory(true);
     setTimeout(() => {
       onClose();
