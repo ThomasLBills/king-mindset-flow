@@ -1540,6 +1540,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_community_armor_stats: { Args: never; Returns: Json }
       has_active_entitlement: {
         Args: { _type?: string; _user_id: string }
         Returns: boolean
