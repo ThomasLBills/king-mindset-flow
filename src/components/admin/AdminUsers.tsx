@@ -149,9 +149,19 @@ const AdminUsers = () => {
   const getLastLogin = (userId: string) => loginData?.find((u) => u.id === userId)?.last_sign_in_at;
   const getLiberationCount = (userId: string) => evidenceCounts?.find((e) => e.user_id === userId)?.evidence_count || 0;
 
-  const filtered = (profiles || []).filter((p) =>
+  const [page, setPage] = useState(1);
+
+  const filtered = useMemo(() => (profiles || []).filter((p) =>
     !search || p.email.toLowerCase().includes(search.toLowerCase()) || (p.display_name || "").toLowerCase().includes(search.toLowerCase())
-  );
+  ), [profiles, search]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  const handleSearch = (value: string) => {
+    setSearch(value);
+    setPage(1);
+  };
 
   const handleCopyPassword = async () => {
     if (!credentialModal) return;
