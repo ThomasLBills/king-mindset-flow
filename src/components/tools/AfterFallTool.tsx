@@ -98,7 +98,7 @@ const AfterFallTool = ({ onClose, onReachOut }: AfterFallToolProps) => {
             <Users className="w-4 h-4" />
             Check in with a brother
           </Button>
-          <Button variant="calm" size="lg" onClick={onClose} className="w-full">
+          <Button variant="calm" size="lg" onClick={() => { onClose(); navigate("/app"); }} className="w-full">
             Return Home
           </Button>
         </div>

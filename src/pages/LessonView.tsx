@@ -131,15 +131,21 @@ function VideoEmbed({ url }: { url: string }) {
   let embedUrl = url;
   const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/);
   if (ytMatch) embedUrl = `https://www.youtube.com/embed/${ytMatch[1]}`;
-  const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
-  if (vimeoMatch) embedUrl = `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+  const vimeoMatch = url.match(/vimeo\.com\/(\d+)(?:\/([a-f0-9]+))?/);
+  if (vimeoMatch) {
+    const hash = vimeoMatch[2];
+    embedUrl = `https://player.vimeo.com/video/${vimeoMatch[1]}?dnt=1${hash ? `&h=${hash}` : ''}&playsinline=1&responsive=1`;
+  }
 
   return (
     <iframe
       src={embedUrl}
       className="w-full h-full"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
       allowFullScreen
+      {...{ webkitallowfullscreen: "", mozallowfullscreen: "" } as any}
+      sandbox="allow-scripts allow-same-origin allow-popups allow-presentation"
+      loading="lazy"
     />
   );
 }

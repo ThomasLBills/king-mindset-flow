@@ -102,7 +102,7 @@ const TemptationTool = ({ onClose, onReachOut }: TemptationToolProps) => {
         </p>
 
         <div className="w-full max-w-sm space-y-3">
-          <Button variant="tool" size="lg" onClick={onClose} className="w-full">
+          <Button variant="tool" size="lg" onClick={() => { onClose(); navigate("/app"); }} className="w-full">
             Return Home
           </Button>
           <Button variant="calm" size="lg" onClick={onReachOut} className="w-full">
