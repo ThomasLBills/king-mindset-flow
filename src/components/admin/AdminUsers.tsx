@@ -69,11 +69,11 @@ const AdminUsers = () => {
     },
   });
 
-  const { data: evidenceEvents } = useQuery({
-    queryKey: ["admin-evidence-events"],
+  const { data: evidenceCounts } = useQuery({
+    queryKey: ["admin-evidence-counts"],
     queryFn: async () => {
-      const { data } = await supabase.from("evidence_events").select("user_id");
-      return data || [];
+      const { data } = await supabase.rpc("get_evidence_counts_by_user");
+      return (data || []) as Array<{ user_id: string; evidence_count: number }>;
     },
   });
 
