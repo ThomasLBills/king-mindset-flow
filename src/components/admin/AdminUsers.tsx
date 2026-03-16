@@ -302,7 +302,7 @@ const AdminUsers = () => {
                        <TableCell className="text-sm">{p.email}</TableCell>
                        <TableCell className="text-sm">{p.display_name || p.name || "—"}</TableCell>
                        <TableCell className="text-sm text-muted-foreground">
-                         {format(new Date(p.created_at), "MMM d, yyyy")}
+                         {formatCT(p.created_at)}
                        </TableCell>
                        <TableCell className="text-sm text-muted-foreground">
                          {lastLogin ? (
