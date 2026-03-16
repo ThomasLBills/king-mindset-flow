@@ -1154,6 +1154,7 @@ export type Database = {
           email: string
           first_name: string | null
           last_name: string | null
+          last_seen_at: string | null
           must_change_password: boolean
           name: string | null
           onboarding_completed: boolean
@@ -1171,6 +1172,7 @@ export type Database = {
           email: string
           first_name?: string | null
           last_name?: string | null
+          last_seen_at?: string | null
           must_change_password?: boolean
           name?: string | null
           onboarding_completed?: boolean
@@ -1188,6 +1190,7 @@ export type Database = {
           email?: string
           first_name?: string | null
           last_name?: string | null
+          last_seen_at?: string | null
           must_change_password?: boolean
           name?: string | null
           onboarding_completed?: boolean
