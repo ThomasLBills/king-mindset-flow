@@ -66,9 +66,27 @@ const AdminUsers = () => {
   const { data: loginData } = useQuery({
     queryKey: ["admin-user-logins"],
     queryFn: async () => {
-      const { data, error } = await supabase.functions.invoke("admin-user-logins");
-      if (error) return [];
-      return (data?.users || []) as Array<{ id: string; last_sign_in_at: string | null }>;
+      // Fetch both auth last_sign_in_at and our own last_seen_at from profiles
+      const [edgeRes, profilesRes] = await Promise.all([
+        supabase.functions.invoke("admin-user-logins"),
+        supabase.from("profiles").select("user_id, last_seen_at"),
+      ]);
+      const authUsers = (edgeRes.data?.users || []) as Array<{ id: string; last_sign_in_at: string | null }>;
+      const profileRows = (profilesRes.data || []) as Array<{ user_id: string; last_seen_at: string | null }>;
+      
+      // Build a map using the most recent of auth.last_sign_in_at vs profiles.last_seen_at
+      const map = new Map<string, string | null>();
+      for (const u of authUsers) {
+        map.set(u.id, u.last_sign_in_at);
+      }
+      for (const p of profileRows) {
+        const authDate = map.get(p.user_id);
+        const seenDate = p.last_seen_at;
+        if (seenDate && (!authDate || new Date(seenDate) > new Date(authDate))) {
+          map.set(p.user_id, seenDate);
+        }
+      }
+      return Array.from(map.entries()).map(([id, ts]) => ({ id, last_sign_in_at: ts }));
     },
   });
 
