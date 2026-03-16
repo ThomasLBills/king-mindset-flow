@@ -308,7 +308,7 @@ const AdminUsers = () => {
                          {lastLogin ? (
                            <span className="flex items-center gap-1">
                              <LogIn className="w-3.5 h-3.5 text-success" />
-                             {format(new Date(lastLogin), "MMM d, yyyy")}
+                             {formatCT(lastLogin)}
                            </span>
                          ) : (
                            <span className="text-muted-foreground/60">Never</span>
