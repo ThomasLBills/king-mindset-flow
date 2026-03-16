@@ -14,6 +14,11 @@ import { useToast } from "@/hooks/use-toast";
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
+import { toZonedTime } from "date-fns-tz";
+
+const CT_TZ = "America/Chicago";
+const formatCT = (iso: string, fmt = "MMM d, yyyy") =>
+  format(toZonedTime(new Date(iso), CT_TZ), fmt);
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious, PaginationEllipsis } from "@/components/ui/pagination";
 
 const PAGE_SIZE = 25;
