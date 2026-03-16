@@ -14,6 +14,11 @@ import { useToast } from "@/hooks/use-toast";
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
+import { toZonedTime } from "date-fns-tz";
+
+const CT_TZ = "America/Chicago";
+const formatCT = (iso: string, fmt = "MMM d, yyyy") =>
+  format(toZonedTime(new Date(iso), CT_TZ), fmt);
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious, PaginationEllipsis } from "@/components/ui/pagination";
 
 const PAGE_SIZE = 25;
@@ -297,13 +302,13 @@ const AdminUsers = () => {
                        <TableCell className="text-sm">{p.email}</TableCell>
                        <TableCell className="text-sm">{p.display_name || p.name || "—"}</TableCell>
                        <TableCell className="text-sm text-muted-foreground">
-                         {format(new Date(p.created_at), "MMM d, yyyy")}
+                         {formatCT(p.created_at)}
                        </TableCell>
                        <TableCell className="text-sm text-muted-foreground">
                          {lastLogin ? (
                            <span className="flex items-center gap-1">
                              <LogIn className="w-3.5 h-3.5 text-success" />
-                             {format(new Date(lastLogin), "MMM d, yyyy")}
+                             {formatCT(lastLogin)}
                            </span>
                          ) : (
                            <span className="text-muted-foreground/60">Never</span>
