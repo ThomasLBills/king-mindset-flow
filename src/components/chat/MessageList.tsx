@@ -15,6 +15,7 @@ interface MessageListProps {
   loading: boolean;
   isAdmin?: boolean;
   onDeleteMessage?: (messageId: string) => void;
+  channelName?: string;
 }
 
 const MessageList = ({ messages, loading, isAdmin, onDeleteMessage }: MessageListProps) => {
