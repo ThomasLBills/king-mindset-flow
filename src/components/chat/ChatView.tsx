@@ -61,7 +61,7 @@ const ChatView = ({ target }: ChatViewProps) => {
         <h3 className="font-serif text-lg font-semibold">{target.name}</h3>
       </div>
 
-      <MessageList messages={messages} loading={loading} isAdmin={isAdmin} onDeleteMessage={handleDeleteMessage} />
+      <MessageList messages={messages} loading={loading} isAdmin={isAdmin} onDeleteMessage={handleDeleteMessage} channelName={target.type === "channel" ? target.name : undefined} />
       {canPost ? (
         <MessageComposer
           onSend={sendMessage}

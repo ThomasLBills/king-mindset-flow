@@ -181,7 +181,7 @@ const ChannelChatView = ({ target, onBack }: {target: ChatTarget;onBack: () => v
         <h3 className="font-serif text-lg font-semibold">{target.name}</h3>
         {isLocked && <Lock className="w-3 h-3 text-muted-foreground" />}
       </div>
-      <MessageList messages={messages} loading={loading} isAdmin={isAdmin} onDeleteMessage={handleDeleteMessage} />
+      <MessageList messages={messages} loading={loading} isAdmin={isAdmin} onDeleteMessage={handleDeleteMessage} channelName={target.name} />
       {!isLocked || isAdmin ?
       <MessageComposer onSend={sendMessage} placeholder="Message…" /> :
 
