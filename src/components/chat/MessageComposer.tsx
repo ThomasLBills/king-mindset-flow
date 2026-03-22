@@ -27,7 +27,10 @@ const MessageComposer = ({ onSend, placeholder = "Type a message…" }: MessageC
     await onSend(trimmed);
     setValue("");
     setSending(false);
-    textareaRef.current?.focus();
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "44px";
+      textareaRef.current.focus();
+    }
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
