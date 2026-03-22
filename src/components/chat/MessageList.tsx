@@ -137,6 +137,9 @@ const MessageList = ({ messages, loading, isAdmin, onDeleteMessage, channelName 
                   {isOwn ? "You" : displayName}
                 </span>
                 <span className="text-xs text-muted-foreground">
+                  {channelName?.toLowerCase() !== "liberated sessions" && (
+                    <>{format(new Date(msg.created_at), "EEE, MMM d")} · </>
+                  )}
                   {format(new Date(msg.created_at), "h:mm a")}
                 </span>
                 {/* Reaction trigger - visible on mobile */}
