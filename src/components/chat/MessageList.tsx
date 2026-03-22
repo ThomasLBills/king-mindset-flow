@@ -177,7 +177,7 @@ const MessageList = ({ messages, loading, isAdmin, onDeleteMessage, channelName 
                   </button>
                 )}
               </div>
-              <p className="text-sm mt-0.5 break-words">
+              <p className="text-sm mt-0.5 break-words whitespace-pre-wrap">
                 {msg.content.replace(/https?:\/\/(?:www\.)?vimeo\.com\/\d+(?:\/[a-f0-9]+)?(?:\?[^\s]*)?\s*/g, '').trim()}
               </p>
               {/* Vimeo embed */}
