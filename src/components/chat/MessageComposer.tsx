@@ -27,7 +27,10 @@ const MessageComposer = ({ onSend, placeholder = "Type a message…" }: MessageC
     await onSend(trimmed);
     setValue("");
     setSending(false);
-    textareaRef.current?.focus();
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "44px";
+      textareaRef.current.focus();
+    }
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -110,12 +113,17 @@ const MessageComposer = ({ onSend, placeholder = "Type a message…" }: MessageC
       <textarea
         ref={textareaRef}
         value={value}
-        onChange={(e) => setValue(e.target.value)}
+        onChange={(e) => {
+          setValue(e.target.value);
+          // Auto-grow textarea
+          e.target.style.height = "auto";
+          e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
+        }}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
         rows={1}
         className="flex-1 resize-none bg-secondary rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring placeholder:text-muted-foreground min-h-[44px] max-h-[120px]"
-        style={{ height: "auto", overflow: "auto" }}
+        style={{ height: "44px", overflow: "auto" }}
       />
       <Button
         size="icon"

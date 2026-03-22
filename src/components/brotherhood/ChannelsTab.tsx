@@ -64,7 +64,7 @@ const ChannelsTab = ({ onSelectChannel }: ChannelsTabProps) => {
           <h3 className="font-serif text-lg font-semibold">{activeChannel.name}</h3>
           {isLocked && <Lock className="w-3 h-3 text-muted-foreground" />}
         </div>
-        <MessageList messages={messages} loading={loading} isAdmin={isAdmin} onDeleteMessage={handleDeleteMessage} />
+        <MessageList messages={messages} loading={loading} isAdmin={isAdmin} onDeleteMessage={handleDeleteMessage} channelName={activeChannel.name} />
         {!isLocked ? (
           <MessageComposer onSend={sendMessage} placeholder="Message…" />
         ) : isAdmin ? (

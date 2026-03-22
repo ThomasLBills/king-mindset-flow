@@ -15,9 +15,10 @@ interface MessageListProps {
   loading: boolean;
   isAdmin?: boolean;
   onDeleteMessage?: (messageId: string) => void;
+  channelName?: string;
 }
 
-const MessageList = ({ messages, loading, isAdmin, onDeleteMessage }: MessageListProps) => {
+const MessageList = ({ messages, loading, isAdmin, onDeleteMessage, channelName }: MessageListProps) => {
   const { user } = useAuth();
   const bottomRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -136,6 +137,9 @@ const MessageList = ({ messages, loading, isAdmin, onDeleteMessage }: MessageLis
                   {isOwn ? "You" : displayName}
                 </span>
                 <span className="text-xs text-muted-foreground">
+                  {channelName?.toLowerCase() !== "liberated sessions" && (
+                    <>{format(new Date(msg.created_at), "EEE, MMM d")} · </>
+                  )}
                   {format(new Date(msg.created_at), "h:mm a")}
                 </span>
                 {/* Reaction trigger - visible on mobile */}
@@ -173,7 +177,7 @@ const MessageList = ({ messages, loading, isAdmin, onDeleteMessage }: MessageLis
                   </button>
                 )}
               </div>
-              <p className="text-sm mt-0.5 break-words">
+              <p className="text-sm mt-0.5 break-words whitespace-pre-wrap">
                 {msg.content.replace(/https?:\/\/(?:www\.)?vimeo\.com\/\d+(?:\/[a-f0-9]+)?(?:\?[^\s]*)?\s*/g, '').trim()}
               </p>
               {/* Vimeo embed */}
