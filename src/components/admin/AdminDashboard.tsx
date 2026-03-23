@@ -71,7 +71,7 @@ const AdminDashboard = () => {
         {[
           { label: "Enrollments", value: engagement?.totalEnrollments, icon: GraduationCap, color: "text-accent" },
           { label: "Lessons Done", value: engagement?.lessonsCompleted, icon: TrendingUp, color: "text-success" },
-          { label: "Completion Rate", value: engagement?.completionRate !== undefined ? `${engagement.completionRate}%` : undefined, icon: BarChart3, color: "text-primary" },
+          { label: "Completion Rate", value: engagement?.completionRate !== undefined ? `${engagement.completionRate}%` : undefined, icon: BarChart3, color: "text-primary", sublabel: "among active learners" },
         ].map((s) => (
           <Card key={s.label} className="card-elevated">
             <CardContent className="pt-6 text-center">
@@ -82,6 +82,9 @@ const AdminDashboard = () => {
                   <s.icon className={`h-6 w-6 mx-auto mb-2 ${s.color}`} />
                   <p className="text-2xl font-bold">{s.value ?? 0}</p>
                   <p className="text-sm text-muted-foreground">{s.label}</p>
+                  {"sublabel" in s && s.sublabel && (
+                    <p className="text-xs text-muted-foreground/70 mt-0.5">{s.sublabel}</p>
+                  )}
                 </>
               )}
             </CardContent>
