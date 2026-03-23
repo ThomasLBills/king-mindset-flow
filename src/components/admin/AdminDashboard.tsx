@@ -82,6 +82,9 @@ const AdminDashboard = () => {
                   <s.icon className={`h-6 w-6 mx-auto mb-2 ${s.color}`} />
                   <p className="text-2xl font-bold">{s.value ?? 0}</p>
                   <p className="text-sm text-muted-foreground">{s.label}</p>
+                  {"sublabel" in s && s.sublabel && (
+                    <p className="text-xs text-muted-foreground/70 mt-0.5">{s.sublabel}</p>
+                  )}
                 </>
               )}
             </CardContent>
