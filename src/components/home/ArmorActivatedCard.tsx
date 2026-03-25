@@ -1,4 +1,4 @@
-import { TrendingUp, Users } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 import { useCommunityArmor } from "@/hooks/useCommunityArmor";
 import { Skeleton } from "@/components/ui/skeleton";
 
