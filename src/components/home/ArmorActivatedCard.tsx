@@ -39,14 +39,6 @@ const ArmorActivatedCard = () => {
             </div>
           </div>
 
-          {/* Week-over-week */}
-          <div className="flex items-center justify-center gap-1.5 mb-1.5">
-            <TrendingUp className="w-3.5 h-3.5 text-primary/70" />
-            <p className="text-xs text-white/60">
-              Up from {lastWeek.toLocaleString()} last week
-            </p>
-          </div>
-
         </>
       )}
     </div>
