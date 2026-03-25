@@ -51,13 +51,6 @@ const ArmorActivatedCard = () => {
             </p>
           </div>
 
-          {/* Engaged users */}
-          <div className="flex items-center justify-center gap-1.5">
-            <Users className="w-3.5 h-3.5 text-primary/70" />
-            <p className="text-xs text-white/60">
-              {engaged} of {total} kings engaged
-            </p>
-          </div>
         </>
       )}
     </div>
