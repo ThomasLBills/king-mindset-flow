@@ -5,7 +5,6 @@ const ArmorActivatedCard = () => {
   const { data, isLoading } = useCommunityArmor();
 
   const thisWeek = data?.this_week_count ?? 0;
-  const lastWeek = data?.last_week_count ?? 0;
 
   return (
     <div className="bg-[#0A0A0A] rounded-2xl border-[1.5px] border-[#C9A84C] p-6 shadow-[0_4px_24px_rgba(0,0,0,0.12)]">
