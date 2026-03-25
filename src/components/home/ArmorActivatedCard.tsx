@@ -1,4 +1,4 @@
-import { TrendingUp, Users } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 import { useCommunityArmor } from "@/hooks/useCommunityArmor";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -7,8 +7,6 @@ const ArmorActivatedCard = () => {
 
   const thisWeek = data?.this_week_count ?? 0;
   const lastWeek = data?.last_week_count ?? 0;
-  const engaged = data?.engaged_users ?? 0;
-  const total = data?.total_users ?? 0;
 
   return (
     <div className="bg-[#0A0A0A] rounded-2xl border-[1.5px] border-[#C9A84C] p-6 shadow-[0_4px_24px_rgba(0,0,0,0.12)]">
@@ -51,13 +49,6 @@ const ArmorActivatedCard = () => {
             </p>
           </div>
 
-          {/* Engaged users */}
-          <div className="flex items-center justify-center gap-1.5">
-            <Users className="w-3.5 h-3.5 text-primary/70" />
-            <p className="text-xs text-white/60">
-              {engaged} of {total} kings engaged
-            </p>
-          </div>
         </>
       )}
     </div>
