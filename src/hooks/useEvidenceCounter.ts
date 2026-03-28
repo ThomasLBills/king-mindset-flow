@@ -3,41 +3,38 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 
 /**
- * Returns the start of the current week (Monday 00:00) in Central Time as a UTC ISO string.
+ * Returns Monday 00:00 Central Time as a UTC ISO string for the current week.
  */
-function getCentralWeekStartUTC(): string {
-  // Get current time in Central Time
-  const nowCT = new Date(
-    new Date().toLocaleString("en-US", { timeZone: "America/Chicago" })
-  );
-  const day = nowCT.getDay(); // 0=Sun
-  const diff = day === 0 ? 6 : day - 1; // days since Monday
-  const monday = new Date(nowCT);
-  monday.setDate(monday.getDate() - diff);
-  monday.setHours(0, 0, 0, 0);
-
-  // Convert back: monday is in CT, build the same wall-clock in CT then get UTC
-  const formatter = new Intl.DateTimeFormat("en-US", {
+function getCentralWeekStartISO(): string {
+  const now = new Date();
+  // Get current date parts in Central Time
+  const ct = new Intl.DateTimeFormat("en-CA", {
     timeZone: "America/Chicago",
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
-  });
-  const parts = formatter.formatToParts(monday);
-  const y = parts.find((p) => p.type === "year")!.value;
-  const m = parts.find((p) => p.type === "month")!.value;
-  const d = parts.find((p) => p.type === "day")!.value;
+  }).format(now); // "YYYY-MM-DD"
 
-  // Build a Date object representing Monday 00:00 CT
-  const ctMidnight = new Date(`${y}-${m}-${d}T00:00:00-06:00`);
-  // Adjust for CDT vs CST — simplest: use the CT offset at that moment
-  const offset = new Date(
-    new Date(`${y}-${m}-${d}T12:00:00`).toLocaleString("en-US", { timeZone: "America/Chicago" })
-  ).getTimezoneOffset();
-  const utcMondayStart = new Date(monday.getTime() + offset * 60 * 1000);
+  const [y, m, d] = ct.split("-").map(Number);
+  const ctDate = new Date(Date.UTC(y, m - 1, d));
+  const dow = ctDate.getUTCDay(); // 0=Sun
+  const diff = dow === 0 ? 6 : dow - 1;
+  ctDate.setUTCDate(ctDate.getUTCDate() - diff);
 
-  // Simpler approach: just use the Intl API
-  return `${y}-${m}-${d}T00:00:00-06:00`;
+  // Monday in CT — CT is UTC-6 (CST) or UTC-5 (CDT)
+  // Use a fixed offset approach: check if CDT is active
+  const jan = new Date(y, 0, 1).toLocaleString("en-US", { timeZone: "America/Chicago" });
+  const jul = new Date(y, 6, 1).toLocaleString("en-US", { timeZone: "America/Chicago" });
+  // Determine current offset
+  const nowCTStr = now.toLocaleString("en-US", { timeZone: "America/Chicago" });
+  const nowCTDate = new Date(nowCTStr);
+  const offsetMs = now.getTime() - nowCTDate.getTime();
+  const offsetHours = Math.round(offsetMs / 3600000);
+
+  // Monday 00:00 CT = Monday 05:00 or 06:00 UTC
+  const mondayStr = `${ctDate.getUTCFullYear()}-${String(ctDate.getUTCMonth() + 1).padStart(2, "0")}-${String(ctDate.getUTCDate()).padStart(2, "0")}`;
+  // offsetHours is positive when CT is behind UTC (5 or 6)
+  return new Date(`${mondayStr}T00:00:00-0${offsetHours}:00`).toISOString();
 }
 
 export function useEvidenceCounter() {
