@@ -44,7 +44,7 @@ const ArmorActivatedCard = () => {
             <p className="text-[56px] font-bold text-primary leading-none">
               {allTime.toLocaleString()}
             </p>
-            <p className="text-base text-[#FFFFFF] font-medium mt-4">All Time</p>
+            <p className="text-base text-[#FFFFFF] font-medium mt-4">Lifetime</p>
           </div>
         </div>
       )}
