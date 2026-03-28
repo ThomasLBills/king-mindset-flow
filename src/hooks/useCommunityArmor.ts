@@ -7,6 +7,7 @@ interface ArmorStats {
   last_week_count: number;
   engaged_users: number;
   total_users: number;
+  all_time_count: number;
 }
 
 export function useCommunityArmor() {
