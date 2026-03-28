@@ -54,7 +54,7 @@ export function useEvidenceCounter() {
 
       // Get this-week count (Monday CT to now)
       // Use DB server time for consistency — query events since Monday 00:00 CT
-      const weekStartCT = getCentralWeekStartUTC();
+      const weekStartCT = getCentralWeekStartISO();
       const { count: weekCount, error: e2 } = await supabase
         .from("evidence_events")
         .select("*", { count: "exact", head: true })
