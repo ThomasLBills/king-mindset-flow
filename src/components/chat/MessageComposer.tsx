@@ -110,6 +110,29 @@ const MessageComposer = ({ onSend, placeholder = "Type a message…" }: MessageC
         </PopoverContent>
       </Popover>
 
+      {/* Mobile line break button */}
+      <Button
+        variant="ghost"
+        size="icon"
+        className="shrink-0 rounded-xl sm:hidden"
+        onClick={() => {
+          const ta = textareaRef.current;
+          if (!ta) return;
+          const start = ta.selectionStart;
+          const end = ta.selectionEnd;
+          const newVal = value.slice(0, start) + "\n" + value.slice(end);
+          setValue(newVal);
+          requestAnimationFrame(() => {
+            ta.selectionStart = ta.selectionEnd = start + 1;
+            ta.style.height = "auto";
+            ta.style.height = Math.min(ta.scrollHeight, 120) + "px";
+            ta.focus();
+          });
+        }}
+      >
+        <CornerDownLeft className="w-4 h-4" />
+      </Button>
+
       <textarea
         ref={textareaRef}
         value={value}

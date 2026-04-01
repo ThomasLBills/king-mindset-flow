@@ -42,7 +42,8 @@ const Index = () => {
               addEvidence.mutate("check_in");
             }}
             onSpiritPromptWritten={() => {
-              addEvidence.mutate("spirit_prompt");
+              // Spirit prompt is part of the check-in flow — do not log a separate evidence event
+              // to avoid double-counting kingdom advances
             }}
             onNeedSupport={() => setShowReachOut(true)}
           />

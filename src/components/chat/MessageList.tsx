@@ -10,6 +10,35 @@ import { supabase } from "@/integrations/supabase/client";
 
 const QUICK_EMOJIS = ["❤️", "👍", "🙏", "🔥", "💪", "😂", "👏", "💯"];
 
+const ChatImage = ({ src }: { src: string }) => {
+  const [loaded, setLoaded] = useState(false);
+  const [error, setError] = useState(false);
+
+  return (
+    <div className="mt-2 max-w-xs rounded-lg border border-border overflow-hidden relative">
+      {!loaded && !error && (
+        <div className="w-full h-48 bg-secondary animate-pulse rounded-lg" />
+      )}
+      {error ? (
+        <div className="w-full h-48 bg-secondary flex items-center justify-center text-muted-foreground text-sm rounded-lg">
+          Image failed to load
+        </div>
+      ) : (
+        <img
+          src={src}
+          alt="attachment"
+          onLoad={() => setLoaded(true)}
+          onError={() => setError(true)}
+          className={cn(
+            "w-full rounded-lg transition-opacity duration-300",
+            loaded ? "opacity-100" : "opacity-0 absolute inset-0"
+          )}
+        />
+      )}
+    </div>
+  );
+};
+
 interface MessageListProps {
   messages: ChatMessage[];
   loading: boolean;
