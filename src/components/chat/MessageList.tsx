@@ -207,7 +207,7 @@ const MessageList = ({ messages, loading, isAdmin, onDeleteMessage, channelName 
               })()}
               {/* Image attachment */}
               {(msg as any).image_url && (
-                <img src={signedUrls[msg.id] || (msg as any).image_url} alt="attachment" className="mt-2 max-w-xs rounded-lg border border-border" />
+                <ChatImage src={signedUrls[msg.id] || (msg as any).image_url} />
               )}
               {/* Reactions display */}
               {msgReactions.length > 0 && (
