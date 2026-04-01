@@ -1,5 +1,5 @@
 import { useState, useRef, KeyboardEvent } from "react";
-import { Send, SmilePlus, ImagePlus, Loader2 } from "lucide-react";
+import { Send, SmilePlus, ImagePlus, Loader2, CornerDownLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { supabase } from "@/integrations/supabase/client";
@@ -109,6 +109,29 @@ const MessageComposer = ({ onSend, placeholder = "Type a message…" }: MessageC
           </div>
         </PopoverContent>
       </Popover>
+
+      {/* Mobile line break button */}
+      <Button
+        variant="ghost"
+        size="icon"
+        className="shrink-0 rounded-xl sm:hidden"
+        onClick={() => {
+          const ta = textareaRef.current;
+          if (!ta) return;
+          const start = ta.selectionStart;
+          const end = ta.selectionEnd;
+          const newVal = value.slice(0, start) + "\n" + value.slice(end);
+          setValue(newVal);
+          requestAnimationFrame(() => {
+            ta.selectionStart = ta.selectionEnd = start + 1;
+            ta.style.height = "auto";
+            ta.style.height = Math.min(ta.scrollHeight, 120) + "px";
+            ta.focus();
+          });
+        }}
+      >
+        <CornerDownLeft className="w-4 h-4" />
+      </Button>
 
       <textarea
         ref={textareaRef}
