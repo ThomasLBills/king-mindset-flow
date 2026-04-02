@@ -13,7 +13,7 @@ import {
   useCurriculumSettings,
 } from "@/hooks/useCurriculum";
 import { useAuth } from "@/hooks/useAuth";
-import { differenceInDays, addDays, format } from "date-fns";
+import { differenceInCalendarDays, addDays, format } from "date-fns";
 
 const LibraryPage = () => {
   const navigate = useNavigate();
