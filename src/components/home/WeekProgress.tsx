@@ -30,7 +30,7 @@ const WeekProgress = () => {
 
   // Find current week (first non-completed unlocked week)
   const daysSinceEnrollment = enrollment
-    ? differenceInDays(new Date(), new Date(enrollment.enrolled_at))
+    ? differenceInCalendarDays(new Date(), new Date(enrollment.enrolled_at))
     : -1;
 
   const isWeekUnlocked = (week: any, index: number) => {
