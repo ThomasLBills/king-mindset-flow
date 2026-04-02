@@ -7,7 +7,7 @@ import {
   useCurriculumLessonProgress,
   useUserEnrollment,
 } from "@/hooks/useCurriculum";
-import { differenceInDays } from "date-fns";
+import { differenceInCalendarDays } from "date-fns";
 
 const WeekProgress = () => {
   const navigate = useNavigate();
