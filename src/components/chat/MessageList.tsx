@@ -206,9 +206,12 @@ const MessageList = ({ messages, loading, isAdmin, onDeleteMessage, channelName 
                   </button>
                 )}
               </div>
-              <p className="text-sm mt-0.5 break-words whitespace-pre-wrap">
-                {msg.content.replace(/https?:\/\/(?:www\.)?vimeo\.com\/\d+(?:\/[a-f0-9]+)?(?:\?[^\s]*)?\s*/g, '').trim()}
-              </p>
+              {(() => {
+                const textContent = msg.content.replace(/https?:\/\/(?:www\.)?vimeo\.com\/\d+(?:\/[a-f0-9]+)?(?:\?[^\s]*)?\s*/g, '').trim();
+                return textContent ? (
+                  <p className="text-sm mt-0.5 break-words whitespace-pre-wrap">{textContent}</p>
+                ) : null;
+              })()}
               {/* Vimeo embed */}
               {(() => {
                 const vimeoMatch = msg.content.match(/(?:https?:\/\/)?(?:www\.)?vimeo\.com\/(\d+)(?:\/([a-f0-9]+))?/);
