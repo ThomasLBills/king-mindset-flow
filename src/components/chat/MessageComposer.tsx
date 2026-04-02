@@ -55,7 +55,7 @@ const MessageComposer = ({ onSend, placeholder = "Type a message…" }: MessageC
       return;
     }
     const { data: urlData } = supabase.storage.from("chat-files").getPublicUrl(path);
-    await onSend(`📎 Shared an image`, urlData.publicUrl);
+    await onSend("", urlData.publicUrl);
     setUploading(false);
   };
 
