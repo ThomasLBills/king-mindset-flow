@@ -86,7 +86,7 @@ const LibraryPage = () => {
             Your Liberation Curriculum
           </p>
           <h1 className="font-serif text-3xl font-bold mb-2">
-            The Liberated Path
+            Liberated Kings
           </h1>
           <p className="text-muted-foreground">
             Eight weeks. One transformation.
