@@ -13,7 +13,7 @@ import {
   useCurriculumSettings,
 } from "@/hooks/useCurriculum";
 import { useAuth } from "@/hooks/useAuth";
-import { differenceInDays, addDays, format } from "date-fns";
+import { differenceInCalendarDays, addDays, format } from "date-fns";
 
 const LibraryPage = () => {
   const navigate = useNavigate();
@@ -40,7 +40,7 @@ const LibraryPage = () => {
   }
 
   const daysSinceEnrollment = enrollment
-    ? differenceInDays(new Date(), new Date(enrollment.enrolled_at))
+    ? differenceInCalendarDays(new Date(), new Date(enrollment.enrolled_at))
     : -1;
 
   const dripMode = settings?.drip_mode || "weekly";
