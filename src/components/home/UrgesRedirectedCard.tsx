@@ -35,22 +35,22 @@ const UrgesRedirectedCard = () => {
         )}
       </AnimatePresence>
 
-      <h2 className="text-xs font-medium uppercase tracking-[0.06em] text-primary text-center mb-2">
+      <h2 className="text-xs font-medium uppercase tracking-[0.06em] text-primary text-left mb-2">
         Urges Redirected
       </h2>
-      <p className="text-center mb-6" style={{ fontSize: "14px", fontWeight: 400, color: "rgba(255,255,255,0.5)" }}>
+      <p className="text-left mb-6" style={{ fontSize: "14px", fontWeight: 400, color: "rgba(255,255,255,0.65)" }}>
         Every time you redirect an urge, you build a new pathway. Log it here.
       </p>
 
       <div className="flex justify-center items-center gap-0 mb-6">
         <div className="text-center flex-1">
           <p className="text-[56px] leading-none" style={{ fontWeight: 300, color: "rgba(255,255,255,0.9)" }}>{dailyCount}</p>
-          <p className="mt-4 uppercase" style={{ fontSize: "11px", letterSpacing: "0.06em", color: "rgba(255,255,255,0.4)" }}>Today</p>
+          <p className="mt-4 uppercase" style={{ fontSize: "11px", letterSpacing: "0.06em", color: "rgba(255,255,255,0.5)" }}>Today</p>
         </div>
         <div className="flex-shrink-0" style={{ width: "1px", height: "40px", background: "rgba(255,255,255,0.1)" }} />
         <div className="text-center flex-1">
           <p className="text-[56px] leading-none text-primary" style={{ fontWeight: 600 }}>{lifetimeCount}</p>
-          <p className="mt-4 uppercase" style={{ fontSize: "11px", letterSpacing: "0.06em", color: "rgba(255,255,255,0.4)" }}>Lifetime</p>
+          <p className="mt-4 uppercase" style={{ fontSize: "11px", letterSpacing: "0.06em", color: "rgba(255,255,255,0.5)" }}>Lifetime</p>
         </div>
       </div>
 

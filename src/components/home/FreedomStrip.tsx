@@ -8,10 +8,10 @@ const FreedomStrip = () => {
 
   return (
     <div className="bg-[#1A1A1A] rounded-[16px] p-5" style={{ fontFamily: sansFont }}>
-      <h2 className="text-xs font-medium uppercase tracking-[0.06em] text-primary text-center mb-0.5">
+      <h2 className="text-xs font-medium uppercase tracking-[0.06em] text-primary text-left mb-0.5">
         Liberation
       </h2>
-      <p className="text-center mb-[14px]" style={{ fontSize: "12px", fontWeight: 400, color: "rgba(255,255,255,0.35)" }}>
+      <p className="text-left mb-[14px]" style={{ fontSize: "12px", fontWeight: 400, color: "rgba(255,255,255,0.5)" }}>
         Your evidence of freedom
       </p>
 
@@ -25,7 +25,7 @@ const FreedomStrip = () => {
           <p className="text-[28px] leading-none text-white" style={{ fontWeight: 600 }}>
             {thisWeekCount.toLocaleString()}
           </p>
-          <p className="mt-1 uppercase" style={{ fontSize: "11px", letterSpacing: "0.06em", color: "rgba(255,255,255,0.4)" }}>
+          <p className="mt-1 uppercase" style={{ fontSize: "11px", letterSpacing: "0.06em", color: "rgba(255,255,255,0.5)" }}>
             This week
           </p>
 
@@ -34,7 +34,7 @@ const FreedomStrip = () => {
           <p className="text-[22px] leading-none" style={{ fontWeight: 300, color: "rgba(255,255,255,0.7)" }}>
             {count.toLocaleString()}
           </p>
-          <p className="mt-1 uppercase" style={{ fontSize: "11px", letterSpacing: "0.06em", color: "rgba(255,255,255,0.35)" }}>
+          <p className="mt-1 uppercase" style={{ fontSize: "11px", letterSpacing: "0.06em", color: "rgba(255,255,255,0.5)" }}>
             Lifetime
           </p>
         </div>

@@ -279,7 +279,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
     <>
       <div className="bg-[#1A1A1A] rounded-[16px] p-5 text-white" style={{ fontFamily: sansFont }}>
         <h2
-          className="text-xs font-medium uppercase tracking-[0.06em] text-primary text-center mb-3"
+          className="text-xs font-medium uppercase tracking-[0.06em] text-primary text-left mb-3"
         >
           Daily Check-In
         </h2>
@@ -300,7 +300,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0, transition: { duration: 0.15 } }}
                   >
-                    <p className="text-sm text-center mb-6" style={{ fontWeight: 400, fontSize: "14px", color: "rgba(255,255,255,0.5)" }}>
+                    <p className="text-sm text-left mb-6" style={{ fontWeight: 400, fontSize: "14px", color: "rgba(255,255,255,0.65)" }}>
                       What is present in you right now?
                     </p>
                     <div className="grid grid-cols-2 gap-3 mb-2">
