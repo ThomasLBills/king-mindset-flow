@@ -38,7 +38,7 @@ const Index = () => {
             style={{
               fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif",
               fontWeight: 400,
-              color: "rgba(85, 85, 85, 0.5)",
+              color: "rgba(26, 26, 26, 0.55)",
             }}
           >
             Walk in who you already are.
