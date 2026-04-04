@@ -19,10 +19,13 @@ const Index = () => {
 
   return (
     <AppLayout>
-      <div className="px-6 py-6 max-w-lg mx-auto">
+      <div className="px-4 py-6 max-w-lg mx-auto flex flex-col gap-[14px]">
         {/* Personalized Greeting */}
-        <div className="py-6 mb-5">
-          <h1 className="font-serif text-[22px] font-semibold text-[#1A1A1A]">
+        <div className="py-6">
+          <h1
+            className="text-[22px] font-semibold text-[#1A1A1A]"
+            style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif", letterSpacing: "-0.02em" }}
+          >
             {(() => {
               const h = new Date().getHours();
               const greeting = h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
@@ -30,37 +33,42 @@ const Index = () => {
               return `${greeting}, ${firstName}.`;
             })()}
           </h1>
-          <p className="font-serif text-[15px] text-[#555555] mt-1">
+          <p
+            className="text-[15px] mt-1"
+            style={{
+              fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif",
+              fontWeight: 400,
+              color: "rgba(85, 85, 85, 0.5)",
+            }}
+          >
             Walk in who you already are.
           </p>
         </div>
 
         {/* 1. Daily Check-In */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="mb-5">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
           <DailyCheckIn
             onComplete={() => {
               addEvidence.mutate("check_in");
             }}
-            onSpiritPromptWritten={() => {
-              // Spirit prompt is part of the check-in flow — do not log a separate evidence event
-              // to avoid double-counting kingdom advances
-            }}
+            onSpiritPromptWritten={() => {}}
             onNeedSupport={() => setShowReachOut(true)}
           />
         </motion.div>
 
         {/* 2. Urges Redirected */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mb-5">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
           <UrgesRedirectedCard />
         </motion.div>
 
-        {/* 3. Armor Activated */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="mb-5">
+        {/* 3. Armor Activated + Liberation side by side */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="grid grid-cols-2 gap-[10px]"
+        >
           <ArmorActivatedCard />
-        </motion.div>
-
-        {/* 4. Liberation */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mb-5">
           <FreedomStrip />
         </motion.div>
 

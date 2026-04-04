@@ -1,6 +1,8 @@
 import { useCommunityArmor } from "@/hooks/useCommunityArmor";
 import { Skeleton } from "@/components/ui/skeleton";
 
+const sansFont = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif";
+
 const ArmorActivatedCard = () => {
   const { data, isLoading } = useCommunityArmor();
 
@@ -8,44 +10,36 @@ const ArmorActivatedCard = () => {
   const allTime = data?.all_time_count ?? 0;
 
   return (
-    <div className="bg-[#0A0A0A] rounded-2xl border-[1.5px] border-[#C9A84C] p-6 shadow-[0_4px_24px_rgba(0,0,0,0.12)]">
-      {/* Thin gold accent line */}
-      
-
-      <h2 className="font-serif text-xl font-bold text-white text-center mb-2">
+    <div className="bg-[#1A1A1A] rounded-[16px] p-5" style={{ fontFamily: sansFont }}>
+      <h2 className="text-xs font-medium uppercase tracking-[0.06em] text-primary text-center mb-0.5">
         Armor Activated
       </h2>
-      <p className="text-sm text-white text-center mb-6">
-        Kings walking in freedom together.
+      <p className="text-center mb-[14px]" style={{ fontSize: "12px", fontWeight: 400, color: "rgba(255,255,255,0.35)" }}>
+        Kings walking together
       </p>
 
       {isLoading ? (
-        <div className="flex justify-center items-center gap-0">
-          <div className="text-center flex-1">
-            <Skeleton className="h-14 w-24 mx-auto bg-white/10" />
-            <Skeleton className="h-5 w-20 mx-auto mt-4 bg-white/10" />
-          </div>
-          <div className="w-px h-16 bg-[#C9A84C]/20 flex-shrink-0" />
-          <div className="text-center flex-1">
-            <Skeleton className="h-14 w-24 mx-auto bg-white/10" />
-            <Skeleton className="h-5 w-20 mx-auto mt-4 bg-white/10" />
-          </div>
+        <div className="flex flex-col items-center gap-2">
+          <Skeleton className="h-8 w-16 bg-white/10" />
+          <Skeleton className="h-3 w-12 bg-white/10" />
         </div>
       ) : (
-        <div className="flex justify-center items-center gap-0 mb-6">
-          <div className="text-center flex-1">
-            <p className="text-[56px] font-bold text-primary leading-none">
-              {thisWeek.toLocaleString()}
-            </p>
-            <p className="text-base text-[#FFFFFF] font-medium mt-4">This Week</p>
-          </div>
-          <div className="w-px h-16 bg-[#C9A84C]/20 flex-shrink-0" />
-          <div className="text-center flex-1">
-            <p className="text-[56px] font-bold text-primary leading-none">
-              {allTime.toLocaleString()}
-            </p>
-            <p className="text-base text-[#FFFFFF] font-medium mt-4">Lifetime</p>
-          </div>
+        <div className="flex flex-col items-center">
+          <p className="text-[28px] leading-none text-white" style={{ fontWeight: 600 }}>
+            {thisWeek.toLocaleString()}
+          </p>
+          <p className="mt-1 uppercase" style={{ fontSize: "11px", letterSpacing: "0.06em", color: "rgba(255,255,255,0.4)" }}>
+            This week
+          </p>
+
+          <div className="w-full my-[10px]" style={{ height: "1px", background: "rgba(255,255,255,0.06)" }} />
+
+          <p className="text-[22px] leading-none" style={{ fontWeight: 300, color: "rgba(255,255,255,0.7)" }}>
+            {allTime.toLocaleString()}
+          </p>
+          <p className="mt-1 uppercase" style={{ fontSize: "11px", letterSpacing: "0.06em", color: "rgba(255,255,255,0.35)" }}>
+            Lifetime
+          </p>
         </div>
       )}
     </div>

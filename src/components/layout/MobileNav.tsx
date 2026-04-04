@@ -18,7 +18,14 @@ const MobileNav = () => {
   const { counts } = useUnread();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50" style={{ paddingBottom: 'env(safe-area-inset-bottom)', backgroundColor: '#FFFFFF', borderTop: '1px solid #E5E5E5' }}>
+    <nav
+      className="fixed bottom-0 left-0 right-0 z-50"
+      style={{
+        paddingBottom: 'env(safe-area-inset-bottom)',
+        backgroundColor: '#FFFFFF',
+        borderTop: '1px solid rgba(0,0,0,0.06)',
+      }}
+    >
       <div className="flex items-center justify-around px-2 py-2">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
@@ -30,27 +37,36 @@ const MobileNav = () => {
                 navigate(item.path);
                 window.scrollTo({ top: 0, left: 0 });
               }}
-              className={cn(
-                "relative flex flex-col items-center justify-center min-w-[64px] py-2 px-3 rounded-xl transition-all duration-200",
-                isActive
-                  ? "text-primary"
-                  : "hover:opacity-70"
-              )}
-              style={!isActive ? { color: '#1C1C1E' } : undefined}
+              className="relative flex flex-col items-center justify-center min-w-[64px] py-2 px-3 rounded-xl transition-all duration-200"
+              style={{
+                opacity: isActive ? 1 : 0.35,
+                color: isActive ? undefined : '#1C1C1E',
+              }}
             >
               {isActive && (
                 <motion.div
                   layoutId="activeTab"
-                  className="absolute inset-0 bg-secondary rounded-xl"
+                  className="absolute inset-0 rounded-xl"
+                  style={{ background: "rgba(201,168,76,0.08)" }}
                   initial={false}
                   transition={{ type: "spring", stiffness: 500, damping: 35 }}
                 />
               )}
               <div className="relative">
-                <item.icon className={cn("relative z-10 h-5 w-5", isActive && "stroke-[2.5]")} />
+                <item.icon
+                  className={cn("relative z-10 h-5 w-5", isActive && "stroke-[2.5]")}
+                  style={isActive ? { color: "hsl(var(--primary))" } : undefined}
+                />
                 {showBadge && <NotificationBadge count={counts.total} />}
               </div>
-              <span className={cn("relative z-10 text-xs font-medium mt-1", isActive && "font-semibold")}>
+              <span
+                className={cn("relative z-10 mt-1")}
+                style={{
+                  fontSize: "10px",
+                  fontWeight: isActive ? 500 : 400,
+                  color: isActive ? "hsl(var(--primary))" : undefined,
+                }}
+              >
                 {item.label}
               </span>
             </button>
