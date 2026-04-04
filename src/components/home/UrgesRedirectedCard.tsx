@@ -1,22 +1,42 @@
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useUrgeCounter } from "@/hooks/useUrgeCounter";
-import { Button } from "@/components/ui/button";
+import { Check } from "lucide-react";
 
 const sansFont = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif";
+const HOLD_DURATION = 3000;
 
 const UrgesRedirectedCard = () => {
   const { dailyCount, lifetimeCount, addUrge } = useUrgeCounter();
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [holding, setHolding] = useState(false);
+  const [completed, setCompleted] = useState(false);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const handleAdd = () => {
-    addUrge.mutate(undefined, {
-      onSuccess: () => {
-        setShowConfirmation(true);
-        setTimeout(() => setShowConfirmation(false), 1000);
-      },
-    });
-  };
+  const startHold = useCallback(() => {
+    if (addUrge.isPending || completed) return;
+    setHolding(true);
+    timeoutRef.current = setTimeout(() => {
+      setHolding(false);
+      setCompleted(true);
+      if (navigator.vibrate) navigator.vibrate(50);
+      addUrge.mutate(undefined, {
+        onSuccess: () => {
+          setShowConfirmation(true);
+          setTimeout(() => setShowConfirmation(false), 1000);
+        },
+      });
+      setTimeout(() => setCompleted(false), 1500);
+    }, HOLD_DURATION);
+  }, [addUrge, completed]);
+
+  const cancelHold = useCallback(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+    setHolding(false);
+  }, []);
 
   return (
     <div className="relative bg-[#1A1A1A] rounded-[16px] p-5 overflow-hidden" style={{ fontFamily: sansFont }}>
@@ -54,14 +74,45 @@ const UrgesRedirectedCard = () => {
         </div>
       </div>
 
-      <Button
-        onClick={handleAdd}
+      <button
+        onMouseDown={startHold}
+        onMouseUp={cancelHold}
+        onMouseLeave={cancelHold}
+        onTouchStart={startHold}
+        onTouchEnd={cancelHold}
+        onTouchCancel={cancelHold}
         disabled={addUrge.isPending}
-        className="w-full rounded-[10px] font-semibold h-[50px] text-[20px] bg-primary text-[#1A1A1A] hover:bg-primary/90 border-0"
-        style={{ padding: "13px 0" }}
+        className="relative w-full rounded-[10px] overflow-hidden border-0 select-none"
+        style={{ padding: "13px 0", background: completed ? "#B8963F" : "#F5F3EE", cursor: "pointer" }}
       >
-        +1
-      </Button>
+        {/* Gold fill bar */}
+        <div
+          style={{
+            position: "absolute",
+            left: 0,
+            top: 0,
+            bottom: 0,
+            borderRadius: "10px",
+            background: "#B8963F",
+            width: holding ? "100%" : "0%",
+            transition: holding ? `width ${HOLD_DURATION}ms linear` : "none",
+          }}
+        />
+        {/* Button text */}
+        <span
+          className="relative z-10 flex items-center justify-center gap-1.5"
+          style={{ fontSize: "14px", fontWeight: 600, color: "#1A1A1A", fontFamily: sansFont }}
+        >
+          {completed ? (
+            <>
+              <Check size={16} strokeWidth={2.5} />
+              Logged
+            </>
+          ) : (
+            "Urge Redirected"
+          )}
+        </span>
+      </button>
     </div>
   );
 };
