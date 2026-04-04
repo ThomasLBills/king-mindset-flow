@@ -50,7 +50,7 @@ const UrgesRedirectedCard = () => {
         <div className="flex-shrink-0" style={{ width: "1px", height: "40px", background: "rgba(255,255,255,0.1)" }} />
         <div className="text-center flex-1">
           <p className="text-[56px] leading-none text-primary" style={{ fontWeight: 600 }}>{lifetimeCount}</p>
-          <p className="mt-4 uppercase" style={{ fontSize: "11px", letterSpacing: "0.06em", color: "rgba(255,255,255,0.4)" }}>Lifetime</p>
+          <p className="mt-4 uppercase" style={{ fontSize: "11px", letterSpacing: "0.06em", color: "rgba(255,255,255,0.5)" }}>Lifetime</p>
         </div>
       </div>
 

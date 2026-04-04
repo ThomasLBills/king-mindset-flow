@@ -37,7 +37,7 @@ const ArmorActivatedCard = () => {
           <p className="text-[22px] leading-none" style={{ fontWeight: 300, color: "rgba(255,255,255,0.7)" }}>
             {allTime.toLocaleString()}
           </p>
-          <p className="mt-1 uppercase" style={{ fontSize: "11px", letterSpacing: "0.06em", color: "rgba(255,255,255,0.35)" }}>
+          <p className="mt-1 uppercase" style={{ fontSize: "11px", letterSpacing: "0.06em", color: "rgba(255,255,255,0.5)" }}>
             Lifetime
           </p>
         </div>
