@@ -25,7 +25,7 @@ const FreedomStrip = () => {
           <p className="text-[28px] leading-none text-white" style={{ fontWeight: 600 }}>
             {thisWeekCount.toLocaleString()}
           </p>
-          <p className="mt-1 uppercase" style={{ fontSize: "11px", letterSpacing: "0.06em", color: "rgba(255,255,255,0.4)" }}>
+          <p className="mt-1 uppercase" style={{ fontSize: "11px", letterSpacing: "0.06em", color: "rgba(255,255,255,0.5)" }}>
             This week
           </p>
 
