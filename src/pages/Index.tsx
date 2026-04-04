@@ -22,8 +22,8 @@ const Index = () => {
       <div className="px-4 py-6 max-w-lg mx-auto flex flex-col gap-[14px]">
         {/* Personalized Greeting */}
         <div className="py-6">
-          <h1
-            className="text-[22px] font-semibold text-[#1A1A1A]"
+          <span
+            className="block text-[22px] font-semibold text-[#1A1A1A]"
             style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif", letterSpacing: "-0.02em" }}
           >
             {(() => {
@@ -32,13 +32,13 @@ const Index = () => {
               const firstName = user?.user_metadata?.name?.split(" ")[0] || user?.user_metadata?.first_name || "King";
               return `${greeting}, ${firstName}.`;
             })()}
-          </h1>
+          </span>
           <p
             className="text-[15px] mt-1"
             style={{
               fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif",
               fontWeight: 400,
-              color: "rgba(26, 26, 26, 0.55)",
+              color: "rgba(26, 26, 26, 0.6)",
             }}
           >
             Walk in who you already are.
