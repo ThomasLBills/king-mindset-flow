@@ -146,7 +146,7 @@ const CompactCompleted = ({ feelings, scripture, onCheckInAgain }: CompactComple
         <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
           <Check className="w-4 h-4 text-primary" />
         </div>
-        <h2 className="text-xs font-medium uppercase tracking-[0.06em] text-primary">Daily Check-In</h2>
+        <h2 className="text-xs font-medium uppercase tracking-[0.06em] text-primary text-left">Daily Check-In</h2>
       </div>
 
       {/* Emotion pills */}
