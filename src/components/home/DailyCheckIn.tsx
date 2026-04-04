@@ -5,6 +5,8 @@ import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useDailyCheckIn } from "@/hooks/useDailyProgress";
 
+const sansFont = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif";
+
 const coreOptions = [
   { id: "hopeful", label: "Hopeful" },
   { id: "tempted", label: "Tempted" },
@@ -138,13 +140,13 @@ interface CompactCompletedProps {
 
 const CompactCompleted = ({ feelings, scripture, onCheckInAgain }: CompactCompletedProps) => {
   return (
-    <div className="bg-[#0A0A0A] rounded-2xl border-[1.5px] border-[#C9A84C] p-5 text-white shadow-[0_4px_24px_rgba(0,0,0,0.12)]">
+    <div className="bg-[#1A1A1A] rounded-[16px] p-5 text-white" style={{ fontFamily: sansFont }}>
       {/* Header with checkmark */}
       <div className="flex items-center gap-2.5 mb-3">
         <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
           <Check className="w-4 h-4 text-primary" />
         </div>
-        <h2 className="font-serif text-base font-bold text-white">Daily Check-In</h2>
+        <h2 className="text-xs font-medium uppercase tracking-[0.06em] text-primary">Daily Check-In</h2>
       </div>
 
       {/* Emotion pills */}
@@ -165,7 +167,7 @@ const CompactCompleted = ({ feelings, scripture, onCheckInAgain }: CompactComple
       {/* Scripture */}
       {scripture && (
         <div className="bg-white/5 border border-primary/15 rounded-xl p-3 mb-3">
-          <p className="font-serif text-xs text-white/80 italic leading-relaxed">
+          <p className="text-xs italic leading-relaxed" style={{ color: "rgba(255,255,255,0.8)" }}>
             "{scripture.text}"
           </p>
           <p className="text-[11px] text-primary mt-1 font-medium">{scripture.ref}</p>
@@ -275,8 +277,12 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
 
   return (
     <>
-      <div className="bg-[#0A0A0A] rounded-2xl border-[1.5px] border-[#C9A84C] p-6 pb-8 text-white shadow-[0_4px_24px_rgba(0,0,0,0.12)]">
-        <h2 className="font-serif text-[1.375rem] font-bold text-white text-center mb-3">Daily Check-In</h2>
+      <div className="bg-[#1A1A1A] rounded-[16px] p-5 text-white" style={{ fontFamily: sansFont }}>
+        <h2
+          className="text-xs font-medium uppercase tracking-[0.06em] text-primary text-center mb-3"
+        >
+          Daily Check-In
+        </h2>
 
         <AnimatePresence mode="wait">
           {step === 0 && (
@@ -294,7 +300,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0, transition: { duration: 0.15 } }}
                   >
-                    <p className="text-sm text-white text-center mb-6">
+                    <p className="text-sm text-center mb-6" style={{ fontWeight: 400, fontSize: "14px", color: "rgba(255,255,255,0.5)" }}>
                       What is present in you right now?
                     </p>
                     <div className="grid grid-cols-2 gap-3 mb-2">
@@ -303,9 +309,10 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
                           key={option.id}
                           onClick={() => toggleAwareness(option.id)}
                           whileTap={{ scale: 0.97 }}
-                          className="relative flex items-center justify-center p-3 rounded-xl transition-colors duration-150 text-center border-[1.5px] border-primary bg-[#1A1A1A] text-white"
+                          className="relative flex items-center justify-center p-3 rounded-[10px] transition-colors duration-150 text-center"
+                          style={{ background: "#242424", color: "rgba(255,255,255,0.8)", fontWeight: 400 }}
                         >
-                          <span className="text-sm font-medium">{option.label}</span>
+                          <span className="text-sm">{option.label}</span>
                         </motion.button>
                       ))}
                     </div>
@@ -313,7 +320,8 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
                     {!showMore && (
                       <button
                         onClick={() => setShowMore(true)}
-                        className="text-xs text-primary/70 hover:text-primary font-medium transition-colors mb-4 block mx-auto"
+                        className="text-primary hover:text-primary/80 font-medium transition-colors mb-4 block mx-auto"
+                        style={{ fontSize: "13px", textDecoration: "none" }}
                       >
                         Show more
                       </button>
@@ -340,7 +348,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
 
                     {activeScripture && (
                       <div className="w-full bg-white/5 border border-primary/20 rounded-xl p-4 sm:p-5 mb-5">
-                        <p className="font-serif text-sm sm:text-base text-white italic leading-relaxed break-words">
+                        <p className="text-sm sm:text-base text-white italic leading-relaxed break-words">
                           "{activeScripture.text}"
                         </p>
                         <p className="text-xs sm:text-sm text-primary mt-2 font-medium">{activeScripture.ref}</p>
@@ -352,7 +360,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
                         setShowBreathText(true);
                         setTimeout(() => setStep(1), 1000);
                       }}
-                      className="w-full rounded-xl font-bold h-12 text-base bg-primary text-[#0A0A0A] hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all duration-200 touch-manipulation"
+                      className="w-full rounded-[10px] font-semibold h-12 text-base bg-primary text-[#0A0A0A] hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all duration-200 touch-manipulation"
                     >
                       I am aligned. Let's Go.
                     </Button>
@@ -379,7 +387,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
             >
-              <p className="text-white font-serif text-lg mb-4">
+              <p className="text-white text-lg mb-4" style={{ fontFamily: sansFont }}>
                 What do you sense the Spirit saying about what you are feeling?
               </p>
               
@@ -398,7 +406,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
                   onClick={handleComplete}
                   disabled={submitCheckIn.isPending || !hasTypedSpirit}
                   className={cn(
-                    "w-full rounded-xl font-semibold h-12 text-base shadow-lg transition-all duration-200",
+                    "w-full rounded-[10px] font-semibold h-12 text-base shadow-lg transition-all duration-200",
                     hasTypedSpirit
                       ? "bg-primary text-[#0A0A0A] hover:bg-primary/90 shadow-primary/20"
                       : "bg-[hsl(225_12%_10%)] text-muted-foreground border border-primary/30 shadow-none cursor-not-allowed"
