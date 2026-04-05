@@ -47,12 +47,15 @@ const actionButtons = [
   },
 ];
 
+const systemSans = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif";
+
 const StepWrapper = ({ children }: { children: React.ReactNode }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
     exit={{ opacity: 0, y: -20 }}
-    className="flex flex-col items-center w-full max-w-sm"
+    className="flex flex-col w-full max-w-sm"
+    style={{ fontFamily: systemSans }}
   >
     {children}
   </motion.div>
@@ -147,57 +150,76 @@ export const SpiritLedCrisisModal = ({ onClose }: { onClose: () => void }) => {
       </AnimatePresence>
 
       {/* Close button */}
-      <div className="flex justify-end p-4">
-        <button onClick={onClose} className="p-2 rounded-full hover:bg-white/10 transition-colors">
-          <X className="w-5 h-5 text-white" />
+      <div className="flex justify-end" style={{ padding: "20px 20px 0 20px" }}>
+        <button onClick={onClose} className="transition-opacity hover:opacity-70" style={{ background: "none", border: "none", padding: 0 }}>
+          <X className="w-6 h-6" style={{ color: "rgba(245, 243, 238, 0.5)" }} />
         </button>
       </div>
 
-      <div className="modal-fullscreen-body">
+      <div className="modal-fullscreen-body" style={{ paddingTop: "24px" }}>
         <AnimatePresence mode="wait">
           {/* STEP 1: NOTICE */}
           {step === 0 && (
             <StepWrapper key="notice">
-              <h2 className="font-serif text-2xl font-bold text-white mb-1 text-center">Notice</h2>
-              <p className="text-sm text-white text-center mb-6">Awareness Without Judgment</p>
-              <p className="text-sm text-white text-center mb-6 max-w-sm">
+              <h2 style={{ fontFamily: systemSans, fontWeight: 600, fontSize: "26px", color: "#F5F3EE", letterSpacing: "-0.02em", marginBottom: "4px" }}>Notice</h2>
+              <p style={{ fontSize: "14px", fontWeight: 500, color: "hsl(var(--primary))", marginBottom: "16px" }}>Awareness Without Judgment</p>
+              <p style={{ fontSize: "15px", fontWeight: 400, color: "#F5F3EE", marginBottom: "20px", lineHeight: 1.5 }}>
                 The first step is awareness without judgment. Identify what's happening:
               </p>
-              <div className="space-y-3 mb-4 w-full">
-                {feelingOptions.map((opt) => (
-                  <motion.button
-                    key={opt.id}
-                    whileTap={{ scale: 0.97 }}
-                    onClick={() => toggleFeeling(opt.id)}
-                    className={cn(
-                      "w-full p-4 rounded-xl text-center font-medium transition-colors",
-                      selectedFeelings.includes(opt.id)
-                        ? "bg-primary text-[#0A0A0A]"
-                        : "bg-[#1C1C1E] border border-primary/30 text-white"
-                    )}
-                  >
-                    {opt.label}
-                  </motion.button>
-                ))}
+              <div className="w-full" style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "20px" }}>
+                {feelingOptions.map((opt) => {
+                  const isSelected = selectedFeelings.includes(opt.id);
+                  return (
+                    <motion.button
+                      key={opt.id}
+                      whileTap={{ scale: 0.97 }}
+                      onClick={() => toggleFeeling(opt.id)}
+                      style={{
+                        width: "100%",
+                        padding: "18px 20px",
+                        borderRadius: isSelected ? "0 12px 12px 0" : "12px",
+                        background: isSelected ? "rgba(184, 150, 63, 0.15)" : "#242424",
+                        border: "none",
+                        borderLeft: isSelected ? "3px solid hsl(var(--primary))" : "none",
+                        color: "#F5F3EE",
+                        fontSize: "15px",
+                        fontWeight: 500,
+                        textAlign: "left",
+                        cursor: "pointer",
+                        fontFamily: systemSans,
+                        transition: "all 0.15s ease",
+                      }}
+                    >
+                      {opt.label}
+                    </motion.button>
+                  );
+                })}
               </div>
-              <p className="text-sm text-white text-center mb-2 max-w-sm">
+              <p style={{ fontSize: "14px", fontWeight: 400, color: "#F5F3EE", marginBottom: "6px", lineHeight: 1.5 }}>
                 You're not analyzing. You're not condemning yourself. You're simply naming the experience.
               </p>
-              <p className="text-sm text-white text-center mb-6 max-w-sm">
+              <p style={{ fontSize: "14px", fontWeight: 400, color: "hsl(var(--primary))", marginBottom: "24px", lineHeight: 1.5 }}>
                 Naming creates distance. Distance reduces compulsion.
               </p>
-              <Button
+              <button
                 onClick={() => setStep(1)}
                 disabled={selectedFeelings.length === 0}
-                className={cn(
-                  "w-full rounded-xl font-bold h-12 text-base transition-colors",
-                  selectedFeelings.length > 0
-                    ? "bg-primary text-[#0A0A0A] hover:bg-primary/90"
-                    : "bg-[#1C1C1E] border border-primary/30 text-white/50 cursor-not-allowed"
-                )}
+                style={{
+                  width: "100%",
+                  padding: "16px",
+                  borderRadius: "12px",
+                  border: "none",
+                  fontSize: "15px",
+                  fontWeight: selectedFeelings.length > 0 ? 600 : 500,
+                  fontFamily: systemSans,
+                  cursor: selectedFeelings.length > 0 ? "pointer" : "not-allowed",
+                  background: selectedFeelings.length > 0 ? "hsl(var(--primary))" : "#242424",
+                  color: selectedFeelings.length > 0 ? "#1A1A1A" : "rgba(245, 243, 238, 0.3)",
+                  transition: "all 0.2s ease",
+                }}
               >
                 Continue
-              </Button>
+              </button>
             </StepWrapper>
           )}
 
