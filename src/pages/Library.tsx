@@ -364,7 +364,7 @@ const LibraryPage = () => {
                                     fontFamily: sansFont,
                                     fontSize: 12,
                                     fontWeight: 400,
-                                    color: "rgba(245, 243, 238, 0.5)",
+                                    color: "rgba(245, 243, 238, 0.4)",
                                   }}>
                                     {lesson.duration_minutes ? `${lesson.duration_minutes} min` : "Lesson"}
                                     {isComplete && " · Completed"}
