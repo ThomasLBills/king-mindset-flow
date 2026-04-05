@@ -16,6 +16,25 @@ import { differenceInCalendarDays, addDays, format } from "date-fns";
 
 const sansFont = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif";
 
+const pathScreenReset = `
+  [data-path-screen] *,
+  [data-path-screen] *:focus,
+  [data-path-screen] *:focus-visible,
+  [data-path-screen] *:active {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
+  [data-path-screen] button,
+  [data-path-screen] button:focus,
+  [data-path-screen] button:focus-visible,
+  [data-path-screen] button:active {
+    -webkit-appearance: none !important;
+    appearance: none !important;
+  }
+`;
+
 const LibraryPage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -72,7 +91,8 @@ const LibraryPage = () => {
 
   return (
     <AppLayout>
-      <div style={{ padding: "24px 16px", fontFamily: sansFont }}>
+      <style>{pathScreenReset}</style>
+      <div data-path-screen style={{ padding: "24px 16px", fontFamily: sansFont }}>
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} style={{ marginBottom: 24 }}>
           <p style={{
@@ -175,7 +195,6 @@ const LibraryPage = () => {
                     border: "none",
                     outline: "none",
                     boxShadow: "none",
-                    borderLeft: isCurrent ? "3px solid #B8963F" : "none",
                     opacity: !unlocked && !completed ? 0.5 : 1,
                     cursor: unlocked ? "pointer" : "default",
                     display: "flex",
@@ -249,7 +268,7 @@ const LibraryPage = () => {
                       <div style={{
                         marginTop: 8,
                         width: "100%",
-                        height: 3,
+                        height: 4,
                         borderRadius: 2,
                         background: "rgba(245, 243, 238, 0.1)",
                         overflow: "hidden",
