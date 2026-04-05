@@ -368,10 +368,10 @@
     padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 2rem);
   }
 
-  /* On taller screens, vertically centre content */
+  /* On taller screens, push content toward top with some breathing room */
   @media (min-height: 700px) {
     .modal-fullscreen-body {
-      justify-content: center;
+      justify-content: flex-start;
     }
   }
 
