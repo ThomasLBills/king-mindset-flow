@@ -14,7 +14,7 @@ const ArmorActivatedCard = () => {
       <h2 className="text-xs font-medium uppercase tracking-[0.06em] text-primary text-left mb-0.5">
         Armor Activated
       </h2>
-      <p className="text-left mb-[14px]" style={{ fontSize: "12px", fontWeight: 400, color: "rgba(255,255,255,0.5)" }}>
+      <p className="text-left mb-[14px]" style={{ fontSize: "12px", fontWeight: 400, color: "#F5F3EE" }}>
         Kings walking together
       </p>
 
@@ -28,7 +28,7 @@ const ArmorActivatedCard = () => {
           <p className="text-[28px] leading-none text-white" style={{ fontWeight: 600 }}>
             {thisWeek.toLocaleString()}
           </p>
-          <p className="mt-1 uppercase" style={{ fontSize: "11px", letterSpacing: "0.06em", color: "rgba(255,255,255,0.5)" }}>
+          <p className="mt-1 uppercase" style={{ fontSize: "11px", letterSpacing: "0.06em", color: "#F5F3EE" }}>
             This week
           </p>
 
@@ -37,7 +37,7 @@ const ArmorActivatedCard = () => {
           <p className="text-[22px] leading-none text-primary" style={{ fontWeight: 300 }}>
             {allTime.toLocaleString()}
           </p>
-          <p className="mt-1 uppercase" style={{ fontSize: "11px", letterSpacing: "0.06em", color: "rgba(255,255,255,0.5)" }}>
+          <p className="mt-1 uppercase" style={{ fontSize: "11px", letterSpacing: "0.06em", color: "#F5F3EE" }}>
             Lifetime
           </p>
         </div>
