@@ -66,7 +66,7 @@ const Index = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
-          className="grid grid-cols-2 gap-[10px]"
+          className="grid grid-cols-2 gap-[10px] items-stretch"
         >
           <ArmorActivatedCard />
           <FreedomStrip />
