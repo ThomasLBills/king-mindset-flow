@@ -31,7 +31,7 @@ const FreedomStrip = () => {
 
           <div className="w-full my-[10px]" style={{ height: "1px", background: "rgba(255,255,255,0.06)" }} />
 
-          <p className="text-[22px] leading-none" style={{ fontWeight: 300, color: "rgba(255,255,255,0.7)" }}>
+          <p className="text-[22px] leading-none text-primary" style={{ fontWeight: 300 }}>
             {count.toLocaleString()}
           </p>
           <p className="mt-1 uppercase" style={{ fontSize: "11px", letterSpacing: "0.06em", color: "rgba(255,255,255,0.5)" }}>

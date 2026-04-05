@@ -4,7 +4,7 @@ import { useUrgeCounter } from "@/hooks/useUrgeCounter";
 import { Check } from "lucide-react";
 
 const sansFont = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif";
-const HOLD_DURATION = 3000;
+const HOLD_DURATION = 2000;
 
 const UrgesRedirectedCard = () => {
   const { dailyCount, lifetimeCount, addUrge } = useUrgeCounter();
