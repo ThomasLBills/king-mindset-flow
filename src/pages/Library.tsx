@@ -144,7 +144,7 @@ const LibraryPage = () => {
         )}
 
         {/* Weeks */}
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           {(weeks ?? []).map((week, index) => {
             const unlocked = isWeekUnlocked(week, index);
             const completed = isWeekCompleted(week.id);
