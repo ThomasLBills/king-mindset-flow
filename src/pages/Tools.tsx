@@ -153,7 +153,7 @@ const DeclarationsModal = ({ onClose }: { onClose: () => void }) => {
               fontWeight: 600,
               fontFamily: systemSans,
               cursor: "pointer",
-              background: completed ? "#A3822E" : "hsl(var(--primary))",
+              background: completed ? "#B8963F" : "#F5F3EE",
               color: "#1A1A1A",
               overflow: "hidden",
               outline: "none",
