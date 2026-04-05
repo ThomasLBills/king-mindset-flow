@@ -154,7 +154,7 @@ const CompactCompleted = ({ feelings, scripture, onCheckInAgain }: CompactComple
             <span
               key={f}
               className="rounded-[20px] text-[13px] font-medium text-primary cursor-default"
-              style={{ background: "rgba(196, 162, 78, 0.15)", padding: "6px 14px", border: "none" }}
+              style={{ background: "rgba(184, 150, 63, 0.15)", padding: "6px 14px", border: "none", outline: "none", boxShadow: "none" }}
             >
               {label}
             </span>
