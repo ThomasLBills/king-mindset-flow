@@ -363,25 +363,38 @@ export const SpiritLedCrisisModal = ({ onClose }: { onClose: () => void }) => {
           {/* STEP 2: NAME THE TRUTH */}
           {step === 1 && (
             <StepWrapper key="name">
-              <h2 className="font-serif text-2xl font-bold text-white mb-1 text-center">Name The Truth</h2>
-              <p className="text-sm text-white text-center mb-6">Alignment With Reality</p>
-              <p className="text-sm text-white text-center mb-6 max-w-sm">
+              <h2 style={{ fontFamily: systemSans, fontWeight: 600, fontSize: "26px", color: "#F5F3EE", letterSpacing: "-0.02em", marginBottom: "4px" }}>Name The Truth</h2>
+              <p style={{ fontSize: "14px", fontWeight: 500, color: "hsl(var(--primary))", marginBottom: "16px" }}>Alignment With Reality</p>
+              <p style={{ fontSize: "15px", fontWeight: 400, color: "#F5F3EE", marginBottom: "24px", lineHeight: 1.5 }}>
                 When you've noticed what's happening, anchor to reality. Speak this truth out loud:
               </p>
-              <div className="bg-white/5 border border-primary/20 rounded-xl p-5 w-full mb-4">
-                <p className="font-serif text-base text-white leading-relaxed text-center">
-                  "{selectedTruth}"
+              <div style={{ borderLeft: "3px solid hsl(var(--primary))", paddingLeft: "20px", marginBottom: "24px" }}>
+                <p style={{ fontSize: "18px", fontWeight: 500, color: "#F5F3EE", lineHeight: 1.5 }}>
+                  {selectedTruth}
                 </p>
               </div>
-              <p className="text-sm text-white text-center mb-6 max-w-sm">
-                Truth interrupts the old loop. Your brain has been trained to believe porn provides relief. Speaking truth rewrites that belief.
+              <p style={{ fontSize: "14px", fontWeight: 400, color: "#F5F3EE", marginBottom: "28px", lineHeight: 1.5 }}>
+                Truth interrupts the old loop. Your brain has been trained to believe porn provides relief.{" "}
+                <span style={{ color: "hsl(var(--primary))" }}>Speaking truth rewrites that belief.</span>
               </p>
-              <Button
+              <button
                 onClick={() => setStep(2)}
-                className="w-full rounded-xl font-bold h-12 text-base bg-primary text-[#0A0A0A] hover:bg-primary/90"
+                style={{
+                  width: "100%",
+                  padding: "16px",
+                  borderRadius: "12px",
+                  border: "none",
+                  fontSize: "15px",
+                  fontWeight: 600,
+                  fontFamily: systemSans,
+                  cursor: "pointer",
+                  background: "hsl(var(--primary))",
+                  color: "#1A1A1A",
+                  transition: "all 0.2s ease",
+                }}
               >
                 Continue
-              </Button>
+              </button>
             </StepWrapper>
           )}
 
