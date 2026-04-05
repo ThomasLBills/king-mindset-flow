@@ -205,13 +205,13 @@ const LibraryPage = () => {
                 >
                   {/* Icon container */}
                   <div style={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: 10,
+                    width: 32,
+                    height: 32,
+                    borderRadius: 8,
                     background: completed
-                      ? "rgba(196, 162, 78, 0.12)"
+                      ? "rgba(196, 162, 78, 0.1)"
                       : isCurrent
-                        ? "rgba(196, 162, 78, 0.2)"
+                        ? "rgba(196, 162, 78, 0.15)"
                         : "rgba(245, 243, 238, 0.04)",
                     display: "flex",
                     alignItems: "center",
@@ -219,11 +219,11 @@ const LibraryPage = () => {
                     flexShrink: 0,
                   }}>
                     {completed ? (
-                      <Check style={{ width: 18, height: 18, color: "#B8963F" }} />
+                      <Check style={{ width: 16, height: 16, color: "#B8963F", strokeWidth: 2, fill: "none" }} />
                     ) : isCurrent ? (
                       <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#B8963F" }} />
                     ) : (
-                      <Lock style={{ width: 16, height: 16, color: "rgba(245, 243, 238, 0.3)" }} />
+                      <Lock style={{ width: 14, height: 14, color: "rgba(245, 243, 238, 0.25)" }} />
                     )}
                   </div>
 
