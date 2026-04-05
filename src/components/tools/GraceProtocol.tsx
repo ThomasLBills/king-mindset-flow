@@ -210,7 +210,7 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
       setShowCompletion(true);
       setTimeout(() => {
         onClose();
-        navigate("/tools");
+        navigate("/app");
       }, 1500);
     }, 2000);
   }, [holdCompleted, resetStreak, logRelapseEvent, addEvidence, onClose, navigate]);
