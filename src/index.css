@@ -158,7 +158,11 @@
     @apply font-semibold tracking-tight leading-tight;
   }
 
-  .greeting-sans {
+  .greeting-sans,
+  .greeting-sans h1,
+  .greeting-sans h2,
+  .greeting-sans h3,
+  .greeting-sans h4 {
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif !important;
   }
 
