@@ -162,7 +162,7 @@ const NavigateStep = ({ selectedAction, setSelectedAction, onVictory, isPending 
           fontWeight: 600,
           fontFamily: systemSans,
           cursor: selectedAction ? "pointer" : "not-allowed",
-          background: completed ? "#A3822E" : "hsl(var(--primary))",
+          background: completed ? "#B8963F" : "#F5F3EE",
           color: "#1A1A1A",
           overflow: "hidden",
           outline: "none",
