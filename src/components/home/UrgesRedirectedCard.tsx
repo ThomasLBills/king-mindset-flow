@@ -58,7 +58,7 @@ const UrgesRedirectedCard = () => {
       <h2 className="text-xs font-medium uppercase tracking-[0.06em] text-primary text-left mb-2">
         Urges Redirected
       </h2>
-      <p className="text-left mb-6" style={{ fontSize: "14px", fontWeight: 400, color: "rgba(255,255,255,0.65)" }}>
+      <p className="text-left mb-6" style={{ fontSize: "14px", fontWeight: 400, color: "#F5F3EE" }}>
         Every time you redirect an urge, you build a new pathway. Log it here.
       </p>
 
