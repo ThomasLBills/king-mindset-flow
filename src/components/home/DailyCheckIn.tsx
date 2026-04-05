@@ -81,8 +81,8 @@ const scriptureResponses: Record<string, { text: string; ref: string }> = {
     ref: "John 14:27",
   },
   angry: {
-    text: "Be angry and do not sin; ponder in your own hearts on your beds, and be silent.",
-    ref: "Psalm 4:4",
+    text: "Know this, my beloved brothers: let every person be quick to hear, slow to speak, slow to anger; for the anger of man does not produce the righteousness of God.",
+    ref: "James 1:19-20",
   },
   overwhelmed: {
     text: "God is our refuge and strength, a very present help in trouble.",
