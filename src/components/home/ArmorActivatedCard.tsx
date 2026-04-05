@@ -14,7 +14,7 @@ const ArmorActivatedCard = () => {
       <h2 className="text-xs font-medium uppercase tracking-[0.06em] text-primary text-left mb-0.5">
         Armor Activated
       </h2>
-      <p className="text-left mb-[14px]" style={{ fontSize: "12px", fontWeight: 400, color: "rgba(255,255,255,0.5)" }}>
+      <p className="text-left mb-[14px]" style={{ fontSize: "12px", fontWeight: 400, color: "#F5F3EE" }}>
         Kings walking together
       </p>
 
