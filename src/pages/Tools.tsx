@@ -168,9 +168,9 @@ const DeclarationsModal = ({ onClose }: { onClose: () => void }) => {
                 top: 0,
                 bottom: 0,
                 borderRadius: "12px",
-                background: "#A3822E",
+                background: "#B8963F",
                 width: holding ? "100%" : "0%",
-                transition: holding ? "width 2s linear" : "width 0.15s ease-out",
+                transition: holding ? "width 2s linear" : "none",
               }}
             />
             <span style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
