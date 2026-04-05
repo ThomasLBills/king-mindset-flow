@@ -29,16 +29,25 @@ export function useDailyCheckIn() {
 
   const submitCheckIn = useMutation({
     mutationFn: async (params: { feelings: string[]; needsSupport: boolean; spiritResponse?: string }) => {
-      const { error } = await supabase.from("daily_check_ins").upsert({
+      const payload = {
         user_id: user!.id,
         check_in_date: today,
         feelings: params.feelings,
         needs_support: params.needsSupport,
         spirit_response: params.spiritResponse ?? null,
-      } as any, { onConflict: "user_id,check_in_date" });
+      };
+
+      const { error } = await supabase.from("daily_check_ins").upsert(payload as any, { onConflict: "user_id,check_in_date" });
       if (error) throw error;
+
+      return payload;
     },
-    onSuccess: () => {
+    onSuccess: (payload) => {
+      qc.setQueryData(["daily-check-in", user?.id, today], (current: any) => ({
+        ...current,
+        ...payload,
+      }));
+
       qc.invalidateQueries({ queryKey: ["daily-check-in"] });
       qc.invalidateQueries({ queryKey: ["king-profile-breakthroughs-spirit"] });
       qc.invalidateQueries({ queryKey: ["king-profile-days-consistent"] });
