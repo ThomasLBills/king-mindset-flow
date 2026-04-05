@@ -54,7 +54,7 @@ const StepWrapper = ({ children }: { children: React.ReactNode }) => (
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
     exit={{ opacity: 0, y: -20 }}
-    className="flex flex-col w-full max-w-sm"
+    className="flex flex-col w-full max-w-sm [&_h2]:!font-sans"
     style={{ fontFamily: systemSans }}
   >
     {children}
