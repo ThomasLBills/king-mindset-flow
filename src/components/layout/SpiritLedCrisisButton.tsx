@@ -355,6 +355,8 @@ export const SpiritLedCrisisModal = ({ onClose }: { onClose: () => void }) => {
                   background: selectedFeelings.length > 0 ? "hsl(var(--primary))" : "#242424",
                   color: selectedFeelings.length > 0 ? "#1A1A1A" : "rgba(245, 243, 238, 0.3)",
                   transition: "all 0.2s ease",
+                  outline: "none",
+                  boxShadow: "none",
                 }}
               >
                 Continue
