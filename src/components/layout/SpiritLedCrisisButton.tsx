@@ -294,7 +294,7 @@ export const SpiritLedCrisisModal = ({ onClose }: { onClose: () => void }) => {
         </button>
       </div>
 
-      <div className="modal-fullscreen-body" style={{ paddingTop: "24px" }}>
+      <div className="modal-fullscreen-body" style={{ paddingTop: "12px" }}>
         <AnimatePresence mode="wait">
           {/* STEP 1: NOTICE */}
           {step === 0 && (
@@ -314,7 +314,7 @@ export const SpiritLedCrisisModal = ({ onClose }: { onClose: () => void }) => {
                       onClick={() => toggleFeeling(opt.id)}
                       style={{
                         width: "100%",
-                        padding: "18px 20px",
+                        padding: "16px 20px",
                         borderRadius: isSelected ? "0 12px 12px 0" : "12px",
                         background: isSelected ? "rgba(184, 150, 63, 0.15)" : "#242424",
                         border: "none",
@@ -326,6 +326,7 @@ export const SpiritLedCrisisModal = ({ onClose }: { onClose: () => void }) => {
                         cursor: "pointer",
                         fontFamily: systemSans,
                         transition: "all 0.15s ease",
+                        outline: "none",
                       }}
                     >
                       {opt.label}
@@ -354,6 +355,8 @@ export const SpiritLedCrisisModal = ({ onClose }: { onClose: () => void }) => {
                   background: selectedFeelings.length > 0 ? "hsl(var(--primary))" : "#242424",
                   color: selectedFeelings.length > 0 ? "#1A1A1A" : "rgba(245, 243, 238, 0.3)",
                   transition: "all 0.2s ease",
+                  outline: "none",
+                  boxShadow: "none",
                 }}
               >
                 Continue
