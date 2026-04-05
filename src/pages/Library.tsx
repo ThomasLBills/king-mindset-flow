@@ -302,7 +302,7 @@ const LibraryPage = () => {
                       transition={{ duration: 0.2 }}
                       style={{ overflow: "hidden" }}
                     >
-                      <div style={{ paddingTop: 8, paddingLeft: 54, display: "flex", flexDirection: "column", gap: 6 }}>
+                      <div style={{ paddingTop: 8, paddingLeft: 54, display: "flex", flexDirection: "column", gap: 8 }}>
                         {lessons.length === 0 ? (
                           <p style={{
                             fontFamily: sansFont,
@@ -323,9 +323,9 @@ const LibraryPage = () => {
                                   display: "flex",
                                   alignItems: "center",
                                   gap: 12,
-                                  padding: "12px 14px",
+                                  padding: "14px 16px",
                                   borderRadius: 12,
-                                  background: "rgba(245, 243, 238, 0.05)",
+                                  background: "#1A1A1A",
                                   border: "none",
                                   outline: "none",
                                   cursor: "pointer",
