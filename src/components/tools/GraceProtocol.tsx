@@ -192,6 +192,10 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
   const [holding, setHolding] = useState(false);
   const [holdCompleted, setHoldCompleted] = useState(false);
   const holdTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const navigate = useNavigate();
+  const { resetStreak } = useFreedomStreak();
+  const { logRelapseEvent } = useRelapseEventLogger();
+  const { addEvidence } = useEvidenceCounter();
 
   const startHold = useCallback(() => {
     if (holdCompleted || resetStreak.isPending || logRelapseEvent.isPending) return;
@@ -218,10 +222,6 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
     }
     if (!holdCompleted) setHolding(false);
   }, [holdCompleted]);
-  const navigate = useNavigate();
-  const { resetStreak } = useFreedomStreak();
-  const { logRelapseEvent } = useRelapseEventLogger();
-  const { addEvidence } = useEvidenceCounter();
 
   const selectedDeclaration = useMemo(() => step1Declarations[Math.floor(Math.random() * step1Declarations.length)], [step]);
   const selectedPrayer = useMemo(() => step2Prayers[Math.floor(Math.random() * step2Prayers.length)], [step]);
