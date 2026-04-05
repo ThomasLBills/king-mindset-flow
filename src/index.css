@@ -142,6 +142,10 @@
     font-family: 'Crimson Pro', Georgia, serif;
     @apply font-semibold tracking-tight leading-tight;
   }
+
+  .greeting-sans {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif !important;
+  }
 }
 
 @layer components {
