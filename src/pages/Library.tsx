@@ -144,7 +144,7 @@ const LibraryPage = () => {
         )}
 
         {/* Weeks */}
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           {(weeks ?? []).map((week, index) => {
             const unlocked = isWeekUnlocked(week, index);
             const completed = isWeekCompleted(week.id);
@@ -302,7 +302,7 @@ const LibraryPage = () => {
                       transition={{ duration: 0.2 }}
                       style={{ overflow: "hidden" }}
                     >
-                      <div style={{ paddingTop: 8, paddingLeft: 54, display: "flex", flexDirection: "column", gap: 8 }}>
+                      <div style={{ paddingTop: 8, paddingLeft: 8, display: "flex", flexDirection: "column", gap: 6 }}>
                         {lessons.length === 0 ? (
                           <p style={{
                             fontFamily: sansFont,
@@ -325,29 +325,31 @@ const LibraryPage = () => {
                                   gap: 12,
                                   padding: "14px 16px",
                                   borderRadius: 12,
-                                  background: "#1A1A1A",
+                                  background: "#242424",
                                   border: "none",
                                   outline: "none",
+                                  boxShadow: "none",
                                   cursor: "pointer",
                                   fontFamily: sansFont,
                                   textAlign: "left",
                                 }}
                               >
                                 <div style={{
-                                  padding: 8,
+                                  width: 32,
+                                  height: 32,
                                   borderRadius: 8,
-                                  background: isComplete ? "rgba(184, 150, 63, 0.15)" : "rgba(184, 150, 63, 0.1)",
+                                  background: isComplete ? "rgba(196, 162, 78, 0.12)" : "rgba(184, 150, 63, 0.1)",
                                   display: "flex",
                                   alignItems: "center",
                                   justifyContent: "center",
                                   flexShrink: 0,
                                 }}>
                                   {isComplete ? (
-                                    <Check style={{ width: 16, height: 16, color: "#B8963F" }} />
+                                    <Check style={{ width: 14, height: 14, color: "#B8963F" }} />
                                   ) : lesson.video_url ? (
-                                    <Play style={{ width: 16, height: 16, color: "#B8963F" }} />
+                                    <Play style={{ width: 14, height: 14, color: "#B8963F" }} />
                                   ) : (
-                                    <BookOpen style={{ width: 16, height: 16, color: "#B8963F" }} />
+                                    <BookOpen style={{ width: 14, height: 14, color: "#B8963F" }} />
                                   )}
                                 </div>
                                 <div style={{ flex: 1, minWidth: 0 }}>
@@ -362,7 +364,7 @@ const LibraryPage = () => {
                                     fontFamily: sansFont,
                                     fontSize: 12,
                                     fontWeight: 400,
-                                    color: "rgba(245, 243, 238, 0.5)",
+                                    color: "rgba(245, 243, 238, 0.4)",
                                   }}>
                                     {lesson.duration_minutes ? `${lesson.duration_minutes} min` : "Lesson"}
                                     {isComplete && " · Completed"}
