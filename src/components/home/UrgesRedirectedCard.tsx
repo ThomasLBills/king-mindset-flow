@@ -106,10 +106,10 @@ const UrgesRedirectedCard = () => {
           {completed ? (
             <>
               <Check size={16} strokeWidth={2.5} />
-              Logged
+              Redirected
             </>
           ) : (
-            "Urge Redirected"
+            "Hold to Redirect"
           )}
         </span>
       </button>
