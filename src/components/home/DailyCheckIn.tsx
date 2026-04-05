@@ -165,7 +165,7 @@ const CompactCompleted = ({ feelings, scripture, onCheckInAgain }: CompactComple
       {/* Scripture — left border accent */}
       {scripture && (
         <div className="mb-4" style={{ borderLeft: "3px solid hsl(var(--primary))", paddingLeft: "16px" }}>
-          <p className="text-[14px] leading-relaxed" style={{ fontWeight: 400, color: "rgba(245, 243, 238, 0.75)" }}>
+          <p className="text-[14px] leading-relaxed" style={{ fontWeight: 400, color: "#F5F3EE" }}>
             {scripture.text}
           </p>
           <p className="text-[13px] text-primary mt-2 font-medium">{scripture.ref}</p>
