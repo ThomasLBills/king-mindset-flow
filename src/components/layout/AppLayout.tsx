@@ -30,6 +30,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
           <UserMenu />
         </div>
       </header>
+      {/* divider handled by header border */}
       <main className="pb-28">
         {children}
       </main>
