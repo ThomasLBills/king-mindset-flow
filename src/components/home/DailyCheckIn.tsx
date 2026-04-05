@@ -316,15 +316,13 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
                       ))}
                     </div>
 
-                    {!showMore && (
-                      <button
-                        onClick={() => setShowMore(true)}
-                        className="text-primary hover:text-primary/80 font-medium transition-colors mb-4 block mx-auto"
-                        style={{ fontSize: "13px", textDecoration: "none" }}
-                      >
-                        Show more
-                      </button>
-                    )}
+                    <button
+                      onClick={() => setShowMore((v) => !v)}
+                      className="text-primary hover:text-primary/80 font-medium transition-colors mb-4 block mx-auto"
+                      style={{ fontSize: "13px", textDecoration: "none" }}
+                    >
+                      {showMore ? "Show less" : "Show more"}
+                    </button>
                   </motion.div>
                 ) : (
                   <motion.div
