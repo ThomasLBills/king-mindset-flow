@@ -9,7 +9,7 @@ const FreedomStrip = () => {
   return (
     <div className="bg-[#1A1A1A] rounded-[16px] p-5" style={{ fontFamily: sansFont }}>
       <h2 className="text-xs font-medium uppercase tracking-[0.06em] text-primary text-left mb-0.5">
-        Liberation
+        Liberated
       </h2>
       <p className="text-left mb-[14px]" style={{ fontSize: "12px", fontWeight: 400, color: "rgba(255,255,255,0.5)" }}>
         Your evidence of freedom
