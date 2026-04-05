@@ -23,8 +23,8 @@ const Index = () => {
         {/* Personalized Greeting */}
         <div className="pt-2 pb-5">
           <span
-            className="block text-[22px] text-[#1A1A1A]"
-            style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif !important" as any, fontWeight: 600, letterSpacing: "-0.02em" }}
+            className="greeting-sans block text-[22px] text-[#1A1A1A]"
+            style={{ fontWeight: 600, letterSpacing: "-0.02em" }}
           >
             {(() => {
               const h = new Date().getHours();
