@@ -129,14 +129,31 @@ const ToolsPage = () => {
 
   return (
     <AppLayout>
-      <div className="px-5 py-6 min-h-screen">
+      <div className="px-4 py-6 max-w-lg mx-auto">
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-6">
-
-          <h1 className="font-serif text-3xl font-bold mb-2">Your Armor</h1>
-          <p className="text-muted-foreground">
+          className="pt-2 pb-5">
+          <h1
+            style={{
+              fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif",
+              fontWeight: 600,
+              fontSize: "26px",
+              letterSpacing: "-0.02em",
+              color: "#1A1A1A",
+            }}
+          >
+            Your Armor
+          </h1>
+          <p
+            style={{
+              fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif",
+              fontWeight: 400,
+              fontSize: "15px",
+              color: "rgba(26, 26, 26, 0.65)",
+              marginTop: "4px",
+            }}
+          >
             Put on the full armor of God. Choose what your moment requires.
           </p>
         </motion.div>
@@ -145,41 +162,128 @@ const ToolsPage = () => {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05 }}
-          className="my-8">
-
-          <h2 className="font-semibold text-base mb-4">What do you need right now?</h2>
-          <div className="flex flex-col gap-4">
+        >
+          <p
+            style={{
+              fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif",
+              fontWeight: 500,
+              fontSize: "14px",
+              color: "rgba(26, 26, 26, 0.8)",
+              marginBottom: "14px",
+            }}
+          >
+            What do you need right now?
+          </p>
+          <div className="flex flex-col gap-[10px]">
+            {/* I Am Being Tempted — highlighted */}
             <motion.button
               onClick={() => setShowCrisisModal(true)}
-              whileTap={{ scale: 1.02 }}
-              className="py-6 px-10 rounded-xl text-center bg-[#1C1C1E] border-[1.5px] border-primary active:bg-primary active:text-[#0A0A0A] transition-colors duration-200">
-
-              <span className="block font-bold text-white text-base">I Am Being Tempted</span>
-              <span className="block text-sm text-primary mt-1">Notice. Name. Navigate.</span>
+              whileTap={{ scale: 0.98 }}
+              className="flex items-center gap-4 text-left active:opacity-80 transition-opacity"
+              style={{
+                background: "#1A1A1A",
+                borderRadius: "0 16px 16px 0",
+                borderLeft: "3px solid hsl(var(--primary))",
+                borderTop: "none",
+                borderRight: "none",
+                borderBottom: "none",
+                padding: "22px",
+              }}
+            >
+              <div
+                className="flex items-center justify-center shrink-0"
+                style={{
+                  width: 44, height: 44, borderRadius: 12,
+                  background: "rgba(184, 150, 63, 0.1)",
+                }}
+              >
+                <ShieldCheck className="w-[22px] h-[22px]" style={{ color: "hsl(var(--primary))" }} />
+              </div>
+              <div>
+                <span className="block" style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif", fontWeight: 600, fontSize: "17px", color: "#F5F3EE" }}>I Am Being Tempted</span>
+                <span className="block text-primary" style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif", fontWeight: 400, fontSize: "13px", marginTop: "2px" }}>Notice. Name. Navigate.</span>
+              </div>
             </motion.button>
+
+            {/* I Need to Return */}
             <motion.button
               onClick={() => setShowGraceProtocol(true)}
-              whileTap={{ scale: 1.02 }}
-              className="py-6 px-10 rounded-xl text-center bg-[#1C1C1E] border-[1.5px] border-primary active:bg-primary active:text-[#0A0A0A] transition-colors duration-200">
-
-              <span className="block font-bold text-white text-base">I Need to Return</span>
-              <span className="block text-sm text-primary mt-1">R.E.T.U.R.N.</span>
+              whileTap={{ scale: 0.98 }}
+              className="flex items-center gap-4 text-left active:opacity-80 transition-opacity"
+              style={{
+                background: "#1A1A1A",
+                borderRadius: "16px",
+                border: "none",
+                padding: "22px",
+              }}
+            >
+              <div
+                className="flex items-center justify-center shrink-0"
+                style={{
+                  width: 44, height: 44, borderRadius: 12,
+                  background: "rgba(245, 243, 238, 0.04)",
+                }}
+              >
+                <RotateCcw className="w-[22px] h-[22px]" style={{ color: "rgba(245, 243, 238, 0.4)" }} />
+              </div>
+              <div>
+                <span className="block" style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif", fontWeight: 600, fontSize: "17px", color: "#F5F3EE" }}>I Need to Return</span>
+                <span className="block text-primary" style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif", fontWeight: 400, fontSize: "13px", marginTop: "2px" }}>R.E.T.U.R.N.</span>
+              </div>
             </motion.button>
+
+            {/* Speak Truth Over Myself */}
             <motion.button
               onClick={() => setShowDeclarations(true)}
-              whileTap={{ scale: 1.02 }}
-              className="py-6 px-10 rounded-xl text-center bg-[#1C1C1E] border-[1.5px] border-primary active:bg-primary active:text-[#0A0A0A] transition-colors duration-200">
-
-              <span className="block font-bold text-white text-base">Speak Truth Over Myself</span>
-              <span className="block text-sm text-primary mt-1">Declare. Believe. Receive.</span>
+              whileTap={{ scale: 0.98 }}
+              className="flex items-center gap-4 text-left active:opacity-80 transition-opacity"
+              style={{
+                background: "#1A1A1A",
+                borderRadius: "16px",
+                border: "none",
+                padding: "22px",
+              }}
+            >
+              <div
+                className="flex items-center justify-center shrink-0"
+                style={{
+                  width: 44, height: 44, borderRadius: 12,
+                  background: "rgba(245, 243, 238, 0.04)",
+                }}
+              >
+                <Layers className="w-[22px] h-[22px]" style={{ color: "rgba(245, 243, 238, 0.4)" }} />
+              </div>
+              <div>
+                <span className="block" style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif", fontWeight: 600, fontSize: "17px", color: "#F5F3EE" }}>Speak Truth Over Myself</span>
+                <span className="block text-primary" style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif", fontWeight: 400, fontSize: "13px", marginTop: "2px" }}>Declare. Believe. Receive.</span>
+              </div>
             </motion.button>
+
+            {/* Gratitude */}
             <motion.button
               onClick={() => setShowGratitude(true)}
-              whileTap={{ scale: 1.02 }}
-              className="py-6 px-10 rounded-xl text-center bg-[#1C1C1E] border-[1.5px] border-primary active:bg-primary active:text-[#0A0A0A] transition-colors duration-200">
-
-              <span className="block font-bold text-white text-base">Gratitude</span>
-              <span className="block text-sm text-primary mt-1">See what God is already doing.</span>
+              whileTap={{ scale: 0.98 }}
+              className="flex items-center gap-4 text-left active:opacity-80 transition-opacity"
+              style={{
+                background: "#1A1A1A",
+                borderRadius: "16px",
+                border: "none",
+                padding: "22px",
+              }}
+            >
+              <div
+                className="flex items-center justify-center shrink-0"
+                style={{
+                  width: 44, height: 44, borderRadius: 12,
+                  background: "rgba(245, 243, 238, 0.04)",
+                }}
+              >
+                <Heart className="w-[22px] h-[22px]" style={{ color: "rgba(245, 243, 238, 0.4)" }} />
+              </div>
+              <div>
+                <span className="block" style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif", fontWeight: 600, fontSize: "17px", color: "#F5F3EE" }}>Gratitude</span>
+                <span className="block text-primary" style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif", fontWeight: 400, fontSize: "13px", marginTop: "2px" }}>See what God is already doing.</span>
+              </div>
             </motion.button>
           </div>
         </motion.div>
