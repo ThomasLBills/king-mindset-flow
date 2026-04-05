@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -189,10 +189,39 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
   const [showCompletion, setShowCompletion] = useState(false);
   const [brotherhoodCommitted, setBrotherhoodCommitted] = useState(false);
   const [rhythmsCommitted, setRhythmsCommitted] = useState(false);
+  const [holding, setHolding] = useState(false);
+  const [holdCompleted, setHoldCompleted] = useState(false);
+  const holdTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const navigate = useNavigate();
   const { resetStreak } = useFreedomStreak();
   const { logRelapseEvent } = useRelapseEventLogger();
   const { addEvidence } = useEvidenceCounter();
+
+  const startHold = useCallback(() => {
+    if (holdCompleted || resetStreak.isPending || logRelapseEvent.isPending) return;
+    setHolding(true);
+    holdTimerRef.current = setTimeout(async () => {
+      setHolding(false);
+      setHoldCompleted(true);
+      if (navigator.vibrate) navigator.vibrate(50);
+      await logRelapseEvent.mutateAsync();
+      await resetStreak.mutateAsync();
+      addEvidence.mutate("grace_protocol_complete");
+      setShowCompletion(true);
+      setTimeout(() => {
+        onClose();
+        navigate("/tools");
+      }, 1500);
+    }, 2000);
+  }, [holdCompleted, resetStreak, logRelapseEvent, addEvidence, onClose, navigate]);
+
+  const cancelHold = useCallback(() => {
+    if (holdTimerRef.current) {
+      clearTimeout(holdTimerRef.current);
+      holdTimerRef.current = null;
+    }
+    if (!holdCompleted) setHolding(false);
+  }, [holdCompleted]);
 
   const selectedDeclaration = useMemo(() => step1Declarations[Math.floor(Math.random() * step1Declarations.length)], [step]);
   const selectedPrayer = useMemo(() => step2Prayers[Math.floor(Math.random() * step2Prayers.length)], [step]);
@@ -201,16 +230,6 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
     if (step < TOTAL_STEPS - 1) setStep(step + 1);
   };
 
-  const handleComplete = async () => {
-    await logRelapseEvent.mutateAsync();
-    await resetStreak.mutateAsync();
-    addEvidence.mutate("grace_protocol_complete");
-    setShowCompletion(true);
-    setTimeout(() => {
-      onClose();
-      navigate("/app");
-    }, 1500);
-  };
 
   if (showCompletion) {
     return (
@@ -475,11 +494,17 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
                 gold="Use it."
               />
               <button
-                onClick={handleComplete}
+                onMouseDown={startHold}
+                onMouseUp={cancelHold}
+                onMouseLeave={cancelHold}
+                onTouchStart={startHold}
+                onTouchEnd={cancelHold}
+                onTouchCancel={cancelHold}
                 disabled={resetStreak.isPending || logRelapseEvent.isPending}
                 style={{
+                  position: "relative",
                   width: "100%",
-                  background: "hsl(var(--primary))",
+                  background: holdCompleted ? "#B8963F" : "#F5F3EE",
                   color: "#1A1A1A",
                   fontWeight: 600,
                   fontSize: "15px",
@@ -490,9 +515,30 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
                   outline: "none",
                   boxShadow: "none",
                   fontFamily: sansFont,
+                  overflow: "hidden",
+                  WebkitUserSelect: "none",
+                  userSelect: "none",
                 }}
               >
-                Complete RETURN
+                <div
+                  style={{
+                    position: "absolute",
+                    left: 0,
+                    top: 0,
+                    bottom: 0,
+                    borderRadius: "12px",
+                    background: "#B8963F",
+                    width: holding ? "100%" : "0%",
+                    transition: holding ? "width 2s linear" : "none",
+                  }}
+                />
+                <span style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
+                  {holdCompleted ? (
+                    <><Check className="w-4 h-4" /> Returned</>
+                  ) : (
+                    "Hold to Return"
+                  )}
+                </span>
               </button>
             </StepWrapper>
           )}
