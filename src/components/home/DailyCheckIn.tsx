@@ -141,13 +141,10 @@ interface CompactCompletedProps {
 const CompactCompleted = ({ feelings, scripture, onCheckInAgain }: CompactCompletedProps) => {
   return (
     <div className="bg-[#1A1A1A] rounded-[16px] p-5 text-white" style={{ fontFamily: sansFont }}>
-      {/* Header with checkmark */}
-      <div className="flex items-center gap-2.5 mb-3">
-        <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-          <Check className="w-4 h-4 text-primary" />
-        </div>
-        <h2 className="text-xs font-medium uppercase tracking-[0.06em] text-primary text-left">Daily Check-In</h2>
-      </div>
+      {/* Header — no checkmark, same as pre-check-in */}
+      <h2 className="text-xs font-medium uppercase tracking-[0.06em] text-primary text-left mb-3">
+        Daily Check-In
+      </h2>
 
       {/* Emotion pills */}
       <div className="flex flex-wrap gap-1.5 mb-3">
@@ -156,7 +153,8 @@ const CompactCompleted = ({ feelings, scripture, onCheckInAgain }: CompactComple
           return (
             <span
               key={f}
-              className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-primary/15 text-primary border border-primary/30"
+              className="rounded-[20px] text-[13px] font-medium text-primary cursor-default"
+              style={{ background: "rgba(196, 162, 78, 0.15)", padding: "6px 14px", border: "none" }}
             >
               {label}
             </span>
@@ -164,22 +162,23 @@ const CompactCompleted = ({ feelings, scripture, onCheckInAgain }: CompactComple
         })}
       </div>
 
-      {/* Scripture */}
+      {/* Scripture — left border accent */}
       {scripture && (
-        <div className="bg-white/5 border border-primary/15 rounded-xl p-3 mb-3">
-          <p className="text-xs italic leading-relaxed" style={{ color: "rgba(255,255,255,0.8)" }}>
-            "{scripture.text}"
+        <div className="mb-4" style={{ borderLeft: "2px solid hsl(var(--primary))", paddingLeft: "16px" }}>
+          <p className="text-[14px] leading-relaxed" style={{ fontWeight: 400, color: "rgba(245, 243, 238, 0.7)" }}>
+            {scripture.text}
           </p>
-          <p className="text-[11px] text-primary mt-1 font-medium">{scripture.ref}</p>
+          <p className="text-[13px] text-primary mt-2 font-medium">{scripture.ref}</p>
         </div>
       )}
 
       {/* Check in again link */}
       <button
         onClick={onCheckInAgain}
-        className="text-xs text-primary/70 hover:text-primary font-medium transition-colors"
+        className="text-[14px] text-primary hover:text-primary/80 transition-colors mt-4 flex items-center gap-1"
+        style={{ fontWeight: 500 }}
       >
-        Check in again
+        Check in again <span className="text-[13px]">→</span>
       </button>
     </div>
   );
