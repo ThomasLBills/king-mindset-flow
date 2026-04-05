@@ -11,6 +11,8 @@ import { useToast } from "@/hooks/use-toast";
 import MessageList from "@/components/chat/MessageList";
 import MessageComposer from "@/components/chat/MessageComposer";
 
+const systemSans = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif";
+
 interface ChannelsTabProps {
   onSelectChannel?: (target: ChatTarget) => void;
 }
@@ -61,7 +63,7 @@ const ChannelsTab = ({ onSelectChannel }: ChannelsTabProps) => {
             ← Back
           </button>
           <Hash className="w-4 h-4 text-muted-foreground" />
-          <h3 className="font-serif text-lg font-semibold">{activeChannel.name}</h3>
+          <h3 style={{ fontFamily: systemSans, fontWeight: 600, fontSize: "18px" }}>{activeChannel.name}</h3>
           {isLocked && <Lock className="w-3 h-3 text-muted-foreground" />}
         </div>
         <MessageList messages={messages} loading={loading} isAdmin={isAdmin} onDeleteMessage={handleDeleteMessage} channelName={activeChannel.name} />
@@ -79,9 +81,19 @@ const ChannelsTab = ({ onSelectChannel }: ChannelsTabProps) => {
   }
 
   return (
-    <div className="px-5 py-6">
-      <h2 className="font-serif text-xl font-semibold mb-4">Channels</h2>
-      <div className="space-y-2">
+    <div>
+      <h2
+        style={{
+          fontFamily: systemSans,
+          fontWeight: 600,
+          fontSize: "16px",
+          color: "hsl(var(--foreground))",
+          marginBottom: "16px",
+        }}
+      >
+        Channels
+      </h2>
+      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
         {sorted.map((ch, i) => (
           <motion.button
             key={ch.id}
@@ -89,20 +101,35 @@ const ChannelsTab = ({ onSelectChannel }: ChannelsTabProps) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}
             onClick={() => handleSelect(ch)}
-            className="flex items-center gap-3 w-full p-4 rounded-xl bg-card border border-border hover:border-primary/30 transition-colors text-left"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "12px",
+              width: "100%",
+              padding: "16px",
+              borderRadius: "12px",
+              background: "#1A1A1A",
+              border: "none",
+              textAlign: "left",
+              cursor: "pointer",
+            }}
           >
             <div className="relative shrink-0">
-              <Hash className="w-5 h-5 text-muted-foreground" />
+              <Hash className="w-5 h-5" style={{ color: "hsl(var(--primary))" }} />
               <NotificationBadge count={counts.byConversation[ch.id] || 0} dot />
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <span className="font-medium">{ch.name}</span>
-                {(ch as any).is_pinned && <Pin className="w-3 h-3 text-accent" />}
-                {(ch as any).is_locked && <Lock className="w-3 h-3 text-muted-foreground" />}
+                <span style={{ fontFamily: systemSans, fontWeight: 600, fontSize: "15px", color: "#F5F3EE" }}>
+                  {ch.name}
+                </span>
+                {(ch as any).is_pinned && <Pin className="w-3 h-3" style={{ color: "rgba(245, 243, 238, 0.3)" }} />}
+                {(ch as any).is_locked && <Lock className="w-3 h-3" style={{ color: "rgba(245, 243, 238, 0.3)" }} />}
               </div>
               {ch.description && (
-                <p className="text-sm text-muted-foreground truncate">{ch.description}</p>
+                <p style={{ fontFamily: systemSans, fontSize: "13px", color: "rgba(245, 243, 238, 0.5)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {ch.description}
+                </p>
               )}
             </div>
           </motion.button>

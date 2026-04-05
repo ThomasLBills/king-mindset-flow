@@ -17,6 +17,8 @@ import { useChannels } from "@/hooks/useChat";
 import MessageList from "@/components/chat/MessageList";
 import MessageComposer from "@/components/chat/MessageComposer";
 
+const systemSans = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif";
+
 const BrotherhoodPage = () => {
   const { user } = useAuth();
   const { markAsRead } = useUnread();
@@ -67,7 +69,6 @@ const BrotherhoodPage = () => {
       <AppLayout>
         <MessagesTab initialTarget={dmTarget} onBack={() => setDmTarget(null)} />
       </AppLayout>);
-
   }
 
   // If a channel is active, show full-screen chat replacing the landing page entirely
@@ -77,60 +78,169 @@ const BrotherhoodPage = () => {
         <ChannelChatView
           target={channelTarget}
           onBack={() => setChannelTarget(null)} />
-        
       </AppLayout>);
-
   }
 
   return (
     <AppLayout>
-      <div className="px-5 py-6">
+      <div className="px-4 py-6">
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-4">
-          <h1 className="font-serif text-3xl font-bold mb-1">Brotherhood</h1>
-          <p className="text-muted-foreground text-sm">Freedom is sustained together</p>
+          <h1
+            style={{
+              fontFamily: systemSans,
+              fontWeight: 600,
+              fontSize: "26px",
+              letterSpacing: "-0.02em",
+              color: "hsl(var(--foreground))",
+              marginBottom: "4px",
+            }}
+          >
+            Brotherhood
+          </h1>
+          <p
+            style={{
+              fontFamily: systemSans,
+              fontWeight: 400,
+              fontSize: "15px",
+              color: "rgba(26, 26, 26, 0.6)",
+            }}
+          >
+            Freedom is sustained together
+          </p>
         </motion.div>
 
+        {/* Ground Rules */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="mb-5">
-          <div className="rounded-xl bg-card border border-primary p-4">
-            <div className="mb-2">
-              <span className="font-medium">BROTHERHOOD GROUND RULES:</span>
+          <div
+            style={{
+              background: "#1A1A1A",
+              borderRadius: "16px",
+              padding: "20px",
+              border: "none",
+            }}
+          >
+            <p
+              style={{
+                fontFamily: systemSans,
+                fontSize: "12px",
+                fontWeight: 500,
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                color: "hsl(var(--primary))",
+                marginBottom: "12px",
+              }}
+            >
+              BROTHERHOOD GROUND RULES
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <p style={{ fontFamily: systemSans, fontSize: "14px", fontWeight: 400, color: "#F5F3EE" }}>
+                Connection matters more than details
+              </p>
+              <p style={{ fontFamily: systemSans, fontSize: "14px", fontWeight: 400, color: "#F5F3EE" }}>
+                Restore with grace, not condemnation
+              </p>
+              <p style={{ fontFamily: systemSans, fontSize: "14px", fontWeight: 400, color: "#F5F3EE" }}>
+                What's spoken here stays here
+              </p>
             </div>
-            <ul className="text-sm text-muted-foreground space-y-1">
-              <li>• Connection matters more than details</li>
-              <li>• Restore with grace, not condemnation</li>
-              <li>• What's spoken here stays here</li>
-            </ul>
           </div>
         </motion.div>
 
+        {/* Reach Out Now */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="mb-5">
-          
+          className="mb-5"
+        >
           <button
             onClick={() => setShowReachOut(true)}
-            className="w-full text-left p-4 rounded-2xl bg-[#111111] border-l-4 border-primary transition-all hover:border-primary/80">
-            
+            style={{
+              width: "100%",
+              textAlign: "left",
+              padding: "18px 20px",
+              borderRadius: "16px",
+              background: "hsl(var(--primary))",
+              border: "none",
+              cursor: "pointer",
+            }}
+          >
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0">
-                <Users className="w-6 h-6 text-primary" />
+              <div
+                style={{
+                  width: "44px",
+                  height: "44px",
+                  borderRadius: "12px",
+                  background: "rgba(26, 26, 26, 0.12)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                }}
+              >
+                <Users className="w-6 h-6" style={{ color: "#1A1A1A" }} />
               </div>
               <div>
-                <h3 className="font-serif text-lg font-bold text-white">Reach Out Now</h3>
-                <p className="text-sm text-white">Connect with a brother immediately</p>
+                <h3
+                  style={{
+                    fontFamily: systemSans,
+                    fontWeight: 600,
+                    fontSize: "16px",
+                    color: "#1A1A1A",
+                    marginBottom: "2px",
+                  }}
+                >
+                  Reach Out Now
+                </h3>
+                <p
+                  style={{
+                    fontFamily: systemSans,
+                    fontWeight: 400,
+                    fontSize: "13px",
+                    color: "rgba(26, 26, 26, 0.6)",
+                  }}
+                >
+                  Connect with a brother immediately
+                </p>
               </div>
             </div>
           </button>
         </motion.div>
 
+        {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="w-full mb-4 bg-[#0A0A0A] border border-primary/30 p-1">
-            <TabsTrigger value="brothers" className="flex-1 gap-1.5 text-white/50 data-[state=active]:bg-primary data-[state=active]:text-[#0A0A0A] data-[state=active]:shadow-none font-semibold">
+          <TabsList
+            className="w-full mb-4 p-[3px]"
+            style={{
+              background: "#1A1A1A",
+              borderRadius: "12px",
+              border: "none",
+            }}
+          >
+            <TabsTrigger
+              value="brothers"
+              className="flex-1 gap-1.5 data-[state=active]:shadow-none"
+              style={{
+                fontFamily: systemSans,
+                fontSize: "14px",
+                borderRadius: "10px",
+                border: "none",
+              }}
+              data-state={activeTab === "brothers" ? "active" : "inactive"}
+            >
               <Users className="w-4 h-4" /> Brothers
             </TabsTrigger>
-            <TabsTrigger value="channels" className="flex-1 gap-1.5 text-white/50 data-[state=active]:bg-primary data-[state=active]:text-[#0A0A0A] data-[state=active]:shadow-none font-semibold">
+            <TabsTrigger
+              value="channels"
+              className="flex-1 gap-1.5 data-[state=active]:shadow-none"
+              style={{
+                fontFamily: systemSans,
+                fontSize: "14px",
+                borderRadius: "10px",
+                border: "none",
+              }}
+              data-state={activeTab === "channels" ? "active" : "inactive"}
+            >
               <Hash className="w-4 h-4" /> Channels
             </TabsTrigger>
           </TabsList>
@@ -147,7 +257,6 @@ const BrotherhoodPage = () => {
 
       {showReachOut && <ReachOut onClose={handleReachOutClose} onSent={handleReachOutSent} />}
     </AppLayout>);
-
 };
 
 /** Full-screen channel chat view — completely replaces the Brotherhood landing page */
@@ -178,19 +287,17 @@ const ChannelChatView = ({ target, onBack }: {target: ChatTarget;onBack: () => v
           ← Back
         </button>
         <Hash className="w-4 h-4 text-muted-foreground" />
-        <h3 className="font-serif text-lg font-semibold">{target.name}</h3>
+        <h3 style={{ fontFamily: systemSans, fontWeight: 600, fontSize: "18px" }}>{target.name}</h3>
         {isLocked && <Lock className="w-3 h-3 text-muted-foreground" />}
       </div>
       <MessageList messages={messages} loading={loading} isAdmin={isAdmin} onDeleteMessage={handleDeleteMessage} channelName={target.name} />
       {!isLocked || isAdmin ?
       <MessageComposer onSend={sendMessage} placeholder="Message…" /> :
-
       <div className="p-3 text-center text-sm text-muted-foreground border-t border-border bg-card shrink-0">
           This channel is view only.
         </div>
       }
     </div>);
-
 };
 
 export default BrotherhoodPage;
