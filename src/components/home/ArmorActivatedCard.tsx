@@ -24,7 +24,7 @@ const ArmorActivatedCard = () => {
           <Skeleton className="h-3 w-12 bg-white/10" />
         </div>
       ) : (
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center flex-1 justify-center">
           <p className="text-[28px] leading-none text-white" style={{ fontWeight: 600 }}>
             {thisWeek.toLocaleString()}
           </p>
