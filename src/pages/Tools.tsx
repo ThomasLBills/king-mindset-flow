@@ -163,7 +163,7 @@ const DeclarationsModal = ({ onClose }: { onClose: () => void }) => {
                 top: 0,
                 bottom: 0,
                 borderRadius: "12px",
-                background: "#B8963F",
+                background: "#A3822E",
                 width: holding ? "100%" : "0%",
                 transition: holding ? "width 2s linear" : "width 0.15s ease-out",
               }}
