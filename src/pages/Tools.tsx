@@ -117,12 +117,12 @@ const DeclarationsModal = ({ onClose }: { onClose: () => void }) => {
             Declare Who God Says You Are
           </p>
           <p style={{ fontSize: "15px", fontWeight: 400, color: "#F5F3EE", marginBottom: "24px", lineHeight: 1.5 }}>
-            Your identity is not up for debate. Speak this truth out loud:
+            Speak this over yourself:
           </p>
 
           {/* Scripture with left-border accent */}
           <div style={{ borderLeft: "3px solid hsl(var(--primary))", paddingLeft: "20px", marginBottom: "24px" }}>
-            <p style={{ fontSize: "18px", fontWeight: 500, color: "#F5F3EE", lineHeight: 1.5 }}>
+            <p style={{ fontSize: "22px", fontWeight: 600, color: "#F5F3EE", lineHeight: 1.4 }}>
               {selectedDeclaration.text}
             </p>
             <p style={{ fontSize: "14px", fontWeight: 500, color: "hsl(var(--primary))", marginTop: "12px" }}>
