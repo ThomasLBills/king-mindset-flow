@@ -105,6 +105,11 @@ const DeclarationsModal = ({ onClose }: { onClose: () => void }) => {
       </div>
 
       <div className="modal-fullscreen-body" style={{ paddingTop: "24px", justifyContent: "center" }}>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col w-full max-w-sm"
+        >
           <h2 style={{ fontFamily: systemSans, fontWeight: 600, fontSize: "24px", color: "#F5F3EE", letterSpacing: "-0.02em", marginBottom: "4px" }}>
             Speak Truth Over Myself
           </h2>
