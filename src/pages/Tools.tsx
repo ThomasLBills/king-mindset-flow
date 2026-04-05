@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Check, ShieldCheck, RotateCcw, Layers, Heart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -19,8 +19,11 @@ const declarations = [
 
 
 // ========== Declarations Modal ==========
-const DeclarationsModal = ({ onClose }: {onClose: () => void;}) => {
+const DeclarationsModal = ({ onClose }: { onClose: () => void }) => {
   const [showCompletion, setShowCompletion] = useState(false);
+  const [holding, setHolding] = useState(false);
+  const [completed, setCompleted] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { addEvidence } = useEvidenceCounter();
 
   const selectedDeclaration = useMemo(
@@ -30,94 +33,157 @@ const DeclarationsModal = ({ onClose }: {onClose: () => void;}) => {
 
   const navigate = useNavigate();
 
-  const handleBelieve = () => {
+  const handleBelieve = useCallback(() => {
     addEvidence.mutate("declaration");
     setShowCompletion(true);
     setTimeout(() => {
       onClose();
       navigate("/app");
     }, 1500);
-  };
+  }, [addEvidence, onClose, navigate]);
+
+  const startHold = useCallback(() => {
+    if (completed) return;
+    setHolding(true);
+    timerRef.current = setTimeout(() => {
+      setHolding(false);
+      setCompleted(true);
+      if (navigator.vibrate) navigator.vibrate(50);
+      handleBelieve();
+    }, 2000);
+  }, [completed, handleBelieve]);
+
+  const cancelHold = useCallback(() => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = null;
+    if (!completed) setHolding(false);
+  }, [completed]);
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="modal-fullscreen bg-[#111111]">
-      
+      className="modal-fullscreen bg-[#111111]"
+      style={{ fontFamily: systemSans }}
+    >
       {/* Completion Overlay */}
       <AnimatePresence>
-        {showCompletion &&
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
-          className="absolute inset-0 z-[60] flex flex-col items-center justify-center bg-[#111111]">
-          
+        {showCompletion && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="absolute inset-0 z-[60] flex flex-col items-center justify-center bg-[#111111]"
+          >
             <motion.h2
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
-            className="font-serif text-2xl font-bold text-white mb-3 text-center">
-            
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
+              style={{ fontFamily: systemSans, fontWeight: 600, fontSize: "24px", color: "#F5F3EE", textAlign: "center", marginBottom: "12px" }}
+            >
               Truth declared.
             </motion.h2>
             <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="text-white text-base text-center">
-            
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              style={{ color: "#F5F3EE", fontSize: "16px", textAlign: "center" }}
+            >
               You are building evidence.
             </motion.p>
           </motion.div>
-        }
+        )}
       </AnimatePresence>
 
       {/* Close button */}
-      <div className="flex justify-end p-4">
-        <button onClick={onClose} className="p-2 rounded-full hover:bg-white/10 transition-colors">
-          <X className="w-5 h-5 text-white" />
+      <div className="flex justify-end" style={{ padding: "20px 20px 0 20px" }}>
+        <button onClick={onClose} className="transition-opacity hover:opacity-70" style={{ background: "none", border: "none", padding: 0 }}>
+          <X className="w-6 h-6" style={{ color: "rgba(245, 243, 238, 0.5)" }} />
         </button>
       </div>
 
-      <div className="modal-fullscreen-body">
+      <div className="modal-fullscreen-body" style={{ paddingTop: "24px" }}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col items-center w-full max-w-sm">
-          
-          <h2 className="font-serif text-2xl font-bold text-white mb-1 text-center">Speak Truth Over Myself</h2>
-          <p className="text-sm text-white text-center mb-6">Declare Who God Says You Are</p>
-          <p className="text-sm text-white text-center mb-6 max-w-sm">
+          className="flex flex-col w-full max-w-sm"
+        >
+          <h2 style={{ fontFamily: systemSans, fontWeight: 600, fontSize: "24px", color: "#F5F3EE", letterSpacing: "-0.02em", marginBottom: "4px" }}>
+            Speak Truth Over Myself
+          </h2>
+          <p style={{ fontSize: "14px", fontWeight: 500, color: "hsl(var(--primary))", marginBottom: "16px" }}>
+            Declare Who God Says You Are
+          </p>
+          <p style={{ fontSize: "15px", fontWeight: 400, color: "#F5F3EE", marginBottom: "24px", lineHeight: 1.5 }}>
             Your identity is not up for debate. Speak this truth out loud:
           </p>
 
-          <div className="bg-white/5 border border-primary/20 rounded-xl p-5 w-full mb-4">
-            <p className="font-serif text-lg text-white leading-relaxed text-center italic">
-              "{selectedDeclaration.text}"
+          {/* Scripture with left-border accent */}
+          <div style={{ borderLeft: "3px solid hsl(var(--primary))", paddingLeft: "20px", marginBottom: "24px" }}>
+            <p style={{ fontSize: "18px", fontWeight: 500, color: "#F5F3EE", lineHeight: 1.5 }}>
+              {selectedDeclaration.text}
             </p>
-            <p className="text-sm text-primary mt-3 font-medium text-center">
+            <p style={{ fontSize: "14px", fontWeight: 500, color: "hsl(var(--primary))", marginTop: "12px" }}>
               {selectedDeclaration.reference}
             </p>
           </div>
 
-          <p className="text-sm text-white text-center mb-8 max-w-sm">
-            Say it out loud. Let your ears hear what your mouth declares. Your brain rewires when you speak truth.
+          <p style={{ fontSize: "14px", fontWeight: 400, color: "#F5F3EE", marginBottom: "28px", lineHeight: 1.5 }}>
+            Say it out loud. Let your ears hear what your mouth declares.{" "}
+            <span style={{ color: "hsl(var(--primary))" }}>Your brain rewires when you speak truth.</span>
           </p>
 
-          <Button
-            onClick={handleBelieve}
-            className="w-full rounded-xl font-bold h-12 text-base bg-primary text-[#0A0A0A] hover:bg-primary/90">
-            
-            I believe this.
-          </Button>
+          {/* Hold-to-confirm button */}
+          <button
+            onMouseDown={startHold}
+            onMouseUp={cancelHold}
+            onMouseLeave={cancelHold}
+            onTouchStart={startHold}
+            onTouchEnd={cancelHold}
+            onTouchCancel={cancelHold}
+            style={{
+              position: "relative",
+              width: "100%",
+              padding: "16px",
+              borderRadius: "12px",
+              border: "none",
+              fontSize: "15px",
+              fontWeight: 600,
+              fontFamily: systemSans,
+              cursor: "pointer",
+              background: completed ? "#B8963F" : "#F5F3EE",
+              color: "#1A1A1A",
+              overflow: "hidden",
+              WebkitUserSelect: "none",
+              userSelect: "none",
+            }}
+          >
+            <div
+              style={{
+                position: "absolute",
+                left: 0,
+                top: 0,
+                bottom: 0,
+                borderRadius: "12px",
+                background: "#B8963F",
+                width: holding ? "100%" : "0%",
+                transition: holding ? "width 2s linear" : "width 0.15s ease-out",
+              }}
+            />
+            <span style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
+              {completed ? (
+                <><Check className="w-4 h-4" /> Declared</>
+              ) : (
+                "Hold to Declare"
+              )}
+            </span>
+          </button>
         </motion.div>
       </div>
-    </motion.div>);
-
+    </motion.div>
+  );
 };
 
 
