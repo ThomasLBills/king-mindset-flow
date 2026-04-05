@@ -504,11 +504,17 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
                 gold="Use it."
               />
               <button
-                onClick={handleComplete}
+                onMouseDown={startHold}
+                onMouseUp={cancelHold}
+                onMouseLeave={cancelHold}
+                onTouchStart={startHold}
+                onTouchEnd={cancelHold}
+                onTouchCancel={cancelHold}
                 disabled={resetStreak.isPending || logRelapseEvent.isPending}
                 style={{
+                  position: "relative",
                   width: "100%",
-                  background: "hsl(var(--primary))",
+                  background: holdCompleted ? "#B8963F" : "#F5F3EE",
                   color: "#1A1A1A",
                   fontWeight: 600,
                   fontSize: "15px",
@@ -519,9 +525,30 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
                   outline: "none",
                   boxShadow: "none",
                   fontFamily: sansFont,
+                  overflow: "hidden",
+                  WebkitUserSelect: "none",
+                  userSelect: "none",
                 }}
               >
-                Complete RETURN
+                <div
+                  style={{
+                    position: "absolute",
+                    left: 0,
+                    top: 0,
+                    bottom: 0,
+                    borderRadius: "12px",
+                    background: "#B8963F",
+                    width: holding ? "100%" : "0%",
+                    transition: holding ? "width 2s linear" : "none",
+                  }}
+                />
+                <span style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
+                  {holdCompleted ? (
+                    <><Check className="w-4 h-4" /> Returned</>
+                  ) : (
+                    "Hold to Return"
+                  )}
+                </span>
               </button>
             </StepWrapper>
           )}
