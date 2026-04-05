@@ -121,36 +121,62 @@ const DeclarationsModal = ({ onClose }: {onClose: () => void;}) => {
 };
 
 
+const systemSans = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif";
+
 const ToolsPage = () => {
   const [showCrisisModal, setShowCrisisModal] = useState(false);
   const [showGraceProtocol, setShowGraceProtocol] = useState(false);
   const [showDeclarations, setShowDeclarations] = useState(false);
   const [showGratitude, setShowGratitude] = useState(false);
 
+  const actionCards = [
+    {
+      title: "I Am Being Tempted",
+      subtitle: "Notice. Name. Navigate.",
+      icon: ShieldCheck,
+      onClick: () => setShowCrisisModal(true),
+      urgent: true,
+    },
+    {
+      title: "I Need to Return",
+      subtitle: "R.E.T.U.R.N.",
+      icon: RotateCcw,
+      onClick: () => setShowGraceProtocol(true),
+      urgent: false,
+    },
+    {
+      title: "Speak Truth Over Myself",
+      subtitle: "Declare. Believe. Receive.",
+      icon: Layers,
+      onClick: () => setShowDeclarations(true),
+      urgent: false,
+    },
+    {
+      title: "Gratitude",
+      subtitle: "See what God is already doing.",
+      icon: Heart,
+      onClick: () => setShowGratitude(true),
+      urgent: false,
+    },
+  ];
+
   return (
     <AppLayout>
-      <div className="px-4 py-6 max-w-lg mx-auto">
+      <div className="max-w-lg mx-auto px-4 py-6">
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="pt-2 pb-5">
-          <h1
-            style={{
-              fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif",
-              fontWeight: 600,
-              fontSize: "26px",
-              letterSpacing: "-0.02em",
-              color: "#1A1A1A",
-            }}
-          >
+          className="pt-2 pb-5"
+        >
+          <h1 className="armor-page-title text-[26px]" style={{ color: "hsl(var(--foreground))" }}>
             Your Armor
           </h1>
           <p
             style={{
-              fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif",
+              fontFamily: systemSans,
               fontWeight: 400,
               fontSize: "15px",
-              color: "rgba(26, 26, 26, 0.65)",
+              color: "hsl(var(--foreground) / 0.65)",
               marginTop: "4px",
             }}
           >
@@ -165,126 +191,33 @@ const ToolsPage = () => {
         >
           <p
             style={{
-              fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif",
+              fontFamily: systemSans,
               fontWeight: 500,
               fontSize: "14px",
-              color: "rgba(26, 26, 26, 0.8)",
+              color: "hsl(var(--foreground) / 0.8)",
               marginBottom: "14px",
             }}
           >
             What do you need right now?
           </p>
+
           <div className="flex flex-col gap-[10px]">
-            {/* I Am Being Tempted — highlighted */}
-            <motion.button
-              onClick={() => setShowCrisisModal(true)}
-              whileTap={{ scale: 0.98 }}
-              className="flex items-center gap-4 text-left active:opacity-80 transition-opacity"
-              style={{
-                background: "#1A1A1A",
-                borderRadius: "0 16px 16px 0",
-                borderLeft: "3px solid hsl(var(--primary))",
-                borderTop: "none",
-                borderRight: "none",
-                borderBottom: "none",
-                padding: "22px",
-              }}
-            >
-              <div
-                className="flex items-center justify-center shrink-0"
-                style={{
-                  width: 44, height: 44, borderRadius: 12,
-                  background: "rgba(184, 150, 63, 0.1)",
-                }}
+            {actionCards.map(({ title, subtitle, icon: Icon, onClick, urgent }) => (
+              <motion.button
+                key={title}
+                onClick={onClick}
+                whileTap={{ scale: 0.98 }}
+                className={urgent ? "armor-action-card armor-action-card--urgent" : "armor-action-card"}
               >
-                <ShieldCheck className="w-[22px] h-[22px]" style={{ color: "hsl(var(--primary))" }} />
-              </div>
-              <div>
-                <span className="block" style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif", fontWeight: 600, fontSize: "17px", color: "#F5F3EE" }}>I Am Being Tempted</span>
-                <span className="block text-primary" style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif", fontWeight: 400, fontSize: "13px", marginTop: "2px" }}>Notice. Name. Navigate.</span>
-              </div>
-            </motion.button>
-
-            {/* I Need to Return */}
-            <motion.button
-              onClick={() => setShowGraceProtocol(true)}
-              whileTap={{ scale: 0.98 }}
-              className="flex items-center gap-4 text-left active:opacity-80 transition-opacity"
-              style={{
-                background: "#1A1A1A",
-                borderRadius: "16px",
-                border: "none",
-                padding: "22px",
-              }}
-            >
-              <div
-                className="flex items-center justify-center shrink-0"
-                style={{
-                  width: 44, height: 44, borderRadius: 12,
-                  background: "rgba(245, 243, 238, 0.04)",
-                }}
-              >
-                <RotateCcw className="w-[22px] h-[22px]" style={{ color: "rgba(245, 243, 238, 0.4)" }} />
-              </div>
-              <div>
-                <span className="block" style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif", fontWeight: 600, fontSize: "17px", color: "#F5F3EE" }}>I Need to Return</span>
-                <span className="block text-primary" style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif", fontWeight: 400, fontSize: "13px", marginTop: "2px" }}>R.E.T.U.R.N.</span>
-              </div>
-            </motion.button>
-
-            {/* Speak Truth Over Myself */}
-            <motion.button
-              onClick={() => setShowDeclarations(true)}
-              whileTap={{ scale: 0.98 }}
-              className="flex items-center gap-4 text-left active:opacity-80 transition-opacity"
-              style={{
-                background: "#1A1A1A",
-                borderRadius: "16px",
-                border: "none",
-                padding: "22px",
-              }}
-            >
-              <div
-                className="flex items-center justify-center shrink-0"
-                style={{
-                  width: 44, height: 44, borderRadius: 12,
-                  background: "rgba(245, 243, 238, 0.04)",
-                }}
-              >
-                <Layers className="w-[22px] h-[22px]" style={{ color: "rgba(245, 243, 238, 0.4)" }} />
-              </div>
-              <div>
-                <span className="block" style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif", fontWeight: 600, fontSize: "17px", color: "#F5F3EE" }}>Speak Truth Over Myself</span>
-                <span className="block text-primary" style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif", fontWeight: 400, fontSize: "13px", marginTop: "2px" }}>Declare. Believe. Receive.</span>
-              </div>
-            </motion.button>
-
-            {/* Gratitude */}
-            <motion.button
-              onClick={() => setShowGratitude(true)}
-              whileTap={{ scale: 0.98 }}
-              className="flex items-center gap-4 text-left active:opacity-80 transition-opacity"
-              style={{
-                background: "#1A1A1A",
-                borderRadius: "16px",
-                border: "none",
-                padding: "22px",
-              }}
-            >
-              <div
-                className="flex items-center justify-center shrink-0"
-                style={{
-                  width: 44, height: 44, borderRadius: 12,
-                  background: "rgba(245, 243, 238, 0.04)",
-                }}
-              >
-                <Heart className="w-[22px] h-[22px]" style={{ color: "rgba(245, 243, 238, 0.4)" }} />
-              </div>
-              <div>
-                <span className="block" style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif", fontWeight: 600, fontSize: "17px", color: "#F5F3EE" }}>Gratitude</span>
-                <span className="block text-primary" style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif", fontWeight: 400, fontSize: "13px", marginTop: "2px" }}>See what God is already doing.</span>
-              </div>
-            </motion.button>
+                <div className="armor-action-card__icon">
+                  <Icon className="w-[22px] h-[22px]" strokeWidth={2} />
+                </div>
+                <div className="armor-action-card__content">
+                  <span className="armor-action-card__title">{title}</span>
+                  <span className="armor-action-card__subtitle">{subtitle}</span>
+                </div>
+              </motion.button>
+            ))}
           </div>
         </motion.div>
       </div>
@@ -295,8 +228,8 @@ const ToolsPage = () => {
         {showGratitude && <GratitudeModal onClose={() => setShowGratitude(false)} />}
         {showDeclarations && <DeclarationsModal onClose={() => setShowDeclarations(false)} />}
       </AnimatePresence>
-    </AppLayout>);
-
+    </AppLayout>
+  );
 };
 
 export default ToolsPage;
