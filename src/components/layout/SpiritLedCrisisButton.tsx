@@ -314,7 +314,7 @@ export const SpiritLedCrisisModal = ({ onClose }: { onClose: () => void }) => {
                       onClick={() => toggleFeeling(opt.id)}
                       style={{
                         width: "100%",
-                        padding: "18px 20px",
+                        padding: "16px 20px",
                         borderRadius: isSelected ? "0 12px 12px 0" : "12px",
                         background: isSelected ? "rgba(184, 150, 63, 0.15)" : "#242424",
                         border: "none",
@@ -326,6 +326,7 @@ export const SpiritLedCrisisModal = ({ onClose }: { onClose: () => void }) => {
                         cursor: "pointer",
                         fontFamily: systemSans,
                         transition: "all 0.15s ease",
+                        outline: "none",
                       }}
                     >
                       {opt.label}
