@@ -98,6 +98,21 @@ const scriptureResponses: Record<string, { text: string; ref: string }> = {
   },
 };
 
+const scripturePriority = ["angry", "ashamed", "tempted", "anxious", "isolated", "discouraged", "tired"];
+
+const getScriptureForFeelings = (feelings?: string[] | null) => {
+  if (!feelings?.length) return null;
+
+  for (const id of scripturePriority) {
+    if (feelings.includes(id) && scriptureResponses[id]) {
+      return scriptureResponses[id];
+    }
+  }
+
+  const mostRecentMappedFeeling = [...feelings].reverse().find((id) => scriptureResponses[id]);
+  return mostRecentMappedFeeling ? scriptureResponses[mostRecentMappedFeeling] : null;
+};
+
 // ========== COMPLETION OVERLAY ==========
 const CompletionOverlay = ({ onDone }: { onDone: () => void }) => {
   return (
@@ -216,19 +231,12 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
 
   // Get the most relevant scripture for selected emotions
   const activeScripture = useMemo(() => {
-    return selectedAwareness ? scriptureResponses[selectedAwareness] ?? null : null;
+    return getScriptureForFeelings(selectedAwareness ? [selectedAwareness] : undefined);
   }, [selectedAwareness]);
 
   // Get scripture for the completed check-in data
   const completedScripture = useMemo(() => {
-    if (!todayCheckIn?.feelings) return null;
-    const feelings = todayCheckIn.feelings as string[];
-    const prioritized = ["ashamed", "tempted", "anxious", "isolated", "discouraged", "tired"];
-    for (const id of prioritized) {
-      if (feelings.includes(id)) return scriptureResponses[id];
-    }
-    const last = feelings[feelings.length - 1];
-    return last ? scriptureResponses[last] : null;
+    return getScriptureForFeelings((todayCheckIn?.feelings as string[] | undefined) ?? undefined);
   }, [todayCheckIn]);
 
   // Show compact completed state if checked in and not redoing
