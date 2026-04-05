@@ -189,6 +189,35 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
   const [showCompletion, setShowCompletion] = useState(false);
   const [brotherhoodCommitted, setBrotherhoodCommitted] = useState(false);
   const [rhythmsCommitted, setRhythmsCommitted] = useState(false);
+  const [holding, setHolding] = useState(false);
+  const [holdCompleted, setHoldCompleted] = useState(false);
+  const holdTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const startHold = useCallback(() => {
+    if (holdCompleted || resetStreak.isPending || logRelapseEvent.isPending) return;
+    setHolding(true);
+    holdTimerRef.current = setTimeout(async () => {
+      setHolding(false);
+      setHoldCompleted(true);
+      if (navigator.vibrate) navigator.vibrate(50);
+      await logRelapseEvent.mutateAsync();
+      await resetStreak.mutateAsync();
+      addEvidence.mutate("grace_protocol_complete");
+      setShowCompletion(true);
+      setTimeout(() => {
+        onClose();
+        navigate("/tools");
+      }, 1500);
+    }, 2000);
+  }, [holdCompleted, resetStreak, logRelapseEvent, addEvidence, onClose, navigate]);
+
+  const cancelHold = useCallback(() => {
+    if (holdTimerRef.current) {
+      clearTimeout(holdTimerRef.current);
+      holdTimerRef.current = null;
+    }
+    if (!holdCompleted) setHolding(false);
+  }, [holdCompleted]);
   const navigate = useNavigate();
   const { resetStreak } = useFreedomStreak();
   const { logRelapseEvent } = useRelapseEventLogger();
