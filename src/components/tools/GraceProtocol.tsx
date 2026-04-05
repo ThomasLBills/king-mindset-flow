@@ -1,13 +1,14 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Shield, Check } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { X, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useFreedomStreak } from "@/hooks/useDailyProgress";
 import { useRelapseEventLogger } from "@/hooks/useTriggerPatterns";
 import { useEvidenceCounter } from "@/hooks/useEvidenceCounter";
 
 const TOTAL_STEPS = 6;
+
+const sansFont = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif";
 
 const step1Declarations = [
   "The verdict is still settled. Romans 8:1 is still true. I am still fully accepted. This failure does not define me.",
@@ -35,6 +36,15 @@ const step2Prayers = [
   "Father, I don't deserve to be here. That's the gospel. None of us do. Thank You that Christ made a way. I'm here because of Him, not because of me. I receive Your grace.",
 ];
 
+const stepSubtitles = [
+  "Anchor to what is real",
+  "Come as a son, not a slave",
+  "Data, not condemnation",
+  "Break the power of secrecy",
+  "Return, not self-punishment",
+  "Failure is feedback",
+];
+
 interface GraceProtocolProps {
   onClose: () => void;
 }
@@ -44,25 +54,129 @@ const StepWrapper = ({ children }: { children: React.ReactNode }) => (
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
     exit={{ opacity: 0, y: -20 }}
-    className="flex flex-col items-center w-full max-w-md"
+    className="flex flex-col w-full max-w-md"
+    style={{ alignItems: "flex-start" }}
   >
     {children}
   </motion.div>
 );
 
-const QuoteBox = ({ children }: { children: React.ReactNode }) => (
-  <div className="bg-white/5 border border-primary/20 rounded-xl p-5 w-full max-w-sm">
-    <p className="font-serif text-base text-white leading-relaxed">
-      {children}
+const Heading = ({ children }: { children: React.ReactNode }) => (
+  <h2 style={{
+    fontFamily: sansFont,
+    fontWeight: 600,
+    fontSize: "24px",
+    letterSpacing: "-0.02em",
+    color: "#F5F3EE",
+    textAlign: "left",
+    marginBottom: "4px",
+    width: "100%",
+  }}>
+    {children}
+  </h2>
+);
+
+const Subtitle = ({ children }: { children: React.ReactNode }) => (
+  <p style={{
+    color: "hsl(var(--primary))",
+    fontSize: "14px",
+    fontWeight: 500,
+    textAlign: "left",
+    marginBottom: "20px",
+    width: "100%",
+  }}>
+    {children}
+  </p>
+);
+
+const BodyText = ({ children }: { children: React.ReactNode }) => (
+  <p style={{
+    fontSize: "15px",
+    fontWeight: 400,
+    color: "#F5F3EE",
+    textAlign: "left",
+    lineHeight: 1.6,
+    marginBottom: "16px",
+    width: "100%",
+  }}>
+    {children}
+  </p>
+);
+
+const Declaration = ({ text, reference }: { text: string; reference?: string }) => (
+  <div style={{
+    borderLeft: "3px solid hsl(var(--primary))",
+    paddingLeft: "20px",
+    width: "100%",
+    marginBottom: "20px",
+  }}>
+    <p style={{
+      fontFamily: sansFont,
+      fontSize: "20px",
+      fontWeight: 600,
+      color: "#F5F3EE",
+      lineHeight: 1.4,
+      textAlign: "left",
+    }}>
+      {text}
     </p>
+    {reference && (
+      <p style={{
+        color: "hsl(var(--primary))",
+        fontSize: "14px",
+        fontWeight: 500,
+        marginTop: "10px",
+        textAlign: "left",
+      }}>
+        {reference}
+      </p>
+    )}
   </div>
 );
 
+const TeachingText = ({ regular, gold }: { regular: string; gold: string }) => (
+  <p style={{
+    fontSize: "14px",
+    fontWeight: 400,
+    color: "#F5F3EE",
+    textAlign: "left",
+    lineHeight: 1.6,
+    marginBottom: "24px",
+    width: "100%",
+  }}>
+    {regular}{" "}
+    <span style={{ color: "hsl(var(--primary))" }}>{gold}</span>
+  </p>
+);
+
+const ContinueButton = ({ onClick, disabled }: { onClick: () => void; disabled?: boolean }) => (
+  <button
+    onClick={onClick}
+    disabled={disabled}
+    style={{
+      width: "100%",
+      background: disabled ? "#242424" : "hsl(var(--primary))",
+      color: disabled ? "rgba(245,243,238,0.3)" : "#1A1A1A",
+      fontWeight: 600,
+      fontSize: "15px",
+      border: "none",
+      borderRadius: "12px",
+      padding: "16px",
+      cursor: disabled ? "not-allowed" : "pointer",
+      outline: "none",
+      boxShadow: "none",
+      fontFamily: sansFont,
+    }}
+  >
+    Continue
+  </button>
+);
+
 const BulletList = ({ items }: { items: string[] }) => (
-  <ul className="space-y-2 w-full max-w-sm text-left">
+  <ul style={{ width: "100%", marginBottom: "16px" }} className="space-y-2">
     {items.map((item, i) => (
-      <li key={i} className="text-sm text-white leading-relaxed flex gap-2">
-        <span className="text-white mt-0.5">•</span>
+      <li key={i} style={{ fontSize: "14px", color: "#F5F3EE", lineHeight: 1.6, display: "flex", gap: "8px", textAlign: "left" }}>
+        <span style={{ marginTop: "2px" }}>•</span>
         <span>{item}</span>
       </li>
     ))}
@@ -80,7 +194,6 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
   const { logRelapseEvent } = useRelapseEventLogger();
   const { addEvidence } = useEvidenceCounter();
 
-  // Randomly select declaration and prayer each time the step loads
   const selectedDeclaration = useMemo(() => step1Declarations[Math.floor(Math.random() * step1Declarations.length)], [step]);
   const selectedPrayer = useMemo(() => step2Prayers[Math.floor(Math.random() * step2Prayers.length)], [step]);
 
@@ -104,9 +217,16 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="fixed inset-0 z-50 bg-[#111111] flex flex-col items-center justify-center px-8"
+        className="fixed inset-0 z-50 flex flex-col items-center justify-center px-8"
+        style={{ background: "#111111" }}
       >
-        <h2 className="font-serif text-2xl font-bold text-white text-center">
+        <h2 style={{
+          fontFamily: sansFont,
+          fontSize: "24px",
+          fontWeight: 600,
+          color: "#F5F3EE",
+          textAlign: "center",
+        }}>
           You returned. You are still His.
         </h2>
       </motion.div>
@@ -118,177 +238,262 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="modal-fullscreen bg-[#111111]"
+      className="modal-fullscreen"
+      style={{ background: "#111111" }}
     >
-      <div className="flex justify-end p-4">
-        <button onClick={onClose} className="p-2 rounded-full hover:bg-white/10 transition-colors">
-          <X className="w-5 h-5 text-white" />
-        </button>
-      </div>
+      {/* Close button */}
+      <button
+        onClick={onClose}
+        style={{
+          position: "fixed",
+          top: "20px",
+          right: "20px",
+          zIndex: 60,
+          background: "none",
+          border: "none",
+          padding: 0,
+          cursor: "pointer",
+          outline: "none",
+          boxShadow: "none",
+        }}
+      >
+        <X style={{ width: 20, height: 20, color: "rgba(245,243,238,0.5)" }} />
+      </button>
 
       <div className="modal-fullscreen-body">
         <AnimatePresence mode="wait">
           {/* STEP 1: RECOGNIZE THE TRUTH */}
           {step === 0 && (
             <StepWrapper key="r">
-              <h2 className="font-serif text-2xl font-bold text-white mb-4 text-center">Recognize The Truth</h2>
-              <p className="text-sm text-white leading-relaxed text-center mb-4 max-w-sm">
-                Don't open another tab. Close everything. Stand up. Walk away from the screen.
+              <Heading>Recognize The Truth</Heading>
+              <Subtitle>{stepSubtitles[0]}</Subtitle>
+              <BodyText>Don't open another tab. Close everything. Stand up. Walk away from the screen.</BodyText>
+              <p style={{ fontSize: "14px", fontWeight: 500, color: "hsl(var(--primary))", textAlign: "left", marginBottom: "16px" }}>
+                Speak this out loud:
               </p>
-              <p className="text-sm text-white font-semibold mb-3">Speak this out loud:</p>
-              <QuoteBox>"{selectedDeclaration}"</QuoteBox>
-              <p className="text-sm text-white text-center mt-4 mb-6 max-w-sm">
-                You're not suppressing the guilt. You're anchoring to truth before the spiral takes over.
-              </p>
-              <Button onClick={next} className="w-full rounded-xl font-bold h-12 text-base bg-primary text-[#0A0A0A] hover:bg-primary/90 max-w-sm">Continue</Button>
+              <Declaration text={selectedDeclaration} />
+              <TeachingText
+                regular="You're not suppressing the guilt."
+                gold="You're anchoring to truth before the spiral takes over."
+              />
+              <ContinueButton onClick={next} />
             </StepWrapper>
           )}
 
           {/* STEP 2: ENGAGE THE FATHER */}
           {step === 1 && (
             <StepWrapper key="e">
-              <h2 className="font-serif text-2xl font-bold text-white mb-4 text-center">Engage The Father</h2>
-              <p className="text-sm text-white leading-relaxed text-center mb-4 max-w-sm">
-                Don't hide. Don't delay. Go to God immediately as a son, not a slave.
+              <Heading>Engage The Father</Heading>
+              <Subtitle>{stepSubtitles[1]}</Subtitle>
+              <BodyText>Don't hide. Don't delay. Go to God immediately as a son, not a slave.</BodyText>
+              <p style={{ fontSize: "14px", fontWeight: 500, color: "hsl(var(--primary))", textAlign: "left", marginBottom: "16px" }}>
+                Pray this out loud:
               </p>
-              <p className="text-sm text-white font-semibold mb-3">Pray this out loud:</p>
-              <QuoteBox>"{selectedPrayer}"</QuoteBox>
-              <p className="text-sm text-white text-center mt-4 mb-6 max-w-sm">
-                Short. Honest. No performing.
-              </p>
-              <Button onClick={next} className="w-full rounded-xl font-bold h-12 text-base bg-primary text-[#0A0A0A] hover:bg-primary/90 max-w-sm">Continue</Button>
+              <Declaration text={selectedPrayer} />
+              <TeachingText
+                regular="Short. Honest."
+                gold="No performing."
+              />
+              <ContinueButton onClick={next} />
             </StepWrapper>
           )}
 
           {/* STEP 3: TRACE WHAT HAPPENED */}
           {step === 2 && (
             <StepWrapper key="t">
-              <h2 className="font-serif text-2xl font-bold text-white mb-4 text-center">Trace What Happened</h2>
-              <p className="text-sm text-white leading-relaxed text-center mb-4 max-w-sm">
-                Shame says: "You're disgusting. You'll never change."{"\n\n"}
-                Grace asks: "What actually happened? What led to this?"
+              <Heading>Trace What Happened</Heading>
+              <Subtitle>{stepSubtitles[2]}</Subtitle>
+              <BodyText>
+                Shame says: "You're disgusting. You'll never change." Grace asks: "What actually happened? What led to this?"
+              </BodyText>
+              <p style={{ fontSize: "14px", fontWeight: 500, color: "hsl(var(--primary))", textAlign: "left", marginBottom: "12px" }}>
+                Ask yourself:
               </p>
-              <p className="text-sm text-white font-semibold mb-3">Ask yourself:</p>
               <BulletList items={[
                 "What pressure was I under?",
                 "What was I actually seeking? Relief? Escape? Comfort?",
                 "When did I drift from Spirit-dependence?",
                 "What was the first moment I could have chosen differently?",
               ]} />
-              <p className="text-sm text-white text-center mt-4 mb-4 max-w-sm">
-                Don't judge. Just observe. This is data, not condemnation.
-              </p>
+              <TeachingText
+                regular="Don't judge. Just observe."
+                gold="This is data, not condemnation."
+              />
               <textarea
                 value={traceNotes}
                 onChange={(e) => setTraceNotes(e.target.value)}
                 placeholder="Write what you're noticing:"
-                className="w-full max-w-sm bg-white/5 border border-white/10 rounded-xl p-4 text-sm text-white placeholder:text-white/25 resize-none focus:outline-none focus:border-primary/50 transition-colors mb-6"
+                style={{
+                  width: "100%",
+                  background: "rgba(255,255,255,0.05)",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  borderRadius: "12px",
+                  padding: "16px",
+                  fontSize: "14px",
+                  color: "#F5F3EE",
+                  resize: "none",
+                  outline: "none",
+                  marginBottom: "24px",
+                  fontFamily: sansFont,
+                }}
                 rows={3}
               />
-              <Button onClick={next} className="w-full rounded-xl font-bold h-12 text-base bg-primary text-[#0A0A0A] hover:bg-primary/90 max-w-sm">Continue</Button>
+              <ContinueButton onClick={next} />
             </StepWrapper>
           )}
 
           {/* STEP 4: UPROOT ISOLATION */}
           {step === 3 && (
             <StepWrapper key="u">
-              <h2 className="font-serif text-2xl font-bold text-white mb-4 text-center">Uproot Isolation</h2>
-              <p className="text-sm text-white leading-relaxed text-center mb-4 max-w-sm">
-                Don't isolate. Shame grows in secrecy.
+              <Heading>Uproot Isolation</Heading>
+              <Subtitle>{stepSubtitles[3]}</Subtitle>
+              <BodyText>Don't isolate. Shame grows in secrecy.</BodyText>
+              <p style={{ fontSize: "14px", fontWeight: 500, color: "hsl(var(--primary))", textAlign: "left", marginBottom: "16px" }}>
+                Text someone in your brotherhood:
               </p>
-              <p className="text-sm text-white font-semibold mb-3">Text someone in your brotherhood:</p>
-              <QuoteBox>
-                I fell tonight. Not spiraling, just being honest. I'm still in the fight.
-              </QuoteBox>
-              <p className="text-sm text-white text-center mt-4 mb-4 max-w-sm">
-                You don't need a long conversation. You need to break isolation.
-              </p>
+              <Declaration text="I fell tonight. Not spiraling, just being honest. I'm still in the fight." />
+              <TeachingText
+                regular="You don't need a long conversation."
+                gold="You need to break isolation."
+              />
 
-              {/* Commitment checkbox */}
-              <div className="w-full max-w-sm bg-[#1C1C1E] border-2 border-primary rounded-lg p-4 mb-6">
-                <button
-                  onClick={() => setBrotherhoodCommitted(!brotherhoodCommitted)}
-                  className="flex items-center gap-3 w-full"
-                >
-                  <div className={`w-6 h-6 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${brotherhoodCommitted ? "bg-primary border-primary" : "border-primary bg-transparent"}`}>
-                    {brotherhoodCommitted && <Check className="w-4 h-4 text-[#0A0A0A]" />}
-                  </div>
-                  <span className="text-white text-sm font-medium text-left">I commit to reach out to a brother</span>
-                </button>
-              </div>
-
-              <Button
-                onClick={next}
-                disabled={!brotherhoodCommitted}
-                className={`w-full rounded-xl font-bold h-12 text-base max-w-sm transition-colors ${brotherhoodCommitted ? "bg-primary text-[#0A0A0A] hover:bg-primary/90" : "bg-[#1C1C1E] border border-primary/30 text-white/50 cursor-not-allowed"}`}
+              <button
+                onClick={() => setBrotherhoodCommitted(!brotherhoodCommitted)}
+                style={{
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "12px",
+                  background: brotherhoodCommitted ? "rgba(184,150,63,0.1)" : "#242424",
+                  border: "none",
+                  borderLeft: brotherhoodCommitted ? "3px solid hsl(var(--primary))" : "3px solid transparent",
+                  borderRadius: brotherhoodCommitted ? "0 12px 12px 0" : "12px",
+                  padding: "16px 20px",
+                  marginBottom: "24px",
+                  cursor: "pointer",
+                  outline: "none",
+                  boxShadow: "none",
+                }}
               >
-                Continue
-              </Button>
+                <div style={{
+                  width: 24,
+                  height: 24,
+                  borderRadius: 6,
+                  border: `2px solid hsl(var(--primary))`,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                  background: brotherhoodCommitted ? "hsl(var(--primary))" : "transparent",
+                  transition: "background 0.2s",
+                }}>
+                  {brotherhoodCommitted && <Check style={{ width: 16, height: 16, color: "#1A1A1A" }} />}
+                </div>
+                <span style={{ color: "#F5F3EE", fontSize: "14px", fontWeight: 500, textAlign: "left" }}>
+                  I commit to reach out to a brother
+                </span>
+              </button>
+
+              <ContinueButton onClick={next} disabled={!brotherhoodCommitted} />
             </StepWrapper>
           )}
 
           {/* STEP 5: RESUME NORMAL RHYTHMS */}
           {step === 4 && (
             <StepWrapper key="r2">
-              <h2 className="font-serif text-2xl font-bold text-white mb-4 text-center">Resume Normal Rhythms</h2>
-              <p className="text-sm text-white leading-relaxed text-center mb-4 max-w-sm">
-                Don't punish yourself. Don't try to earn back your standing through extra disciplines.
+              <Heading>Resume Normal Rhythms</Heading>
+              <Subtitle>{stepSubtitles[4]}</Subtitle>
+              <BodyText>Don't punish yourself. Don't try to earn back your standing through extra disciplines.</BodyText>
+              <p style={{ fontSize: "14px", fontWeight: 500, color: "hsl(var(--primary))", textAlign: "left", marginBottom: "12px" }}>
+                Return to normal:
               </p>
-              <p className="text-sm text-white font-semibold mb-3">Return to normal:</p>
               <BulletList items={[
                 "Go to bed at your normal time",
                 "Wake up tomorrow as a son, not a failure",
                 "Continue your daily practices without shame-driven intensity",
               ]} />
-              <p className="text-sm text-white text-center mt-4 mb-4 max-w-sm">
-                The goal is return, not self-punishment.
-              </p>
+              <TeachingText
+                regular="The goal is return,"
+                gold="not self-punishment."
+              />
 
-              <div className="w-full max-w-sm bg-[#1C1C1E] border-2 border-primary rounded-lg p-4 mb-6">
-                <button
-                  onClick={() => setRhythmsCommitted(!rhythmsCommitted)}
-                  className="flex items-center gap-3 w-full"
-                >
-                  <div className={`w-6 h-6 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${rhythmsCommitted ? "bg-primary border-primary" : "border-primary bg-transparent"}`}>
-                    {rhythmsCommitted && <Check className="w-4 h-4 text-[#0A0A0A]" />}
-                  </div>
-                  <span className="text-white text-sm font-medium text-left">I commit to return to normal rhythms, not self-punishment</span>
-                </button>
-              </div>
-
-              <Button
-                onClick={next}
-                disabled={!rhythmsCommitted}
-                className={`w-full rounded-xl font-bold h-12 text-base max-w-sm transition-colors ${rhythmsCommitted ? "bg-primary text-[#0A0A0A] hover:bg-primary/90" : "bg-[#1C1C1E] border border-primary/30 text-white/50 cursor-not-allowed"}`}
+              <button
+                onClick={() => setRhythmsCommitted(!rhythmsCommitted)}
+                style={{
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "12px",
+                  background: rhythmsCommitted ? "rgba(184,150,63,0.1)" : "#242424",
+                  border: "none",
+                  borderLeft: rhythmsCommitted ? "3px solid hsl(var(--primary))" : "3px solid transparent",
+                  borderRadius: rhythmsCommitted ? "0 12px 12px 0" : "12px",
+                  padding: "16px 20px",
+                  marginBottom: "24px",
+                  cursor: "pointer",
+                  outline: "none",
+                  boxShadow: "none",
+                }}
               >
-                Continue
-              </Button>
+                <div style={{
+                  width: 24,
+                  height: 24,
+                  borderRadius: 6,
+                  border: `2px solid hsl(var(--primary))`,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                  background: rhythmsCommitted ? "hsl(var(--primary))" : "transparent",
+                  transition: "background 0.2s",
+                }}>
+                  {rhythmsCommitted && <Check style={{ width: 16, height: 16, color: "#1A1A1A" }} />}
+                </div>
+                <span style={{ color: "#F5F3EE", fontSize: "14px", fontWeight: 500, textAlign: "left" }}>
+                  I commit to return to normal rhythms, not self-punishment
+                </span>
+              </button>
+
+              <ContinueButton onClick={next} disabled={!rhythmsCommitted} />
             </StepWrapper>
           )}
 
           {/* STEP 6: NAVIGATE FORWARD */}
           {step === 5 && (
             <StepWrapper key="n">
-              <h2 className="font-serif text-2xl font-bold text-white mb-4 text-center">Navigate Forward</h2>
-              <p className="text-sm text-white leading-relaxed text-center mb-4 max-w-sm">
-                After the shame has settled, reflect:
-              </p>
+              <Heading>Navigate Forward</Heading>
+              <Subtitle>{stepSubtitles[5]}</Subtitle>
+              <BodyText>After the shame has settled, reflect:</BodyText>
               <BulletList items={[
                 "What pattern am I noticing?",
                 "What trigger did I miss?",
                 "What new practice or boundary might help?",
                 "What do I need to bring to my next group call?",
               ]} />
-              <p className="text-sm text-white text-center mt-4 mb-6 max-w-sm">
-                Failure is feedback. Use it.
-              </p>
-              <Button
+              <TeachingText
+                regular="Failure is feedback."
+                gold="Use it."
+              />
+              <button
                 onClick={handleComplete}
                 disabled={resetStreak.isPending || logRelapseEvent.isPending}
-                className="w-full rounded-xl font-bold h-12 text-base bg-primary text-[#0A0A0A] hover:bg-primary/90 max-w-sm"
+                style={{
+                  width: "100%",
+                  background: "hsl(var(--primary))",
+                  color: "#1A1A1A",
+                  fontWeight: 600,
+                  fontSize: "15px",
+                  border: "none",
+                  borderRadius: "12px",
+                  padding: "16px",
+                  cursor: "pointer",
+                  outline: "none",
+                  boxShadow: "none",
+                  fontFamily: sansFont,
+                }}
               >
                 Complete RETURN
-              </Button>
+              </button>
             </StepWrapper>
           )}
         </AnimatePresence>
