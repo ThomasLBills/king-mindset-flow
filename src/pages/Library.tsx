@@ -302,7 +302,7 @@ const LibraryPage = () => {
                       transition={{ duration: 0.2 }}
                       style={{ overflow: "hidden" }}
                     >
-                      <div style={{ paddingTop: 8, paddingLeft: 54, display: "flex", flexDirection: "column", gap: 8 }}>
+                      <div style={{ paddingTop: 8, paddingLeft: 8, display: "flex", flexDirection: "column", gap: 6 }}>
                         {lessons.length === 0 ? (
                           <p style={{
                             fontFamily: sansFont,
