@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { X, Heart } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useGratitude } from "@/hooks/useGratitude";
+
+const systemSans = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif";
 
 interface GratitudeModalProps {
   onClose: () => void;
@@ -15,6 +16,7 @@ const GratitudeModal = ({ onClose }: GratitudeModalProps) => {
   const [entry2, setEntry2] = useState("");
   const [entry3, setEntry3] = useState("");
   const [showCompletion, setShowCompletion] = useState(false);
+  const [focusedIdx, setFocusedIdx] = useState<number | null>(null);
   const navigate = useNavigate();
 
   const allFilled = entry1.trim() && entry2.trim() && entry3.trim();
@@ -43,7 +45,7 @@ const GratitudeModal = ({ onClose }: GratitudeModalProps) => {
         className="modal-fullscreen bg-[#111111] items-center justify-center"
       >
         <div className="flex flex-col items-center justify-center flex-1 px-8">
-          <h2 className="font-serif text-2xl font-bold text-white text-center">
+          <h2 style={{ fontFamily: systemSans, fontWeight: 600, fontSize: "24px", color: "#F5F3EE", textAlign: "center" }}>
             Gratitude recorded. Eyes trained on grace.
           </h2>
         </div>
@@ -57,49 +59,59 @@ const GratitudeModal = ({ onClose }: GratitudeModalProps) => {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       className="modal-fullscreen bg-[#111111]"
+      style={{ fontFamily: systemSans }}
     >
-      <div className="flex justify-end p-4">
-        <button onClick={onClose} className="p-2 rounded-full hover:bg-white/10 transition-colors">
-          <X className="w-5 h-5 text-white" />
+      {/* Close button */}
+      <div className="flex justify-end" style={{ padding: "20px 20px 0 20px" }}>
+        <button onClick={onClose} className="transition-opacity hover:opacity-70" style={{ background: "none", border: "none", padding: 0 }}>
+          <X className="w-6 h-6" style={{ color: "rgba(245, 243, 238, 0.5)" }} />
         </button>
       </div>
 
-      <div className="modal-fullscreen-body">
+      <div className="modal-fullscreen-body" style={{ paddingTop: "24px" }}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col items-center w-full max-w-sm"
+          className="flex flex-col w-full max-w-sm"
         >
-          <h2 className="font-serif text-2xl font-bold text-white mb-2 text-center">
+          <h2 style={{ fontFamily: systemSans, fontWeight: 600, fontSize: "24px", color: "#F5F3EE", letterSpacing: "-0.02em", marginBottom: "8px" }}>
             What Are You Grateful For Today?
           </h2>
-          <p className="text-sm text-white text-center mb-6">
-            Gratitude rewires how you see. Name three things God has done today.
+          <p style={{ fontSize: "15px", fontWeight: 400, marginBottom: "24px", lineHeight: 1.5 }}>
+            <span style={{ color: "hsl(var(--primary))" }}>Gratitude rewires how you see.</span>{" "}
+            <span style={{ color: "#F5F3EE" }}>Name three things God has done today.</span>
           </p>
 
           {isLoading ? (
-            <p className="text-white/50 text-sm">Loading...</p>
+            <p style={{ color: "rgba(245, 243, 238, 0.5)", fontSize: "14px" }}>Loading...</p>
           ) : alreadySubmittedToday && todayEntry ? (
             <>
-              <div className="space-y-3 w-full mb-6">
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "24px" }} className="w-full">
                 {[todayEntry.entry_1, todayEntry.entry_2, todayEntry.entry_3].map((entry, i) => (
                   <div
                     key={i}
-                    className="w-full bg-white/5 border border-primary/20 rounded-xl p-4 text-sm text-white"
+                    style={{
+                      background: "#242424",
+                      borderRadius: "12px",
+                      padding: "18px 16px",
+                      fontSize: "15px",
+                      color: "#F5F3EE",
+                      border: "none",
+                    }}
                   >
                     {entry}
                   </div>
                 ))}
               </div>
-              <div className="bg-white/5 border border-primary/20 rounded-xl p-4 w-full text-center">
-                <p className="text-sm text-primary font-medium">
+              <div style={{ background: "rgba(184, 150, 63, 0.1)", borderRadius: "12px", padding: "16px", border: "none" }}>
+                <p style={{ fontSize: "14px", fontWeight: 500, color: "hsl(var(--primary))", textAlign: "center" }}>
                   You've already given thanks today. Come back tomorrow.
                 </p>
               </div>
             </>
           ) : (
             <>
-              <div className="space-y-3 w-full mb-6">
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "24px" }} className="w-full">
                 {[
                   { value: entry1, setter: setEntry1 },
                   { value: entry2, setter: setEntry2 },
@@ -110,22 +122,46 @@ const GratitudeModal = ({ onClose }: GratitudeModalProps) => {
                     type="text"
                     value={field.value}
                     onChange={(e) => field.setter(e.target.value)}
+                    onFocus={() => setFocusedIdx(i)}
+                    onBlur={() => setFocusedIdx(null)}
                     placeholder="I'm grateful for..."
-                    className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-primary/50 transition-colors"
+                    style={{
+                      width: "100%",
+                      background: "#242424",
+                      border: "none",
+                      borderLeft: focusedIdx === i ? "3px solid hsl(var(--primary))" : "none",
+                      borderRadius: focusedIdx === i ? "0 12px 12px 0" : "12px",
+                      padding: "18px 16px",
+                      fontSize: "15px",
+                      fontWeight: 400,
+                      fontFamily: systemSans,
+                      color: "#F5F3EE",
+                      outline: "none",
+                      transition: "all 0.15s ease",
+                    }}
+                    className="placeholder:text-[rgba(245,243,238,0.35)]"
                   />
                 ))}
               </div>
-              <Button
+              <button
                 onClick={handleSubmit}
                 disabled={!allFilled || submitGratitude.isPending}
-                className={`w-full rounded-xl font-bold h-12 text-base transition-colors ${
-                  allFilled
-                    ? "bg-primary text-[#0A0A0A] hover:bg-primary/90"
-                    : "bg-[#1C1C1E] border border-primary/30 text-white/50 cursor-not-allowed"
-                }`}
+                style={{
+                  width: "100%",
+                  padding: "16px",
+                  borderRadius: "12px",
+                  border: "none",
+                  fontSize: "15px",
+                  fontWeight: allFilled ? 600 : 500,
+                  fontFamily: systemSans,
+                  cursor: allFilled ? "pointer" : "not-allowed",
+                  background: allFilled ? "hsl(var(--primary))" : "#242424",
+                  color: allFilled ? "#1A1A1A" : "rgba(245, 243, 238, 0.3)",
+                  transition: "all 0.2s ease",
+                }}
               >
                 Complete Gratitude
-              </Button>
+              </button>
             </>
           )}
         </motion.div>
