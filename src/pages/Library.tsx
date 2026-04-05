@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import AppLayout from "@/components/layout/AppLayout";
 import { ChevronRight, Check, BookOpen, Play, Loader2, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Progress } from "@/components/ui/progress";
 import {
   usePublishedWeeks,
   useAllPublishedCurriculumLessons,
@@ -15,6 +14,8 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { differenceInCalendarDays, addDays, format } from "date-fns";
 
+const sansFont = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif";
+
 const LibraryPage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -23,7 +24,6 @@ const LibraryPage = () => {
   const { data: allLessons, isLoading: lessonsLoading } = useAllPublishedCurriculumLessons();
   const { data: progressMap } = useCurriculumLessonProgress();
   const { data: enrollment } = useUserEnrollment();
-  
 
   const [expandedWeek, setExpandedWeek] = useState<string | null>(null);
 
@@ -46,11 +46,9 @@ const LibraryPage = () => {
   const dripMode = settings?.drip_mode || "weekly";
 
   const isWeekUnlocked = (week: any, index: number) => {
-    // Week 1 is always unlocked for authenticated users
     if (index === 0) return true;
     if (!enrollment) return false;
     if (dripMode === "immediate") return true;
-    // Time-based unlock: week unlocks once enough days have passed since enrollment
     return daysSinceEnrollment >= week.unlock_day_offset;
   };
 
@@ -70,42 +68,83 @@ const LibraryPage = () => {
   const completedLessons = allLessons?.filter(l => progressMap?.get(l.id)?.status === "completed").length ?? 0;
   const overallProgress = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
 
-  // Find current week (first non-completed unlocked week)
   const currentWeekId = weeks?.find((w, i) => isWeekUnlocked(w, i) && !isWeekCompleted(w.id))?.id;
-
-  // Auto-expand current week
-  if (currentWeekId && expandedWeek === null) {
-    // use a timeout-free approach
-  }
 
   return (
     <AppLayout>
-      <div className="px-5 py-6">
-        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
-          <p className="text-xs text-[#C9A84C] uppercase tracking-[1.5px] font-medium mb-1">
+      <div style={{ padding: "24px 16px", fontFamily: sansFont }}>
+        {/* Header */}
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} style={{ marginBottom: 24 }}>
+          <p style={{
+            fontFamily: sansFont,
+            fontSize: 12,
+            fontWeight: 500,
+            letterSpacing: "0.06em",
+            textTransform: "uppercase",
+            color: "#B8963F",
+            marginBottom: 4,
+          }}>
             Your Liberation Curriculum
           </p>
-          <h1 className="font-serif text-3xl font-bold mb-2">
+          <h1 style={{
+            fontFamily: sansFont,
+            fontWeight: 600,
+            fontStyle: "normal",
+            fontSize: 26,
+            letterSpacing: "-0.02em",
+            color: "#1A1A1A",
+            margin: "0 0 4px 0",
+          }}>
             Liberated Kings
           </h1>
-          <p className="text-muted-foreground">
+          <p style={{
+            fontFamily: sansFont,
+            fontWeight: 400,
+            fontSize: 15,
+            color: "rgba(26, 26, 26, 0.6)",
+            margin: 0,
+          }}>
             Eight weeks. One transformation.
           </p>
         </motion.div>
 
         {/* Overall Progress */}
         {(enrollment || user) && (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="mb-6">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium">Journey Progress</span>
-              <span className="text-sm text-muted-foreground">{completedLessons}/{totalLessons} lessons</span>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} style={{ marginBottom: 24 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+              <span style={{
+                fontFamily: sansFont,
+                fontSize: 14,
+                fontWeight: 500,
+                color: "#1A1A1A",
+              }}>Journey Progress</span>
+              <span style={{
+                fontFamily: sansFont,
+                fontSize: 14,
+                fontWeight: 400,
+                color: "rgba(26, 26, 26, 0.5)",
+              }}>{completedLessons}/{totalLessons} lessons</span>
             </div>
-            <Progress value={overallProgress} className="h-2" />
+            <div style={{
+              width: "100%",
+              height: 4,
+              borderRadius: 2,
+              background: "rgba(26, 26, 26, 0.1)",
+              overflow: "hidden",
+            }}>
+              <div style={{
+                width: `${overallProgress}%`,
+                height: "100%",
+                borderRadius: 2,
+                background: "#B8963F",
+                transition: "width 0.5s ease",
+              }} />
+            </div>
           </motion.div>
         )}
 
         {/* Weeks */}
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="space-y-3">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {(weeks ?? []).map((week, index) => {
             const unlocked = isWeekUnlocked(week, index);
             const completed = isWeekCompleted(week.id);
@@ -120,57 +159,138 @@ const LibraryPage = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.03 }}
               >
-              <button
+                <button
                   onClick={() => {
                     if (unlocked) {
                       setExpandedWeek(expandedWeek === week.id ? null : week.id);
-                    } else if (index === 0 && !enrollment) {
-                      // Week 1 always tappable for navigation
                     }
                   }}
                   disabled={!unlocked && index !== 0}
-                  className={cn(
-                    "w-full text-left p-3.5 rounded-2xl bg-[#111111] border-l-4 border-primary transition-all hover:border-primary/80 relative",
-                    !unlocked && !completed && "opacity-60"
-                  )}
+                  style={{
+                    width: "100%",
+                    textAlign: "left",
+                    padding: "18px 20px",
+                    borderRadius: isCurrent ? "0 14px 14px 0" : 14,
+                    background: "#1A1A1A",
+                    border: "none",
+                    outline: "none",
+                    boxShadow: "none",
+                    borderLeft: isCurrent ? "3px solid #B8963F" : "none",
+                    opacity: !unlocked && !completed ? 0.5 : 1,
+                    cursor: unlocked ? "pointer" : "default",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 14,
+                    fontFamily: sansFont,
+                  }}
                 >
-                  {/* Status icon top-right */}
-                  {completed && (
-                    <div className="absolute top-3.5 right-3.5">
-                      <Check className="w-5 h-5 text-[#C9A84C]" />
-                    </div>
-                  )}
-                  {!unlocked && !completed && (
-                    <div className="absolute top-3.5 right-3.5 flex flex-col items-center gap-0.5">
-                      <Lock className="w-4 h-4 text-[#C9A84C]" />
-                      {enrollment && (
-                        <span className="text-[10px] text-white/50 whitespace-nowrap">
-                          {format(addDays(new Date(enrollment.enrolled_at), week.unlock_day_offset), "MMM d")}
-                        </span>
-                      )}
-                    </div>
-                  )}
-
-                  <div className="flex items-center gap-4">
-                    <div className="flex-1 pr-6">
-                      <span className="text-xs text-[#C9A84C] font-medium block mb-0.5">Week {week.week_number}</span>
-                      <h3 className="font-serif font-bold text-lg text-white">{week.title}</h3>
-                      <p className="text-sm text-white">{week.summary || ""}</p>
-                      {unlocked && weekProgress > 0 && weekProgress < 100 && (
-                        <div className="mt-2">
-                          <Progress value={weekProgress} className="h-1" />
-                        </div>
-                      )}
-                    </div>
-                    {unlocked && !completed && (
-                      <ChevronRight
-                        className={cn(
-                          "w-5 h-5 text-primary transition-transform duration-200",
-                          expandedWeek === week.id && "rotate-90"
-                        )}
-                      />
+                  {/* Icon container */}
+                  <div style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 10,
+                    background: completed
+                      ? "rgba(196, 162, 78, 0.12)"
+                      : isCurrent
+                        ? "rgba(196, 162, 78, 0.2)"
+                        : "rgba(245, 243, 238, 0.04)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                  }}>
+                    {completed ? (
+                      <Check style={{ width: 18, height: 18, color: "#B8963F" }} />
+                    ) : isCurrent ? (
+                      <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#B8963F" }} />
+                    ) : (
+                      <Lock style={{ width: 16, height: 16, color: "rgba(245, 243, 238, 0.3)" }} />
                     )}
                   </div>
+
+                  {/* Text content */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <span style={{
+                      fontFamily: sansFont,
+                      fontSize: 12,
+                      fontWeight: 500,
+                      color: "#B8963F",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.06em",
+                      display: "block",
+                      marginBottom: 2,
+                    }}>
+                      Week {week.week_number}{isCurrent ? " — Current" : ""}
+                    </span>
+                    <h3 style={{
+                      fontFamily: sansFont,
+                      fontWeight: 600,
+                      fontStyle: "normal",
+                      fontSize: 16,
+                      color: "#F5F3EE",
+                      margin: 0,
+                      lineHeight: 1.3,
+                    }}>
+                      {week.title}
+                    </h3>
+                    {week.summary && (
+                      <p style={{
+                        fontFamily: sansFont,
+                        fontSize: 13,
+                        fontWeight: 400,
+                        color: "#F5F3EE",
+                        margin: "4px 0 0 0",
+                        lineHeight: 1.4,
+                      }}>
+                        {week.summary}
+                      </p>
+                    )}
+                    {unlocked && weekProgress > 0 && weekProgress < 100 && (
+                      <div style={{
+                        marginTop: 8,
+                        width: "100%",
+                        height: 3,
+                        borderRadius: 2,
+                        background: "rgba(245, 243, 238, 0.1)",
+                        overflow: "hidden",
+                      }}>
+                        <div style={{
+                          width: `${weekProgress}%`,
+                          height: "100%",
+                          borderRadius: 2,
+                          background: "#B8963F",
+                          transition: "width 0.5s ease",
+                        }} />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Chevron for unlocked incomplete weeks */}
+                  {unlocked && !completed && (
+                    <ChevronRight
+                      style={{
+                        width: 18,
+                        height: 18,
+                        color: "#B8963F",
+                        flexShrink: 0,
+                        transform: expandedWeek === week.id ? "rotate(90deg)" : "rotate(0deg)",
+                        transition: "transform 0.2s ease",
+                      }}
+                    />
+                  )}
+
+                  {/* Lock date for locked weeks */}
+                  {!unlocked && !completed && enrollment && (
+                    <span style={{
+                      fontFamily: sansFont,
+                      fontSize: 10,
+                      color: "rgba(245, 243, 238, 0.4)",
+                      flexShrink: 0,
+                      whiteSpace: "nowrap",
+                    }}>
+                      {format(addDays(new Date(enrollment.enrolled_at), week.unlock_day_offset), "MMM d")}
+                    </span>
+                  )}
                 </button>
 
                 <AnimatePresence>
@@ -180,11 +300,16 @@ const LibraryPage = () => {
                       animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.2 }}
-                      className="overflow-hidden"
+                      style={{ overflow: "hidden" }}
                     >
-                      <div className="pt-3 pl-[60px] space-y-2">
+                      <div style={{ paddingTop: 8, paddingLeft: 54, display: "flex", flexDirection: "column", gap: 6 }}>
                         {lessons.length === 0 ? (
-                          <p className="text-sm text-muted-foreground italic">No lessons published yet.</p>
+                          <p style={{
+                            fontFamily: sansFont,
+                            fontSize: 14,
+                            color: "rgba(245, 243, 238, 0.5)",
+                            fontStyle: "italic",
+                          }}>No lessons published yet.</p>
                         ) : (
                           lessons.map((lesson) => {
                             const lp = progressMap?.get(lesson.id);
@@ -193,23 +318,52 @@ const LibraryPage = () => {
                               <button
                                 key={lesson.id}
                                 onClick={() => navigate(`/library/lesson/${lesson.id}`)}
-                                className="w-full flex items-center gap-3 p-3.5 rounded-xl bg-white/5 hover:bg-white/10 transition-all group"
+                                style={{
+                                  width: "100%",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 12,
+                                  padding: "12px 14px",
+                                  borderRadius: 12,
+                                  background: "rgba(245, 243, 238, 0.05)",
+                                  border: "none",
+                                  outline: "none",
+                                  cursor: "pointer",
+                                  fontFamily: sansFont,
+                                  textAlign: "left",
+                                }}
                               >
-                                <div className={cn(
-                                  "p-2 rounded-lg transition-colors",
-                                  isComplete ? "bg-primary/15" : "bg-primary/10 group-hover:bg-primary/20"
-                                )}>
+                                <div style={{
+                                  padding: 8,
+                                  borderRadius: 8,
+                                  background: isComplete ? "rgba(184, 150, 63, 0.15)" : "rgba(184, 150, 63, 0.1)",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  flexShrink: 0,
+                                }}>
                                   {isComplete ? (
-                                    <Check className="w-4 h-4 text-primary" />
+                                    <Check style={{ width: 16, height: 16, color: "#B8963F" }} />
                                   ) : lesson.video_url ? (
-                                    <Play className="w-4 h-4 text-primary" />
+                                    <Play style={{ width: 16, height: 16, color: "#B8963F" }} />
                                   ) : (
-                                    <BookOpen className="w-4 h-4 text-primary" />
+                                    <BookOpen style={{ width: 16, height: 16, color: "#B8963F" }} />
                                   )}
                                 </div>
-                                <div className="flex-1 text-left">
-                                  <span className="text-sm font-medium block text-foreground">{lesson.title}</span>
-                                  <span className="text-xs text-muted-foreground">
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                  <span style={{
+                                    fontFamily: sansFont,
+                                    fontSize: 14,
+                                    fontWeight: 500,
+                                    color: "#F5F3EE",
+                                    display: "block",
+                                  }}>{lesson.title}</span>
+                                  <span style={{
+                                    fontFamily: sansFont,
+                                    fontSize: 12,
+                                    fontWeight: 400,
+                                    color: "rgba(245, 243, 238, 0.5)",
+                                  }}>
                                     {lesson.duration_minutes ? `${lesson.duration_minutes} min` : "Lesson"}
                                     {isComplete && " · Completed"}
                                   </span>
