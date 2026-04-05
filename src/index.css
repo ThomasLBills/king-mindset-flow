@@ -372,16 +372,9 @@
   }
 
   .modal-fullscreen-body {
-    @apply flex-1 flex flex-col items-center px-8 overflow-y-auto;
-    padding-top: 1rem;
-    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 2rem);
-  }
-
-  /* On taller screens, push content toward top with some breathing room */
-  @media (min-height: 700px) {
-    .modal-fullscreen-body {
-      justify-content: flex-start;
-    }
+    @apply flex-1 flex flex-col items-center overflow-y-auto;
+    justify-content: center;
+    padding: 0 24px 40px;
   }
 
   /* On shorter screens, shrink icons & spacing */

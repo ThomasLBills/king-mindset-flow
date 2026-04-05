@@ -68,7 +68,7 @@ const GratitudeModal = ({ onClose }: GratitudeModalProps) => {
         </button>
       </div>
 
-      <div className="modal-fullscreen-body" style={{ paddingTop: "24px" }}>
+      <div className="modal-fullscreen-body">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
