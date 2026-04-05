@@ -268,9 +268,9 @@ const ReachOut = ({ onClose, onSent }: ReachOutProps) => {
                     transition: "all 0.15s ease",
                   }}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3" style={{ overflow: "hidden" }}>
                     <template.icon className="w-5 h-5 shrink-0" style={{ color: "hsl(var(--primary))" }} />
-                    <div>
+                    <div style={{ minWidth: 0, flex: 1 }}>
                       <p style={{ fontFamily: systemSans, fontWeight: 600, fontSize: "15px", color: "#F5F3EE", marginBottom: "2px" }}>
                         {template.title}
                       </p>
