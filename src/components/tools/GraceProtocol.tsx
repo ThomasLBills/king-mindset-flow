@@ -230,16 +230,6 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
     if (step < TOTAL_STEPS - 1) setStep(step + 1);
   };
 
-  const handleComplete = async () => {
-    await logRelapseEvent.mutateAsync();
-    await resetStreak.mutateAsync();
-    addEvidence.mutate("grace_protocol_complete");
-    setShowCompletion(true);
-    setTimeout(() => {
-      onClose();
-      navigate("/app");
-    }, 1500);
-  };
 
   if (showCompletion) {
     return (
