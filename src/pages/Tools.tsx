@@ -104,7 +104,7 @@ const DeclarationsModal = ({ onClose }: { onClose: () => void }) => {
         </button>
       </div>
 
-      <div className="modal-fullscreen-body" style={{ paddingTop: "24px" }}>
+      <div className="modal-fullscreen-body" style={{ paddingTop: "24px", justifyContent: "center" }}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -153,9 +153,10 @@ const DeclarationsModal = ({ onClose }: { onClose: () => void }) => {
               fontWeight: 600,
               fontFamily: systemSans,
               cursor: "pointer",
-              background: completed ? "#B8963F" : "#F5F3EE",
+              background: completed ? "#A3822E" : "hsl(var(--primary))",
               color: "#1A1A1A",
               overflow: "hidden",
+              outline: "none",
               WebkitUserSelect: "none",
               userSelect: "none",
             }}
@@ -167,7 +168,7 @@ const DeclarationsModal = ({ onClose }: { onClose: () => void }) => {
                 top: 0,
                 bottom: 0,
                 borderRadius: "12px",
-                background: "#B8963F",
+                background: "#A3822E",
                 width: holding ? "100%" : "0%",
                 transition: holding ? "width 2s linear" : "width 0.15s ease-out",
               }}

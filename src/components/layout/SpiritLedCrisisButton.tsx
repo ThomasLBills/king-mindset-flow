@@ -54,7 +54,7 @@ const StepWrapper = ({ children }: { children: React.ReactNode }) => (
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
     exit={{ opacity: 0, y: -20 }}
-    className="flex flex-col w-full max-w-sm"
+    className="flex flex-col w-full max-w-sm greeting-sans"
     style={{ fontFamily: systemSans }}
   >
     {children}
@@ -162,9 +162,10 @@ const NavigateStep = ({ selectedAction, setSelectedAction, onVictory, isPending 
           fontWeight: 600,
           fontFamily: systemSans,
           cursor: selectedAction ? "pointer" : "not-allowed",
-          background: completed ? "#B8963F" : "#F5F3EE",
+          background: completed ? "#A3822E" : "hsl(var(--primary))",
           color: "#1A1A1A",
           overflow: "hidden",
+          outline: "none",
           opacity: selectedAction ? 1 : 0.4,
           transition: "opacity 0.2s ease",
           WebkitUserSelect: "none",
@@ -179,7 +180,7 @@ const NavigateStep = ({ selectedAction, setSelectedAction, onVictory, isPending 
             top: 0,
             bottom: 0,
             borderRadius: "12px",
-            background: "#B8963F",
+            background: "#A3822E",
             width: holding ? "100%" : "0%",
             transition: holding ? "width 2s linear" : "width 0.15s ease-out",
           }}
