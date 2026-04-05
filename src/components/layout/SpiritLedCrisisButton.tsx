@@ -191,7 +191,7 @@ const NavigateStep = ({ selectedAction, setSelectedAction, onVictory, isPending 
               <Check className="w-4 h-4" /> Redirected
             </>
           ) : (
-            "Hold to Record"
+            "Hold to Redirect"
           )}
         </span>
       </button>
