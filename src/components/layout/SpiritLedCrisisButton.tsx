@@ -294,7 +294,7 @@ export const SpiritLedCrisisModal = ({ onClose }: { onClose: () => void }) => {
         </button>
       </div>
 
-      <div className="modal-fullscreen-body" style={{ paddingTop: "24px" }}>
+      <div className="modal-fullscreen-body" style={{ paddingTop: "12px" }}>
         <AnimatePresence mode="wait">
           {/* STEP 1: NOTICE */}
           {step === 0 && (
