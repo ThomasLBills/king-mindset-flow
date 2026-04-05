@@ -299,7 +299,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0, transition: { duration: 0.15 } }}
                   >
-                    <p className="text-sm text-left mb-6" style={{ fontWeight: 400, fontSize: "14px", color: "rgba(255,255,255,0.65)" }}>
+                    <p className="text-sm text-left mb-6" style={{ fontWeight: 400, fontSize: "14px", color: "#F5F3EE" }}>
                       What is present in you right now?
                     </p>
                     <div className="grid grid-cols-2 gap-3 mb-2">
