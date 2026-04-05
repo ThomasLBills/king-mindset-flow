@@ -2,12 +2,13 @@ import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { X, Send, Heart, Shield, MessageCircle, Loader2, Check } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useBrothers } from "@/hooks/useBrotherhood";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import type { ChatTarget } from "@/hooks/useChat";
+
+const systemSans = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif";
 
 const templates = [
   {
@@ -72,7 +73,6 @@ const ReachOut = ({ onClose, onSent }: ReachOutProps) => {
         const brother = brothers.find(b => b.userId === brotherId);
         const brotherName = brother?.displayName || "Brother";
 
-        // Find or create DM
         const { data: existing } = await supabase
           .from("chat_dms")
           .select("id")
@@ -95,7 +95,6 @@ const ReachOut = ({ onClose, onSent }: ReachOutProps) => {
           dmId = newDm.id;
         }
 
-        // Send the message
         const { error: msgError } = await supabase.from("chat_messages").insert({
           content: currentMessage,
           user_id: user.id,
@@ -113,7 +112,6 @@ const ReachOut = ({ onClose, onSent }: ReachOutProps) => {
           sentCount === 1 ? "Message sent" : `Message sent to ${sentCount} brothers`,
           { description: "They'll see it in their messages." }
         );
-        // If only one brother was messaged, navigate to that DM
         if (sentCount === 1 && lastDmTarget && onSent) {
           onSent(lastDmTarget);
         } else {
@@ -135,19 +133,22 @@ const ReachOut = ({ onClose, onSent }: ReachOutProps) => {
     <div className="fixed inset-0 bg-background z-[60] flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-border">
-        <button onClick={onClose} className="p-2 -ml-2">
-          <X className="w-5 h-5" />
+        <button
+          onClick={onClose}
+          style={{ background: "none", border: "none", padding: "8px", marginLeft: "-8px", cursor: "pointer" }}
+        >
+          <X className="w-5 h-5" style={{ color: "rgba(26, 26, 26, 0.5)" }} />
         </button>
-        <h2 className="font-semibold">Reach Out</h2>
+        <h2 style={{ fontFamily: systemSans, fontWeight: 600, fontSize: "18px" }}>Reach Out</h2>
         <div className="w-9" />
       </div>
 
       <div className="flex-1 overflow-y-auto px-6 py-6">
         {/* Brothers — multi-select */}
         <div className="mb-6">
-          <p className="text-sm font-medium mb-3">
+          <p style={{ fontFamily: systemSans, fontSize: "15px", fontWeight: 400, marginBottom: "12px" }}>
             Who do you want to reach?{" "}
-            <span className="text-muted-foreground font-normal">(select one or more)</span>
+            <span style={{ color: "rgba(26, 26, 26, 0.45)" }}>(select one or more)</span>
           </p>
           {isLoading ? (
             <div className="flex justify-center py-4">
@@ -165,27 +166,66 @@ const ReachOut = ({ onClose, onSent }: ReachOutProps) => {
                   <button
                     key={brother.userId}
                     onClick={() => toggleBrother(brother.userId)}
-                    className={cn(
-                      "relative flex flex-col items-center gap-2 p-3 rounded-xl transition-all",
-                      selected
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-secondary hover:bg-secondary/80"
-                    )}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      gap: "8px",
+                      padding: "12px",
+                      borderRadius: "12px",
+                      background: "transparent",
+                      border: "none",
+                      cursor: "pointer",
+                      position: "relative",
+                    }}
                   >
                     {selected && (
-                      <div className="absolute top-1 right-1 w-5 h-5 rounded-full bg-primary-foreground flex items-center justify-center">
-                        <Check className="w-3 h-3 text-primary" />
+                      <div
+                        style={{
+                          position: "absolute",
+                          top: "4px",
+                          right: "4px",
+                          width: "18px",
+                          height: "18px",
+                          borderRadius: "50%",
+                          background: "hsl(var(--primary))",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <Check className="w-3 h-3" style={{ color: "#1A1A1A" }} />
                       </div>
                     )}
                     <div
-                      className={cn(
-                        "w-12 h-12 rounded-full flex items-center justify-center text-sm font-semibold",
-                        selected ? "bg-primary-foreground/20" : "bg-background"
-                      )}
+                      style={{
+                        width: "48px",
+                        height: "48px",
+                        borderRadius: "50%",
+                        background: "#1A1A1A",
+                        color: "#F5F3EE",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: "14px",
+                        fontWeight: 500,
+                        fontFamily: systemSans,
+                        border: selected ? "2px solid hsl(var(--primary))" : "2px solid transparent",
+                        transition: "border-color 0.15s ease",
+                      }}
                     >
                       {brother.displayName.slice(0, 2).toUpperCase()}
                     </div>
-                    <span className="text-sm font-medium">{brother.displayName}</span>
+                    <span
+                      style={{
+                        fontFamily: systemSans,
+                        fontSize: "13px",
+                        fontWeight: 400,
+                        color: "hsl(var(--foreground))",
+                      }}
+                    >
+                      {brother.displayName}
+                    </span>
                   </button>
                 );
               })}
@@ -195,49 +235,84 @@ const ReachOut = ({ onClose, onSent }: ReachOutProps) => {
 
         {/* Templates */}
         <div className="mb-6">
-          <p className="text-sm font-medium mb-3">Choose a message template</p>
-          <div className="space-y-2">
-            {templates.map((template) => (
-              <motion.button
-                key={template.id}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => setSelectedTemplate(template.id)}
-                className={cn(
-                  "w-full p-4 rounded-xl border text-left transition-all",
-                  selectedTemplate === template.id
-                    ? "border-primary bg-primary/5"
-                    : "border-border hover:border-primary/30"
-                )}
-              >
-                <div className="flex items-center gap-3">
-                  <div
-                    className={cn(
-                      "p-2 rounded-lg",
-                      selectedTemplate === template.id
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-secondary"
-                    )}
-                  >
-                    <template.icon className="w-4 h-4" />
+          <p
+            style={{
+              fontFamily: systemSans,
+              fontSize: "13px",
+              fontWeight: 500,
+              textTransform: "uppercase",
+              letterSpacing: "0.06em",
+              color: "rgba(26, 26, 26, 0.5)",
+              marginBottom: "12px",
+            }}
+          >
+            Choose a message template
+          </p>
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+            {templates.map((template) => {
+              const isSelected = selectedTemplate === template.id;
+              return (
+                <motion.button
+                  key={template.id}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setSelectedTemplate(template.id)}
+                  style={{
+                    width: "100%",
+                    padding: "16px 18px",
+                    borderRadius: isSelected ? "0 12px 12px 0" : "12px",
+                    background: isSelected ? "rgba(184, 150, 63, 0.1)" : "#1A1A1A",
+                    border: "none",
+                    borderLeft: isSelected ? "3px solid hsl(var(--primary))" : "3px solid transparent",
+                    textAlign: "left",
+                    cursor: "pointer",
+                    transition: "all 0.15s ease",
+                  }}
+                >
+                  <div className="flex items-center gap-3">
+                    <template.icon className="w-5 h-5 shrink-0" style={{ color: "hsl(var(--primary))" }} />
+                    <div>
+                      <p style={{ fontFamily: systemSans, fontWeight: 600, fontSize: "15px", color: "#F5F3EE", marginBottom: "2px" }}>
+                        {template.title}
+                      </p>
+                      <p
+                        style={{
+                          fontFamily: systemSans,
+                          fontWeight: 400,
+                          fontSize: "13px",
+                          color: "rgba(245, 243, 238, 0.5)",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {template.message}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-medium">{template.title}</p>
-                    <p className="text-sm text-muted-foreground line-clamp-1">
-                      {template.message}
-                    </p>
-                  </div>
-                </div>
-              </motion.button>
-            ))}
+                </motion.button>
+              );
+            })}
           </div>
         </div>
 
         {/* Preview */}
         {currentMessage && (
           <div className="mb-6">
-            <p className="text-sm font-medium mb-3">Message preview</p>
-            <div className="bg-secondary/50 rounded-xl p-4">
-              <p className="text-sm">{currentMessage}</p>
+            <p
+              style={{
+                fontFamily: systemSans,
+                fontSize: "13px",
+                fontWeight: 500,
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                color: "rgba(26, 26, 26, 0.5)",
+                marginBottom: "12px",
+              }}
+            >
+              Message preview
+            </p>
+            <div style={{ background: "#1A1A1A", borderRadius: "12px", padding: "16px" }}>
+              <p style={{ fontFamily: systemSans, fontSize: "14px", color: "#F5F3EE" }}>{currentMessage}</p>
             </div>
           </div>
         )}
