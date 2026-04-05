@@ -21,6 +21,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
+const systemSans = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif";
+
 interface MyBrothersTabProps {
   onStartDM: (brotherUserId: string, name: string) => void;
 }
@@ -41,7 +43,6 @@ const MyBrothersTab = ({ onStartDM }: MyBrothersTabProps) => {
   // Build a map: brother userId → dm id (for unread lookup)
   const brotherDmMap = new Map<string, string>();
   dms.forEach((dm) => {
-    // user_a and user_b are on the DM row; the "other" user is the brother
     const otherUserId = dm.user_a === user?.id ? dm.user_b : dm.user_a;
     brotherDmMap.set(otherUserId, dm.id);
   });
@@ -81,16 +82,51 @@ const MyBrothersTab = ({ onStartDM }: MyBrothersTabProps) => {
       {/* Pending Requests */}
       {pendingRequests.length > 0 && (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-          <h2 className="font-serif text-lg font-semibold mb-3">Pending Requests</h2>
-          <div className="space-y-3">
+          <h2
+            style={{
+              fontFamily: systemSans,
+              fontWeight: 600,
+              fontSize: "16px",
+              color: "hsl(var(--foreground))",
+              marginBottom: "12px",
+            }}
+          >
+            Pending Requests
+          </h2>
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
             {pendingRequests.map((req) => (
-              <div key={req.connectionId} className="flex items-center gap-4 p-4 rounded-xl bg-card border border-primary/20">
-                <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center font-semibold text-sm">
+              <div
+                key={req.connectionId}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "16px",
+                  padding: "14px 16px",
+                  borderRadius: "12px",
+                  background: "#1A1A1A",
+                  border: "none",
+                }}
+              >
+                <div
+                  style={{
+                    width: "40px",
+                    height: "40px",
+                    borderRadius: "50%",
+                    background: "#242424",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "rgba(245, 243, 238, 0.6)",
+                    fontSize: "13px",
+                    fontWeight: 500,
+                    fontFamily: systemSans,
+                  }}
+                >
                   {req.displayName.slice(0, 2).toUpperCase()}
                 </div>
                 <div className="flex-1">
-                  <p className="font-medium text-sm">{req.displayName}</p>
-                  <p className="text-xs text-muted-foreground">Wants to connect</p>
+                  <p style={{ fontFamily: systemSans, fontWeight: 500, fontSize: "15px", color: "#F5F3EE" }}>{req.displayName}</p>
+                  <p style={{ fontFamily: systemSans, fontSize: "13px", color: "rgba(245, 243, 238, 0.5)" }}>Wants to connect</p>
                 </div>
                 <Button size="sm" variant="default" onClick={() => acceptRequest.mutate(req.connectionId)}>
                   <Check className="w-4 h-4" />
@@ -107,18 +143,36 @@ const MyBrothersTab = ({ onStartDM }: MyBrothersTabProps) => {
       {/* My Brothers */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-serif text-xl font-semibold">
-            My Brothers <span className="text-sm text-muted-foreground font-normal">({brothers.length}/{maxBrothers})</span>
+          <h2
+            style={{
+              fontFamily: systemSans,
+              fontWeight: 600,
+              fontSize: "16px",
+              color: "hsl(var(--foreground))",
+            }}
+          >
+            My Brothers{" "}
+            <span style={{ fontSize: "14px", fontWeight: 400, color: "rgba(26, 26, 26, 0.5)" }}>
+              ({brothers.length}/{maxBrothers})
+            </span>
           </h2>
-          <Button
-            size="sm"
-            variant="secondary"
+          <button
             onClick={() => setShowSearch(!showSearch)}
             disabled={atCapacity}
+            style={{
+              fontFamily: systemSans,
+              fontWeight: 500,
+              fontSize: "13px",
+              color: "hsl(var(--primary))",
+              background: "none",
+              border: "none",
+              cursor: atCapacity ? "not-allowed" : "pointer",
+              opacity: atCapacity ? 0.5 : 1,
+              padding: 0,
+            }}
           >
-            <UserPlus className="w-4 h-4" />
             {atCapacity ? "Full" : "Add"}
-          </Button>
+          </button>
         </div>
 
         {/* Search to add brothers */}
@@ -176,22 +230,51 @@ const MyBrothersTab = ({ onStartDM }: MyBrothersTabProps) => {
             <p>No brothers yet. Search and send a request to connect.</p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
             {brothers.map((brother) => (
-              <div key={brother.connectionId} className="flex items-center gap-4 p-4 rounded-xl bg-card border border-border">
-                <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center font-semibold">
+              <div
+                key={brother.connectionId}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "16px",
+                  padding: "14px 16px",
+                  borderRadius: "12px",
+                  background: "#1A1A1A",
+                  border: "none",
+                }}
+              >
+                <div
+                  style={{
+                    width: "48px",
+                    height: "48px",
+                    borderRadius: "50%",
+                    background: "#242424",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "rgba(245, 243, 238, 0.6)",
+                    fontSize: "13px",
+                    fontWeight: 500,
+                    fontFamily: systemSans,
+                    flexShrink: 0,
+                  }}
+                >
                   {brother.displayName.slice(0, 2).toUpperCase()}
                 </div>
                 <div className="flex-1">
-                  <p className="font-medium">{brother.displayName}</p>
+                  <p style={{ fontFamily: systemSans, fontWeight: 500, fontSize: "15px", color: "#F5F3EE" }}>
+                    {brother.displayName}
+                  </p>
                 </div>
                 <button
                   type="button"
                   onClick={() => onStartDM(brother.userId, brother.displayName)}
-                  className="relative z-10 p-2 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors"
+                  className="relative z-10"
                   aria-label={`Message ${brother.displayName}`}
+                  style={{ background: "none", border: "none", padding: "8px", cursor: "pointer" }}
                 >
-                  <MessageCircle className="w-4 h-4" />
+                  <MessageCircle className="w-5 h-5" style={{ color: "rgba(245, 243, 238, 0.3)" }} />
                   {brotherDmMap.has(brother.userId) && (
                     <NotificationBadge count={counts.byConversation[brotherDmMap.get(brother.userId)!] || 0} dot />
                   )}
@@ -199,10 +282,10 @@ const MyBrothersTab = ({ onStartDM }: MyBrothersTabProps) => {
                 <button
                   type="button"
                   onClick={() => setRemoveTarget({ connectionId: brother.connectionId, name: brother.displayName })}
-                  className="p-2 rounded-lg hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive"
                   aria-label={`Remove ${brother.displayName}`}
+                  style={{ background: "none", border: "none", padding: "8px", cursor: "pointer" }}
                 >
-                  <UserMinus className="w-4 h-4" />
+                  <UserMinus className="w-5 h-5" style={{ color: "rgba(245, 243, 238, 0.3)" }} />
                 </button>
               </div>
             ))}
