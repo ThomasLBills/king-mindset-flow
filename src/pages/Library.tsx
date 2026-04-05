@@ -357,14 +357,14 @@ const LibraryPage = () => {
                                   width: 32,
                                   height: 32,
                                   borderRadius: 8,
-                                  background: isComplete ? "rgba(196, 162, 78, 0.12)" : "rgba(184, 150, 63, 0.1)",
+                                  background: isComplete ? "rgba(196, 162, 78, 0.1)" : "rgba(184, 150, 63, 0.08)",
                                   display: "flex",
                                   alignItems: "center",
                                   justifyContent: "center",
                                   flexShrink: 0,
                                 }}>
                                   {isComplete ? (
-                                    <Check style={{ width: 14, height: 14, color: "#B8963F" }} />
+                                    <Check style={{ width: 16, height: 16, color: "#B8963F", strokeWidth: 2, fill: "none" }} />
                                   ) : lesson.video_url ? (
                                     <Play style={{ width: 14, height: 14, color: "#B8963F" }} />
                                   ) : (
