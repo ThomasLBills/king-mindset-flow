@@ -335,20 +335,21 @@ const LibraryPage = () => {
                                 }}
                               >
                                 <div style={{
-                                  padding: 8,
+                                  width: 32,
+                                  height: 32,
                                   borderRadius: 8,
-                                  background: isComplete ? "rgba(184, 150, 63, 0.15)" : "rgba(184, 150, 63, 0.1)",
+                                  background: isComplete ? "rgba(196, 162, 78, 0.12)" : "rgba(184, 150, 63, 0.1)",
                                   display: "flex",
                                   alignItems: "center",
                                   justifyContent: "center",
                                   flexShrink: 0,
                                 }}>
                                   {isComplete ? (
-                                    <Check style={{ width: 16, height: 16, color: "#B8963F" }} />
+                                    <Check style={{ width: 14, height: 14, color: "#B8963F" }} />
                                   ) : lesson.video_url ? (
-                                    <Play style={{ width: 16, height: 16, color: "#B8963F" }} />
+                                    <Play style={{ width: 14, height: 14, color: "#B8963F" }} />
                                   ) : (
-                                    <BookOpen style={{ width: 16, height: 16, color: "#B8963F" }} />
+                                    <BookOpen style={{ width: 14, height: 14, color: "#B8963F" }} />
                                   )}
                                 </div>
                                 <div style={{ flex: 1, minWidth: 0 }}>
