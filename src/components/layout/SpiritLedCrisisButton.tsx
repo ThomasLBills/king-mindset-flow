@@ -61,6 +61,143 @@ const StepWrapper = ({ children }: { children: React.ReactNode }) => (
   </motion.div>
 );
 
+// ========== NAVIGATE STEP WITH HOLD-TO-CONFIRM ==========
+interface NavigateStepProps {
+  selectedAction: string | null;
+  setSelectedAction: (id: string | null) => void;
+  onVictory: () => void;
+  isPending: boolean;
+}
+
+const NavigateStep = ({ selectedAction, setSelectedAction, onVictory, isPending }: NavigateStepProps) => {
+  const [holding, setHolding] = useState(false);
+  const [completed, setCompleted] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const startHold = useCallback(() => {
+    if (completed || isPending || !selectedAction) return;
+    setHolding(true);
+    timerRef.current = setTimeout(() => {
+      setHolding(false);
+      setCompleted(true);
+      if (navigator.vibrate) navigator.vibrate(50);
+      onVictory();
+    }, 2000);
+  }, [completed, isPending, selectedAction, onVictory]);
+
+  const cancelHold = useCallback(() => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = null;
+    if (!completed) setHolding(false);
+  }, [completed]);
+
+  return (
+    <StepWrapper key="navigate">
+      <h2 style={{ fontFamily: systemSans, fontWeight: 600, fontSize: "26px", color: "#F5F3EE", letterSpacing: "-0.02em", marginBottom: "4px" }}>Navigate</h2>
+      <p style={{ fontSize: "14px", fontWeight: 500, color: "hsl(var(--primary))", marginBottom: "16px" }}>Choose The Next Aligned Step</p>
+      <p style={{ fontSize: "15px", fontWeight: 400, color: "#F5F3EE", marginBottom: "20px", lineHeight: 1.5 }}>
+        This is where you redirect. Choose one small, embodied response:
+      </p>
+      <div className="w-full" style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "20px" }}>
+        {actionButtons.map((action) => {
+          const isSelected = selectedAction === action.id;
+          return (
+            <div key={action.id}>
+              <motion.button
+                whileTap={{ scale: 0.97 }}
+                onClick={() => setSelectedAction(isSelected ? null : action.id)}
+                style={{
+                  width: "100%",
+                  padding: "18px 20px",
+                  borderRadius: isSelected ? "0 12px 12px 0" : "12px",
+                  background: isSelected ? "rgba(184, 150, 63, 0.15)" : "#242424",
+                  border: "none",
+                  borderLeft: isSelected ? "3px solid hsl(var(--primary))" : "none",
+                  textAlign: "left",
+                  cursor: "pointer",
+                  fontFamily: systemSans,
+                  transition: "all 0.15s ease",
+                }}
+              >
+                <span style={{ display: "block", color: "#F5F3EE", fontSize: "16px", fontWeight: 600 }}>{action.title}</span>
+                <span style={{ display: "block", color: "hsl(var(--primary))", fontSize: "13px", fontWeight: 400, marginTop: "2px" }}>{action.subtitle}</span>
+              </motion.button>
+              <AnimatePresence>
+                {isSelected && (
+                  <motion.p
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    style={{ fontSize: "14px", color: "#F5F3EE", marginTop: "8px", paddingLeft: "20px", paddingRight: "4px", lineHeight: 1.5, overflow: "hidden" }}
+                  >
+                    {action.helper}
+                  </motion.p>
+                )}
+              </AnimatePresence>
+            </div>
+          );
+        })}
+      </div>
+      <p style={{ fontSize: "14px", fontWeight: 400, color: "#F5F3EE", marginBottom: "24px", lineHeight: 1.5 }}>
+        You're not trying to beat the urge. You're practicing a different pathway.{" "}
+        <span style={{ color: "hsl(var(--primary))" }}>Every time you practice, the new pathway gets stronger.</span>
+      </p>
+
+      {/* Hold-to-confirm button */}
+      <button
+        onMouseDown={startHold}
+        onMouseUp={cancelHold}
+        onMouseLeave={cancelHold}
+        onTouchStart={startHold}
+        onTouchEnd={cancelHold}
+        onTouchCancel={cancelHold}
+        disabled={!selectedAction || isPending}
+        style={{
+          position: "relative",
+          width: "100%",
+          padding: "16px",
+          borderRadius: "12px",
+          border: "none",
+          fontSize: "15px",
+          fontWeight: 600,
+          fontFamily: systemSans,
+          cursor: selectedAction ? "pointer" : "not-allowed",
+          background: completed ? "#B8963F" : "#F5F3EE",
+          color: "#1A1A1A",
+          overflow: "hidden",
+          opacity: selectedAction ? 1 : 0.4,
+          transition: "opacity 0.2s ease",
+          WebkitUserSelect: "none",
+          userSelect: "none",
+        }}
+      >
+        {/* Gold fill */}
+        <div
+          style={{
+            position: "absolute",
+            left: 0,
+            top: 0,
+            bottom: 0,
+            borderRadius: "12px",
+            background: "#B8963F",
+            width: holding ? "100%" : "0%",
+            transition: holding ? "width 2s linear" : "width 0.15s ease-out",
+          }}
+        />
+        <span style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
+          {completed ? (
+            <>
+              <Check className="w-4 h-4" /> Redirected
+            </>
+          ) : (
+            "Hold to Record"
+          )}
+        </span>
+      </button>
+    </StepWrapper>
+  );
+};
+
 export const SpiritLedCrisisModal = ({ onClose }: { onClose: () => void }) => {
   const [step, setStep] = useState(0);
   const [selectedFeelings, setSelectedFeelings] = useState<string[]>([]);
