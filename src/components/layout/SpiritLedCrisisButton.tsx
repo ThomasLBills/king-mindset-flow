@@ -250,57 +250,12 @@ export const SpiritLedCrisisModal = ({ onClose }: { onClose: () => void }) => {
 
           {/* STEP 3: NAVIGATE */}
           {step === 2 && (
-            <StepWrapper key="navigate">
-              <h2 className="font-serif text-2xl font-bold text-white mb-1 text-center">Navigate</h2>
-              <p className="text-sm text-white text-center mb-6">Choose The Next Aligned Step</p>
-              <p className="text-sm text-white text-center mb-6 max-w-sm">
-                This is where you redirect. Choose one small, embodied response:
-              </p>
-              <div className="space-y-3 mb-4 w-full">
-                {actionButtons.map((action) => (
-                  <div key={action.id}>
-                    <motion.button
-                      whileTap={{ scale: 0.97 }}
-                      onClick={() => setSelectedAction(selectedAction === action.id ? null : action.id)}
-                      className={cn(
-                        "w-full p-4 rounded-xl text-center transition-colors",
-                        selectedAction === action.id
-                          ? "bg-primary text-[#0A0A0A]"
-                          : "bg-[#1C1C1E] border border-primary/30 text-white"
-                      )}
-                    >
-                      <span className="block font-medium">{action.title}</span>
-                      <span className={cn(
-                        "block text-sm mt-1",
-                        selectedAction === action.id ? "text-[#0A0A0A]/70" : "text-white/70"
-                      )}>{action.subtitle}</span>
-                    </motion.button>
-                    <AnimatePresence>
-                      {selectedAction === action.id && (
-                        <motion.p
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          exit={{ opacity: 0, height: 0 }}
-                          className="text-sm text-white text-center mt-2 px-2 overflow-hidden"
-                        >
-                          {action.helper}
-                        </motion.p>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                ))}
-              </div>
-              <p className="text-sm text-white text-center mb-6 max-w-sm">
-                You're not trying to beat the urge. You're practicing a different pathway. Every time you practice, the new pathway gets stronger.
-              </p>
-              <Button
-                onClick={handleVictory}
-                disabled={recordVictory.isPending}
-                className="w-full rounded-xl font-bold h-12 text-base bg-primary text-[#0A0A0A] hover:bg-primary/90"
-              >
-                I redirected the urge. Record this.
-              </Button>
-            </StepWrapper>
+            <NavigateStep
+              selectedAction={selectedAction}
+              setSelectedAction={setSelectedAction}
+              onVictory={handleVictory}
+              isPending={recordVictory.isPending}
+            />
           )}
         </AnimatePresence>
       </div>
