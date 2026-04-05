@@ -178,7 +178,7 @@ const CompactCompleted = ({ feelings, scripture, onCheckInAgain }: CompactComple
         className="text-[14px] text-primary hover:text-primary/80 transition-colors mt-4 flex items-center gap-1"
         style={{ fontWeight: 500 }}
       >
-        Check in again <span className="text-[13px]">→</span>
+        Check in again
       </button>
     </div>
   );
