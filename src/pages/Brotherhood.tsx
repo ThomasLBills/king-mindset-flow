@@ -23,7 +23,7 @@ const BrotherhoodPage = () => {
   const { user } = useAuth();
   const { markAsRead } = useUnread();
   const [showReachOut, setShowReachOut] = useState(false);
-  const [activeTab, setActiveTab] = useState("brothers");
+  const [activeTab, setActiveTab] = useState("channels");
   const [dmTarget, setDmTarget] = useState<ChatTarget | null>(null);
   const [channelTarget, setChannelTarget] = useState<ChatTarget | null>(null);
 
