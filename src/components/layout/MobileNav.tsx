@@ -47,7 +47,7 @@ const MobileNav = () => {
                 <motion.div
                   layoutId="activeTab"
                   className="absolute inset-0 rounded-xl"
-                  style={{ background: "rgba(201,168,76,0.08)" }}
+                  style={{ background: "rgba(196, 162, 78, 0.1)" }}
                   initial={false}
                   transition={{ type: "spring", stiffness: 500, damping: 35 }}
                 />
