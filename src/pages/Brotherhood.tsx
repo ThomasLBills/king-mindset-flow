@@ -132,16 +132,19 @@ const BrotherhoodPage = () => {
             >
               BROTHERHOOD GROUND RULES
             </p>
-            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              <p style={{ fontFamily: systemSans, fontSize: "14px", fontWeight: 400, color: "#F5F3EE" }}>
-                Connection matters more than details
-              </p>
-              <p style={{ fontFamily: systemSans, fontSize: "14px", fontWeight: 400, color: "#F5F3EE" }}>
-                Restore with grace, not condemnation
-              </p>
-              <p style={{ fontFamily: systemSans, fontSize: "14px", fontWeight: 400, color: "#F5F3EE" }}>
-                What's spoken here stays here
-              </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              {[
+                "Connection matters more than details",
+                "Restore with grace, not condemnation",
+                "What's spoken here stays here",
+              ].map((rule, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "10px" }}>
+                  <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "hsl(var(--primary))", flexShrink: 0, marginTop: "6px" }} />
+                  <p style={{ fontFamily: systemSans, fontSize: "14px", fontWeight: 400, color: "#F5F3EE", lineHeight: 1.4 }}>
+                    {rule}
+                  </p>
+                </div>
+              ))}
             </div>
           </div>
         </motion.div>
