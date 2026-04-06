@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Check, ShieldCheck, RotateCcw, Layers, Heart } from "lucide-react";
+import { X, Check, ShieldCheck, RotateCcw, Layers, Heart, BookOpen } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AppLayout from "@/components/layout/AppLayout";
 import GraceProtocol from "@/components/tools/GraceProtocol";
