@@ -22,8 +22,8 @@ const MobileNav = () => {
       className="fixed bottom-0 left-0 right-0 z-50"
       style={{
         paddingBottom: 'env(safe-area-inset-bottom)',
-        backgroundColor: '#FFFFFF',
-        borderTop: '1px solid rgba(0,0,0,0.06)',
+        backgroundColor: '#1A1A1A',
+        borderTop: '1px solid rgba(245, 243, 238, 0.06)',
       }}
     >
       <div className="flex items-center justify-around px-2 py-2">
