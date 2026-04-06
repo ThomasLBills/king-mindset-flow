@@ -1374,6 +1374,33 @@ export type Database = {
           },
         ]
       }
+      user_declarations: {
+        Row: {
+          created_at: string
+          declaration_text: string
+          id: string
+          position: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          declaration_text: string
+          id?: string
+          position?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          declaration_text?: string
+          id?: string
+          position?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_enrollments: {
         Row: {
           created_at: string
