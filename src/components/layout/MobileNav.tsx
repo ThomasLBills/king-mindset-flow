@@ -39,8 +39,8 @@ const MobileNav = () => {
               }}
               className="relative flex flex-col items-center justify-center min-w-[64px] py-2 px-3 rounded-xl transition-all duration-200"
               style={{
-                opacity: isActive ? 1 : 0.35,
-                color: isActive ? undefined : '#1C1C1E',
+                opacity: 1,
+                color: isActive ? undefined : 'rgba(245, 243, 238, 0.35)',
               }}
             >
               {isActive && (
