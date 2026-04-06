@@ -196,6 +196,7 @@ const ToolsPage = () => {
   const [showGraceProtocol, setShowGraceProtocol] = useState(false);
   const [showDeclarations, setShowDeclarations] = useState(false);
   const [showGratitude, setShowGratitude] = useState(false);
+  const [showScripture, setShowScripture] = useState(false);
 
   const actionCards = [
     {
