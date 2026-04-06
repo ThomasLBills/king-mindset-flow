@@ -1,10 +1,11 @@
 import { useState, useMemo, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Check, ShieldCheck, RotateCcw, Layers, Heart } from "lucide-react";
+import { X, Check, ShieldCheck, RotateCcw, Layers, Heart, BookOpen } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AppLayout from "@/components/layout/AppLayout";
 import GraceProtocol from "@/components/tools/GraceProtocol";
 import GratitudeModal from "@/components/tools/GratitudeModal";
+import ScriptureTool from "@/components/tools/ScriptureTool";
 import { SpiritLedCrisisModal } from "@/components/layout/SpiritLedCrisisButton";
 import { useEvidenceCounter } from "@/hooks/useEvidenceCounter";
 import { Button } from "@/components/ui/button";
@@ -195,6 +196,7 @@ const ToolsPage = () => {
   const [showGraceProtocol, setShowGraceProtocol] = useState(false);
   const [showDeclarations, setShowDeclarations] = useState(false);
   const [showGratitude, setShowGratitude] = useState(false);
+  const [showScripture, setShowScripture] = useState(false);
 
   const actionCards = [
     {
@@ -223,6 +225,13 @@ const ToolsPage = () => {
       subtitle: "See what God is already doing.",
       icon: Heart,
       onClick: () => setShowGratitude(true),
+      urgent: false,
+    },
+    {
+      title: "Scripture",
+      subtitle: "The sword of the Spirit.",
+      icon: BookOpen,
+      onClick: () => setShowScripture(true),
       urgent: false,
     },
   ];
@@ -294,6 +303,7 @@ const ToolsPage = () => {
         {showGraceProtocol && <GraceProtocol onClose={() => setShowGraceProtocol(false)} />}
         {showGratitude && <GratitudeModal onClose={() => setShowGratitude(false)} />}
         {showDeclarations && <DeclarationsModal onClose={() => setShowDeclarations(false)} />}
+        {showScripture && <ScriptureTool onClose={() => setShowScripture(false)} />}
       </AnimatePresence>
     </AppLayout>
   );
