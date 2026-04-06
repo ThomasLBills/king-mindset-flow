@@ -227,6 +227,13 @@ const ToolsPage = () => {
       onClick: () => setShowGratitude(true),
       urgent: false,
     },
+    {
+      title: "Scripture",
+      subtitle: "The sword of the Spirit.",
+      icon: BookOpen,
+      onClick: () => setShowScripture(true),
+      urgent: false,
+    },
   ];
 
   return (
