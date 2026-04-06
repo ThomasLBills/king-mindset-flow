@@ -22,8 +22,8 @@ const MobileNav = () => {
       className="fixed bottom-0 left-0 right-0 z-50"
       style={{
         paddingBottom: 'env(safe-area-inset-bottom)',
-        backgroundColor: '#FFFFFF',
-        borderTop: '1px solid rgba(0,0,0,0.06)',
+        backgroundColor: '#1A1A1A',
+        borderTop: '1px solid rgba(245, 243, 238, 0.06)',
       }}
     >
       <div className="flex items-center justify-around px-2 py-2">
@@ -39,15 +39,15 @@ const MobileNav = () => {
               }}
               className="relative flex flex-col items-center justify-center min-w-[64px] py-2 px-3 rounded-xl transition-all duration-200"
               style={{
-                opacity: isActive ? 1 : 0.35,
-                color: isActive ? undefined : '#1C1C1E',
+                opacity: 1,
+                color: isActive ? undefined : 'rgba(245, 243, 238, 0.35)',
               }}
             >
               {isActive && (
                 <motion.div
                   layoutId="activeTab"
                   className="absolute inset-0 rounded-xl"
-                  style={{ background: "rgba(201,168,76,0.08)" }}
+                  style={{ background: "rgba(196, 162, 78, 0.1)" }}
                   initial={false}
                   transition={{ type: "spring", stiffness: 500, damping: 35 }}
                 />
