@@ -303,6 +303,7 @@ const ToolsPage = () => {
         {showGraceProtocol && <GraceProtocol onClose={() => setShowGraceProtocol(false)} />}
         {showGratitude && <GratitudeModal onClose={() => setShowGratitude(false)} />}
         {showDeclarations && <DeclarationsModal onClose={() => setShowDeclarations(false)} />}
+        {showScripture && <ScriptureTool onClose={() => setShowScripture(false)} />}
       </AnimatePresence>
     </AppLayout>
   );
