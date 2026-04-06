@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import AppLayout from "@/components/layout/AppLayout";
 import GraceProtocol from "@/components/tools/GraceProtocol";
 import GratitudeModal from "@/components/tools/GratitudeModal";
+import ScriptureTool from "@/components/tools/ScriptureTool";
 import { SpiritLedCrisisModal } from "@/components/layout/SpiritLedCrisisButton";
 import { useEvidenceCounter } from "@/hooks/useEvidenceCounter";
 import { Button } from "@/components/ui/button";
