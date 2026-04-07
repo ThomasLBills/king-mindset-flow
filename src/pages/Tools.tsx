@@ -66,7 +66,7 @@ const ToolsPage = () => {
       icon: Users,
       onClick: () => setShowReachOut(true),
       urgent: false,
-      gold: true,
+      gold: false,
     },
   ];
 
