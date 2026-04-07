@@ -251,6 +251,26 @@
     color: hsl(var(--primary)) !important;
   }
 
+  .armor-action-card--gold {
+    background: hsl(var(--primary)) !important;
+    border: none !important;
+    border-radius: 16px;
+    padding: 18px 20px;
+  }
+
+  .armor-action-card__icon--gold {
+    background: rgba(26, 26, 26, 0.12) !important;
+    color: #1A1A1A !important;
+  }
+
+  .armor-action-card__title--gold {
+    color: #1A1A1A !important;
+  }
+
+  .armor-action-card__subtitle--gold {
+    color: rgba(26, 26, 26, 0.55) !important;
+  }
+
   .card-elevated {
     @apply bg-card rounded-2xl;
     box-shadow: 0 2px 8px -2px hsl(var(--card-shadow));

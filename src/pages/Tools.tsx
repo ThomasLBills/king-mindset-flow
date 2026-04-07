@@ -1,17 +1,19 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShieldCheck, RotateCcw, Layers, Heart, BookOpen } from "lucide-react";
+import { ShieldCheck, RotateCcw, Layers, Heart, BookOpen, Users } from "lucide-react";
 import AppLayout from "@/components/layout/AppLayout";
 import GraceProtocol from "@/components/tools/GraceProtocol";
 import GratitudeModal from "@/components/tools/GratitudeModal";
 import ScriptureTool from "@/components/tools/ScriptureTool";
 import DeclarationsModal from "@/components/tools/DeclarationsModal";
+import ReachOut from "@/components/brotherhood/ReachOut";
 import { SpiritLedCrisisModal } from "@/components/layout/SpiritLedCrisisButton";
 
 const systemSans = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif";
 
 const ToolsPage = () => {
   const [showCrisisModal, setShowCrisisModal] = useState(false);
+  const [showReachOut, setShowReachOut] = useState(false);
   const [showGraceProtocol, setShowGraceProtocol] = useState(false);
   const [showDeclarations, setShowDeclarations] = useState(false);
   const [showGratitude, setShowGratitude] = useState(false);
@@ -24,6 +26,15 @@ const ToolsPage = () => {
       icon: ShieldCheck,
       onClick: () => setShowCrisisModal(true),
       urgent: true,
+      gold: false,
+    },
+    {
+      title: "Reach Out Now",
+      subtitle: "Call on a brother",
+      icon: Users,
+      onClick: () => setShowReachOut(true),
+      urgent: false,
+      gold: true,
     },
     {
       title: "I Need to Return",
@@ -31,6 +42,7 @@ const ToolsPage = () => {
       icon: RotateCcw,
       onClick: () => setShowGraceProtocol(true),
       urgent: false,
+      gold: false,
     },
     {
       title: "Speak Truth Over Myself",
@@ -38,6 +50,7 @@ const ToolsPage = () => {
       icon: Layers,
       onClick: () => setShowDeclarations(true),
       urgent: false,
+      gold: false,
     },
     {
       title: "Gratitude",
@@ -45,6 +58,7 @@ const ToolsPage = () => {
       icon: Heart,
       onClick: () => setShowGratitude(true),
       urgent: false,
+      gold: false,
     },
     {
       title: "Scripture",
@@ -52,6 +66,7 @@ const ToolsPage = () => {
       icon: BookOpen,
       onClick: () => setShowScripture(true),
       urgent: false,
+      gold: false,
     },
   ];
 
@@ -97,19 +112,25 @@ const ToolsPage = () => {
           </p>
 
           <div className="flex flex-col gap-[10px]">
-            {actionCards.map(({ title, subtitle, icon: Icon, onClick, urgent }) => (
+            {actionCards.map(({ title, subtitle, icon: Icon, onClick, urgent, gold }) => (
               <motion.button
                 key={title}
                 onClick={onClick}
                 whileTap={{ scale: 0.98 }}
-                className={urgent ? "armor-action-card armor-action-card--urgent" : "armor-action-card"}
+                className={
+                  gold
+                    ? "armor-action-card armor-action-card--gold"
+                    : urgent
+                      ? "armor-action-card armor-action-card--urgent"
+                      : "armor-action-card"
+                }
               >
-                <div className="armor-action-card__icon">
+                <div className={gold ? "armor-action-card__icon armor-action-card__icon--gold" : "armor-action-card__icon"}>
                   <Icon className="w-[22px] h-[22px]" strokeWidth={2} />
                 </div>
                 <div className="armor-action-card__content">
-                  <span className="armor-action-card__title">{title}</span>
-                  <span className="armor-action-card__subtitle">{subtitle}</span>
+                  <span className={gold ? "armor-action-card__title armor-action-card__title--gold" : "armor-action-card__title"}>{title}</span>
+                  <span className={gold ? "armor-action-card__subtitle armor-action-card__subtitle--gold" : "armor-action-card__subtitle"}>{subtitle}</span>
                 </div>
               </motion.button>
             ))}
@@ -119,6 +140,7 @@ const ToolsPage = () => {
 
       <AnimatePresence>
         {showCrisisModal && <SpiritLedCrisisModal onClose={() => setShowCrisisModal(false)} />}
+        {showReachOut && <ReachOut onClose={() => setShowReachOut(false)} />}
         {showGraceProtocol && <GraceProtocol onClose={() => setShowGraceProtocol(false)} />}
         {showGratitude && <GratitudeModal onClose={() => setShowGratitude(false)} />}
         {showDeclarations && <DeclarationsModal onClose={() => setShowDeclarations(false)} />}
