@@ -112,19 +112,25 @@ const ToolsPage = () => {
           </p>
 
           <div className="flex flex-col gap-[10px]">
-            {actionCards.map(({ title, subtitle, icon: Icon, onClick, urgent }) => (
+            {actionCards.map(({ title, subtitle, icon: Icon, onClick, urgent, gold }) => (
               <motion.button
                 key={title}
                 onClick={onClick}
                 whileTap={{ scale: 0.98 }}
-                className={urgent ? "armor-action-card armor-action-card--urgent" : "armor-action-card"}
+                className={
+                  gold
+                    ? "armor-action-card armor-action-card--gold"
+                    : urgent
+                      ? "armor-action-card armor-action-card--urgent"
+                      : "armor-action-card"
+                }
               >
-                <div className="armor-action-card__icon">
+                <div className={gold ? "armor-action-card__icon armor-action-card__icon--gold" : "armor-action-card__icon"}>
                   <Icon className="w-[22px] h-[22px]" strokeWidth={2} />
                 </div>
                 <div className="armor-action-card__content">
-                  <span className="armor-action-card__title">{title}</span>
-                  <span className="armor-action-card__subtitle">{subtitle}</span>
+                  <span className={gold ? "armor-action-card__title armor-action-card__title--gold" : "armor-action-card__title"}>{title}</span>
+                  <span className={gold ? "armor-action-card__subtitle armor-action-card__subtitle--gold" : "armor-action-card__subtitle"}>{subtitle}</span>
                 </div>
               </motion.button>
             ))}
