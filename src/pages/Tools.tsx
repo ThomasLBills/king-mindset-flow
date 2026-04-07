@@ -12,7 +12,6 @@ const systemSans = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe 
 
 const ToolsPage = () => {
   const [showCrisisModal, setShowCrisisModal] = useState(false);
-  const [showReachOut, setShowReachOut] = useState(false);
   const [showGraceProtocol, setShowGraceProtocol] = useState(false);
   const [showDeclarations, setShowDeclarations] = useState(false);
   const [showGratitude, setShowGratitude] = useState(false);
@@ -56,14 +55,6 @@ const ToolsPage = () => {
       subtitle: "The sword of the Spirit.",
       icon: BookOpen,
       onClick: () => setShowScripture(true),
-      urgent: false,
-      gold: false,
-    },
-    {
-      title: "Reach Out Now",
-      subtitle: "Call on a brother",
-      icon: Users,
-      onClick: () => setShowReachOut(true),
       urgent: false,
       gold: false,
     },
@@ -139,7 +130,6 @@ const ToolsPage = () => {
 
       <AnimatePresence>
         {showCrisisModal && <SpiritLedCrisisModal onClose={() => setShowCrisisModal(false)} />}
-        {showReachOut && <ReachOut onClose={() => setShowReachOut(false)} />}
         {showGraceProtocol && <GraceProtocol onClose={() => setShowGraceProtocol(false)} />}
         {showGratitude && <GratitudeModal onClose={() => setShowGratitude(false)} />}
         {showDeclarations && <DeclarationsModal onClose={() => setShowDeclarations(false)} />}
