@@ -157,7 +157,7 @@ const CompactCompleted = ({ feelings, scripture, onCheckInAgain }: CompactComple
   return (
     <div className="bg-[#1A1A1A] rounded-[16px] p-5 text-white" style={{ fontFamily: sansFont }}>
       {/* Header — no checkmark, same as pre-check-in */}
-      <h2 className="text-xs font-medium uppercase tracking-[0.06em] text-primary text-left mb-3">
+      <h2 className="text-xs font-medium uppercase tracking-[0.06em] text-primary text-center mb-3">
         Daily Check-In
       </h2>
 
@@ -286,7 +286,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
     <>
       <div className="bg-[#1A1A1A] rounded-[16px] p-5 text-white" style={{ fontFamily: sansFont }}>
         <h2
-          className="text-xs font-medium uppercase tracking-[0.06em] text-primary text-left mb-3"
+          className="text-xs font-medium uppercase tracking-[0.06em] text-primary text-center mb-3"
         >
           Daily Check-In
         </h2>
