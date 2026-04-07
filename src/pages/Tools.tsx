@@ -13,6 +13,7 @@ const systemSans = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe 
 
 const ToolsPage = () => {
   const [showCrisisModal, setShowCrisisModal] = useState(false);
+  const [showReachOut, setShowReachOut] = useState(false);
   const [showGraceProtocol, setShowGraceProtocol] = useState(false);
   const [showDeclarations, setShowDeclarations] = useState(false);
   const [showGratitude, setShowGratitude] = useState(false);
@@ -25,6 +26,15 @@ const ToolsPage = () => {
       icon: ShieldCheck,
       onClick: () => setShowCrisisModal(true),
       urgent: true,
+      gold: false,
+    },
+    {
+      title: "Reach Out Now",
+      subtitle: "Call on a brother",
+      icon: Users,
+      onClick: () => setShowReachOut(true),
+      urgent: false,
+      gold: true,
     },
     {
       title: "I Need to Return",
@@ -32,6 +42,7 @@ const ToolsPage = () => {
       icon: RotateCcw,
       onClick: () => setShowGraceProtocol(true),
       urgent: false,
+      gold: false,
     },
     {
       title: "Speak Truth Over Myself",
@@ -39,6 +50,7 @@ const ToolsPage = () => {
       icon: Layers,
       onClick: () => setShowDeclarations(true),
       urgent: false,
+      gold: false,
     },
     {
       title: "Gratitude",
@@ -46,6 +58,7 @@ const ToolsPage = () => {
       icon: Heart,
       onClick: () => setShowGratitude(true),
       urgent: false,
+      gold: false,
     },
     {
       title: "Scripture",
@@ -53,6 +66,7 @@ const ToolsPage = () => {
       icon: BookOpen,
       onClick: () => setShowScripture(true),
       urgent: false,
+      gold: false,
     },
   ];
 
