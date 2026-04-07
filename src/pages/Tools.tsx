@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShieldCheck, RotateCcw, Layers, Heart, BookOpen, Users } from "lucide-react";
+import { ShieldCheck, RotateCcw, Layers, Heart, BookOpen } from "lucide-react";
 import AppLayout from "@/components/layout/AppLayout";
 import GraceProtocol from "@/components/tools/GraceProtocol";
 import GratitudeModal from "@/components/tools/GratitudeModal";
