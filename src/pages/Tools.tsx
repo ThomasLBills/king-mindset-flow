@@ -1,19 +1,17 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShieldCheck, RotateCcw, Layers, Heart, BookOpen, Users } from "lucide-react";
+import { ShieldCheck, RotateCcw, Layers, Heart, BookOpen } from "lucide-react";
 import AppLayout from "@/components/layout/AppLayout";
 import GraceProtocol from "@/components/tools/GraceProtocol";
 import GratitudeModal from "@/components/tools/GratitudeModal";
 import ScriptureTool from "@/components/tools/ScriptureTool";
 import DeclarationsModal from "@/components/tools/DeclarationsModal";
-import ReachOut from "@/components/brotherhood/ReachOut";
 import { SpiritLedCrisisModal } from "@/components/layout/SpiritLedCrisisButton";
 
 const systemSans = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif";
 
 const ToolsPage = () => {
   const [showCrisisModal, setShowCrisisModal] = useState(false);
-  const [showReachOut, setShowReachOut] = useState(false);
   const [showGraceProtocol, setShowGraceProtocol] = useState(false);
   const [showDeclarations, setShowDeclarations] = useState(false);
   const [showGratitude, setShowGratitude] = useState(false);
@@ -57,14 +55,6 @@ const ToolsPage = () => {
       subtitle: "The sword of the Spirit.",
       icon: BookOpen,
       onClick: () => setShowScripture(true),
-      urgent: false,
-      gold: false,
-    },
-    {
-      title: "Reach Out Now",
-      subtitle: "Call on a brother",
-      icon: Users,
-      onClick: () => setShowReachOut(true),
       urgent: false,
       gold: false,
     },
@@ -140,7 +130,6 @@ const ToolsPage = () => {
 
       <AnimatePresence>
         {showCrisisModal && <SpiritLedCrisisModal onClose={() => setShowCrisisModal(false)} />}
-        {showReachOut && <ReachOut onClose={() => setShowReachOut(false)} />}
         {showGraceProtocol && <GraceProtocol onClose={() => setShowGraceProtocol(false)} />}
         {showGratitude && <GratitudeModal onClose={() => setShowGratitude(false)} />}
         {showDeclarations && <DeclarationsModal onClose={() => setShowDeclarations(false)} />}
