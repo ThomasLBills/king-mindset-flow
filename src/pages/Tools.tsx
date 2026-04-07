@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShieldCheck, RotateCcw, Layers, Heart, BookOpen } from "lucide-react";
+import { ShieldCheck, RotateCcw, Layers, Heart, BookOpen, Users } from "lucide-react";
 import AppLayout from "@/components/layout/AppLayout";
 import GraceProtocol from "@/components/tools/GraceProtocol";
 import GratitudeModal from "@/components/tools/GratitudeModal";
 import ScriptureTool from "@/components/tools/ScriptureTool";
 import DeclarationsModal from "@/components/tools/DeclarationsModal";
+import ReachOut from "@/components/brotherhood/ReachOut";
 import { SpiritLedCrisisModal } from "@/components/layout/SpiritLedCrisisButton";
 
 const systemSans = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif";
