@@ -29,14 +29,6 @@ const ToolsPage = () => {
       gold: false,
     },
     {
-      title: "Reach Out Now",
-      subtitle: "Call on a brother",
-      icon: Users,
-      onClick: () => setShowReachOut(true),
-      urgent: false,
-      gold: true,
-    },
-    {
       title: "I Need to Return",
       subtitle: "R.E.T.U.R.N.",
       icon: RotateCcw,
@@ -67,6 +59,14 @@ const ToolsPage = () => {
       onClick: () => setShowScripture(true),
       urgent: false,
       gold: false,
+    },
+    {
+      title: "Reach Out Now",
+      subtitle: "Call on a brother",
+      icon: Users,
+      onClick: () => setShowReachOut(true),
+      urgent: false,
+      gold: true,
     },
   ];
 
