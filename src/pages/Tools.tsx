@@ -6,7 +6,6 @@ import GraceProtocol from "@/components/tools/GraceProtocol";
 import GratitudeModal from "@/components/tools/GratitudeModal";
 import ScriptureTool from "@/components/tools/ScriptureTool";
 import DeclarationsModal from "@/components/tools/DeclarationsModal";
-import ReachOut from "@/components/brotherhood/ReachOut";
 import { SpiritLedCrisisModal } from "@/components/layout/SpiritLedCrisisButton";
 
 const systemSans = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif";
