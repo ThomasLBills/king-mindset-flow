@@ -140,6 +140,7 @@ const ToolsPage = () => {
 
       <AnimatePresence>
         {showCrisisModal && <SpiritLedCrisisModal onClose={() => setShowCrisisModal(false)} />}
+        {showReachOut && <ReachOut onClose={() => setShowReachOut(false)} />}
         {showGraceProtocol && <GraceProtocol onClose={() => setShowGraceProtocol(false)} />}
         {showGratitude && <GratitudeModal onClose={() => setShowGratitude(false)} />}
         {showDeclarations && <DeclarationsModal onClose={() => setShowDeclarations(false)} />}
