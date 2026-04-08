@@ -264,8 +264,9 @@ const BrotherhoodPage = () => {
 
 /** Full-screen channel chat view — completely replaces the Brotherhood landing page */
 const ChannelChatView = ({ target, onBack }: {target: ChatTarget;onBack: () => void;}) => {
-  const { messages, loading, sendMessage } = useMessages(target);
+  const [channelReady, setChannelReady] = useState(false);
   const joinChannel = useJoinChannel();
+  const { messages, loading, sendMessage } = useMessages(target, channelReady);
   const { isAdmin } = useAdminRole();
   const { toast } = useToast();
   const { channels } = useChannels();
@@ -273,8 +274,11 @@ const ChannelChatView = ({ target, onBack }: {target: ChatTarget;onBack: () => v
   const ch = channels.find((c) => c.id === target.id);
   const isLocked = (ch as any)?.is_locked;
 
-  // Auto-join
-  useEffect(() => { joinChannel(target.id); }, [target.id, joinChannel]);
+  // Auto-join, then mark ready so messages + realtime start
+  useEffect(() => {
+    setChannelReady(false);
+    joinChannel(target.id).then(() => setChannelReady(true));
+  }, [target.id, joinChannel]);
 
   const handleDeleteMessage = useCallback(async (messageId: string) => {
     const { error } = await supabase.from("chat_messages").delete().eq("id", messageId);
