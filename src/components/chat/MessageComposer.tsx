@@ -24,12 +24,18 @@ const MessageComposer = ({ onSend, placeholder = "Type a message…" }: MessageC
     const trimmed = value.trim();
     if (!trimmed || sending) return;
     setSending(true);
-    await onSend(trimmed);
-    setValue("");
-    setSending(false);
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "44px";
-      textareaRef.current.focus();
+    try {
+      await onSend(trimmed);
+      setValue("");
+      if (textareaRef.current) {
+        textareaRef.current.style.height = "44px";
+        textareaRef.current.focus();
+      }
+    } catch (err: any) {
+      console.error("Failed to send message:", err);
+      toast({ title: "Send failed", description: err?.message || "Could not send message", variant: "destructive" });
+    } finally {
+      setSending(false);
     }
   };
 
@@ -55,7 +61,12 @@ const MessageComposer = ({ onSend, placeholder = "Type a message…" }: MessageC
       return;
     }
     const { data: urlData } = supabase.storage.from("chat-files").getPublicUrl(path);
-    await onSend("", urlData.publicUrl);
+    try {
+      await onSend("", urlData.publicUrl);
+    } catch (err: any) {
+      console.error("Failed to send image:", err);
+      toast({ title: "Send failed", description: err?.message || "Could not send image", variant: "destructive" });
+    }
     setUploading(false);
   };
 

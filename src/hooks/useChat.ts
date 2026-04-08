@@ -140,13 +140,14 @@ export function useMessages(target: ChatTarget | null, ready = true) {
   }, [target?.type, target?.id, ready]);
 
   const sendMessage = useCallback(async (content: string, imageUrl?: string) => {
-    if (!target || !user) return;
-    await supabase.from("chat_messages").insert({
+    if (!target || !user) throw new Error("Not ready to send");
+    const { error } = await supabase.from("chat_messages").insert({
       content,
       user_id: user.id,
       image_url: imageUrl || null,
       ...(target.type === "channel" ? { channel_id: target.id } : { dm_id: target.id }),
     });
+    if (error) throw error;
   }, [target, user]);
 
   return { messages, loading, sendMessage, refetch: fetchMessages };
