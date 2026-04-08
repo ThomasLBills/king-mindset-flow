@@ -61,7 +61,12 @@ const MessageComposer = ({ onSend, placeholder = "Type a message…" }: MessageC
       return;
     }
     const { data: urlData } = supabase.storage.from("chat-files").getPublicUrl(path);
-    await onSend("", urlData.publicUrl);
+    try {
+      await onSend("", urlData.publicUrl);
+    } catch (err: any) {
+      console.error("Failed to send image:", err);
+      toast({ title: "Send failed", description: err?.message || "Could not send image", variant: "destructive" });
+    }
     setUploading(false);
   };
 
