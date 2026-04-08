@@ -14,6 +14,12 @@ const ChatImage = ({ src }: { src: string }) => {
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
 
+  // Reset state when src changes (e.g. signed URL replaces public URL)
+  useEffect(() => {
+    setLoaded(false);
+    setError(false);
+  }, [src]);
+
   return (
     <div className="mt-2 max-w-xs rounded-lg border border-border overflow-hidden relative">
       {!loaded && !error && (
