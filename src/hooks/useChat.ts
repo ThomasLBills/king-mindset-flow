@@ -63,13 +63,13 @@ export function useDMs() {
   return { dms, loading };
 }
 
-export function useMessages(target: ChatTarget | null) {
+export function useMessages(target: ChatTarget | null, ready = true) {
   const { user } = useAuth();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(!!target);
 
   const fetchMessages = useCallback(async () => {
-    if (!target) return;
+    if (!target || !ready) return;
     setLoading(true);
     const query = supabase
       .from("chat_messages")
@@ -98,13 +98,13 @@ export function useMessages(target: ChatTarget | null) {
       profile: profileMap.get(m.user_id) ?? undefined,
     })));
     setLoading(false);
-  }, [target?.type, target?.id]);
+  }, [target?.type, target?.id, ready]);
 
   useEffect(() => { fetchMessages(); }, [fetchMessages]);
 
   // Realtime subscription
   useEffect(() => {
-    if (!target) return;
+    if (!target || !ready) return;
     const channel = supabase
       .channel(`chat-${target.type}-${target.id}`)
       .on("postgres_changes", {
@@ -137,7 +137,7 @@ export function useMessages(target: ChatTarget | null) {
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [target?.type, target?.id]);
+  }, [target?.type, target?.id, ready]);
 
   const sendMessage = useCallback(async (content: string, imageUrl?: string) => {
     if (!target || !user) return;
@@ -149,7 +149,7 @@ export function useMessages(target: ChatTarget | null) {
     });
   }, [target, user]);
 
-  return { messages, loading, sendMessage };
+  return { messages, loading, sendMessage, refetch: fetchMessages };
 }
 
 export function useJoinChannel() {
