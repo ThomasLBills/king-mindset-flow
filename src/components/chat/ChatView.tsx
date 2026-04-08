@@ -5,18 +5,23 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import MessageList from "./MessageList";
 import MessageComposer from "./MessageComposer";
-import { useEffect, useCallback, useMemo } from "react";
+import { useEffect, useCallback, useMemo, useState } from "react";
 
 interface ChatViewProps {
   target: ChatTarget | null;
 }
 
 const ChatView = ({ target }: ChatViewProps) => {
-  const { messages, loading, sendMessage } = useMessages(target);
+  const [channelReady, setChannelReady] = useState(false);
   const joinChannel = useJoinChannel();
   const { channels } = useChannels();
   const { isAdmin } = useAdminRole();
   const { toast } = useToast();
+
+  // For DMs, no join needed — ready immediately
+  const isReady = target ? (target.type === "dm" ? true : channelReady) : false;
+
+  const { messages, loading, sendMessage } = useMessages(target, isReady);
 
   const isLockedChannel = useMemo(() => {
     if (!target || target.type !== "channel") return false;
@@ -33,10 +38,11 @@ const ChatView = ({ target }: ChatViewProps) => {
     }
   }, [toast]);
 
-  // Auto-join channel on selection
+  // Join channel first, then mark ready
   useEffect(() => {
+    setChannelReady(false);
     if (target?.type === "channel") {
-      joinChannel(target.id);
+      joinChannel(target.id).then(() => setChannelReady(true));
     }
   }, [target?.id, target?.type, joinChannel]);
 
