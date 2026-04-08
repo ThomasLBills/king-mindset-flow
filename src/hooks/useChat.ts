@@ -71,29 +71,30 @@ export function useMessages(target: ChatTarget | null, ready = true) {
   const fetchMessages = useCallback(async () => {
     if (!target || !ready) return;
     setLoading(true);
-    const query = supabase
+
+    const baseQuery = supabase
       .from("chat_messages")
-      .select("*")
-      .order("created_at", { ascending: true })
+      .select("*");
+
+    const scopedQuery = target.type === "channel"
+      ? baseQuery.eq("channel_id", target.id)
+      : baseQuery.eq("dm_id", target.id);
+
+    const { data } = await scopedQuery
+      .order("created_at", { ascending: false })
       .limit(100);
 
-    if (target.type === "channel") {
-      query.eq("channel_id", target.id);
-    } else {
-      query.eq("dm_id", target.id);
-    }
-
-    const { data } = await query;
     if (!data) { setLoading(false); return; }
 
-    const userIds = [...new Set(data.map(m => m.user_id))];
+    const orderedMessages = [...data].reverse();
+    const userIds = [...new Set(orderedMessages.map(m => m.user_id))];
     const { data: profiles } = await supabase
       .from("profiles")
       .select("user_id, display_name, first_name, avatar_url")
       .in("user_id", userIds);
     const profileMap = new Map(profiles?.map(p => [p.user_id, p]));
 
-    setMessages(data.map(m => ({
+    setMessages(orderedMessages.map(m => ({
       ...m,
       profile: profileMap.get(m.user_id) ?? undefined,
     })));
