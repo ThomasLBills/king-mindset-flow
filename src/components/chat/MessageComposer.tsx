@@ -1,5 +1,6 @@
 import { useState, useRef, KeyboardEvent } from "react";
-import { Send, SmilePlus, ImagePlus, Loader2, CornerDownLeft } from "lucide-react";
+import { Send, SmilePlus, ImagePlus, Loader2 } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { supabase } from "@/integrations/supabase/client";
