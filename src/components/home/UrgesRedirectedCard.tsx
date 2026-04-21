@@ -55,7 +55,7 @@ const UrgesRedirectedCard = () => {
         )}
       </AnimatePresence>
 
-      <h2 className="text-xs font-medium uppercase tracking-[0.06em] text-primary text-center mb-2">
+      <h2 className="uppercase text-center mb-2" style={{ fontSize: "11px", fontWeight: 500, letterSpacing: "0.12em", color: "#B8963F" }}>
         Urges Redirected
       </h2>
       <p className="text-center mb-6" style={{ fontSize: "14px", fontWeight: 400, color: "#F5F3EE" }}>
@@ -64,13 +64,13 @@ const UrgesRedirectedCard = () => {
 
       <div className="flex justify-center items-center gap-0 mb-6">
         <div className="text-center flex-1">
-          <p className="text-[56px] leading-none" style={{ fontWeight: 300, color: "rgba(255,255,255,0.9)" }}>{dailyCount}</p>
-          <p className="mt-4 uppercase" style={{ fontSize: "11px", letterSpacing: "0.06em", color: "#F5F3EE" }}>Today</p>
+          <p className="leading-none tabular-nums" style={{ fontSize: "44px", fontWeight: 400, color: "#F5F3EE", letterSpacing: "-0.02em" }}>{dailyCount}</p>
+          <p className="mt-4 uppercase" style={{ fontSize: "11px", fontWeight: 500, letterSpacing: "0.12em", color: "rgba(245, 243, 238, 0.5)" }}>Today</p>
         </div>
-        <div className="flex-shrink-0" style={{ width: "1px", height: "40px", background: "rgba(255,255,255,0.1)" }} />
+        <div className="flex-shrink-0 self-center" style={{ width: "1px", height: "26px", background: "rgba(245, 243, 238, 0.08)" }} />
         <div className="text-center flex-1">
-          <p className="text-[56px] leading-none text-primary" style={{ fontWeight: 300 }}>{lifetimeCount}</p>
-          <p className="mt-4 uppercase" style={{ fontSize: "11px", letterSpacing: "0.06em", color: "#F5F3EE" }}>Lifetime</p>
+          <p className="leading-none tabular-nums" style={{ fontSize: "44px", fontWeight: 550, color: "#A6842F", letterSpacing: "-0.02em" }}>{lifetimeCount}</p>
+          <p className="mt-4 uppercase" style={{ fontSize: "11px", fontWeight: 500, letterSpacing: "0.12em", color: "rgba(245, 243, 238, 0.5)" }}>Lifetime</p>
         </div>
       </div>
 

@@ -422,6 +422,17 @@
     text-wrap: balance;
   }
 
+  /* Apply tabular numerals globally so digits don't shift width */
+  body, input, textarea, button, select {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+
   .animate-breathe {
     animation: breathe 4s ease-in-out infinite;
   }
