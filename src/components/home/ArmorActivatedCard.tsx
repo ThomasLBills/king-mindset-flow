@@ -11,7 +11,7 @@ const ArmorActivatedCard = () => {
 
   return (
     <div className="bg-[#1A1A1A] rounded-[16px] p-[18px] h-full flex flex-col" style={{ fontFamily: sansFont }}>
-      <h2 className="text-xs font-medium uppercase tracking-[0.06em] text-primary text-center mb-0.5">
+      <h2 className="uppercase text-center mb-0.5" style={{ fontSize: "11px", fontWeight: 500, letterSpacing: "0.12em", color: "#B8963F" }}>
         Armor Activated
       </h2>
       <p className="text-center mb-[14px]" style={{ fontSize: "12px", fontWeight: 400, color: "#F5F3EE" }}>
@@ -25,19 +25,19 @@ const ArmorActivatedCard = () => {
         </div>
       ) : (
         <div className="flex flex-col items-center flex-1 justify-center">
-          <p className="text-[28px] leading-none text-white" style={{ fontWeight: 600 }}>
+          <p className="leading-none tabular-nums" style={{ fontSize: "32px", fontWeight: 400, color: "#F5F3EE", letterSpacing: "-0.01em" }}>
             {thisWeek.toLocaleString()}
           </p>
-          <p className="mt-1 uppercase" style={{ fontSize: "11px", letterSpacing: "0.06em", color: "#F5F3EE" }}>
+          <p className="mt-1 uppercase" style={{ fontSize: "11px", fontWeight: 500, letterSpacing: "0.12em", color: "rgba(245, 243, 238, 0.5)" }}>
             This week
           </p>
 
-          <div className="w-full my-[10px]" style={{ height: "1px", background: "rgba(255,255,255,0.06)" }} />
+          <div className="w-full my-[10px]" style={{ height: "1px", background: "rgba(245, 243, 238, 0.06)" }} />
 
-          <p className="text-[22px] leading-none text-primary" style={{ fontWeight: 300 }}>
+          <p className="leading-none tabular-nums" style={{ fontSize: "22px", fontWeight: 500, color: "#A6842F", letterSpacing: "-0.01em" }}>
             {allTime.toLocaleString()}
           </p>
-          <p className="mt-1 uppercase" style={{ fontSize: "11px", letterSpacing: "0.06em", color: "#F5F3EE" }}>
+          <p className="mt-1 uppercase" style={{ fontSize: "11px", fontWeight: 500, letterSpacing: "0.12em", color: "rgba(245, 243, 238, 0.5)" }}>
             Lifetime
           </p>
         </div>
