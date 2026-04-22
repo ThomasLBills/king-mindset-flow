@@ -155,9 +155,9 @@ interface CompactCompletedProps {
 
 const CompactCompleted = ({ feelings, scripture, onCheckInAgain }: CompactCompletedProps) => {
   return (
-    <div className="dark-card-gradient rounded-[16px] p-5 text-white" style={{ fontFamily: sansFont }}>
+    <div className="dark-card-gradient rounded-[16px] text-white" style={{ fontFamily: sansFont, padding: "20px 20px 24px" }}>
       {/* Header — no checkmark, same as pre-check-in */}
-      <h2 className="text-xs font-medium uppercase tracking-[0.06em] text-primary text-center mb-3">
+      <h2 className="uppercase text-center mb-3" style={{ fontSize: "11px", fontWeight: 500, letterSpacing: "0.12em", color: "#B8963F" }}>
         Daily Check-In
       </h2>
 
@@ -168,9 +168,20 @@ const CompactCompleted = ({ feelings, scripture, onCheckInAgain }: CompactComple
           return (
             <span
               key={f}
-              className="rounded-[20px] text-[13px] font-medium text-primary cursor-default"
-              style={{ background: "rgba(184, 150, 63, 0.15)", padding: "6px 14px", border: "none", outline: "none", boxShadow: "none" }}
+              className="inline-flex items-center rounded-[20px] cursor-default"
+              style={{
+                background: "rgba(184, 150, 63, 0.12)",
+                color: "#B8963F",
+                fontSize: "13px",
+                fontWeight: 600,
+                padding: "8px 16px",
+                gap: "6px",
+                border: "none",
+                outline: "none",
+                boxShadow: "none",
+              }}
             >
+              <Check size={12} strokeWidth={2.5} color="#B8963F" />
               {label}
             </span>
           );
@@ -179,22 +190,58 @@ const CompactCompleted = ({ feelings, scripture, onCheckInAgain }: CompactComple
 
       {/* Scripture — left border accent */}
       {scripture && (
-        <div className="mb-4" style={{ borderLeft: "3px solid hsl(var(--primary))", paddingLeft: "16px" }}>
-          <p className="text-[14px] leading-relaxed" style={{ fontWeight: 400, color: "#F5F3EE" }}>
+        <div style={{ borderLeft: "3px solid #B8963F", paddingLeft: "16px", paddingTop: "4px", paddingBottom: "4px", marginBottom: "4px" }}>
+          <p
+            style={{
+              fontSize: "18px",
+              fontWeight: 500,
+              lineHeight: 1.5,
+              color: "#F5F3EE",
+              fontStyle: "italic",
+              letterSpacing: "0.01em",
+            }}
+          >
             {scripture.text}
           </p>
-          <p className="text-[13px] text-primary mt-2 font-medium">{scripture.ref}</p>
+          <div style={{ width: "24px", height: "1px", background: "rgba(184, 150, 63, 0.3)", marginTop: "14px" }} />
+          <p style={{ fontSize: "14px", fontWeight: 600, color: "#B8963F", marginTop: "10px" }}>
+            {scripture.ref}
+          </p>
         </div>
       )}
 
-      {/* Check in again link */}
-      <button
-        onClick={onCheckInAgain}
-        className="text-[14px] text-primary hover:text-primary/80 transition-colors mt-4 flex items-center gap-1"
-        style={{ fontWeight: 500 }}
+      {/* Contemplative prompt */}
+      <p
+        className="text-center"
+        style={{
+          fontSize: "13px",
+          fontWeight: 400,
+          color: "rgba(245, 243, 238, 0.5)",
+          marginTop: "16px",
+          fontStyle: "normal",
+        }}
       >
-        Check in again
-      </button>
+        Let this land.
+      </p>
+
+      {/* Action row */}
+      <div className="flex items-center justify-center mt-4" style={{ gap: "0" }}>
+        <button
+          onClick={onCheckInAgain}
+          className="transition-colors hover:opacity-80"
+          style={{ fontSize: "13px", fontWeight: 500, color: "#B8963F", padding: "0 16px" }}
+        >
+          Check in again
+        </button>
+        <div style={{ width: "1px", height: "12px", background: "rgba(245, 243, 238, 0.15)" }} />
+        <button
+          onClick={() => { /* TODO: open brother selection modal */ }}
+          className="transition-colors hover:opacity-80"
+          style={{ fontSize: "13px", fontWeight: 500, color: "#B8963F", padding: "0 16px" }}
+        >
+          Share with a brother
+        </button>
+      </div>
     </div>
   );
 };
