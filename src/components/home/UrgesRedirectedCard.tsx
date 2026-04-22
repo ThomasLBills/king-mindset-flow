@@ -39,14 +39,14 @@ const UrgesRedirectedCard = () => {
   }, []);
 
   return (
-    <div className="relative bg-[#1A1A1A] rounded-[16px] p-5 overflow-hidden" style={{ fontFamily: sansFont }}>
+    <div className="relative dark-card-gradient rounded-[16px] p-5 overflow-hidden" style={{ fontFamily: sansFont }}>
       <AnimatePresence>
         {showConfirmation && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 z-10 flex items-center justify-center bg-[#1A1A1A] rounded-[16px]"
+            className="absolute inset-0 z-10 flex items-center justify-center dark-card-gradient rounded-[16px]"
           >
             <p className="text-lg font-semibold text-white text-center" style={{ fontFamily: sansFont }}>
               Urge redirected. New pathway built.

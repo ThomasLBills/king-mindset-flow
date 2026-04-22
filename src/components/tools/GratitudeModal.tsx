@@ -42,7 +42,7 @@ const GratitudeModal = ({ onClose }: GratitudeModalProps) => {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="modal-fullscreen bg-[#111111] items-center justify-center"
+        className="modal-fullscreen dark-card-gradient items-center justify-center"
       >
         <div className="flex flex-col items-center justify-center flex-1 px-8">
           <h2 style={{ fontFamily: systemSans, fontWeight: 600, fontSize: "24px", color: "#F5F3EE", textAlign: "center" }}>
@@ -58,7 +58,7 @@ const GratitudeModal = ({ onClose }: GratitudeModalProps) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="modal-fullscreen bg-[#111111]"
+      className="modal-fullscreen dark-card-gradient"
       style={{ fontFamily: systemSans }}
     >
       {/* Close button */}

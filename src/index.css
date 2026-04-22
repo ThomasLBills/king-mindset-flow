@@ -186,7 +186,7 @@
     box-shadow: none !important;
     border-radius: 16px;
     padding: 22px;
-    background: hsl(0 0% 10%);
+    background: linear-gradient(180deg, #1C1C1C 0%, #161616 100%);
     text-align: left;
     cursor: pointer;
     appearance: none;
@@ -431,6 +431,12 @@
   .tabular-nums {
     font-variant-numeric: tabular-nums;
     font-feature-settings: "tnum";
+  }
+
+  /* Subtle vertical gradient applied to all dark card surfaces.
+     Replaces solid #1A1A1A backgrounds for premium depth. */
+  .dark-card-gradient {
+    background: linear-gradient(180deg, #1C1C1C 0%, #161616 100%);
   }
 
   .animate-breathe {

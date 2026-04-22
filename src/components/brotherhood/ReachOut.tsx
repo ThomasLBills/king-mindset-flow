@@ -311,7 +311,7 @@ const ReachOut = ({ onClose, onSent }: ReachOutProps) => {
             >
               Message preview
             </p>
-            <div style={{ background: "#1A1A1A", borderRadius: "12px", padding: "16px" }}>
+            <div style={{ background: "linear-gradient(180deg, #1C1C1C 0%, #161616 100%)", borderRadius: "12px", padding: "16px" }}>
               <p style={{ fontFamily: systemSans, fontSize: "14px", color: "#F5F3EE" }}>{currentMessage}</p>
             </div>
           </div>
