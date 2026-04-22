@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useUrgeCounter } from "@/hooks/useUrgeCounter";
+import { useAuth } from "@/hooks/useAuth";
 import { Check } from "lucide-react";
 
 const sansFont = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif";
@@ -8,6 +9,11 @@ const HOLD_DURATION = 2000;
 
 const UrgesRedirectedCard = () => {
   const { dailyCount, lifetimeCount, addUrge } = useUrgeCounter();
+  const { user } = useAuth();
+  const firstName =
+    user?.user_metadata?.first_name ||
+    user?.user_metadata?.name?.split(" ")[0] ||
+    "King";
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [holding, setHolding] = useState(false);
   const [completed, setCompleted] = useState(false);
@@ -59,7 +65,7 @@ const UrgesRedirectedCard = () => {
         Urges Redirected
       </h2>
       <p className="text-center mb-6" style={{ fontSize: "14px", fontWeight: 400, color: "#F5F3EE" }}>
-        Every time you redirect an urge, you build a new pathway. Log it here.
+        {firstName}, every redirect builds a new pathway.
       </p>
 
       <div className="flex justify-center items-center gap-0 mb-6">
