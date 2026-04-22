@@ -7,7 +7,7 @@ const FreedomStrip = () => {
   const { count, thisWeekCount, isLoading } = useEvidenceCounter();
 
   return (
-    <div className="bg-[#1A1A1A] rounded-[16px] p-[18px] h-full flex flex-col" style={{ fontFamily: sansFont }}>
+    <div className="dark-card-gradient rounded-[16px] p-[18px] h-full flex flex-col" style={{ fontFamily: sansFont }}>
       <h2 className="uppercase text-center mb-0.5" style={{ fontSize: "11px", fontWeight: 500, letterSpacing: "0.12em", color: "#B8963F" }}>
         Liberated
       </h2>
