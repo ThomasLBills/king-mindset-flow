@@ -191,18 +191,16 @@ const CompactCompleted = ({ feelings, scripture, onCheckInAgain }: CompactComple
         <div style={{ borderLeft: "3px solid #B8963F", paddingLeft: "16px", paddingTop: "4px", paddingBottom: "4px", marginBottom: "4px" }}>
           <p
             style={{
-              fontSize: "18px",
-              fontWeight: 500,
+              fontSize: "20px",
+              fontWeight: 600,
               lineHeight: 1.5,
               color: "#F5F3EE",
-              fontStyle: "italic",
               letterSpacing: "0.01em",
             }}
           >
             {scripture.text}
           </p>
-          <div style={{ width: "24px", height: "1px", background: "rgba(184, 150, 63, 0.3)", marginTop: "14px" }} />
-          <p style={{ fontSize: "14px", fontWeight: 600, color: "#B8963F", marginTop: "10px" }}>
+          <p style={{ fontSize: "14px", fontWeight: 600, color: "#B8963F", marginTop: "12px" }}>
             {scripture.ref}
           </p>
         </div>
