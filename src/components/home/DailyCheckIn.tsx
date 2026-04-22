@@ -175,13 +175,11 @@ const CompactCompleted = ({ feelings, scripture, onCheckInAgain }: CompactComple
                 fontSize: "13px",
                 fontWeight: 600,
                 padding: "8px 16px",
-                gap: "6px",
                 border: "none",
                 outline: "none",
                 boxShadow: "none",
               }}
             >
-              <Check size={12} strokeWidth={2.5} color="#B8963F" />
               {label}
             </span>
           );
@@ -210,38 +208,14 @@ const CompactCompleted = ({ feelings, scripture, onCheckInAgain }: CompactComple
         </div>
       )}
 
-      {/* Contemplative prompt */}
-      <p
-        className="text-center"
-        style={{
-          fontSize: "13px",
-          fontWeight: 400,
-          color: "rgba(245, 243, 238, 0.5)",
-          marginTop: "16px",
-          fontStyle: "normal",
-        }}
+      {/* Check in again link */}
+      <button
+        onClick={onCheckInAgain}
+        className="transition-colors hover:opacity-80 mt-4 block"
+        style={{ fontSize: "13px", fontWeight: 500, color: "#B8963F" }}
       >
-        Let this land.
-      </p>
-
-      {/* Action row */}
-      <div className="flex items-center justify-center mt-4" style={{ gap: "0" }}>
-        <button
-          onClick={onCheckInAgain}
-          className="transition-colors hover:opacity-80"
-          style={{ fontSize: "13px", fontWeight: 500, color: "#B8963F", padding: "0 16px" }}
-        >
-          Check in again
-        </button>
-        <div style={{ width: "1px", height: "12px", background: "rgba(245, 243, 238, 0.15)" }} />
-        <button
-          onClick={() => { /* TODO: open brother selection modal */ }}
-          className="transition-colors hover:opacity-80"
-          style={{ fontSize: "13px", fontWeight: 500, color: "#B8963F", padding: "0 16px" }}
-        >
-          Share with a brother
-        </button>
-      </div>
+        Check in again
+      </button>
     </div>
   );
 };
