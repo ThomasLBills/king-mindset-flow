@@ -237,7 +237,7 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         className="fixed inset-0 z-50 flex flex-col items-center justify-center px-8"
-        style={{ background: "#111111" }}
+        style={{ background: "linear-gradient(180deg, #1C1C1C 0%, #161616 100%)" }}
       >
         <h2 style={{
           fontFamily: sansFont,
@@ -258,7 +258,7 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       className="modal-fullscreen"
-      style={{ background: "#111111" }}
+      style={{ background: "linear-gradient(180deg, #1C1C1C 0%, #161616 100%)" }}
     >
       {/* Close button */}
       <button

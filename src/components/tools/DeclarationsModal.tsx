@@ -506,7 +506,7 @@ const DeclarationsModal = ({ onClose }: { onClose: () => void }) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="modal-fullscreen bg-[#111111]"
+      className="modal-fullscreen dark-card-gradient"
       style={{ fontFamily: systemSans }}
     >
       {/* Close button */}

@@ -102,7 +102,7 @@ const ScriptureTool = ({ onClose }: ScriptureToolProps) => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="modal-fullscreen bg-[#111111]"
+        className="modal-fullscreen dark-card-gradient"
         style={{ fontFamily: systemSans }}
       >
         <div className="flex justify-between items-center" style={{ padding: "20px 20px 0 20px" }}>
@@ -171,7 +171,7 @@ const ScriptureTool = ({ onClose }: ScriptureToolProps) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="modal-fullscreen bg-[#111111]"
+      className="modal-fullscreen dark-card-gradient"
       style={{ fontFamily: systemSans }}
     >
       <div className="flex justify-end" style={{ padding: "20px 20px 0 20px" }}>
