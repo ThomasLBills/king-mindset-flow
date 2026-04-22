@@ -16,6 +16,7 @@ export default {
       fontFamily: {
         serif: ['Crimson Pro', 'Georgia', 'serif'],
         sans: ['Inter', 'system-ui', 'sans-serif'],
+        display: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'Segoe UI', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
