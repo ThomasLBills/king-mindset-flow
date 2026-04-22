@@ -113,7 +113,7 @@ const BrotherhoodPage = () => {
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="mb-5">
           <div
             style={{
-              background: "#1A1A1A",
+              background: "linear-gradient(180deg, #1C1C1C 0%, #161616 100%)",
               borderRadius: "16px",
               padding: "20px",
               border: "none",
@@ -215,7 +215,7 @@ const BrotherhoodPage = () => {
           <TabsList
             className="w-full mb-4 p-[3px]"
             style={{
-              background: "#1A1A1A",
+              background: "linear-gradient(180deg, #1C1C1C 0%, #161616 100%)",
               borderRadius: "12px",
               border: "none",
             }}

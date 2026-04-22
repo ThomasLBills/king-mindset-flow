@@ -191,7 +191,7 @@ const LibraryPage = () => {
                     textAlign: "left",
                     padding: "18px 20px",
                     borderRadius: isCurrent ? "0 14px 14px 0" : 14,
-                    background: "#1A1A1A",
+                    background: "linear-gradient(180deg, #1C1C1C 0%, #161616 100%)",
                     border: "none",
                     outline: "none",
                     boxShadow: "none",

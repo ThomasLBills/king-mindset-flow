@@ -108,7 +108,7 @@ const ChannelsTab = ({ onSelectChannel }: ChannelsTabProps) => {
               width: "100%",
               padding: "16px",
               borderRadius: "12px",
-              background: "#1A1A1A",
+              background: "linear-gradient(180deg, #1C1C1C 0%, #161616 100%)",
               border: "none",
               textAlign: "left",
               cursor: "pointer",
