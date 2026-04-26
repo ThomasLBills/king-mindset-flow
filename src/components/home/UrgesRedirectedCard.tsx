@@ -62,6 +62,20 @@ const UrgesRedirectedCard = () => {
         Every redirect builds a new pathway.
       </p>
 
+      <p
+        className="text-center uppercase"
+        style={{
+          fontSize: "10.5px",
+          fontWeight: 500,
+          letterSpacing: "0.14em",
+          color: "rgba(245, 243, 238, 0.45)",
+          marginTop: "-12px",
+          marginBottom: "18px",
+        }}
+      >
+        You are building new pathways
+      </p>
+
       <div className="flex justify-center items-center gap-0 mb-6">
         <div className="text-center flex-1">
           <p className="leading-none tabular-nums" style={{ fontSize: "44px", fontWeight: 400, color: "#F5F3EE", letterSpacing: "-0.02em" }}>{dailyCount}</p>
