@@ -129,7 +129,11 @@ const HelpMeNowModal = ({ onClose, onOpenTool }: HelpMeNowModalProps) => {
         </div>
 
         {/* Messages */}
-        <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 py-5 flex flex-col gap-3">
+        <div
+          ref={scrollRef}
+          className="overflow-y-auto px-5 py-4 flex flex-col gap-3"
+          style={{ flex: hasSent ? "1 1 auto" : "0 0 auto" }}
+        >
           {turns.map((turn, i) => (
             <div key={i} className={`flex ${turn.role === "user" ? "justify-end" : "justify-start"}`}>
               <div
@@ -188,9 +192,9 @@ const HelpMeNowModal = ({ onClose, onOpenTool }: HelpMeNowModalProps) => {
 
         {/* Quick options */}
         {!hasSent && (
-          <div className="px-5 pb-5 pt-2">
+          <div className="px-5 pb-5 pt-1 flex-1 flex flex-col justify-start">
             <p
-              className="uppercase mb-3"
+              className="uppercase mb-2"
               style={{
                 fontSize: "11px",
                 fontWeight: 500,
@@ -200,7 +204,7 @@ const HelpMeNowModal = ({ onClose, onOpenTool }: HelpMeNowModalProps) => {
             >
               Choose what fits
             </p>
-            <div className="flex flex-col gap-[8px]">
+            <div className="flex flex-col gap-[7px]">
               {QUICK_OPTIONS.map((opt) => (
                 <button
                   key={opt.label}
@@ -208,7 +212,7 @@ const HelpMeNowModal = ({ onClose, onOpenTool }: HelpMeNowModalProps) => {
                   disabled={isSending}
                   className="text-left rounded-[10px] transition-transform active:scale-[0.98] disabled:opacity-50"
                   style={{
-                    padding: "13px 16px",
+                    padding: "11px 16px",
                     background: "#242424",
                     color: "#F5F3EE",
                     fontSize: "14px",
