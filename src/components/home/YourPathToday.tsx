@@ -170,6 +170,26 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
         exit={{ opacity: 0 }}
         transition={fadeTransition}
       >
+        {/* Completed pill — confirms the check-in counted */}
+        <div className="flex justify-center mb-3">
+          <span
+            className="inline-flex items-center gap-1.5 rounded-full"
+            style={{
+              background: "rgba(184, 150, 63, 0.14)",
+              color: "#B8963F",
+              fontSize: "11px",
+              fontWeight: 600,
+              letterSpacing: "0.10em",
+              textTransform: "uppercase",
+              padding: "6px 12px",
+              fontFamily: sansFont,
+            }}
+          >
+            <Check size={12} strokeWidth={2.5} />
+            Daily Check-In Complete
+          </span>
+        </div>
+
         <div
           className="dark-card-gradient rounded-[16px] text-white"
           style={{ fontFamily: sansFont, padding: "36px 22px 36px" }}
