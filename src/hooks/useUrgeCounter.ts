@@ -18,12 +18,12 @@ const getTodayStart = (): string => {
 };
 
 export function useUrgeCounter() {
-  const { user } = useAuth();
+  const { user, session, loading } = useAuth();
   const qc = useQueryClient();
 
   const { data: dailyCount = 0 } = useQuery({
     queryKey: ["urge-count-daily", user?.id],
-    enabled: !!user,
+    enabled: !loading && !!user && !!session?.access_token,
     queryFn: async () => {
       const { count, error } = await supabase
         .from("evidence_events")
@@ -38,7 +38,7 @@ export function useUrgeCounter() {
 
   const { data: lifetimeCount = 0 } = useQuery({
     queryKey: ["urge-count-lifetime", user?.id],
-    enabled: !!user,
+    enabled: !loading && !!user && !!session?.access_token,
     queryFn: async () => {
       const { count, error } = await supabase
         .from("evidence_events")

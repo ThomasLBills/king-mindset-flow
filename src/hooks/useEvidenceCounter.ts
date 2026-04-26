@@ -14,12 +14,12 @@ function getLocalWeekStartISO(): string {
 }
 
 export function useEvidenceCounter() {
-  const { user } = useAuth();
+  const { user, session, loading } = useAuth();
   const qc = useQueryClient();
 
   const { data, isLoading } = useQuery({
     queryKey: ["evidence-count", user?.id],
-    enabled: !!user,
+    enabled: !loading && !!user && !!session?.access_token,
     queryFn: async () => {
       // Lifetime count
       const { count: lifetimeCount, error: e1 } = await supabase
