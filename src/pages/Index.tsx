@@ -8,13 +8,11 @@ import ArmorActivatedCard from "@/components/home/ArmorActivatedCard";
 import ReachOut from "@/components/brotherhood/ReachOut";
 import YourPathToday from "@/components/home/YourPathToday";
 import { useAuth } from "@/hooks/useAuth";
-import { useEvidenceCounter } from "@/hooks/useEvidenceCounter";
 
 const Index = () => {
   const [showReachOut, setShowReachOut] = useState(false);
 
   const { user } = useAuth();
-  const { addEvidence } = useEvidenceCounter();
 
   return (
     <AppLayout>
@@ -44,7 +42,8 @@ const Index = () => {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
           <YourPathToday
             onCheckInComplete={() => {
-              addEvidence.mutate("check_in");
+              // Evidence is now logged directly inside DailyCheckIn's submit
+              // success handler (idempotent: first check-in of the day only).
             }}
             onSpiritPromptWritten={() => {}}
             onNeedSupport={() => setShowReachOut(true)}
