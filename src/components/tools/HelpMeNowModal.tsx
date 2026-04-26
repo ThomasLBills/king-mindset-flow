@@ -98,7 +98,7 @@ const HelpMeNowModal = ({ onClose, onOpenTool }: HelpMeNowModalProps) => {
         className="dark-card-gradient w-full sm:max-w-lg sm:rounded-[16px] rounded-t-[20px] flex flex-col"
         style={{
           maxHeight: "90vh",
-          height: "90vh",
+          height: hasSent ? "90vh" : "auto",
           paddingBottom: "max(env(safe-area-inset-bottom), 16px)",
           color: "#F5F3EE",
         }}
