@@ -8,17 +8,19 @@ import ReachOut from "@/components/brotherhood/ReachOut";
 import YourPathToday from "@/components/home/YourPathToday";
 import { useAuth } from "@/hooks/useAuth";
 import { useEvidenceCounter } from "@/hooks/useEvidenceCounter";
+import { useFreedomStreak } from "@/hooks/useDailyProgress";
 
 const Index = () => {
   const [showReachOut, setShowReachOut] = useState(false);
 
   const { user } = useAuth();
   const { addEvidence } = useEvidenceCounter();
+  const { daysFree, hasStreak } = useFreedomStreak();
 
   return (
     <AppLayout>
       <div
-        className="px-4 max-w-lg mx-auto flex flex-col gap-7"
+        className="px-4 max-w-lg mx-auto flex flex-col gap-10"
         style={{
           paddingTop: "max(env(safe-area-inset-top), 24px)",
           paddingBottom: "32px",
@@ -37,16 +39,21 @@ const Index = () => {
               return `${greeting}, ${firstName}.`;
             })()}
           </span>
-          <p
-            className="text-[15px] mt-1"
-            style={{
-              fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif",
-              fontWeight: 400,
-              color: "rgba(26, 26, 26, 0.6)",
-            }}
-          >
-            Walk in who you already are.
-          </p>
+          {hasStreak && daysFree > 0 ? (
+            <p
+              className="type-body mt-1"
+              style={{ color: "rgba(26, 26, 26, 0.6)" }}
+            >
+              <span style={{ color: "#1A1A1A", fontWeight: 600 }}>
+                Day {daysFree}.
+              </span>{" "}
+              Walk in who you already are.
+            </p>
+          ) : (
+            <p className="type-body mt-1" style={{ color: "rgba(26, 26, 26, 0.6)" }}>
+              Walk in who you already are.
+            </p>
+          )}
         </div>
 
         {/* 1. Your Path Today (Primary) */}
@@ -67,16 +74,7 @@ const Index = () => {
 
         {/* 3. This Week's Evidence */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-          <p
-            className="uppercase mb-2"
-            style={{
-              fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif",
-              fontSize: "11px",
-              fontWeight: 500,
-              letterSpacing: "0.14em",
-              color: "rgba(26, 26, 26, 0.5)",
-            }}
-          >
+          <p className="type-eyebrow mb-3" style={{ color: "rgba(26, 26, 26, 0.5)" }}>
             This Week's Evidence
           </p>
           <div className="grid grid-cols-2 gap-[10px] items-stretch">
