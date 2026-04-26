@@ -172,16 +172,15 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
       >
         <div
           className="dark-card-gradient rounded-[16px] text-white"
-          style={{ fontFamily: sansFont, padding: "44px 22px 44px" }}
+          style={{ fontFamily: sansFont, padding: "36px 22px 36px" }}
         >
           <p
-            className="uppercase text-center"
+            className="uppercase mb-4 text-center"
             style={{
-              fontSize: "13.5px",
+              fontSize: "12.5px",
               fontWeight: 500,
-              letterSpacing: "0.2em",
+              letterSpacing: "0.18em",
               color: "#B8963F",
-              marginBottom: 22,
             }}
           >
             Continue Your Journey
@@ -195,15 +194,14 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
           ) : currentLesson ? (
             <>
               <h2
-                className="text-center mx-auto"
+                className="text-center"
                 style={{
                   fontSize: "26px",
                   fontWeight: 600,
                   letterSpacing: "-0.01em",
                   color: "#F5F3EE",
-                  lineHeight: 1.4,
-                  marginBottom: 32,
-                  maxWidth: "85%",
+                  lineHeight: 1.35,
+                  marginBottom: 26,
                 }}
               >
                 {lessonNumber ? `Lesson ${lessonNumber}: ` : ""}
@@ -212,7 +210,7 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
 
               <button
                 onClick={() => navigate(`/library/lesson/${currentLesson.id}`)}
-                className="tap-press w-full rounded-[10px] flex items-center justify-center select-none transition-transform duration-150 ease-out active:scale-[0.97]"
+                className="tap-press w-full rounded-[10px] flex items-center justify-center select-none transition-transform duration-150 active:scale-[0.97]"
                 style={{
                   padding: "13px 0",
                   background: "#B8963F",
@@ -222,7 +220,6 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
                   fontFamily: sansFont,
                   border: 0,
                   cursor: "pointer",
-                  boxShadow: "0 6px 18px -6px rgba(184, 150, 63, 0.45), 0 2px 4px rgba(0, 0, 0, 0.25)",
                 }}
               >
                 Continue Lesson
