@@ -11,7 +11,7 @@ const FreedomStrip = () => {
       <h2 className="uppercase text-center mb-0.5 text-base" style={{ fontWeight: 500, letterSpacing: "0.12em", color: "#B8963F" }}>
         Liberated
       </h2>
-      <p className="text-center mb-[14px]" style={{ fontSize: "12px", fontWeight: 400, color: "#F5F3EE" }}>
+      <p className="text-center mb-[14px] bg-primary-foreground" style={{ fontSize: "12px", fontWeight: 400, color: "#F5F3EE" }}>
         My Evidence
       </p>
 
