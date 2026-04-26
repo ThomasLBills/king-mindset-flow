@@ -81,7 +81,7 @@ const Login = () => {
 
   return (
     <div
-      className="min-h-screen w-full flex flex-col items-center justify-center px-6"
+      className="min-h-screen w-full flex flex-col items-center px-6"
       style={{
         backgroundColor: "#FAF7F2",
         backgroundImage:
@@ -102,15 +102,15 @@ const Login = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative w-full mx-auto flex flex-col items-center"
-        style={{ maxWidth: 420 }}
+        className="relative w-full mx-auto flex flex-col items-center min-h-screen"
+        style={{ maxWidth: 480 }}
       >
         {/* Logo — crest treatment */}
         <a
           href="/"
           aria-label="Liberated Kings — Home"
           className="flex justify-center login-logo-wrap"
-          style={{ marginTop: 48, marginBottom: 36 }}
+          style={{ marginTop: 40, marginBottom: 0 }}
         >
           <img
             src={lkLogo}
@@ -120,21 +120,8 @@ const Login = () => {
           />
         </a>
 
-        {/* Daily Scripture */}
-        <p
-          className="text-center mb-8"
-          style={{
-            fontFamily: "'Crimson Pro', Georgia, serif",
-            fontStyle: "italic",
-            fontSize: 14,
-            lineHeight: 1.5,
-            color: "#B8964F",
-            maxWidth: 320,
-          }}
-        >
-          "Where the Spirit of the Lord is, there is freedom." — 2 Corinthians 3:17
-        </p>
-
+        {/* Flex-grow spacer pushes card toward vertical center */}
+        <div className="flex-1 w-full flex items-center justify-center" style={{ minHeight: 32 }}>
         {/* Card */}
         <div
           className="w-full login-card"
@@ -144,6 +131,7 @@ const Login = () => {
             padding: "32px",
             boxShadow: "0 4px 24px rgba(0,0,0,0.06)",
             border: "1.5px solid rgba(201, 169, 106, 0.6)",
+            marginTop: 32,
           }}
         >
           <div>
@@ -366,6 +354,40 @@ const Login = () => {
               </button>
             </div>
           </div>
+        </div>
+        </div>
+
+        {/* Top spacer to balance bottom flex-grow so card sits centered */}
+        <div className="flex-1 w-full" style={{ minHeight: 32 }} />
+
+        {/* Bottom Scripture — quiet anchor */}
+        <div
+          className="login-verse w-full flex flex-col items-center"
+          style={{ paddingTop: 48, paddingBottom: 32 }}
+        >
+          <div
+            aria-hidden="true"
+            style={{
+              width: 60,
+              height: 1,
+              backgroundColor: "rgba(201, 169, 106, 0.3)",
+              marginBottom: 20,
+            }}
+          />
+          <p
+            className="text-center"
+            style={{
+              fontFamily: "'Crimson Pro', Georgia, serif",
+              fontStyle: "italic",
+              fontSize: 13,
+              lineHeight: 1.5,
+              color: "#B8964F",
+              maxWidth: 320,
+              margin: 0,
+            }}
+          >
+            "So if the Son sets you free, you will be free indeed." — John 8:36
+          </p>
         </div>
       </motion.div>
     </div>

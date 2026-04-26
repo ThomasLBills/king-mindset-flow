@@ -556,4 +556,7 @@
   .login-logo-wrap {
     margin-top: 64px !important;
   }
+  .login-verse {
+    padding-bottom: 48px !important;
+  }
 }
