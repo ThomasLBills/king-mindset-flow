@@ -18,17 +18,22 @@ const Index = () => {
   return (
     <AppLayout>
       <div
-        className="px-4 max-w-lg mx-auto flex flex-col gap-7"
+        className="px-6 max-w-lg mx-auto flex flex-col gap-8"
         style={{
           paddingTop: "max(env(safe-area-inset-top), 24px)",
           paddingBottom: "32px",
         }}
       >
         {/* Personalized Greeting */}
-        <div className="pt-2 pb-1">
-          <span
-            className="greeting-sans block text-[22px] text-[#1A1A1A]"
-            style={{ fontWeight: 600, letterSpacing: "-0.02em" }}
+        <motion.div
+          initial={{ opacity: 0, y: -6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="pt-3 pb-2"
+        >
+          <h1
+            className="greeting-sans block text-[26px] text-[#1A1A1A]"
+            style={{ fontWeight: 600, letterSpacing: "-0.025em", lineHeight: 1.15 }}
           >
             {(() => {
               const h = new Date().getHours();
@@ -36,18 +41,19 @@ const Index = () => {
               const firstName = user?.user_metadata?.name?.split(" ")[0] || user?.user_metadata?.first_name || "King";
               return `${greeting}, ${firstName}.`;
             })()}
-          </span>
+          </h1>
           <p
-            className="text-[15px] mt-1"
+            className="text-[14px] mt-2 italic"
             style={{
               fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif",
               fontWeight: 400,
-              color: "rgba(26, 26, 26, 0.6)",
+              color: "rgba(26, 26, 26, 0.55)",
+              letterSpacing: "0.04em",
             }}
           >
             Walk in who you already are.
           </p>
-        </div>
+        </motion.div>
 
         {/* 1. Your Path Today (Primary) */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
@@ -67,6 +73,33 @@ const Index = () => {
 
         {/* 3. This Week's Evidence */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+          <div className="mb-4 px-1">
+            <h2
+              className="uppercase"
+              style={{
+                fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif",
+                fontSize: "13px",
+                fontWeight: 700,
+                letterSpacing: "0.18em",
+                color: "#1A1A1A",
+              }}
+            >
+              Your Armor
+            </h2>
+            <p
+              className="mt-1.5"
+              style={{
+                fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif",
+                fontSize: "13px",
+                fontWeight: 400,
+                color: "rgba(26, 26, 26, 0.55)",
+                lineHeight: 1.5,
+                maxWidth: "32ch",
+              }}
+            >
+              Put on the full armor of God so you can stand firm.
+            </p>
+          </div>
           <div className="grid grid-cols-2 gap-[10px] items-stretch">
             <ArmorActivatedCard />
             <FreedomStrip />
