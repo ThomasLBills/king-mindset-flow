@@ -6,6 +6,13 @@
 
 @layer base {
   :root {
+    /* Safety: prevent any stray fixed/absolute element from causing horizontal overflow */
+  }
+  html, body {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+  :root {
     /* Core palette - Warm cream bg, gold accents, dark text */
     --background: 28 27% 94%;
     --foreground: 0 0% 7%;
