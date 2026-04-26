@@ -547,11 +547,11 @@
 
 /* Login logo crest treatment */
 .login-logo {
-  height: 56px;
+  height: 88px;
 }
 @media (min-width: 1024px) {
   .login-logo {
-    height: 64px !important;
+    height: 112px !important;
   }
   .login-logo-wrap {
     margin-top: 64px !important;
