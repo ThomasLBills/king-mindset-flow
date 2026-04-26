@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
 import { useEntitlement } from "@/hooks/useEntitlement";
-import { Mail, Lock, ArrowRight, Loader2, Eye, EyeOff } from "lucide-react";
+import { Mail, Lock, Loader2, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import lkLogo from "@/assets/lk-logo-horizontal.png";
 import { supabase } from "@/integrations/supabase/client";
@@ -305,9 +305,7 @@ const Login = () => {
                 {loading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
                 ) : (
-                  <>
-                    Sign In <ArrowRight className="w-4 h-4" />
-                  </>
+                  <>Sign In</>
                 )}
               </button>
             </form>
