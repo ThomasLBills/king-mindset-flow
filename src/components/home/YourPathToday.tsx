@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, ArrowRight, Check } from "lucide-react";
+import { Loader2, Check } from "lucide-react";
 import { differenceInCalendarDays } from "date-fns";
 import DailyCheckIn from "./DailyCheckIn";
 import { useDailyCheckIn } from "@/hooks/useDailyProgress";
@@ -209,7 +209,7 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
 
               <button
                 onClick={() => navigate(`/library/lesson/${currentLesson.id}`)}
-                className="tap-press w-full rounded-[10px] flex items-center justify-center gap-2 select-none"
+                className="tap-press w-full rounded-[10px] flex items-center justify-center select-none"
                 style={{
                   padding: "13px 0",
                   background: "#B8963F",
@@ -222,7 +222,6 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
                 }}
               >
                 Continue Lesson
-                <ArrowRight size={16} strokeWidth={2.25} />
               </button>
             </>
           ) : (
