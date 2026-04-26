@@ -513,3 +513,31 @@
   .stagger-3 { animation-delay: 0.15s; }
   .stagger-4 { animation-delay: 0.2s; }
 }
+
+/* Login page polish */
+.login-field:focus,
+.login-field:focus-visible {
+  outline: none !important;
+  border: 1.5px solid #C9A96A !important;
+  box-shadow: 0 0 0 3px rgba(201, 169, 106, 0.20) !important;
+}
+
+.login-submit:hover:not(:disabled) {
+  background: linear-gradient(180deg, #BD9C5E 0%, #A98843 100%) !important;
+  box-shadow: 0 6px 20px rgba(201, 169, 106, 0.35);
+}
+
+.login-submit:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.login-submit:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+@media (min-width: 1024px) {
+  .login-logo {
+    height: 40px !important;
+  }
+}
