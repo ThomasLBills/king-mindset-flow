@@ -5,46 +5,47 @@ const BrotherhoodCallSection = () => {
 
   return (
     <div
-      className="relative dark-card-gradient rounded-[16px] px-5 py-6 overflow-hidden text-center"
+      className="relative dark-card-gradient rounded-[16px] px-5 py-5 overflow-hidden text-center"
       style={{ fontFamily: sansFont }}
     >
       <h3
-        className="uppercase mb-3 text-lg"
+        className="uppercase mb-5 text-lg"
         style={{ fontWeight: 500, letterSpacing: "0.12em", color: "#B8963F" }}
       >
         Weekly Brotherhood Call
       </h3>
-      <p
-        style={{ fontSize: "14px", fontWeight: 400, color: "#F5F3EE", lineHeight: 1.5 }}
-      >
-        Every Tuesday at 6 PM Central. You don't walk alone.
-      </p>
       {isTuesday ? (
         <a
           href="https://www.riseupkings.com/thomas"
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-block mt-5 rounded-[10px]"
+          className="inline-block rounded-[10px]"
           style={{
-            padding: "12px 28px",
+            padding: "13px 32px",
             background: "#B8963F",
             fontSize: "14px",
-            fontWeight: 600,
+            fontWeight: 700,
+            letterSpacing: "0.04em",
             color: "#1A1A1A",
             fontFamily: sansFont,
             textDecoration: "none",
           }}
         >
-          Join Tonight's Call
+          JOIN CALL NOW
         </a>
       ) : (
         <p
-          className="mt-2"
-          style={{ fontSize: "13px", fontWeight: 400, color: "rgba(245, 243, 238, 0.55)" }}
+          style={{ fontSize: "14px", fontWeight: 400, color: "rgba(245, 243, 238, 0.5)" }}
         >
-          Next Call: Tuesday at 6 PM Central
+          Link Available Tuesday
         </p>
       )}
+      <p
+        className="mt-5"
+        style={{ fontSize: "13px", fontWeight: 400, color: "rgba(245, 243, 238, 0.55)" }}
+      >
+        Next Call: Tuesday at 6 PM Central
+      </p>
     </div>
   );
 };
