@@ -14,14 +14,15 @@ import {
   useCurriculumSettings,
 } from "@/hooks/useCurriculum";
 
+const sansFont = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif";
+
 interface YourPathTodayProps {
   onCheckInComplete: () => void;
   onSpiritPromptWritten?: () => void;
   onNeedSupport: () => void;
 }
 
-const fadeTransition = { duration: 0.2, ease: [0.22, 1, 0.36, 1] as const };
-const sansFont = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif";
+const fadeTransition = { duration: 0.5, ease: [0.22, 1, 0.36, 1] as const };
 
 const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport }: YourPathTodayProps) => {
   const navigate = useNavigate();
@@ -43,10 +44,8 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
     );
   }, [user]);
 
-  const { currentLesson, currentWeek, lessonInWeek, lessonsInWeekTotal } = useMemo(() => {
-    if (!weeks || !allLessons) {
-      return { currentLesson: null, currentWeek: null, lessonInWeek: null, lessonsInWeekTotal: null };
-    }
+  const { currentLesson, lessonNumber } = useMemo(() => {
+    if (!weeks || !allLessons) return { currentLesson: null, lessonNumber: null };
 
     const dripMode = settings?.drip_mode || "weekly";
     const daysSinceEnrollment = enrollment
@@ -60,27 +59,27 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
       return daysSinceEnrollment >= week.unlock_day_offset;
     };
 
+    // Order lessons by week order_index then lesson order_index
     const orderedWeeks = [...weeks].sort((a: any, b: any) => a.order_index - b.order_index);
+    let runningIndex = 0;
     for (let i = 0; i < orderedWeeks.length; i++) {
       const week = orderedWeeks[i];
       const weekLessons = allLessons
         .filter((l: any) => l.week_id === week.id)
         .sort((a: any, b: any) => a.order_index - b.order_index);
-      if (!isWeekUnlocked(week, i)) continue;
-      for (let j = 0; j < weekLessons.length; j++) {
-        const lesson = weekLessons[j];
+      if (!isWeekUnlocked(week, i)) {
+        runningIndex += weekLessons.length;
+        continue;
+      }
+      for (const lesson of weekLessons) {
+        runningIndex += 1;
         const status = progressMap?.get(lesson.id)?.status;
         if (status !== "completed") {
-          return {
-            currentLesson: lesson,
-            currentWeek: week,
-            lessonInWeek: j + 1,
-            lessonsInWeekTotal: weekLessons.length,
-          };
+          return { currentLesson: lesson, lessonNumber: runningIndex };
         }
       }
     }
-    return { currentLesson: null, currentWeek: null, lessonInWeek: null, lessonsInWeekTotal: null };
+    return { currentLesson: null, lessonNumber: null };
   }, [weeks, allLessons, progressMap, enrollment, settings]);
 
   const lessonDoneToday = !currentLesson;
@@ -91,24 +90,31 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
   // Wraps the existing DailyCheckIn component as-is — no logic changes
   if (!isCheckedIn && !isLoading) {
     return (
-      <AnimatePresence mode="wait">
-        <motion.div
-          key="checkin-state"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={fadeTransition}
+      <motion.div
+        key="checkin-state"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={fadeTransition}
+      >
+        <p
+          className="uppercase mb-2"
+          style={{
+            fontFamily: sansFont,
+            fontSize: "11px",
+            fontWeight: 500,
+            letterSpacing: "0.14em",
+            color: "rgba(26, 26, 26, 0.5)",
+          }}
         >
-          <p className="type-eyebrow mb-3" style={{ color: "rgba(26, 26, 26, 0.5)" }}>
-            Your Path Today
-          </p>
-          <DailyCheckIn
-            onComplete={onCheckInComplete}
-            onSpiritPromptWritten={onSpiritPromptWritten}
-            onNeedSupport={onNeedSupport}
-          />
-        </motion.div>
-      </AnimatePresence>
+          Your Path Today
+        </p>
+        <DailyCheckIn
+          onComplete={onCheckInComplete}
+          onSpiritPromptWritten={onSpiritPromptWritten}
+          onNeedSupport={onNeedSupport}
+        />
+      </motion.div>
     );
   }
 
@@ -123,7 +129,16 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
           exit={{ opacity: 0 }}
           transition={fadeTransition}
         >
-          <p className="type-eyebrow mb-3" style={{ color: "rgba(26, 26, 26, 0.5)" }}>
+          <p
+            className="uppercase mb-2"
+            style={{
+              fontFamily: sansFont,
+              fontSize: "11px",
+              fontWeight: 500,
+              letterSpacing: "0.14em",
+              color: "rgba(26, 26, 26, 0.5)",
+            }}
+          >
             Your Path Today
           </p>
           <div
@@ -140,10 +155,27 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
             >
               <Check size={20} strokeWidth={2.25} color="#B8963F" />
             </div>
-            <h2 className="type-title text-center mb-3" style={{ color: "#F5F3EE", fontSize: 20 }}>
+            <h2
+              className="text-center mb-3"
+              style={{
+                fontSize: "20px",
+                fontWeight: 600,
+                letterSpacing: "-0.01em",
+                color: "#F5F3EE",
+                lineHeight: 1.35,
+              }}
+            >
               You&rsquo;ve walked the path today, {firstName}.
             </h2>
-            <p className="type-body text-center" style={{ color: "rgba(245, 243, 238, 0.65)" }}>
+            <p
+              className="text-center"
+              style={{
+                fontSize: "15px",
+                fontWeight: 400,
+                color: "rgba(245, 243, 238, 0.65)",
+                lineHeight: 1.5,
+              }}
+            >
               Rest in who you are.
             </p>
           </div>
@@ -153,8 +185,6 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
   }
 
   // ============ STATE 2: CHECKED IN, LESSON PENDING ============
-  // Per #6: drop the surrounding dark card. Let it sit as flat content
-  // on the page background, anchored only by the gold eyebrow.
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -163,32 +193,65 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={fadeTransition}
-        style={{ fontFamily: sansFont }}
       >
-        <p className="type-eyebrow mb-4" style={{ color: "#B8963F" }}>
+        <p
+          className="uppercase mb-2"
+          style={{
+            fontFamily: sansFont,
+            fontSize: "11px",
+            fontWeight: 500,
+            letterSpacing: "0.14em",
+            color: "rgba(26, 26, 26, 0.5)",
+          }}
+        >
+          Your Path Today
+        </p>
+        <div
+          className="dark-card-gradient rounded-[16px] text-white"
+          style={{ fontFamily: sansFont, padding: "22px 22px 24px" }}
+        >
+          <p
+            className="uppercase mb-3"
+            style={{
+              fontSize: "11px",
+              fontWeight: 500,
+              letterSpacing: "0.12em",
+              color: "#B8963F",
+            }}
+          >
             Continue Your Journey
           </p>
 
           {isLoading ? (
-          <div className="flex items-center gap-2 py-2" style={{ color: "rgba(26,26,26,0.5)" }}>
+            <div className="flex items-center gap-2 py-2" style={{ color: "rgba(245,243,238,0.5)" }}>
               <Loader2 size={16} className="animate-spin" />
-            <span className="type-body">Loading your next step…</span>
+              <span style={{ fontSize: 14 }}>Loading your next step…</span>
             </div>
           ) : currentLesson ? (
             <>
-              {currentWeek && (
-              <p className="type-eyebrow mb-2" style={{ color: "rgba(26, 26, 26, 0.45)" }}>
-                  Week {currentWeek.week_number}
-                  {lessonInWeek && lessonsInWeekTotal
-                    ? ` · Lesson ${lessonInWeek} of ${lessonsInWeekTotal}`
-                    : ""}
-                </p>
-              )}
-            <h2 className="type-title" style={{ color: "#1A1A1A", marginBottom: 6 }}>
+              <h2
+                style={{
+                  fontSize: "22px",
+                  fontWeight: 600,
+                  letterSpacing: "-0.01em",
+                  color: "#F5F3EE",
+                  lineHeight: 1.3,
+                  marginBottom: 6,
+                }}
+              >
+                {lessonNumber ? `Lesson ${lessonNumber}: ` : ""}
                 {currentLesson.title}
               </h2>
               {currentLesson.summary && (
-              <p className="type-body" style={{ color: "rgba(26, 26, 26, 0.6)", marginBottom: 18 }}>
+                <p
+                  style={{
+                    fontSize: "14px",
+                    fontWeight: 400,
+                    color: "rgba(245, 243, 238, 0.6)",
+                    lineHeight: 1.5,
+                    marginBottom: 18,
+                  }}
+                >
                   {currentLesson.summary}
                 </p>
               )}
@@ -198,42 +261,26 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
                 onClick={() => navigate(`/library/lesson/${currentLesson.id}`)}
                 className="tap-press w-full rounded-[10px] flex items-center justify-center gap-2 select-none"
                 style={{
-                padding: "15px 0",
+                  padding: "13px 0",
                   background: "#B8963F",
-                color: "#0A0A0A",
+                  color: "#1A1A1A",
                   fontSize: "14px",
                   fontWeight: 600,
                   fontFamily: sansFont,
                   border: 0,
                   cursor: "pointer",
-                boxShadow: "0 1px 0 rgba(255,255,255,0.08) inset, 0 8px 24px -12px rgba(184,150,63,0.5)",
                 }}
               >
                 Continue Lesson
                 <ArrowRight size={16} strokeWidth={2.25} />
               </button>
-
-              <button
-                onClick={() => navigate("/library")}
-                className="block w-full mt-3 transition-opacity hover:opacity-80"
-                style={{
-                  background: "transparent",
-                  border: 0,
-                  cursor: "pointer",
-                  fontSize: "12.5px",
-                  fontWeight: 500,
-                color: "rgba(26, 26, 26, 0.5)",
-                  letterSpacing: "0.02em",
-                }}
-              >
-                View The Journey →
-              </button>
             </>
           ) : (
-          <p className="type-body" style={{ color: "rgba(26,26,26,0.6)" }}>
+            <p style={{ fontSize: 14, color: "rgba(245,243,238,0.6)" }}>
               Your next lesson will be available soon.
             </p>
           )}
+        </div>
       </motion.div>
     </AnimatePresence>
   );
