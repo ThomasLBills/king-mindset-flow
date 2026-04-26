@@ -305,7 +305,7 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
     <>
       <div className="dark-card-gradient rounded-[16px] p-5 text-white" style={{ fontFamily: sansFont }}>
         <h2
-          className="text-xs font-medium uppercase tracking-[0.06em] text-primary text-center mb-3"
+          className="font-medium uppercase tracking-[0.06em] text-primary text-center mb-3 text-lg"
         >
           Daily Check-In
         </h2>
