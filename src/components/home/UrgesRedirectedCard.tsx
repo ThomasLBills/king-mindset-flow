@@ -39,7 +39,7 @@ const UrgesRedirectedCard = () => {
   }, []);
 
   return (
-    <div className="relative dark-card-gradient rounded-[16px] p-5 overflow-hidden" style={{ fontFamily: sansFont }}>
+    <div className="relative dark-card-gradient rounded-[16px] px-5 pt-5 pb-4 overflow-hidden" style={{ fontFamily: sansFont }}>
       <AnimatePresence>
         {showConfirmation && (
           <motion.div
@@ -63,7 +63,7 @@ const UrgesRedirectedCard = () => {
       </p>
 
 
-      <div className="flex justify-center items-center gap-0 mb-6">
+      <div className="flex justify-center items-center gap-0 mb-5">
         <div className="text-center flex-1">
           <p className="leading-none tabular-nums" style={{ fontSize: "44px", fontWeight: 400, color: "#F5F3EE", letterSpacing: "-0.02em" }}>{dailyCount}</p>
           <p className="mt-4 uppercase" style={{ fontSize: "11px", fontWeight: 500, letterSpacing: "0.12em", color: "rgba(245, 243, 238, 0.5)" }}>Today</p>
@@ -114,51 +114,6 @@ const UrgesRedirectedCard = () => {
           )}
         </span>
       </button>
-
-      {/* Weekly Brotherhood Call */}
-      <div
-        className="mt-6 pt-5"
-        style={{ borderTop: "1px solid rgba(245, 243, 238, 0.08)" }}
-      >
-        <h3
-          className="uppercase text-center mb-2"
-          style={{ fontSize: "11px", fontWeight: 500, letterSpacing: "0.12em", color: "#B8963F" }}
-        >
-          Weekly Brotherhood Call
-        </h3>
-        <p
-          className="text-center mb-4"
-          style={{ fontSize: "13px", fontWeight: 400, color: "#F5F3EE", lineHeight: 1.5 }}
-        >
-          Every Tuesday at 6 PM Central. You don't walk alone.
-        </p>
-        {new Date().getDay() === 2 ? (
-          <a
-            href="https://www.riseupkings.com/thomas"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block w-full rounded-[10px] text-center"
-            style={{
-              padding: "13px 0",
-              background: "#B8963F",
-              fontSize: "14px",
-              fontWeight: 600,
-              color: "#1A1A1A",
-              fontFamily: sansFont,
-              textDecoration: "none",
-            }}
-          >
-            Join Tonight's Call
-          </a>
-        ) : (
-          <p
-            className="text-center"
-            style={{ fontSize: "13px", fontWeight: 400, color: "rgba(245, 243, 238, 0.6)" }}
-          >
-            Next Call: Tuesday at 6 PM Central
-          </p>
-        )}
-      </div>
     </div>
   );
 };
