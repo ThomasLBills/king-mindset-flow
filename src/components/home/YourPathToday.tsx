@@ -14,15 +14,14 @@ import {
   useCurriculumSettings,
 } from "@/hooks/useCurriculum";
 
-const sansFont = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif";
-
 interface YourPathTodayProps {
   onCheckInComplete: () => void;
   onSpiritPromptWritten?: () => void;
   onNeedSupport: () => void;
 }
 
-const fadeTransition = { duration: 0.5, ease: [0.22, 1, 0.36, 1] as const };
+const fadeTransition = { duration: 0.2, ease: [0.22, 1, 0.36, 1] as const };
+const sansFont = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif";
 
 const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport }: YourPathTodayProps) => {
   const navigate = useNavigate();
@@ -92,31 +91,24 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
   // Wraps the existing DailyCheckIn component as-is — no logic changes
   if (!isCheckedIn && !isLoading) {
     return (
-      <motion.div
-        key="checkin-state"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={fadeTransition}
-      >
-        <p
-          className="uppercase mb-2"
-          style={{
-            fontFamily: sansFont,
-            fontSize: "11px",
-            fontWeight: 500,
-            letterSpacing: "0.14em",
-            color: "rgba(26, 26, 26, 0.5)",
-          }}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key="checkin-state"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={fadeTransition}
         >
-          Your Path Today
-        </p>
-        <DailyCheckIn
-          onComplete={onCheckInComplete}
-          onSpiritPromptWritten={onSpiritPromptWritten}
-          onNeedSupport={onNeedSupport}
-        />
-      </motion.div>
+          <p className="type-eyebrow mb-3" style={{ color: "rgba(26, 26, 26, 0.5)" }}>
+            Your Path Today
+          </p>
+          <DailyCheckIn
+            onComplete={onCheckInComplete}
+            onSpiritPromptWritten={onSpiritPromptWritten}
+            onNeedSupport={onNeedSupport}
+          />
+        </motion.div>
+      </AnimatePresence>
     );
   }
 
@@ -131,16 +123,7 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
           exit={{ opacity: 0 }}
           transition={fadeTransition}
         >
-          <p
-            className="uppercase mb-2"
-            style={{
-              fontFamily: sansFont,
-              fontSize: "11px",
-              fontWeight: 500,
-              letterSpacing: "0.14em",
-              color: "rgba(26, 26, 26, 0.5)",
-            }}
-          >
+          <p className="type-eyebrow mb-3" style={{ color: "rgba(26, 26, 26, 0.5)" }}>
             Your Path Today
           </p>
           <div
@@ -157,27 +140,10 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
             >
               <Check size={20} strokeWidth={2.25} color="#B8963F" />
             </div>
-            <h2
-              className="text-center mb-3"
-              style={{
-                fontSize: "20px",
-                fontWeight: 600,
-                letterSpacing: "-0.01em",
-                color: "#F5F3EE",
-                lineHeight: 1.35,
-              }}
-            >
+            <h2 className="type-title text-center mb-3" style={{ color: "#F5F3EE", fontSize: 20 }}>
               You&rsquo;ve walked the path today, {firstName}.
             </h2>
-            <p
-              className="text-center"
-              style={{
-                fontSize: "15px",
-                fontWeight: 400,
-                color: "rgba(245, 243, 238, 0.65)",
-                lineHeight: 1.5,
-              }}
-            >
+            <p className="type-body text-center" style={{ color: "rgba(245, 243, 238, 0.65)" }}>
               Rest in who you are.
             </p>
           </div>
@@ -187,6 +153,8 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
   }
 
   // ============ STATE 2: CHECKED IN, LESSON PENDING ============
+  // Per #6: drop the surrounding dark card. Let it sit as flat content
+  // on the page background, anchored only by the gold eyebrow.
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -195,81 +163,32 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={fadeTransition}
+        style={{ fontFamily: sansFont }}
       >
-        <p
-          className="uppercase mb-2"
-          style={{
-            fontFamily: sansFont,
-            fontSize: "11px",
-            fontWeight: 500,
-            letterSpacing: "0.14em",
-            color: "rgba(26, 26, 26, 0.5)",
-          }}
-        >
-          Your Path Today
-        </p>
-        <div
-          className="dark-card-gradient rounded-[16px] text-white"
-          style={{ fontFamily: sansFont, padding: "22px 22px 24px" }}
-        >
-          <p
-            className="uppercase mb-3"
-            style={{
-              fontSize: "11px",
-              fontWeight: 500,
-              letterSpacing: "0.12em",
-              color: "#B8963F",
-            }}
-          >
+        <p className="type-eyebrow mb-4" style={{ color: "#B8963F" }}>
             Continue Your Journey
           </p>
 
           {isLoading ? (
-            <div className="flex items-center gap-2 py-2" style={{ color: "rgba(245,243,238,0.5)" }}>
+          <div className="flex items-center gap-2 py-2" style={{ color: "rgba(26,26,26,0.5)" }}>
               <Loader2 size={16} className="animate-spin" />
-              <span style={{ fontSize: 14 }}>Loading your next step…</span>
+            <span className="type-body">Loading your next step…</span>
             </div>
           ) : currentLesson ? (
             <>
               {currentWeek && (
-                <p
-                  className="uppercase"
-                  style={{
-                    fontSize: "11px",
-                    fontWeight: 500,
-                    letterSpacing: "0.12em",
-                    color: "rgba(245, 243, 238, 0.55)",
-                    marginBottom: 8,
-                  }}
-                >
+              <p className="type-eyebrow mb-2" style={{ color: "rgba(26, 26, 26, 0.45)" }}>
                   Week {currentWeek.week_number}
                   {lessonInWeek && lessonsInWeekTotal
                     ? ` · Lesson ${lessonInWeek} of ${lessonsInWeekTotal}`
                     : ""}
                 </p>
               )}
-              <h2
-                style={{
-                  fontSize: "22px",
-                  fontWeight: 600,
-                  letterSpacing: "-0.01em",
-                  color: "#F5F3EE",
-                  lineHeight: 1.3,
-                  marginBottom: 6,
-                }}
-              >
+            <h2 className="type-title" style={{ color: "#1A1A1A", marginBottom: 6 }}>
                 {currentLesson.title}
               </h2>
               {currentLesson.summary && (
-                <p
-                  style={{
-                    fontSize: "14px",
-                    fontWeight: 400,
-                    color: "rgba(245, 243, 238, 0.6)",
-                    lineHeight: 1.5,
-                    marginBottom: 18,
-                  }}
-                >
+              <p className="type-body" style={{ color: "rgba(26, 26, 26, 0.6)", marginBottom: 18 }}>
                   {currentLesson.summary}
                 </p>
               )}
@@ -279,14 +198,15 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
                 onClick={() => navigate(`/library/lesson/${currentLesson.id}`)}
                 className="tap-press w-full rounded-[10px] flex items-center justify-center gap-2 select-none"
                 style={{
-                  padding: "13px 0",
+                padding: "15px 0",
                   background: "#B8963F",
-                  color: "#1A1A1A",
+                color: "#0A0A0A",
                   fontSize: "14px",
                   fontWeight: 600,
                   fontFamily: sansFont,
                   border: 0,
                   cursor: "pointer",
+                boxShadow: "0 1px 0 rgba(255,255,255,0.08) inset, 0 8px 24px -12px rgba(184,150,63,0.5)",
                 }}
               >
                 Continue Lesson
@@ -302,7 +222,7 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
                   cursor: "pointer",
                   fontSize: "12.5px",
                   fontWeight: 500,
-                  color: "rgba(245, 243, 238, 0.55)",
+                color: "rgba(26, 26, 26, 0.5)",
                   letterSpacing: "0.02em",
                 }}
               >
@@ -310,11 +230,10 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
               </button>
             </>
           ) : (
-            <p style={{ fontSize: 14, color: "rgba(245,243,238,0.6)" }}>
+          <p className="type-body" style={{ color: "rgba(26,26,26,0.6)" }}>
               Your next lesson will be available soon.
             </p>
           )}
-        </div>
       </motion.div>
     </AnimatePresence>
   );
