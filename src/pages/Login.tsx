@@ -110,7 +110,7 @@ const Login = () => {
           <img
             src={lkLogo}
             alt="Liberated Kings"
-            className="object-contain"
+            className="object-contain login-logo"
             style={{ height: 32 }}
           />
         </div>
@@ -132,7 +132,7 @@ const Login = () => {
 
         {/* Card */}
         <div
-          className="w-full"
+          className="w-full login-card"
           style={{
             backgroundColor: "#FFFFFF",
             borderRadius: 16,
