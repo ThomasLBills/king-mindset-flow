@@ -12,7 +12,7 @@ const FreedomStrip = () => {
         Liberated
       </h2>
       <p className="text-center mb-[14px]" style={{ fontSize: "12px", fontWeight: 400, color: "#F5F3EE" }}>
-        My evidence this week
+        My Evidence
       </p>
 
       {isLoading ? (
