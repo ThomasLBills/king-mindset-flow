@@ -172,7 +172,7 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
       >
         <div
           className="dark-card-gradient rounded-[16px] text-white"
-          style={{ fontFamily: sansFont, padding: "22px 22px 24px" }}
+          style={{ fontFamily: sansFont, padding: "28px 22px 30px" }}
         >
           <p
             className="uppercase mb-3"
@@ -195,31 +195,17 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
             <>
               <h2
                 style={{
-                  fontSize: "22px",
+                  fontSize: "26px",
                   fontWeight: 600,
                   letterSpacing: "-0.01em",
                   color: "#F5F3EE",
                   lineHeight: 1.3,
-                  marginBottom: 6,
+                  marginBottom: 22,
                 }}
               >
                 {lessonNumber ? `Lesson ${lessonNumber}: ` : ""}
                 {currentLesson.title}
               </h2>
-              {currentLesson.summary && (
-                <p
-                  style={{
-                    fontSize: "14px",
-                    fontWeight: 400,
-                    color: "rgba(245, 243, 238, 0.6)",
-                    lineHeight: 1.5,
-                    marginBottom: 18,
-                  }}
-                >
-                  {currentLesson.summary}
-                </p>
-              )}
-              {!currentLesson.summary && <div style={{ height: 18 }} />}
 
               <button
                 onClick={() => navigate(`/library/lesson/${currentLesson.id}`)}
