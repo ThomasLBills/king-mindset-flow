@@ -55,7 +55,7 @@ const UrgesRedirectedCard = () => {
         )}
       </AnimatePresence>
 
-      <h2 className="uppercase text-center mb-2" style={{ fontSize: "11px", fontWeight: 500, letterSpacing: "0.12em", color: "#B8963F" }}>
+      <h2 className="uppercase text-center mb-2 text-lg" style={{ fontWeight: 500, letterSpacing: "0.12em", color: "#B8963F" }}>
         Urges Redirected
       </h2>
       <p className="text-center mb-6" style={{ fontSize: "14px", fontWeight: 400, color: "#F5F3EE" }}>
