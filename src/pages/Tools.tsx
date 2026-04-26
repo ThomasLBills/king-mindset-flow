@@ -29,6 +29,14 @@ const ToolsPage = () => {
 
   const actionCards = [
     {
+      title: "Help Me Right Now",
+      subtitle: "You are not alone in this moment",
+      icon: Sparkles,
+      onClick: () => setShowHelpMeNow(true),
+      urgent: false,
+      gold: false,
+    },
+    {
       title: "I Am Being Tempted",
       subtitle: "Notice. Name. Navigate.",
       icon: ShieldCheck,
@@ -99,64 +107,6 @@ const ToolsPage = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05 }}
         >
-          {/* Help Me Right Now — AI-guided entry */}
-          <button
-            onClick={() => setShowHelpMeNow(true)}
-            className="w-full text-left rounded-[14px] mb-4 transition-transform active:scale-[0.99] flex items-center gap-3"
-            style={{
-              padding: "16px 18px",
-              background: "linear-gradient(135deg, rgba(184,150,63,0.16) 0%, rgba(184,150,63,0.06) 100%)",
-              border: "1px solid rgba(184, 150, 63, 0.35)",
-            }}
-          >
-            <div
-              className="flex items-center justify-center rounded-full shrink-0"
-              style={{
-                width: 44,
-                height: 44,
-                background: "rgba(184, 150, 63, 0.18)",
-              }}
-            >
-              <Sparkles size={20} color="#B8963F" strokeWidth={2} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div
-                style={{
-                  fontFamily: systemSans,
-                  fontSize: "16px",
-                  fontWeight: 600,
-                  color: "#F5F3EE",
-                  letterSpacing: "-0.01em",
-                }}
-              >
-                Help Me Right Now
-              </div>
-              <div
-                style={{
-                  fontFamily: systemSans,
-                  fontSize: "13px",
-                  color: "rgba(245, 243, 238, 0.65)",
-                  marginTop: 2,
-                }}
-              >
-                You are not alone in this moment
-              </div>
-            </div>
-            <span
-              className="rounded-[8px] shrink-0"
-              style={{
-                padding: "8px 14px",
-                background: "#B8963F",
-                color: "#1A1A1A",
-                fontSize: "13px",
-                fontWeight: 600,
-                fontFamily: systemSans,
-              }}
-            >
-              Start
-            </span>
-          </button>
-
           <p
             style={{
               fontFamily: systemSans,
