@@ -357,8 +357,14 @@ const Login = () => {
         </div>
         </div>
 
+        {/* Top spacer to balance bottom flex-grow so card sits centered */}
+        <div className="flex-1 w-full" style={{ minHeight: 32 }} />
+
         {/* Bottom Scripture — quiet anchor */}
-        <div className="login-verse w-full flex flex-col items-center">
+        <div
+          className="login-verse w-full flex flex-col items-center"
+          style={{ paddingTop: 48, paddingBottom: 32 }}
+        >
           <div
             aria-hidden="true"
             style={{
