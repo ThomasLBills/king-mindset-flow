@@ -25,7 +25,7 @@ const Index = () => {
         }}
       >
         {/* Personalized Greeting */}
-        <div className="pt-2 pb-1">
+        <div className="pt-2 -mb-4">
           <span
             className="greeting-sans block text-[22px] text-[#1A1A1A]"
             style={{ fontWeight: 600, letterSpacing: "-0.02em" }}
@@ -37,16 +37,6 @@ const Index = () => {
               return `${greeting}, ${firstName}.`;
             })()}
           </span>
-          <p
-            className="text-[15px] mt-1"
-            style={{
-              fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif",
-              fontWeight: 400,
-              color: "rgba(26, 26, 26, 0.6)",
-            }}
-          >
-            Walk in who you already are.
-          </p>
         </div>
 
         {/* 1. Your Path Today (Primary) */}
