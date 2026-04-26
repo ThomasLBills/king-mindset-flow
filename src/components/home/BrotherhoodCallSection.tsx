@@ -1,5 +1,3 @@
-import { Users } from "lucide-react";
-
 const sansFont = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif";
 
 const BrotherhoodCallSection = () => {
@@ -10,9 +8,6 @@ const BrotherhoodCallSection = () => {
       className="relative dark-card-gradient rounded-[16px] px-5 py-6 overflow-hidden text-center"
       style={{ fontFamily: sansFont }}
     >
-      <div className="flex justify-center mb-3">
-        <Users size={20} strokeWidth={1.75} style={{ color: "#B8963F" }} />
-      </div>
       <h3
         className="uppercase mb-3"
         style={{ fontSize: "11px", fontWeight: 500, letterSpacing: "0.12em", color: "#B8963F" }}
