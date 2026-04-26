@@ -172,14 +172,14 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
       >
         <div
           className="dark-card-gradient rounded-[16px] text-white"
-          style={{ fontFamily: sansFont, padding: "28px 22px 30px" }}
+          style={{ fontFamily: sansFont, padding: "36px 22px 36px" }}
         >
           <p
-            className="uppercase mb-3"
+            className="uppercase mb-4 text-center"
             style={{
-              fontSize: "11px",
+              fontSize: "12.5px",
               fontWeight: 500,
-              letterSpacing: "0.12em",
+              letterSpacing: "0.18em",
               color: "#B8963F",
             }}
           >
@@ -187,20 +187,21 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
           </p>
 
           {isLoading ? (
-            <div className="flex items-center gap-2 py-2" style={{ color: "rgba(245,243,238,0.5)" }}>
+            <div className="flex items-center justify-center gap-2 py-2" style={{ color: "rgba(245,243,238,0.5)" }}>
               <Loader2 size={16} className="animate-spin" />
               <span style={{ fontSize: 14 }}>Loading your next step…</span>
             </div>
           ) : currentLesson ? (
             <>
               <h2
+                className="text-center"
                 style={{
                   fontSize: "26px",
                   fontWeight: 600,
                   letterSpacing: "-0.01em",
                   color: "#F5F3EE",
-                  lineHeight: 1.3,
-                  marginBottom: 22,
+                  lineHeight: 1.35,
+                  marginBottom: 26,
                 }}
               >
                 {lessonNumber ? `Lesson ${lessonNumber}: ` : ""}
@@ -209,7 +210,7 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
 
               <button
                 onClick={() => navigate(`/library/lesson/${currentLesson.id}`)}
-                className="tap-press w-full rounded-[10px] flex items-center justify-center select-none"
+                className="tap-press w-full rounded-[10px] flex items-center justify-center select-none transition-transform duration-150 active:scale-[0.97]"
                 style={{
                   padding: "13px 0",
                   background: "#B8963F",
@@ -225,7 +226,7 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
               </button>
             </>
           ) : (
-            <p style={{ fontSize: 14, color: "rgba(245,243,238,0.6)" }}>
+            <p className="text-center" style={{ fontSize: 14, color: "rgba(245,243,238,0.6)" }}>
               Your next lesson will be available soon.
             </p>
           )}
