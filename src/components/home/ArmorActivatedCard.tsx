@@ -15,7 +15,7 @@ const ArmorActivatedCard = () => {
         Armor Activated
       </h2>
       <p className="text-center mb-[14px]" style={{ fontSize: "12px", fontWeight: 400, color: "#F5F3EE" }}>
-        All Kings this week
+        All Kings
       </p>
 
       {isLoading ? (
