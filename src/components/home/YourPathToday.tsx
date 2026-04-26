@@ -143,15 +143,7 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
             >
               You&rsquo;ve walked the path today, {firstName}.
             </h2>
-            <p
-              className="text-center"
-              style={{
-                fontSize: "15px",
-                fontWeight: 400,
-                color: "rgba(245, 243, 238, 0.65)",
-                lineHeight: 1.5,
-              }}
-            >
+            <p className="mt-1 text-primary font-bold text-base text-center">
               Rest in who you are.
             </p>
           </div>
