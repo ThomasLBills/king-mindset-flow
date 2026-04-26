@@ -144,7 +144,7 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
               You&rsquo;ve walked the path today, {firstName}.
             </h2>
             <p className="mt-1 text-primary font-bold text-base text-center">
-              Rest in who you are.
+              Walk in who you already are.
             </p>
           </div>
         </motion.div>
