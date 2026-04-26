@@ -67,18 +67,6 @@ const Index = () => {
 
         {/* 3. This Week's Evidence */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-          <p
-            className="uppercase mb-2"
-            style={{
-              fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif",
-              fontSize: "11px",
-              fontWeight: 500,
-              letterSpacing: "0.14em",
-              color: "rgba(26, 26, 26, 0.5)",
-            }}
-          >
-            This Week's Evidence
-          </p>
           <div className="grid grid-cols-2 gap-[10px] items-stretch">
             <ArmorActivatedCard />
             <FreedomStrip />
