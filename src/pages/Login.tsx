@@ -116,7 +116,7 @@ const Login = () => {
             src={lkLogo}
             alt="Liberated Kings"
             className="object-contain login-logo"
-            style={{ height: 56, width: "auto", display: "block" }}
+            style={{ height: 88, width: "auto", display: "block" }}
           />
         </a>
 
