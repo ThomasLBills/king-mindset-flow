@@ -8,7 +8,10 @@ const BrotherhoodCallSection = () => {
       className="relative dark-card-gradient rounded-[16px] px-5 py-6 overflow-hidden text-center"
       style={{ fontFamily: sansFont }}
     >
-      <h3 className="uppercase mb-3 text-lg text-primary">
+      <h3
+        className="uppercase mb-3 text-lg"
+        style={{ fontWeight: 500, letterSpacing: "0.12em", color: "#B8963F" }}
+      >
         Weekly Brotherhood Call
       </h3>
       <p
