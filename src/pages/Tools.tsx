@@ -33,7 +33,7 @@ const ToolsPage = () => {
       subtitle: "You are not alone in this moment",
       icon: Sparkles,
       onClick: () => setShowHelpMeNow(true),
-      urgent: false,
+      urgent: true,
       gold: false,
     },
     {
@@ -41,7 +41,7 @@ const ToolsPage = () => {
       subtitle: "Notice. Name. Navigate.",
       icon: ShieldCheck,
       onClick: () => setShowCrisisModal(true),
-      urgent: true,
+      urgent: false,
       gold: false,
     },
     {
