@@ -436,7 +436,6 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
                       : "bg-[hsl(225_12%_10%)] text-muted-foreground border border-primary/30 shadow-none cursor-not-allowed"
                   )}
                 >
-                  <Check className="w-4 h-4" />
                   Complete Check-In
                 </Button>
               </div>
