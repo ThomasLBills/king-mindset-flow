@@ -141,7 +141,7 @@ const Login = () => {
             border: "1.5px solid rgba(201, 169, 106, 0.6)",
           }}
         >
-          <div className="sm:!p-2">
+          <div>
             <div className="text-center mb-6">
               <h1
                 style={{
