@@ -11,7 +11,7 @@ const ArmorActivatedCard = () => {
 
   return (
     <div className="dark-card-gradient rounded-[16px] p-[18px] h-full flex flex-col" style={{ fontFamily: sansFont }}>
-      <h2 className="uppercase text-center mb-0.5 text-sm" style={{ fontWeight: 500, letterSpacing: "0.12em", color: "#B8963F" }}>
+      <h2 className="uppercase text-center mb-0.5 text-xs" style={{ fontWeight: 500, letterSpacing: "0.12em", color: "#B8963F" }}>
         Armor Activated
       </h2>
       <p className="text-center mb-[14px]" style={{ fontSize: "12px", fontWeight: 400, color: "#B8963F" }}>
