@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShieldCheck, RotateCcw, Layers, Heart, BookOpen } from "lucide-react";
+import { ShieldCheck, RotateCcw, Layers, Heart, BookOpen, Sparkles } from "lucide-react";
 import AppLayout from "@/components/layout/AppLayout";
 import GraceProtocol from "@/components/tools/GraceProtocol";
 import GratitudeModal from "@/components/tools/GratitudeModal";
 import ScriptureTool from "@/components/tools/ScriptureTool";
 import DeclarationsModal from "@/components/tools/DeclarationsModal";
 import { SpiritLedCrisisModal } from "@/components/layout/SpiritLedCrisisButton";
+import HelpMeNowModal, { ToolKey } from "@/components/tools/HelpMeNowModal";
 
 const systemSans = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif";
 
@@ -16,6 +17,15 @@ const ToolsPage = () => {
   const [showDeclarations, setShowDeclarations] = useState(false);
   const [showGratitude, setShowGratitude] = useState(false);
   const [showScripture, setShowScripture] = useState(false);
+  const [showHelpMeNow, setShowHelpMeNow] = useState(false);
+
+  const openToolByKey = (key: ToolKey) => {
+    if (key === "tempted") setShowCrisisModal(true);
+    else if (key === "return") setShowGraceProtocol(true);
+    else if (key === "scripture") setShowScripture(true);
+    else if (key === "truth") setShowDeclarations(true);
+    else if (key === "gratitude") setShowGratitude(true);
+  };
 
   const actionCards = [
     {
@@ -89,6 +99,64 @@ const ToolsPage = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05 }}
         >
+          {/* Help Me Right Now — AI-guided entry */}
+          <button
+            onClick={() => setShowHelpMeNow(true)}
+            className="w-full text-left rounded-[14px] mb-4 transition-transform active:scale-[0.99] flex items-center gap-3"
+            style={{
+              padding: "16px 18px",
+              background: "linear-gradient(135deg, rgba(184,150,63,0.16) 0%, rgba(184,150,63,0.06) 100%)",
+              border: "1px solid rgba(184, 150, 63, 0.35)",
+            }}
+          >
+            <div
+              className="flex items-center justify-center rounded-full shrink-0"
+              style={{
+                width: 44,
+                height: 44,
+                background: "rgba(184, 150, 63, 0.18)",
+              }}
+            >
+              <Sparkles size={20} color="#B8963F" strokeWidth={2} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div
+                style={{
+                  fontFamily: systemSans,
+                  fontSize: "16px",
+                  fontWeight: 600,
+                  color: "#F5F3EE",
+                  letterSpacing: "-0.01em",
+                }}
+              >
+                Help Me Right Now
+              </div>
+              <div
+                style={{
+                  fontFamily: systemSans,
+                  fontSize: "13px",
+                  color: "rgba(245, 243, 238, 0.65)",
+                  marginTop: 2,
+                }}
+              >
+                You are not alone in this moment
+              </div>
+            </div>
+            <span
+              className="rounded-[8px] shrink-0"
+              style={{
+                padding: "8px 14px",
+                background: "#B8963F",
+                color: "#1A1A1A",
+                fontSize: "13px",
+                fontWeight: 600,
+                fontFamily: systemSans,
+              }}
+            >
+              Start
+            </span>
+          </button>
+
           <p
             style={{
               fontFamily: systemSans,
@@ -134,6 +202,12 @@ const ToolsPage = () => {
         {showGratitude && <GratitudeModal onClose={() => setShowGratitude(false)} />}
         {showDeclarations && <DeclarationsModal onClose={() => setShowDeclarations(false)} />}
         {showScripture && <ScriptureTool onClose={() => setShowScripture(false)} />}
+        {showHelpMeNow && (
+          <HelpMeNowModal
+            onClose={() => setShowHelpMeNow(false)}
+            onOpenTool={openToolByKey}
+          />
+        )}
       </AnimatePresence>
     </AppLayout>
   );
