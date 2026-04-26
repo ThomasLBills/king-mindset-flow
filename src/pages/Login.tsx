@@ -355,6 +355,34 @@ const Login = () => {
             </div>
           </div>
         </div>
+        </div>
+
+        {/* Bottom Scripture — quiet anchor */}
+        <div className="login-verse w-full flex flex-col items-center">
+          <div
+            aria-hidden="true"
+            style={{
+              width: 60,
+              height: 1,
+              backgroundColor: "rgba(201, 169, 106, 0.3)",
+              marginBottom: 20,
+            }}
+          />
+          <p
+            className="text-center"
+            style={{
+              fontFamily: "'Crimson Pro', Georgia, serif",
+              fontStyle: "italic",
+              fontSize: 13,
+              lineHeight: 1.5,
+              color: "#B8964F",
+              maxWidth: 320,
+              margin: 0,
+            }}
+          >
+            "So if the Son sets you free, you will be free indeed." — John 8:36
+          </p>
+        </div>
       </motion.div>
     </div>
   );
