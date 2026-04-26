@@ -1,14 +1,7 @@
 const sansFont = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif";
 
-// TEMP TEST MODE — set to false (or remove) after verifying Tuesday rendering.
-const FORCE_TUESDAY = true;
-
-const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-
 const BrotherhoodCallSection = () => {
-  const actualDayIndex = new Date().getDay();
-  const actualDayName = DAY_NAMES[actualDayIndex];
-  const isTuesday = FORCE_TUESDAY || actualDayIndex === 2;
+  const isTuesday = new Date().getDay() === 2;
 
   return (
     <div
@@ -45,13 +38,6 @@ const BrotherhoodCallSection = () => {
           JOIN CALL NOW
         </a>
       )}
-      {/* TEMP DEBUG — remove after testing */}
-      <p
-        className="mt-4"
-        style={{ fontSize: "11px", fontWeight: 400, color: "rgba(245, 243, 238, 0.4)" }}
-      >
-        Detected Day: {actualDayName}
-      </p>
     </div>
   );
 };
