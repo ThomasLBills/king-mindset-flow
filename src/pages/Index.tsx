@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import AppLayout from "@/components/layout/AppLayout";
 import FreedomStrip from "@/components/home/FreedomStrip";
 import UrgesRedirectedCard from "@/components/home/UrgesRedirectedCard";
+import BrotherhoodCallSection from "@/components/home/BrotherhoodCallSection";
 import ArmorActivatedCard from "@/components/home/ArmorActivatedCard";
 import ReachOut from "@/components/brotherhood/ReachOut";
 import YourPathToday from "@/components/home/YourPathToday";
@@ -53,6 +54,16 @@ const Index = () => {
         {/* 2. Urges Redirected */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
           <UrgesRedirectedCard />
+        </motion.div>
+
+        {/* 2b. Weekly Brotherhood Call */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.125 }}
+          className="-mt-2"
+        >
+          <BrotherhoodCallSection />
         </motion.div>
 
         {/* 3. This Week's Evidence */}
