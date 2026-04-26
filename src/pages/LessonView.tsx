@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ChevronLeft, Check, Loader2, Play, BookOpen, Music, FileText, Link as LinkIcon, Image as ImageIcon } from "lucide-react";
 import { useMarkLessonComplete, useCurriculumLessonProgress } from "@/hooks/useCurriculum";
+import { useEvidenceCounter } from "@/hooks/useEvidenceCounter";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 
@@ -21,6 +22,7 @@ const LessonView = () => {
   const { toast } = useToast();
   const markComplete = useMarkLessonComplete();
   const { data: progressMap } = useCurriculumLessonProgress();
+  const { addEvidence } = useEvidenceCounter();
 
   const { data: lesson, isLoading } = useQuery({
     queryKey: ["public-curriculum-lesson", lessonId],
@@ -41,7 +43,11 @@ const LessonView = () => {
 
   const handleMarkComplete = async () => {
     if (!lessonId) return;
+    const wasAlreadyComplete = progressMap?.get(lessonId)?.status === "completed";
     await markComplete.mutateAsync(lessonId);
+    if (!wasAlreadyComplete) {
+      addEvidence.mutate("lesson_complete");
+    }
     toast({ title: "Lesson marked complete!" });
   };
 
