@@ -39,7 +39,7 @@ const UrgesRedirectedCard = () => {
   }, []);
 
   return (
-    <div className="relative dark-card-gradient rounded-[16px] p-5 overflow-hidden" style={{ fontFamily: sansFont }}>
+    <div className="relative dark-card-gradient rounded-[16px] px-5 pt-5 pb-4 overflow-hidden" style={{ fontFamily: sansFont }}>
       <AnimatePresence>
         {showConfirmation && (
           <motion.div
@@ -63,7 +63,7 @@ const UrgesRedirectedCard = () => {
       </p>
 
 
-      <div className="flex justify-center items-center gap-0 mb-6">
+      <div className="flex justify-center items-center gap-0 mb-5">
         <div className="text-center flex-1">
           <p className="leading-none tabular-nums" style={{ fontSize: "44px", fontWeight: 400, color: "#F5F3EE", letterSpacing: "-0.02em" }}>{dailyCount}</p>
           <p className="mt-4 uppercase" style={{ fontSize: "11px", fontWeight: 500, letterSpacing: "0.12em", color: "rgba(245, 243, 238, 0.5)" }}>Today</p>
