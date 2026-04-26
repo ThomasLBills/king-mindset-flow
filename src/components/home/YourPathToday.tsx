@@ -97,18 +97,6 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
         exit={{ opacity: 0 }}
         transition={fadeTransition}
       >
-        <p
-          className="uppercase mb-2"
-          style={{
-            fontFamily: sansFont,
-            fontSize: "11px",
-            fontWeight: 500,
-            letterSpacing: "0.14em",
-            color: "rgba(26, 26, 26, 0.5)",
-          }}
-        >
-          Your Path Today
-        </p>
         <DailyCheckIn
           onComplete={onCheckInComplete}
           onSpiritPromptWritten={onSpiritPromptWritten}
@@ -129,18 +117,6 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
           exit={{ opacity: 0 }}
           transition={fadeTransition}
         >
-          <p
-            className="uppercase mb-2"
-            style={{
-              fontFamily: sansFont,
-              fontSize: "11px",
-              fontWeight: 500,
-              letterSpacing: "0.14em",
-              color: "rgba(26, 26, 26, 0.5)",
-            }}
-          >
-            Your Path Today
-          </p>
           <div
             className="dark-card-gradient rounded-[16px] text-white"
             style={{ fontFamily: sansFont, padding: "28px 22px" }}
@@ -194,18 +170,6 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
         exit={{ opacity: 0 }}
         transition={fadeTransition}
       >
-        <p
-          className="uppercase mb-2"
-          style={{
-            fontFamily: sansFont,
-            fontSize: "11px",
-            fontWeight: 500,
-            letterSpacing: "0.14em",
-            color: "rgba(26, 26, 26, 0.5)",
-          }}
-        >
-          Your Path Today
-        </p>
         <div
           className="dark-card-gradient rounded-[16px] text-white"
           style={{ fontFamily: sansFont, padding: "22px 22px 24px" }}
