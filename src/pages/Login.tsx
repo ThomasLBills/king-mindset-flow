@@ -81,7 +81,7 @@ const Login = () => {
 
   return (
     <div
-      className="min-h-screen w-full flex flex-col items-center justify-center px-6 py-10"
+      className="min-h-screen w-full flex flex-col items-center justify-center px-6"
       style={{
         backgroundColor: "#FAF7F2",
         backgroundImage:
@@ -105,15 +105,20 @@ const Login = () => {
         className="relative w-full mx-auto flex flex-col items-center"
         style={{ maxWidth: 420 }}
       >
-        {/* Logo */}
-        <div className="flex justify-center mb-5 sm:mb-6">
+        {/* Logo — crest treatment */}
+        <a
+          href="/"
+          aria-label="Liberated Kings — Home"
+          className="flex justify-center login-logo-wrap"
+          style={{ marginTop: 48, marginBottom: 36 }}
+        >
           <img
             src={lkLogo}
             alt="Liberated Kings"
             className="object-contain login-logo"
-            style={{ height: 32 }}
+            style={{ height: 56, width: "auto", display: "block" }}
           />
-        </div>
+        </a>
 
         {/* Daily Scripture */}
         <p

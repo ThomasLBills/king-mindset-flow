@@ -544,3 +544,16 @@
     padding: 40px !important;
   }
 }
+
+/* Login logo crest treatment */
+.login-logo {
+  height: 56px;
+}
+@media (min-width: 1024px) {
+  .login-logo {
+    height: 64px !important;
+  }
+  .login-logo-wrap {
+    margin-top: 64px !important;
+  }
+}
