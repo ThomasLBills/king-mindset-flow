@@ -242,7 +242,7 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
                 {lessonNumber ? `Lesson ${lessonNumber}: ` : ""}
                 {currentLesson.title}
               </h2>
-              {currentLesson.subtitle && (
+              {currentLesson.summary && (
                 <p
                   style={{
                     fontSize: "14px",
@@ -252,10 +252,10 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
                     marginBottom: 18,
                   }}
                 >
-                  {currentLesson.subtitle}
+                  {currentLesson.summary}
                 </p>
               )}
-              {!currentLesson.subtitle && <div style={{ height: 18 }} />}
+              {!currentLesson.summary && <div style={{ height: 18 }} />}
 
               <button
                 onClick={() => navigate(`/library/lesson/${currentLesson.id}`)}
