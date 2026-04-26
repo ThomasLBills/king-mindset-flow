@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useDailyCheckIn } from "@/hooks/useDailyProgress";
+import { useEvidenceCounter } from "@/hooks/useEvidenceCounter";
+import { useQueryClient } from "@tanstack/react-query";
 
 const sansFont = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif";
 
@@ -235,6 +237,8 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
   const [showMore, setShowMore] = useState(false);
   const spiritRef = useRef<HTMLTextAreaElement>(null);
   const { isCheckedIn, todayCheckIn, submitCheckIn } = useDailyCheckIn();
+  const { addEvidence } = useEvidenceCounter();
+  const qc = useQueryClient();
 
   // Extra options shuffled once per session; core options stay in fixed order
   const shuffledExtra = useMemo(() => {
@@ -292,11 +296,30 @@ const DailyCheckIn = ({ onComplete, onNeedSupport, onSpiritPromptWritten }: Dail
   const handleComplete = async () => {
     const spiritText = spiritRef.current?.value.trim() || "";
     const hasSpirit = spiritText.length > 0;
+    // Capture whether this is the FIRST check-in of the day BEFORE we submit.
+    // Idempotency: only the first check-in of the day logs an evidence event.
+    const wasFirstCheckInToday = !isCheckedIn;
     await submitCheckIn.mutateAsync({
       feelings: selectedAwareness ? [selectedAwareness] : [],
       needsSupport,
       spiritResponse: hasSpirit ? spiritText : undefined,
     });
+
+    if (wasFirstCheckInToday) {
+      try {
+        await addEvidence.mutateAsync("check_in");
+      } catch (err) {
+        // Non-fatal — the check-in itself succeeded.
+        console.error("Failed to log check_in evidence:", err);
+      }
+      // Force-refresh personal & community stats immediately so the dashboard
+      // counters update without a manual page refresh.
+      qc.invalidateQueries({ queryKey: ["evidence-count"] });
+      qc.invalidateQueries({ queryKey: ["urge-count-daily"] });
+      qc.invalidateQueries({ queryKey: ["urge-count-lifetime"] });
+      qc.invalidateQueries({ queryKey: ["community-armor-stats"] });
+    }
+
     if (hasSpirit && onSpiritPromptWritten) onSpiritPromptWritten();
     setShowOverlay(true);
   };
