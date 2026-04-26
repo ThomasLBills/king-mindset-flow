@@ -168,7 +168,8 @@ const LibraryPage = () => {
           {(weeks ?? []).map((week, index) => {
             const unlocked = isWeekUnlocked(week, index);
             const completed = isWeekCompleted(week.id);
-            const isCurrent = week.id === currentWeekId;
+            const isWorkbook = week.week_number === 0;
+            const isCurrent = !isWorkbook && week.id === currentWeekId;
             const weekProgress = getWeekProgress(week.id);
             const lessons = getLessonsForWeek(week.id);
 
@@ -190,7 +191,7 @@ const LibraryPage = () => {
                     width: "100%",
                     textAlign: "left",
                     padding: "18px 20px",
-                    borderRadius: isCurrent ? "0 14px 14px 0" : 14,
+                    borderRadius: 14,
                     background: "linear-gradient(180deg, #1C1C1C 0%, #161616 100%)",
                     border: "none",
                     outline: "none",
@@ -208,7 +209,7 @@ const LibraryPage = () => {
                     width: 32,
                     height: 32,
                     borderRadius: 8,
-                    background: completed
+                    background: completed || isWorkbook
                       ? "rgba(196, 162, 78, 0.1)"
                       : isCurrent
                         ? "rgba(196, 162, 78, 0.15)"
@@ -218,7 +219,9 @@ const LibraryPage = () => {
                     justifyContent: "center",
                     flexShrink: 0,
                   }}>
-                    {completed ? (
+                    {isWorkbook ? (
+                      <BookOpen style={{ width: 16, height: 16, color: "#B8963F", strokeWidth: 2 }} />
+                    ) : completed ? (
                       <Check style={{ width: 16, height: 16, color: "#B8963F", strokeWidth: 2, fill: "none" }} />
                     ) : isCurrent ? (
                       <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#B8963F" }} />
@@ -239,7 +242,7 @@ const LibraryPage = () => {
                       display: "block",
                       marginBottom: 2,
                     }}>
-                      Week {week.week_number}{isCurrent ? " — Current" : ""}
+                      {isWorkbook ? "Workbook" : `Week ${week.week_number}${isCurrent ? " — Current" : ""}`}
                     </span>
                     <h3 style={{
                       fontFamily: sansFont,
