@@ -44,8 +44,10 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
     );
   }, [user]);
 
-  const { currentLesson, lessonNumber } = useMemo(() => {
-    if (!weeks || !allLessons) return { currentLesson: null, lessonNumber: null };
+  const { currentLesson, currentWeek, lessonInWeek, lessonsInWeekTotal } = useMemo(() => {
+    if (!weeks || !allLessons) {
+      return { currentLesson: null, currentWeek: null, lessonInWeek: null, lessonsInWeekTotal: null };
+    }
 
     const dripMode = settings?.drip_mode || "weekly";
     const daysSinceEnrollment = enrollment
@@ -59,27 +61,27 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
       return daysSinceEnrollment >= week.unlock_day_offset;
     };
 
-    // Order lessons by week order_index then lesson order_index
     const orderedWeeks = [...weeks].sort((a: any, b: any) => a.order_index - b.order_index);
-    let runningIndex = 0;
     for (let i = 0; i < orderedWeeks.length; i++) {
       const week = orderedWeeks[i];
       const weekLessons = allLessons
         .filter((l: any) => l.week_id === week.id)
         .sort((a: any, b: any) => a.order_index - b.order_index);
-      if (!isWeekUnlocked(week, i)) {
-        runningIndex += weekLessons.length;
-        continue;
-      }
-      for (const lesson of weekLessons) {
-        runningIndex += 1;
+      if (!isWeekUnlocked(week, i)) continue;
+      for (let j = 0; j < weekLessons.length; j++) {
+        const lesson = weekLessons[j];
         const status = progressMap?.get(lesson.id)?.status;
         if (status !== "completed") {
-          return { currentLesson: lesson, lessonNumber: runningIndex };
+          return {
+            currentLesson: lesson,
+            currentWeek: week,
+            lessonInWeek: j + 1,
+            lessonsInWeekTotal: weekLessons.length,
+          };
         }
       }
     }
-    return { currentLesson: null, lessonNumber: null };
+    return { currentLesson: null, currentWeek: null, lessonInWeek: null, lessonsInWeekTotal: null };
   }, [weeks, allLessons, progressMap, enrollment, settings]);
 
   const lessonDoneToday = !currentLesson;
@@ -229,6 +231,23 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
             </div>
           ) : currentLesson ? (
             <>
+              {currentWeek && (
+                <p
+                  className="uppercase"
+                  style={{
+                    fontSize: "11px",
+                    fontWeight: 500,
+                    letterSpacing: "0.12em",
+                    color: "rgba(245, 243, 238, 0.55)",
+                    marginBottom: 8,
+                  }}
+                >
+                  Week {currentWeek.week_number}
+                  {lessonInWeek && lessonsInWeekTotal
+                    ? ` · Lesson ${lessonInWeek} of ${lessonsInWeekTotal}`
+                    : ""}
+                </p>
+              )}
               <h2
                 style={{
                   fontSize: "22px",
@@ -239,7 +258,6 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
                   marginBottom: 6,
                 }}
               >
-                {lessonNumber ? `Lesson ${lessonNumber}: ` : ""}
                 {currentLesson.title}
               </h2>
               {currentLesson.summary && (
@@ -273,6 +291,22 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
               >
                 Continue Lesson
                 <ArrowRight size={16} strokeWidth={2.25} />
+              </button>
+
+              <button
+                onClick={() => navigate("/library")}
+                className="block w-full mt-3 transition-opacity hover:opacity-80"
+                style={{
+                  background: "transparent",
+                  border: 0,
+                  cursor: "pointer",
+                  fontSize: "12.5px",
+                  fontWeight: 500,
+                  color: "rgba(245, 243, 238, 0.55)",
+                  letterSpacing: "0.02em",
+                }}
+              >
+                View The Journey →
               </button>
             </>
           ) : (

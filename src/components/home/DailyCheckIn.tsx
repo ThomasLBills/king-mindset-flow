@@ -114,33 +114,107 @@ const getScriptureForFeelings = (feelings?: string[] | null) => {
 };
 
 // ========== COMPLETION OVERLAY ==========
+// Brand-aligned: warm charcoal scrim + gold check + serif-feeling premium "Complete"
 const CompletionOverlay = ({ onDone }: { onDone: () => void }) => {
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.4 }}
-      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/80"
+      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center px-6"
+      style={{
+        background:
+          "radial-gradient(120% 80% at 50% 40%, rgba(26,26,26,0.96) 0%, rgba(10,10,10,0.98) 100%)",
+        backdropFilter: "blur(8px)",
+        WebkitBackdropFilter: "blur(8px)",
+        fontFamily: sansFont,
+      }}
       onAnimationComplete={() => {
-        setTimeout(() => onDone(), 1500);
+        setTimeout(() => onDone(), 1600);
       }}
     >
+      {/* Outer gold halo ring */}
       <motion.div
-        initial={{ scale: 0.5, opacity: 0 }}
+        initial={{ scale: 0.6, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: 0.2, type: "spring", stiffness: 200, damping: 15 }}
-        className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mb-4"
+        transition={{ delay: 0.15, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        className="relative flex items-center justify-center mb-7"
+        style={{ width: 96, height: 96 }}
       >
-        <Check className="w-8 h-8 text-primary" />
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            borderRadius: "50%",
+            border: "1px solid rgba(184, 150, 63, 0.25)",
+          }}
+        />
+        <div
+          className="flex items-center justify-center rounded-full"
+          style={{
+            width: 72,
+            height: 72,
+            background:
+              "radial-gradient(circle at 50% 35%, rgba(184,150,63,0.22) 0%, rgba(184,150,63,0.10) 60%, rgba(184,150,63,0.04) 100%)",
+            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.06)",
+          }}
+        >
+          <motion.div
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.35, type: "spring", stiffness: 220, damping: 16 }}
+          >
+            <Check size={32} strokeWidth={2.25} color="#B8963F" />
+          </motion.div>
+        </div>
       </motion.div>
+
       <motion.p
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-        className="text-white text-xl font-semibold text-center"
+        initial={{ opacity: 0, letterSpacing: "0.05em" }}
+        animate={{ opacity: 1, letterSpacing: "0.18em" }}
+        transition={{ delay: 0.45, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        className="uppercase text-center"
+        style={{
+          fontSize: "12px",
+          fontWeight: 500,
+          color: "#B8963F",
+          marginBottom: 10,
+        }}
       >
-        Complete
+        Check-In Complete
+      </motion.p>
+
+      <motion.p
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.55, duration: 0.5 }}
+        className="text-center"
+        style={{
+          fontSize: "26px",
+          fontWeight: 600,
+          letterSpacing: "-0.02em",
+          color: "#F5F3EE",
+          lineHeight: 1.25,
+          maxWidth: 320,
+        }}
+      >
+        Awareness builds strength.
+      </motion.p>
+
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.85, duration: 0.5 }}
+        className="text-center"
+        style={{
+          fontSize: "14px",
+          fontWeight: 400,
+          color: "rgba(245, 243, 238, 0.55)",
+          marginTop: 14,
+        }}
+      >
+        Continuing your journey…
       </motion.p>
     </motion.div>
   );
