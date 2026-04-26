@@ -40,9 +40,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       settleFromSession(nextSession);
     });
 
-    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
-      if (!hasAuthParams || currentSession) {
-        settleFromSession(currentSession);
+    supabase.auth.getSession().then(async ({ data: { session: currentSession } }) => {
+      // If we have a session but the access token is expired or near expiry, refresh it
+      // so subsequent REST calls include a valid JWT (otherwise supabase-js falls back to
+      // the anon key, causing RLS-protected queries to silently return 0 rows).
+      let effectiveSession = currentSession;
+      if (currentSession?.expires_at) {
+        const nowSec = Math.floor(Date.now() / 1000);
+        if (currentSession.expires_at <= nowSec + 30) {
+          const { data: refreshed } = await supabase.auth.refreshSession();
+          if (refreshed.session) effectiveSession = refreshed.session;
+        }
+      }
+      if (!hasAuthParams || effectiveSession) {
+        settleFromSession(effectiveSession);
       }
     });
 
@@ -54,10 +65,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible") {
-        supabase.auth.getSession().then(({ data: { session: freshSession } }) => {
-          if (freshSession) {
-            setSession(freshSession);
-            setUser(freshSession.user);
+        supabase.auth.getSession().then(async ({ data: { session: freshSession } }) => {
+          let next = freshSession;
+          if (freshSession?.expires_at) {
+            const nowSec = Math.floor(Date.now() / 1000);
+            if (freshSession.expires_at <= nowSec + 30) {
+              const { data: refreshed } = await supabase.auth.refreshSession();
+              if (refreshed.session) next = refreshed.session;
+            }
+          }
+          if (next) {
+            setSession(next);
+            setUser(next.user);
           }
         });
       }
