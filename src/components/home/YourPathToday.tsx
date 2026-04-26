@@ -177,7 +177,7 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
           <p
             className="uppercase mb-4 text-center"
             style={{
-              fontSize: "12.5px",
+              fontSize: "18px",
               fontWeight: 500,
               letterSpacing: "0.18em",
               color: "#B8963F",
