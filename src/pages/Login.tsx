@@ -110,7 +110,7 @@ const Login = () => {
           href="/"
           aria-label="Liberated Kings — Home"
           className="flex justify-center login-logo-wrap"
-          style={{ marginTop: 40, marginBottom: 0 }}
+          style={{ marginTop: 24, marginBottom: 0 }}
         >
           <img
             src={lkLogo}
@@ -121,7 +121,7 @@ const Login = () => {
         </a>
 
         {/* Flex-grow spacer pushes card toward vertical center */}
-        <div className="flex-1 w-full flex items-center justify-center" style={{ minHeight: 32 }}>
+        <div className="flex-1 w-full flex items-center justify-center" style={{ minHeight: 8 }}>
         {/* Card */}
         <div
           className="w-full login-card"
@@ -131,7 +131,7 @@ const Login = () => {
             padding: "32px",
             boxShadow: "0 4px 24px rgba(0,0,0,0.06)",
             border: "1.5px solid rgba(201, 169, 106, 0.6)",
-            marginTop: 32,
+            marginTop: 12,
           }}
         >
           <div>
