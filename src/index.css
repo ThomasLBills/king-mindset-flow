@@ -540,4 +540,7 @@
   .login-logo {
     height: 40px !important;
   }
+  .login-card {
+    padding: 40px !important;
+  }
 }
