@@ -9,9 +9,10 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Loader2, Search, Shield, ShieldOff, UserPlus, Trash2, CalendarDays, LogIn, Trophy, Copy, Check } from "lucide-react";
+import { Loader2, Search, Shield, ShieldCheck, ShieldOff, UserPlus, Trash2, CalendarDays, LogIn, Trophy, Copy, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useMemo } from "react";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
@@ -210,15 +211,21 @@ const AdminUsers = () => {
 
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="font-serif text-2xl font-bold">Users</h1>
           <p className="text-sm text-muted-foreground">Manage user access, subscriptions, and roles</p>
         </div>
-        <Dialog open={addOpen} onOpenChange={setAddOpen}>
-          <DialogTrigger asChild>
-            <Button className="gap-1.5"><UserPlus className="w-4 h-4" /> Add User</Button>
-          </DialogTrigger>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" asChild className="gap-1.5">
+            <Link to="/admin/entitlements">
+              <ShieldCheck className="w-4 h-4" /> Entitlements
+            </Link>
+          </Button>
+          <Dialog open={addOpen} onOpenChange={setAddOpen}>
+            <DialogTrigger asChild>
+              <Button className="gap-1.5"><UserPlus className="w-4 h-4" /> Add User</Button>
+            </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Create New User</DialogTitle>
@@ -244,7 +251,8 @@ const AdminUsers = () => {
               </Button>
             </div>
           </DialogContent>
-        </Dialog>
+          </Dialog>
+        </div>
       </div>
 
       {/* Credential Modal */}
