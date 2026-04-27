@@ -31,22 +31,49 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
 
   // After a check-in is completed, show a minimal "Completed" confirmation
   // card for 2 seconds before transitioning to "Continue Your Journey."
-  // Timer resets on remount; once it elapses, this component unmounts the
-  // confirmation and falls through to the lesson/rest state.
-  const [confirmationVisible, setConfirmationVisible] = useState(true);
+  // The confirmation should only display ONCE — the moment the user actually
+  // completes the check-in. On subsequent visits to Home today, skip it.
+  // We persist a "seen" flag in localStorage keyed by today's local date so
+  // it survives remounts and auto-resets at midnight (next day = new key).
+  const todayKey = useMemo(() => {
+    const d = new Date();
+    return `lk:checkin-confirmed:${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  }, []);
+
+  const [confirmationVisible, setConfirmationVisible] = useState(false);
+  const prevCheckedInRef = useRef<boolean | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    if (!isCheckedIn) return;
-    setConfirmationVisible(true);
-    if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => {
-      setConfirmationVisible(false);
-    }, 2000);
+    // Only fire when we observe a transition from "not checked in" → "checked in"
+    // during this component's lifetime (i.e. the user just completed the action).
+    const prev = prevCheckedInRef.current;
+    prevCheckedInRef.current = isCheckedIn;
+
+    if (prev === false && isCheckedIn) {
+      // User just completed the check-in. Show the confirmation once and
+      // mark it seen for today so future remounts skip it.
+      try {
+        if (localStorage.getItem(todayKey) !== "1") {
+          setConfirmationVisible(true);
+          if (timerRef.current) clearTimeout(timerRef.current);
+          timerRef.current = setTimeout(() => {
+            setConfirmationVisible(false);
+            try { localStorage.setItem(todayKey, "1"); } catch {}
+          }, 2000);
+        }
+      } catch {
+        // localStorage unavailable — still show the confirmation, just no persistence.
+        setConfirmationVisible(true);
+        if (timerRef.current) clearTimeout(timerRef.current);
+        timerRef.current = setTimeout(() => setConfirmationVisible(false), 2000);
+      }
+    }
+
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [isCheckedIn]);
+  }, [isCheckedIn, todayKey]);
 
   // Curriculum data — reuse all existing queries, do not modify
   const { data: settings } = useCurriculumSettings();
