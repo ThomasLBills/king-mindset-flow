@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -24,9 +23,12 @@ const CheckoutButton = ({ plan, amountLabel }: { plan: PlanKey; amountLabel: str
   const { toast } = useToast();
   const { user } = useAuth();
   const [submitting, setSubmitting] = useState(false);
+  const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
 
   const startCheckout = async () => {
     setSubmitting(true);
+    setCheckoutUrl(null);
+    const checkoutWindow = window.open("", "_blank");
     try {
       const { data, error } = await supabase.functions.invoke("create-checkout-session", {
         body: {
@@ -38,8 +40,16 @@ const CheckoutButton = ({ plan, amountLabel }: { plan: PlanKey; amountLabel: str
 
       if (error) throw error;
       if (!data?.url) throw new Error("Could not open checkout");
-      window.location.assign(data.url);
+      if (checkoutWindow) {
+        checkoutWindow.opener = null;
+        checkoutWindow.location.href = data.url;
+      } else {
+        setCheckoutUrl(data.url);
+        toast({ title: "Checkout ready", description: "Tap the checkout link below to continue." });
+      }
+      setSubmitting(false);
     } catch (err: any) {
+      checkoutWindow?.close();
       toast({ title: "Error", description: err.message, variant: "destructive" });
       setSubmitting(false);
     }
@@ -57,6 +67,11 @@ const CheckoutButton = ({ plan, amountLabel }: { plan: PlanKey; amountLabel: str
       <p className="text-xs text-center text-muted-foreground">
         Secure payment via Stripe. Cancel anytime.
       </p>
+      {checkoutUrl && (
+        <a href={checkoutUrl} target="_blank" rel="noopener noreferrer" className="block text-center text-sm text-primary underline">
+          Open secure checkout
+        </a>
+      )}
     </div>
   );
 };
