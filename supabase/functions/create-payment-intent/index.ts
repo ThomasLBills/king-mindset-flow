@@ -35,13 +35,45 @@ serve(async (req) => {
     // Look up price ID
     const { data: plan, error: planErr } = await admin
       .from("plans")
-      .select("stripe_price_id")
+      .select("stripe_price_id, amount, currency, interval, name")
       .eq("plan_key", planKey)
       .maybeSingle();
     if (planErr || !plan) return json({ error: "Plan not found" }, 404);
-    const priceId = plan.stripe_price_id;
+    let priceId = plan.stripe_price_id;
 
     const stripeAuth = `Basic ${btoa(STRIPE_SECRET_KEY + ":")}`;
+
+    const priceRes = await fetch(`https://api.stripe.com/v1/prices/${priceId}`, {
+      headers: { Authorization: stripeAuth },
+    });
+    const price = await priceRes.json();
+    if (price.error) {
+      console.error("Stripe price lookup error:", price.error);
+      return json({ error: price.error.message }, 400);
+    }
+
+    if (price.type !== "recurring") {
+      const recurringPriceParams = new URLSearchParams();
+      recurringPriceParams.append("currency", plan.currency || "usd");
+      recurringPriceParams.append("unit_amount", String(plan.amount));
+      recurringPriceParams.append("recurring[interval]", plan.interval === "year" ? "year" : "month");
+      recurringPriceParams.append("product_data[name]", plan.name || `Liberated Kings ${planKey}`);
+      recurringPriceParams.append("metadata[plan_key]", planKey);
+
+      const recurringPriceRes = await fetch("https://api.stripe.com/v1/prices", {
+        method: "POST",
+        headers: { Authorization: stripeAuth, "Content-Type": "application/x-www-form-urlencoded" },
+        body: recurringPriceParams.toString(),
+      });
+      const recurringPrice = await recurringPriceRes.json();
+      if (recurringPrice.error) {
+        console.error("Stripe recurring price create error:", recurringPrice.error);
+        return json({ error: recurringPrice.error.message }, 400);
+      }
+
+      priceId = recurringPrice.id;
+      await admin.from("plans").update({ stripe_price_id: priceId }).eq("plan_key", planKey);
+    }
 
     // Find or create Stripe customer
     let stripeCustomerId: string | null = null;
