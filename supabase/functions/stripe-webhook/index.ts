@@ -180,12 +180,13 @@ serve(async (req) => {
 
     console.log("Event processed successfully:", event.id);
   } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
     console.error("Webhook processing error:", err);
     await supabase
       .from("webhook_events")
-      .update({ status: "error", error_message: err.message, processed_at: new Date().toISOString() })
+      .update({ status: "error", error_message: message, processed_at: new Date().toISOString() })
       .eq("stripe_event_id", event.id);
-    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+    return new Response(JSON.stringify({ error: message }), { status: 500 });
   }
 
   return new Response(JSON.stringify({ received: true }), {
