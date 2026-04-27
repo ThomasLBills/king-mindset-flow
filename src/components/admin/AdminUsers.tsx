@@ -172,6 +172,20 @@ const AdminUsers = () => {
   const getLastLogin = (userId: string) => loginData?.find((u) => u.id === userId)?.last_sign_in_at;
   const getLiberationCount = (userId: string) => evidenceCounts?.find((e) => e.user_id === userId)?.evidence_count || 0;
 
+  const formatEntitlementSource = (source?: string | null) => {
+    const s = (source || "").toLowerCase();
+    if (s === "stripe") return "Stripe";
+    if (s === "zapier_eight-week-course" || s === "admin_grant" || s === "admin_extend") return "Manual";
+    return source ? source.replace("zapier_", "").replace(/_/g, " ") : "—";
+  };
+
+  const formatDaysRemaining = (expiresAt?: string | null) => {
+    if (!expiresAt) return "Permanent";
+    const days = Math.ceil((new Date(expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+    if (days <= 0) return "Expired";
+    return `${days} day${days === 1 ? "" : "s"}`;
+  };
+
   const [page, setPage] = useState(1);
 
   const filtered = useMemo(() => (profiles || []).filter((p) =>
@@ -285,6 +299,7 @@ const AdminUsers = () => {
                    <TableHead>Liberations</TableHead>
                    <TableHead>Role</TableHead>
                    <TableHead>Entitlement</TableHead>
+                    <TableHead>Days</TableHead>
                    <TableHead>Source</TableHead>
                    <TableHead>Subscription</TableHead>
                    <TableHead>Actions</TableHead>
@@ -326,7 +341,8 @@ const AdminUsers = () => {
                        <TableCell>
                          <Badge variant={ent?.active ? "default" : "secondary"}>{ent?.active ? "Active" : "Inactive"}</Badge>
                        </TableCell>
-                       <TableCell className="text-sm capitalize">{ent?.source?.replace("zapier_", "").replace("_", " ") || "—"}</TableCell>
+                        <TableCell className="text-sm">{formatDaysRemaining(ent?.expires_at)}</TableCell>
+                        <TableCell className="text-sm capitalize">{formatEntitlementSource(ent?.source)}</TableCell>
                        <TableCell className="text-sm capitalize">{sub?.status || "—"}</TableCell>
                       <TableCell>
                         <div className="flex gap-2 flex-wrap">
