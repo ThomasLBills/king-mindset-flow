@@ -156,6 +156,7 @@ const AdminEntitlements = () => {
   const renderSub = (r: Row) => {
     const map: Record<Row["subStatus"], { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
       active: { label: "Active", variant: "default" },
+      cancelling: { label: "Cancelling", variant: "secondary" },
       cancelled: { label: "Cancelled", variant: "destructive" },
       none: { label: "None", variant: "outline" },
     };
