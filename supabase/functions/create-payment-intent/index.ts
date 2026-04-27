@@ -143,9 +143,23 @@ serve(async (req) => {
         return json({ error: invoice.error.message }, 400);
       }
 
-      clientSecret = invoice.payments?.data
-        ?.map((entry: any) => entry.payment?.payment_intent?.client_secret)
+      const paymentIntent = invoice.payments?.data
+        ?.map((entry: any) => entry.payment?.payment_intent)
         ?.find(Boolean);
+
+      if (typeof paymentIntent === "string") {
+        const paymentIntentRes = await fetch(`https://api.stripe.com/v1/payment_intents/${paymentIntent}`, {
+          headers: { Authorization: stripeAuth },
+        });
+        const paymentIntentData = await paymentIntentRes.json();
+        if (paymentIntentData.error) {
+          console.error("Stripe payment intent lookup error:", paymentIntentData.error);
+          return json({ error: paymentIntentData.error.message }, 400);
+        }
+        clientSecret = paymentIntentData.client_secret;
+      } else {
+        clientSecret = paymentIntent?.client_secret;
+      }
     }
 
     if (!clientSecret) {
