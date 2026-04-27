@@ -1570,6 +1570,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      deactivate_expired_entitlements: { Args: never; Returns: number }
       get_community_armor_stats: { Args: never; Returns: Json }
       get_evidence_counts_by_user: {
         Args: never
