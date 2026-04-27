@@ -127,9 +127,33 @@ serve(async (req) => {
       return json({ error: sub.error.message }, 400);
     }
 
-    const clientSecret = sub.latest_invoice?.payment_intent?.client_secret;
+    let clientSecret = sub.latest_invoice?.payment_intent?.client_secret;
+
+    const latestInvoiceId =
+      typeof sub.latest_invoice === "string" ? sub.latest_invoice : sub.latest_invoice?.id;
+
+    if (!clientSecret && latestInvoiceId) {
+      const invoiceRes = await fetch(
+        `https://api.stripe.com/v1/invoices/${latestInvoiceId}?expand[]=payments.data.payment.payment_intent`,
+        { headers: { Authorization: stripeAuth } }
+      );
+      const invoice = await invoiceRes.json();
+      if (invoice.error) {
+        console.error("Stripe invoice lookup error:", invoice.error);
+        return json({ error: invoice.error.message }, 400);
+      }
+
+      clientSecret = invoice.payments?.data
+        ?.map((entry: any) => entry.payment?.payment_intent?.client_secret)
+        ?.find(Boolean);
+    }
+
     if (!clientSecret) {
-      console.error("No client_secret on subscription:", sub.id);
+      console.error("No client_secret on subscription:", {
+        subscriptionId: sub.id,
+        status: sub.status,
+        latestInvoiceId,
+      });
       return json({ error: "Could not initialize payment" }, 500);
     }
 
