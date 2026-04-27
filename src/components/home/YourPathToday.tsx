@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, Check } from "lucide-react";
@@ -28,6 +28,26 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
   const navigate = useNavigate();
   const { user } = useAuth();
   const { isCheckedIn, isLoading: checkInLoading } = useDailyCheckIn();
+
+  // After a check-in is completed, give the user 5 seconds on the Home
+  // screen to read the scripture response before the card is replaced by
+  // "Continue Your Journey." Timer resets each time this component mounts
+  // (i.e. each time they navigate back to Home), until 5 seconds elapse
+  // without interruption.
+  const [scriptureWindowOpen, setScriptureWindowOpen] = useState(true);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (!isCheckedIn) return;
+    setScriptureWindowOpen(true);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      setScriptureWindowOpen(false);
+    }, 5000);
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, [isCheckedIn]);
 
   // Curriculum data — reuse all existing queries, do not modify
   const { data: settings } = useCurriculumSettings();
@@ -86,9 +106,12 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
 
   const isLoading = checkInLoading || lessonsLoading;
 
-  // ============ STATE 1: NOT CHECKED IN ============
-  // Wraps the existing DailyCheckIn component as-is — no logic changes
-  if (!isCheckedIn && !isLoading) {
+  // ============ STATE 1: NOT CHECKED IN — or within 5s scripture window ============
+  // Wraps the existing DailyCheckIn component as-is — no logic changes.
+  // After check-in, DailyCheckIn renders its CompactCompleted state with the
+  // scripture response. We keep showing it for 5 seconds before transitioning
+  // to "Continue Your Journey."
+  if ((!isCheckedIn || scriptureWindowOpen) && !isLoading) {
     return (
       <motion.div
         key="checkin-state"
