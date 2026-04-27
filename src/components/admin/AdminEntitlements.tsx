@@ -140,12 +140,12 @@ const AdminEntitlements = () => {
     }
     const d = r.daysRemaining;
     const cls =
-      d < 0
+      d <= 0
         ? "bg-destructive/15 text-destructive border-destructive/30"
         : d <= 14
         ? "bg-yellow-500/15 text-yellow-600 dark:text-yellow-400 border-yellow-500/30"
         : "bg-success/15 text-success border-success/30";
-    const label = d < 0 ? `Expired ${Math.abs(d)}d ago` : `${d} day${d === 1 ? "" : "s"}`;
+    const label = d <= 0 ? "Expired" : `${d} day${d === 1 ? "" : "s"}`;
     return (
       <span className={cn("inline-flex items-center px-2 py-0.5 rounded-md border text-xs font-medium", cls)}>
         {label}
