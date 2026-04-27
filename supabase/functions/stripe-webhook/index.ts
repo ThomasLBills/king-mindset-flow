@@ -4,6 +4,50 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 // Stripe webhook handler - processes subscription events
 // Verifies signatures, enforces idempotency, manages entitlements
 
+// ---------- Pure helpers (exported for tests) ----------
+
+export const MONTHLY_PRICE_ID = "price_1TFgdDEBAqZ3z3WsjwBo4RBl";
+export const ANNUAL_PRICE_ID = "price_1TQu0GEBAqZ3z3WsxOJKkBAa";
+
+/**
+ * Pure: derives the entitlement expires_at + the subscription's current_period_end
+ * from a Stripe subscription object. Monthly grants 30 days, annual grants 365 days,
+ * unknown plans fall back to Stripe's current_period_end, then to 30 days.
+ */
+export function deriveEntitlementWindow(
+  subscription: any,
+  nowMs: number = Date.now(),
+): { entitlementExpiresAt: string; periodEndIso: string; isActive: boolean } {
+  const activeStatuses = ["active", "trialing"];
+  const isActive = activeStatuses.includes(subscription.status);
+
+  const priceId: string | undefined = subscription.items?.data?.[0]?.price?.id;
+  const rawPeriodEnd =
+    subscription.current_period_end ??
+    subscription.items?.data?.[0]?.current_period_end;
+  const periodEndUnix: number | undefined =
+    typeof rawPeriodEnd === "number" && Number.isFinite(rawPeriodEnd) && rawPeriodEnd > 0
+      ? rawPeriodEnd
+      : undefined;
+
+  let entitlementExpiresAt: string;
+  if (priceId === MONTHLY_PRICE_ID) {
+    entitlementExpiresAt = new Date(nowMs + 30 * 24 * 60 * 60 * 1000).toISOString();
+  } else if (priceId === ANNUAL_PRICE_ID) {
+    entitlementExpiresAt = new Date(nowMs + 365 * 24 * 60 * 60 * 1000).toISOString();
+  } else if (periodEndUnix) {
+    entitlementExpiresAt = new Date(periodEndUnix * 1000).toISOString();
+  } else {
+    entitlementExpiresAt = new Date(nowMs + 30 * 24 * 60 * 60 * 1000).toISOString();
+  }
+
+  const periodEndIso = periodEndUnix
+    ? new Date(periodEndUnix * 1000).toISOString()
+    : entitlementExpiresAt;
+
+  return { entitlementExpiresAt, periodEndIso, isActive };
+}
+
 async function verifyStripeSignature(payload: string, signature: string, secret: string): Promise<boolean> {
   const encoder = new TextEncoder();
   const parts = signature.split(",");
@@ -294,34 +338,7 @@ async function handleSubscriptionChange(subscription: any, supabase: any, stripe
 }
 
 async function processSubscription(subscription: any, userId: string, supabase: any) {
-  const activeStatuses = ["active", "trialing"];
-  const isActive = activeStatuses.includes(subscription.status);
-
-  // Determine entitlement expiration based on the subscription's price ID.
-  // Monthly grants 30 days, annual grants 365 days. Defaults to current_period_end.
-  const MONTHLY_PRICE_ID = "price_1TFgdDEBAqZ3z3WsjwBo4RBl";
-  const ANNUAL_PRICE_ID = "price_1TQu0GEBAqZ3z3WsxOJKkBAa";
-  const priceId: string | undefined = subscription.items?.data?.[0]?.price?.id;
-  const now = Date.now();
-  // Newer Stripe API versions moved current_period_end to the subscription item.
-  const rawPeriodEnd =
-    subscription.current_period_end ??
-    subscription.items?.data?.[0]?.current_period_end;
-  const periodEndUnix: number | undefined =
-    typeof rawPeriodEnd === "number" && Number.isFinite(rawPeriodEnd) && rawPeriodEnd > 0
-      ? rawPeriodEnd
-      : undefined;
-  let entitlementExpiresAt: string;
-  if (priceId === MONTHLY_PRICE_ID) {
-    entitlementExpiresAt = new Date(now + 30 * 24 * 60 * 60 * 1000).toISOString();
-  } else if (priceId === ANNUAL_PRICE_ID) {
-    entitlementExpiresAt = new Date(now + 365 * 24 * 60 * 60 * 1000).toISOString();
-  } else if (periodEndUnix) {
-    entitlementExpiresAt = new Date(periodEndUnix * 1000).toISOString();
-  } else {
-    // Fallback: 30 days from now if Stripe didn't return a period end.
-    entitlementExpiresAt = new Date(now + 30 * 24 * 60 * 60 * 1000).toISOString();
-  }
+  const { entitlementExpiresAt, periodEndIso, isActive } = deriveEntitlementWindow(subscription);
 
   // Upsert subscription
   await supabase.from("subscriptions").upsert(
@@ -329,9 +346,7 @@ async function processSubscription(subscription: any, userId: string, supabase: 
       user_id: userId,
       stripe_subscription_id: subscription.id,
       status: subscription.status,
-      current_period_end: periodEndUnix
-        ? new Date(periodEndUnix * 1000).toISOString()
-        : entitlementExpiresAt,
+      current_period_end: periodEndIso,
       cancel_at_period_end: subscription.cancel_at_period_end || false,
     },
     { onConflict: "stripe_subscription_id" }
