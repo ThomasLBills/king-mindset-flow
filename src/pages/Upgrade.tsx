@@ -28,11 +28,6 @@ const CheckoutButton = ({ plan, amountLabel }: { plan: PlanKey; amountLabel: str
   const startCheckout = async () => {
     setSubmitting(true);
     setCheckoutUrl(null);
-    // Detect if we're inside an iframe (e.g. Lovable preview). Stripe blocks iframe loads,
-    // so in that case we open a new tab; otherwise we redirect the current window which is
-    // the most reliable flow on mobile and avoids popup-blocker / about:blank issues.
-    const inIframe = window.self !== window.top;
-    const checkoutWindow = inIframe ? window.open("", "_blank") : null;
     try {
       const { data, error } = await supabase.functions.invoke("create-checkout-session", {
         body: {
@@ -44,21 +39,32 @@ const CheckoutButton = ({ plan, amountLabel }: { plan: PlanKey; amountLabel: str
 
       if (error) throw error;
       if (!data?.url) throw new Error("Could not open checkout");
-      if (inIframe) {
-        if (checkoutWindow) {
-          checkoutWindow.opener = null;
-          checkoutWindow.location.href = data.url;
+
+      // Try to break out of the iframe (Lovable preview) and redirect the top window
+      // to Stripe Checkout. If we can't access window.top (cross-origin) or it fails,
+      // fall back to opening in a new tab, then to a clickable link.
+      let redirected = false;
+      try {
+        if (window.top && window.top !== window.self) {
+          window.top.location.href = data.url;
+          redirected = true;
         } else {
-          setCheckoutUrl(data.url);
-          toast({ title: "Checkout ready", description: "Tap the checkout link below to continue." });
+          window.location.assign(data.url);
+          redirected = true;
         }
-        setSubmitting(false);
-      } else {
-        // Same-window redirect — most reliable on mobile + custom domain
-        window.location.assign(data.url);
+      } catch {
+        const popup = window.open(data.url, "_blank", "noopener,noreferrer");
+        if (popup) {
+          redirected = true;
+        }
       }
+
+      if (!redirected) {
+        setCheckoutUrl(data.url);
+        toast({ title: "Checkout ready", description: "Tap the checkout link below to continue." });
+      }
+      setSubmitting(false);
     } catch (err: any) {
-      checkoutWindow?.close();
       toast({ title: "Error", description: err.message, variant: "destructive" });
       setSubmitting(false);
     }
