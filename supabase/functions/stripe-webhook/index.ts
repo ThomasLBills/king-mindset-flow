@@ -297,6 +297,21 @@ async function processSubscription(subscription: any, userId: string, supabase: 
   const activeStatuses = ["active", "trialing"];
   const isActive = activeStatuses.includes(subscription.status);
 
+  // Determine entitlement expiration based on the subscription's price ID.
+  // Monthly grants 30 days, annual grants 365 days. Defaults to current_period_end.
+  const MONTHLY_PRICE_ID = "price_1TFgdDEBAqZ3z3WsjwBo4RBl";
+  const ANNUAL_PRICE_ID = "price_1TFge5EBAqZ3z3WsQfXuOwve";
+  const priceId: string | undefined = subscription.items?.data?.[0]?.price?.id;
+  const now = Date.now();
+  let entitlementExpiresAt: string;
+  if (priceId === MONTHLY_PRICE_ID) {
+    entitlementExpiresAt = new Date(now + 30 * 24 * 60 * 60 * 1000).toISOString();
+  } else if (priceId === ANNUAL_PRICE_ID) {
+    entitlementExpiresAt = new Date(now + 365 * 24 * 60 * 60 * 1000).toISOString();
+  } else {
+    entitlementExpiresAt = new Date(subscription.current_period_end * 1000).toISOString();
+  }
+
   // Upsert subscription
   await supabase.from("subscriptions").upsert(
     {
@@ -309,15 +324,14 @@ async function processSubscription(subscription: any, userId: string, supabase: 
     { onConflict: "stripe_subscription_id" }
   );
 
-  // Upsert entitlement — active subscribers get no expiry (permanent while subscribed)
-  // Trial users who subscribe get their expiry cleared
+  // Upsert entitlement — set active flag and expires_at based on plan duration
   await supabase.from("entitlements").upsert(
     {
       user_id: userId,
       entitlement_type: "course_app_access",
       active: isActive,
       source: "stripe",
-      expires_at: isActive ? null : new Date(subscription.current_period_end * 1000).toISOString(),
+      expires_at: entitlementExpiresAt,
     },
     { onConflict: "user_id,entitlement_type" }
   );
