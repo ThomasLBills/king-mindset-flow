@@ -78,8 +78,13 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
       return daysSinceEnrollment >= week.unlock_day_offset;
     };
 
-    // Order lessons by week order_index then lesson order_index
-    const orderedWeeks = [...weeks].sort((a: any, b: any) => a.order_index - b.order_index);
+    // Order lessons by week order_index then lesson order_index.
+    // Exclude Week 0 ("The Liberated Path" workbook) — it's a reference
+    // resource, not a lesson to complete, so it should never drive the
+    // "Continue Your Journey" card.
+    const orderedWeeks = [...weeks]
+      .filter((w: any) => w.week_number !== 0 && w.title !== "The Liberated Path")
+      .sort((a: any, b: any) => a.order_index - b.order_index);
     let runningIndex = 0;
     for (let i = 0; i < orderedWeeks.length; i++) {
       const week = orderedWeeks[i];
