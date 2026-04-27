@@ -300,13 +300,17 @@ async function processSubscription(subscription: any, userId: string, supabase: 
   // Determine entitlement expiration based on the subscription's price ID.
   // Monthly grants 30 days, annual grants 365 days. Defaults to current_period_end.
   const MONTHLY_PRICE_ID = "price_1TFgdDEBAqZ3z3WsjwBo4RBl";
-  const ANNUAL_PRICE_ID = "price_1TFge5EBAqZ3z3WsQfXuOwve";
+  const ANNUAL_PRICE_ID = "price_1TQu0GEBAqZ3z3WsxOJKkBAa";
   const priceId: string | undefined = subscription.items?.data?.[0]?.price?.id;
   const now = Date.now();
   // Newer Stripe API versions moved current_period_end to the subscription item.
-  const periodEndUnix: number | undefined =
+  const rawPeriodEnd =
     subscription.current_period_end ??
     subscription.items?.data?.[0]?.current_period_end;
+  const periodEndUnix: number | undefined =
+    typeof rawPeriodEnd === "number" && Number.isFinite(rawPeriodEnd) && rawPeriodEnd > 0
+      ? rawPeriodEnd
+      : undefined;
   let entitlementExpiresAt: string;
   if (priceId === MONTHLY_PRICE_ID) {
     entitlementExpiresAt = new Date(now + 30 * 24 * 60 * 60 * 1000).toISOString();

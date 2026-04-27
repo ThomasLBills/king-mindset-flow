@@ -17,7 +17,7 @@ type Row = {
   expires_at: string | null;
   active: boolean;
   daysRemaining: number | null; // null = no expiration (permanent)
-  subStatus: "active" | "cancelled" | "none";
+  subStatus: "active" | "cancelling" | "cancelled" | "none";
   source: string | null;
 };
 
@@ -44,7 +44,9 @@ const AdminEntitlements = () => {
           .from("entitlements")
           .select("user_id, expires_at, active, source")
           .eq("entitlement_type", "course_app_access"),
-        supabase.from("subscriptions").select("user_id, status, updated_at"),
+        supabase
+          .from("subscriptions")
+          .select("user_id, status, updated_at, cancel_at_period_end"),
       ]);
 
       const adminIds = new Set((rolesRes.data || []).map((r) => r.user_id));
@@ -53,11 +55,18 @@ const AdminEntitlements = () => {
       );
 
       // Pick latest subscription per user
-      const subByUser = new Map<string, { status: string; updated_at: string }>();
+      const subByUser = new Map<
+        string,
+        { status: string; updated_at: string; cancel_at_period_end: boolean }
+      >();
       for (const s of subsRes.data || []) {
         const prev = subByUser.get(s.user_id);
         if (!prev || new Date(s.updated_at) > new Date(prev.updated_at)) {
-          subByUser.set(s.user_id, s);
+          subByUser.set(s.user_id, {
+            status: s.status,
+            updated_at: s.updated_at,
+            cancel_at_period_end: !!s.cancel_at_period_end,
+          });
         }
       }
 
@@ -71,9 +80,13 @@ const AdminEntitlements = () => {
           const sub = subByUser.get(p.user_id);
           let subStatus: Row["subStatus"] = "none";
           if (sub) {
-            if (activeStatuses.has(sub.status)) subStatus = "active";
-            else if (cancelledStatuses.has(sub.status)) subStatus = "cancelled";
-            else subStatus = "none";
+            if (activeStatuses.has(sub.status)) {
+              subStatus = sub.cancel_at_period_end ? "cancelling" : "active";
+            } else if (cancelledStatuses.has(sub.status)) {
+              subStatus = "cancelled";
+            } else {
+              subStatus = "none";
+            }
           }
           return {
             user_id: p.user_id,
@@ -143,6 +156,7 @@ const AdminEntitlements = () => {
   const renderSub = (r: Row) => {
     const map: Record<Row["subStatus"], { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
       active: { label: "Active", variant: "default" },
+      cancelling: { label: "Cancelling", variant: "secondary" },
       cancelled: { label: "Cancelled", variant: "destructive" },
       none: { label: "None", variant: "outline" },
     };
