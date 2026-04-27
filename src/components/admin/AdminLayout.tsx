@@ -138,8 +138,9 @@ const AdminLayout = () => {
         <div className="flex items-center justify-around px-2 py-2">
           {[
             { icon: LayoutDashboard, label: "Home", path: "/admin", end: true },
-            { icon: BookOpen, label: "Curriculum", path: "/admin/curriculum" },
             { icon: Users, label: "Users", path: "/admin/users" },
+            { icon: ShieldCheck, label: "Access", path: "/admin/entitlements" },
+            { icon: BookOpen, label: "Curriculum", path: "/admin/curriculum" },
             { icon: Settings, label: "Settings", path: "/admin/settings" },
           ].map((item) => {
             const isActive = item.end
