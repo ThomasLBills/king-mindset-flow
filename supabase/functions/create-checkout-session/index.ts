@@ -25,7 +25,7 @@ serve(async (req) => {
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-    const planRes = await fetch(`${SUPABASE_URL}/rest/v1/plans?plan_key=eq.${planKey}&select=stripe_price_id`, {
+    const planRes = await fetch(`${SUPABASE_URL}/rest/v1/plans?plan_key=eq.${planKey}&select=stripe_price_id,amount,currency,interval,name`, {
       headers: {
         apikey: SUPABASE_SERVICE_ROLE_KEY,
         Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
@@ -39,7 +39,55 @@ serve(async (req) => {
       });
     }
 
-    const priceId = plans[0].stripe_price_id;
+    const plan = plans[0];
+    let priceId = plan.stripe_price_id;
+    const stripeAuth = `Basic ${btoa(STRIPE_SECRET_KEY + ":")}`;
+
+    const priceRes = await fetch(`https://api.stripe.com/v1/prices/${priceId}`, {
+      headers: { Authorization: stripeAuth },
+    });
+    const price = await priceRes.json();
+    if (price.error) {
+      console.error("Stripe price lookup error:", price.error);
+      return new Response(JSON.stringify({ error: price.error.message }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (price.type !== "recurring") {
+      const recurringPriceParams = new URLSearchParams();
+      recurringPriceParams.append("currency", plan.currency || "usd");
+      recurringPriceParams.append("unit_amount", String(plan.amount));
+      recurringPriceParams.append("recurring[interval]", plan.interval === "year" ? "year" : "month");
+      recurringPriceParams.append("product_data[name]", plan.name || `Liberated Kings ${planKey}`);
+      recurringPriceParams.append("metadata[plan_key]", planKey);
+
+      const recurringPriceRes = await fetch("https://api.stripe.com/v1/prices", {
+        method: "POST",
+        headers: { Authorization: stripeAuth, "Content-Type": "application/x-www-form-urlencoded" },
+        body: recurringPriceParams.toString(),
+      });
+      const recurringPrice = await recurringPriceRes.json();
+      if (recurringPrice.error) {
+        console.error("Stripe recurring price create error:", recurringPrice.error);
+        return new Response(JSON.stringify({ error: recurringPrice.error.message }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      priceId = recurringPrice.id;
+      await fetch(`${SUPABASE_URL}/rest/v1/plans?plan_key=eq.${planKey}`, {
+        method: "PATCH",
+        headers: {
+          apikey: SUPABASE_SERVICE_ROLE_KEY,
+          Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ stripe_price_id: priceId }),
+      });
+    }
 
     // Get user ID from auth header if logged in
     let userId: string | null = null;
@@ -61,7 +109,7 @@ serve(async (req) => {
     params.append("line_items[0][price]", priceId);
     params.append("line_items[0][quantity]", "1");
     params.append("success_url", `${returnUrl}/thank-you?session_id={CHECKOUT_SESSION_ID}`);
-    params.append("cancel_url", `${returnUrl}/checkout?canceled=true`);
+    params.append("cancel_url", `${returnUrl}/upgrade?canceled=true`);
     params.append("metadata[plan]", planKey);
     if (userId) params.append("metadata[user_id]", userId);
     if (email) {
@@ -71,7 +119,7 @@ serve(async (req) => {
     const stripeRes = await fetch("https://api.stripe.com/v1/checkout/sessions", {
       method: "POST",
       headers: {
-        Authorization: `Basic ${btoa(STRIPE_SECRET_KEY + ":")}`,
+        Authorization: stripeAuth,
         "Content-Type": "application/x-www-form-urlencoded",
       },
       body: params.toString(),
