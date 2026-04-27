@@ -127,9 +127,47 @@ serve(async (req) => {
       return json({ error: sub.error.message }, 400);
     }
 
-    const clientSecret = sub.latest_invoice?.payment_intent?.client_secret;
+    let clientSecret = sub.latest_invoice?.payment_intent?.client_secret;
+
+    const latestInvoiceId =
+      typeof sub.latest_invoice === "string" ? sub.latest_invoice : sub.latest_invoice?.id;
+
+    if (!clientSecret && latestInvoiceId) {
+      const invoiceRes = await fetch(
+        `https://api.stripe.com/v1/invoices/${latestInvoiceId}?expand[]=payments.data.payment.payment_intent`,
+        { headers: { Authorization: stripeAuth } }
+      );
+      const invoice = await invoiceRes.json();
+      if (invoice.error) {
+        console.error("Stripe invoice lookup error:", invoice.error);
+        return json({ error: invoice.error.message }, 400);
+      }
+
+      const paymentIntent = invoice.payments?.data
+        ?.map((entry: any) => entry.payment?.payment_intent)
+        ?.find(Boolean);
+
+      if (typeof paymentIntent === "string") {
+        const paymentIntentRes = await fetch(`https://api.stripe.com/v1/payment_intents/${paymentIntent}`, {
+          headers: { Authorization: stripeAuth },
+        });
+        const paymentIntentData = await paymentIntentRes.json();
+        if (paymentIntentData.error) {
+          console.error("Stripe payment intent lookup error:", paymentIntentData.error);
+          return json({ error: paymentIntentData.error.message }, 400);
+        }
+        clientSecret = paymentIntentData.client_secret;
+      } else {
+        clientSecret = paymentIntent?.client_secret;
+      }
+    }
+
     if (!clientSecret) {
-      console.error("No client_secret on subscription:", sub.id);
+      console.error("No client_secret on subscription:", {
+        subscriptionId: sub.id,
+        status: sub.status,
+        latestInvoiceId,
+      });
       return json({ error: "Could not initialize payment" }, 500);
     }
 
