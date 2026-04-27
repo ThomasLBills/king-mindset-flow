@@ -33,11 +33,39 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
   // card for 2 seconds before transitioning to "Continue Your Journey."
   // The confirmation should only display ONCE — the moment the user actually
   // completes the check-in. On subsequent visits to Home today, skip it.
-  // We persist a "seen" flag in localStorage keyed by today's local date so
-  // it survives remounts and auto-resets at midnight (next day = new key).
-  const todayKey = useMemo(() => {
+  // We persist a "seen" flag in localStorage keyed by today's LOCAL date so
+  // it survives remounts and auto-resets at local midnight (next day = new key).
+  const buildTodayKey = () => {
     const d = new Date();
     return `lk:checkin-confirmed:${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  };
+  const [todayKey, setTodayKey] = useState<string>(() => buildTodayKey());
+
+  // Recompute the date key exactly at local midnight so a long-lived session
+  // picks up the new day without requiring a remount.
+  useEffect(() => {
+    const scheduleMidnight = () => {
+      const now = new Date();
+      const next = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate() + 1,
+        0,
+        0,
+        1, // 1s past midnight to avoid edge timing
+        0
+      );
+      const ms = Math.max(1000, next.getTime() - now.getTime());
+      return setTimeout(() => {
+        setTodayKey(buildTodayKey());
+        // Reset prev ref so a fresh local "transition" can fire tomorrow
+        // if the component is still mounted across midnight.
+        prevCheckedInRef.current = null;
+        timer = scheduleMidnight();
+      }, ms);
+    };
+    let timer = scheduleMidnight();
+    return () => clearTimeout(timer);
   }, []);
 
   const [confirmationVisible, setConfirmationVisible] = useState(false);
