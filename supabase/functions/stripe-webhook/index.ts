@@ -303,13 +303,20 @@ async function processSubscription(subscription: any, userId: string, supabase: 
   const ANNUAL_PRICE_ID = "price_1TFge5EBAqZ3z3WsQfXuOwve";
   const priceId: string | undefined = subscription.items?.data?.[0]?.price?.id;
   const now = Date.now();
+  // Newer Stripe API versions moved current_period_end to the subscription item.
+  const periodEndUnix: number | undefined =
+    subscription.current_period_end ??
+    subscription.items?.data?.[0]?.current_period_end;
   let entitlementExpiresAt: string;
   if (priceId === MONTHLY_PRICE_ID) {
     entitlementExpiresAt = new Date(now + 30 * 24 * 60 * 60 * 1000).toISOString();
   } else if (priceId === ANNUAL_PRICE_ID) {
     entitlementExpiresAt = new Date(now + 365 * 24 * 60 * 60 * 1000).toISOString();
+  } else if (periodEndUnix) {
+    entitlementExpiresAt = new Date(periodEndUnix * 1000).toISOString();
   } else {
-    entitlementExpiresAt = new Date(subscription.current_period_end * 1000).toISOString();
+    // Fallback: 30 days from now if Stripe didn't return a period end.
+    entitlementExpiresAt = new Date(now + 30 * 24 * 60 * 60 * 1000).toISOString();
   }
 
   // Upsert subscription
@@ -318,7 +325,9 @@ async function processSubscription(subscription: any, userId: string, supabase: 
       user_id: userId,
       stripe_subscription_id: subscription.id,
       status: subscription.status,
-      current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+      current_period_end: periodEndUnix
+        ? new Date(periodEndUnix * 1000).toISOString()
+        : entitlementExpiresAt,
       cancel_at_period_end: subscription.cancel_at_period_end || false,
     },
     { onConflict: "stripe_subscription_id" }
