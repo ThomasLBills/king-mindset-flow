@@ -28,7 +28,11 @@ const CheckoutButton = ({ plan, amountLabel }: { plan: PlanKey; amountLabel: str
   const startCheckout = async () => {
     setSubmitting(true);
     setCheckoutUrl(null);
-    const checkoutWindow = window.open("", "_blank");
+    // Detect if we're inside an iframe (e.g. Lovable preview). Stripe blocks iframe loads,
+    // so in that case we open a new tab; otherwise we redirect the current window which is
+    // the most reliable flow on mobile and avoids popup-blocker / about:blank issues.
+    const inIframe = window.self !== window.top;
+    const checkoutWindow = inIframe ? window.open("", "_blank") : null;
     try {
       const { data, error } = await supabase.functions.invoke("create-checkout-session", {
         body: {
@@ -40,14 +44,19 @@ const CheckoutButton = ({ plan, amountLabel }: { plan: PlanKey; amountLabel: str
 
       if (error) throw error;
       if (!data?.url) throw new Error("Could not open checkout");
-      if (checkoutWindow) {
-        checkoutWindow.opener = null;
-        checkoutWindow.location.href = data.url;
+      if (inIframe) {
+        if (checkoutWindow) {
+          checkoutWindow.opener = null;
+          checkoutWindow.location.href = data.url;
+        } else {
+          setCheckoutUrl(data.url);
+          toast({ title: "Checkout ready", description: "Tap the checkout link below to continue." });
+        }
+        setSubmitting(false);
       } else {
-        setCheckoutUrl(data.url);
-        toast({ title: "Checkout ready", description: "Tap the checkout link below to continue." });
+        // Same-window redirect — most reliable on mobile + custom domain
+        window.location.assign(data.url);
       }
-      setSubmitting(false);
     } catch (err: any) {
       checkoutWindow?.close();
       toast({ title: "Error", description: err.message, variant: "destructive" });
