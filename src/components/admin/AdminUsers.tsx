@@ -187,6 +187,14 @@ const AdminUsers = () => {
     return `${days} day${days === 1 ? "" : "s"}`;
   };
 
+  const renderAccessSummary = (ent?: { active?: boolean | null; expires_at?: string | null; source?: string | null } | null) => (
+    <div className="min-w-36 space-y-1.5">
+      <Badge variant={ent?.active ? "default" : "secondary"}>{ent?.active ? "Active" : "Inactive"}</Badge>
+      <div className="text-sm font-medium">{ent ? formatDaysRemaining(ent.expires_at) : "No access"}</div>
+      <div className="text-xs text-muted-foreground capitalize">{formatEntitlementSource(ent?.source)}</div>
+    </div>
+  );
+
   const [page, setPage] = useState(1);
 
   const filtered = useMemo(() => (profiles || []).filter((p) =>
@@ -307,9 +315,7 @@ const AdminUsers = () => {
                    <TableHead>Last Login</TableHead>
                    <TableHead>Liberations</TableHead>
                    <TableHead>Role</TableHead>
-                   <TableHead>Entitlement</TableHead>
-                    <TableHead>Days</TableHead>
-                   <TableHead>Source</TableHead>
+                   <TableHead>Access</TableHead>
                    <TableHead>Subscription</TableHead>
                    <TableHead>Actions</TableHead>
                  </TableRow>
@@ -347,11 +353,7 @@ const AdminUsers = () => {
                        <TableCell>
                          <Badge variant={admin ? "default" : "secondary"}>{admin ? "Admin" : "User"}</Badge>
                        </TableCell>
-                       <TableCell>
-                         <Badge variant={ent?.active ? "default" : "secondary"}>{ent?.active ? "Active" : "Inactive"}</Badge>
-                       </TableCell>
-                        <TableCell className="text-sm">{formatDaysRemaining(ent?.expires_at)}</TableCell>
-                        <TableCell className="text-sm capitalize">{formatEntitlementSource(ent?.source)}</TableCell>
+                       <TableCell>{renderAccessSummary(ent)}</TableCell>
                        <TableCell className="text-sm capitalize">{sub?.status || "—"}</TableCell>
                       <TableCell>
                         <div className="flex gap-2 flex-wrap">
