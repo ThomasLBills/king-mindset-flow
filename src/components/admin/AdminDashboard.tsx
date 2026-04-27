@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, CheckCircle, BookOpen, FileText, Plus, Loader2, TrendingUp, GraduationCap, BarChart3, Calendar } from "lucide-react";
+import { Users, CheckCircle, BookOpen, FileText, Plus, Loader2, TrendingUp, GraduationCap, BarChart3, Calendar, ShieldCheck } from "lucide-react";
 import { useAdminEngagementStats } from "@/hooks/useAdminEngagement";
 import { useWeeks, useCurriculumSettings } from "@/hooks/useAdminCurriculumNew";
 import { useNavigate } from "react-router-dom";
@@ -105,6 +105,9 @@ const AdminDashboard = () => {
             </Button>
             <Button variant="outline" onClick={() => navigate("/admin/users")}>
               View Users
+            </Button>
+            <Button variant="outline" onClick={() => navigate("/admin/entitlements")} className="gap-2">
+              <ShieldCheck className="h-4 w-4" /> Entitlements
             </Button>
           </div>
         </CardContent>
