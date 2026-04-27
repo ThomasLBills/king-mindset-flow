@@ -29,21 +29,20 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
   const { user } = useAuth();
   const { isCheckedIn, isLoading: checkInLoading } = useDailyCheckIn();
 
-  // After a check-in is completed, give the user 5 seconds on the Home
-  // screen to read the scripture response before the card is replaced by
-  // "Continue Your Journey." Timer resets each time this component mounts
-  // (i.e. each time they navigate back to Home), until 5 seconds elapse
-  // without interruption.
-  const [scriptureWindowOpen, setScriptureWindowOpen] = useState(true);
+  // After a check-in is completed, show a minimal "Completed" confirmation
+  // card for 2 seconds before transitioning to "Continue Your Journey."
+  // Timer resets on remount; once it elapses, this component unmounts the
+  // confirmation and falls through to the lesson/rest state.
+  const [confirmationVisible, setConfirmationVisible] = useState(true);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!isCheckedIn) return;
-    setScriptureWindowOpen(true);
+    setConfirmationVisible(true);
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => {
-      setScriptureWindowOpen(false);
-    }, 5000);
+      setConfirmationVisible(false);
+    }, 2000);
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
@@ -106,12 +105,9 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
 
   const isLoading = checkInLoading || lessonsLoading;
 
-  // ============ STATE 1: NOT CHECKED IN — or within 5s scripture window ============
+  // ============ STATE 1: NOT CHECKED IN ============
   // Wraps the existing DailyCheckIn component as-is — no logic changes.
-  // After check-in, DailyCheckIn renders its CompactCompleted state with the
-  // scripture response. We keep showing it for 5 seconds before transitioning
-  // to "Continue Your Journey."
-  if ((!isCheckedIn || scriptureWindowOpen) && !isLoading) {
+  if (!isCheckedIn && !isLoading) {
     return (
       <motion.div
         key="checkin-state"
@@ -125,6 +121,50 @@ const YourPathToday = ({ onCheckInComplete, onSpiritPromptWritten, onNeedSupport
           onSpiritPromptWritten={onSpiritPromptWritten}
           onNeedSupport={onNeedSupport}
         />
+      </motion.div>
+    );
+  }
+
+  // ============ STATE 1b: JUST CHECKED IN — minimal confirmation (2s) ============
+  if (isCheckedIn && confirmationVisible && !isLoading) {
+    return (
+      <motion.div
+        key="checkin-confirmation"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={fadeTransition}
+      >
+        <div
+          className="dark-card-gradient rounded-[16px] text-white flex flex-col items-center justify-center"
+          style={{ fontFamily: sansFont, padding: "20px 22px", minHeight: "110px" }}
+        >
+          <p
+            className="uppercase text-center"
+            style={{
+              fontSize: "11px",
+              fontWeight: 500,
+              letterSpacing: "0.12em",
+              color: "#B8963F",
+              marginBottom: "10px",
+            }}
+          >
+            Daily Check-In
+          </p>
+          <Check size={32} strokeWidth={2.25} color="#B8963F" />
+          <p
+            className="text-center"
+            style={{
+              fontSize: "18px",
+              fontWeight: 600,
+              color: "#F5F3EE",
+              marginTop: "8px",
+              letterSpacing: "-0.01em",
+            }}
+          >
+            Completed
+          </p>
+        </div>
       </motion.div>
     );
   }
