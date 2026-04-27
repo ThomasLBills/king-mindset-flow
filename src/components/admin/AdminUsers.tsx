@@ -395,6 +395,7 @@ const AdminUsers = () => {
                 })}
               </TableBody>
             </Table>
+            </div>
           )}
         </CardContent>
       </Card>
