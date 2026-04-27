@@ -18,6 +18,7 @@ type Row = {
   active: boolean;
   daysRemaining: number | null; // null = no expiration (permanent)
   subStatus: "active" | "cancelled" | "none";
+  source: string | null;
 };
 
 const formatDate = (iso: string | null) =>
@@ -41,7 +42,7 @@ const AdminEntitlements = () => {
         supabase.from("user_roles").select("user_id, role").eq("role", "admin"),
         supabase
           .from("entitlements")
-          .select("user_id, expires_at, active")
+          .select("user_id, expires_at, active, source")
           .eq("entitlement_type", "course_app_access"),
         supabase.from("subscriptions").select("user_id, status, updated_at"),
       ]);
@@ -81,6 +82,7 @@ const AdminEntitlements = () => {
             active: !!ent?.active,
             daysRemaining: ent?.expires_at ? daysBetween(ent.expires_at) : null,
             subStatus,
+            source: ent?.source ?? null,
           };
         });
 
@@ -148,6 +150,14 @@ const AdminEntitlements = () => {
     return <Badge variant={m.variant}>{m.label}</Badge>;
   };
 
+  const renderSource = (r: Row) => {
+    const s = (r.source || "").toLowerCase();
+    let label = "—";
+    if (s === "stripe") label = "Stripe";
+    else if (s) label = "Manual"; // zapier_*, admin_grant, admin_extend, etc.
+    return <Badge variant={label === "Stripe" ? "default" : "secondary"}>{label}</Badge>;
+  };
+
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
       <div className="flex items-center gap-3">
@@ -184,6 +194,7 @@ const AdminEntitlements = () => {
                     <TableHead>Expires</TableHead>
                     <TableHead>Days Remaining</TableHead>
                     <TableHead>Subscription</TableHead>
+                    <TableHead>Source</TableHead>
                     <TableHead className="text-right">Action</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -196,6 +207,7 @@ const AdminEntitlements = () => {
                       </TableCell>
                       <TableCell>{renderDays(r)}</TableCell>
                       <TableCell>{renderSub(r)}</TableCell>
+                      <TableCell>{renderSource(r)}</TableCell>
                       <TableCell className="text-right">
                         <Button
                           size="sm"
@@ -212,7 +224,7 @@ const AdminEntitlements = () => {
                   ))}
                   {filtered.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center text-muted-foreground py-8 text-sm">
+                      <TableCell colSpan={6} className="text-center text-muted-foreground py-8 text-sm">
                         No users found.
                       </TableCell>
                     </TableRow>
