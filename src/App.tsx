@@ -30,7 +30,6 @@ import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import SetupAccount from "./pages/SetupAccount";
-import Checkout from "./pages/Checkout";
 import ThankYou from "./pages/ThankYou";
 import Upgrade from "./pages/Upgrade";
 import Billing from "./pages/Billing";
@@ -62,7 +61,7 @@ const App = () => (
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/setup-account" element={<SetupAccount />} />
-            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/checkout" element={<Navigate to="/app/upgrade" replace />} />
             <Route path="/thank-you" element={<ThankYou />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
