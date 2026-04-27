@@ -89,8 +89,9 @@ serve(async (req) => {
       });
     }
 
-    // Get user ID from auth header if logged in
+    // Get user ID + email from auth header if logged in
     let userId: string | null = null;
+    let userEmail: string | null = email || null;
     const authHeader = req.headers.get("authorization");
     if (authHeader) {
       const token = authHeader.replace("Bearer ", "");
@@ -100,6 +101,92 @@ serve(async (req) => {
       if (userRes.ok) {
         const userData = await userRes.json();
         userId = userData.id;
+        userEmail = userData.email || userEmail;
+      }
+    }
+
+    // Find or create Stripe customer linked to this Supabase user
+    let stripeCustomerId: string | null = null;
+    if (userId) {
+      // Look up existing mapping
+      const mapRes = await fetch(
+        `${SUPABASE_URL}/rest/v1/stripe_customers?user_id=eq.${userId}&select=stripe_customer_id`,
+        {
+          headers: {
+            apikey: SUPABASE_SERVICE_ROLE_KEY,
+            Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+          },
+        }
+      );
+      const mapped = await mapRes.json();
+      if (Array.isArray(mapped) && mapped[0]?.stripe_customer_id) {
+        stripeCustomerId = mapped[0].stripe_customer_id;
+      }
+
+      // Verify the customer still exists in Stripe (handles test/live key swaps)
+      if (stripeCustomerId) {
+        const verifyRes = await fetch(`https://api.stripe.com/v1/customers/${stripeCustomerId}`, {
+          headers: { Authorization: stripeAuth },
+        });
+        const verify = await verifyRes.json();
+        if (verify?.error || verify?.deleted) {
+          stripeCustomerId = null;
+        }
+      }
+
+      if (!stripeCustomerId) {
+        // Try to find an existing Stripe customer by email to avoid duplicates
+        if (userEmail) {
+          const searchRes = await fetch(
+            `https://api.stripe.com/v1/customers?email=${encodeURIComponent(userEmail)}&limit=1`,
+            { headers: { Authorization: stripeAuth } }
+          );
+          const search = await searchRes.json();
+          if (search?.data?.[0]?.id) {
+            stripeCustomerId = search.data[0].id;
+            // Backfill metadata with our user_id
+            const updParams = new URLSearchParams();
+            updParams.append("metadata[user_id]", userId);
+            await fetch(`https://api.stripe.com/v1/customers/${stripeCustomerId}`, {
+              method: "POST",
+              headers: { Authorization: stripeAuth, "Content-Type": "application/x-www-form-urlencoded" },
+              body: updParams.toString(),
+            });
+          }
+        }
+
+        // Otherwise, create a fresh Stripe customer
+        if (!stripeCustomerId) {
+          const custParams = new URLSearchParams();
+          if (userEmail) custParams.append("email", userEmail);
+          custParams.append("metadata[user_id]", userId);
+          const custRes = await fetch("https://api.stripe.com/v1/customers", {
+            method: "POST",
+            headers: { Authorization: stripeAuth, "Content-Type": "application/x-www-form-urlencoded" },
+            body: custParams.toString(),
+          });
+          const cust = await custRes.json();
+          if (cust.error) {
+            console.error("Stripe customer create error:", cust.error);
+            return new Response(JSON.stringify({ error: cust.error.message }), {
+              status: 400,
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+            });
+          }
+          stripeCustomerId = cust.id;
+        }
+
+        // Persist mapping in stripe_customers
+        await fetch(`${SUPABASE_URL}/rest/v1/stripe_customers`, {
+          method: "POST",
+          headers: {
+            apikey: SUPABASE_SERVICE_ROLE_KEY,
+            Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+            "Content-Type": "application/json",
+            Prefer: "resolution=merge-duplicates",
+          },
+          body: JSON.stringify({ user_id: userId, stripe_customer_id: stripeCustomerId }),
+        });
       }
     }
 
@@ -111,9 +198,18 @@ serve(async (req) => {
     params.append("success_url", `${returnUrl}/thank-you?session_id={CHECKOUT_SESSION_ID}`);
     params.append("cancel_url", `${returnUrl}/upgrade?canceled=true`);
     params.append("metadata[plan]", planKey);
-    if (userId) params.append("metadata[user_id]", userId);
-    if (email) {
-      params.append("customer_email", email);
+    if (userId) {
+      params.append("metadata[user_id]", userId);
+      params.append("subscription_data[metadata][user_id]", userId);
+      params.append("subscription_data[metadata][plan]", planKey);
+    }
+    if (stripeCustomerId) {
+      // Reuse existing Stripe customer — prevents Stripe from treating user as new
+      params.append("customer", stripeCustomerId);
+      params.append("customer_update[address]", "auto");
+      params.append("customer_update[name]", "auto");
+    } else if (userEmail) {
+      params.append("customer_email", userEmail);
     }
 
     const stripeRes = await fetch("https://api.stripe.com/v1/checkout/sessions", {
