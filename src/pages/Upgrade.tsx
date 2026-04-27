@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -8,19 +8,6 @@ import lkIcon from "@/assets/lk-icon.png";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { loadStripe } from "@stripe/stripe-js";
-import {
-  Elements,
-  PaymentElement,
-  useStripe,
-  useElements,
-} from "@stripe/react-stripe-js";
-import { useQueryClient } from "@tanstack/react-query";
-
-const STRIPE_PUBLISHABLE_KEY =
-  "pk_live_51T2kS2EBAqZ3z3Wsdh3GFpzGhv5He53w0pHYxf07Q2GXWPqFtbCR10PeLhzvCxABkRmgvN7uIcJTMBNIngcbFF6X00noRfeHgT";
-
-const stripePromise = loadStripe(STRIPE_PUBLISHABLE_KEY);
 
 const benefits = [
   "Daily check-ins to build evidence of your freedom",
@@ -33,73 +20,25 @@ const benefits = [
 
 type PlanKey = "monthly" | "annual";
 
-const PaymentForm = ({ plan, amountLabel }: { plan: PlanKey; amountLabel: string }) => {
-  const stripe = useStripe();
-  const elements = useElements();
+const CheckoutButton = ({ plan, amountLabel }: { plan: PlanKey; amountLabel: string }) => {
   const { toast } = useToast();
-  const navigate = useNavigate();
   const { user } = useAuth();
-  const queryClient = useQueryClient();
   const [submitting, setSubmitting] = useState(false);
 
-  const waitForEntitlement = async (): Promise<boolean> => {
-    if (!user) return false;
-    for (let i = 0; i < 15; i++) {
-      const { data } = await supabase
-        .from("entitlements")
-        .select("active, expires_at")
-        .eq("user_id", user.id)
-        .eq("entitlement_type", "course_app_access")
-        .eq("active", true)
-        .maybeSingle();
-      if (data && (!data.expires_at || new Date(data.expires_at) > new Date())) {
-        return true;
-      }
-      await new Promise((r) => setTimeout(r, 1000));
-    }
-    return false;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!stripe || !elements) return;
-
+  const startCheckout = async () => {
     setSubmitting(true);
     try {
-      const { error: submitErr } = await elements.submit();
-      if (submitErr) {
-        toast({ title: "Payment error", description: submitErr.message, variant: "destructive" });
-        setSubmitting(false);
-        return;
-      }
-
-      const { error } = await stripe.confirmPayment({
-        elements,
-        redirect: "if_required",
-        confirmParams: {
-          return_url: `${window.location.origin}/app`,
+      const { data, error } = await supabase.functions.invoke("create-checkout-session", {
+        body: {
+          planKey: plan,
+          email: user?.email,
+          returnUrl: window.location.origin,
         },
       });
 
-      if (error) {
-        toast({ title: "Payment failed", description: error.message, variant: "destructive" });
-        setSubmitting(false);
-        return;
-      }
-
-      // Payment succeeded — wait for webhook to grant entitlement
-      const granted = await waitForEntitlement();
-      await queryClient.invalidateQueries({ queryKey: ["entitlement"] });
-
-      if (granted) {
-        toast({ title: "Welcome", description: "Your access is active." });
-      } else {
-        toast({
-          title: "Payment received",
-          description: "Activating your access — this may take a moment.",
-        });
-      }
-      navigate("/app", { replace: true });
+      if (error) throw error;
+      if (!data?.url) throw new Error("Could not open checkout");
+      window.location.assign(data.url);
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
       setSubmitting(false);
@@ -107,81 +46,24 @@ const PaymentForm = ({ plan, amountLabel }: { plan: PlanKey; amountLabel: string
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <PaymentElement options={{ layout: "tabs" }} />
-      <Button type="submit" size="xl" className="w-full" disabled={!stripe || submitting}>
+    <div className="space-y-4">
+      <Button type="button" onClick={startCheckout} size="xl" className="w-full" disabled={submitting}>
         {submitting ? (
           <Loader2 className="w-5 h-5 animate-spin" />
         ) : (
-          <>Pay {amountLabel}</>
+          <>Continue to Pay {amountLabel}</>
         )}
       </Button>
       <p className="text-xs text-center text-muted-foreground">
         Secure payment via Stripe. Cancel anytime.
       </p>
-    </form>
+    </div>
   );
 };
 
 const Upgrade = () => {
   const [plan, setPlan] = useState<PlanKey>("annual");
-  const [clientSecret, setClientSecret] = useState<string | null>(null);
-  const [initLoading, setInitLoading] = useState(false);
-  const [initError, setInitError] = useState<string | null>(null);
   const { signOut } = useAuth();
-  const { toast } = useToast();
-
-  // Whenever the plan changes, create a fresh subscription + PaymentIntent.
-  useEffect(() => {
-    let cancelled = false;
-    const init = async () => {
-      setInitLoading(true);
-      setInitError(null);
-      setClientSecret(null);
-      try {
-        const { data, error } = await supabase.functions.invoke("create-payment-intent", {
-          body: { planKey: plan },
-        });
-        if (cancelled) return;
-        if (error) throw error;
-        if (!data?.clientSecret) throw new Error("Could not initialize payment");
-        setClientSecret(data.clientSecret);
-      } catch (err: any) {
-        if (cancelled) return;
-        const msg = err?.message || "Failed to initialize payment";
-        setInitError(msg);
-        toast({ title: "Error", description: msg, variant: "destructive" });
-      } finally {
-        if (!cancelled) setInitLoading(false);
-      }
-    };
-    init();
-    return () => {
-      cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [plan]);
-
-  const elementsOptions = useMemo(
-    () =>
-      clientSecret
-        ? {
-            clientSecret,
-            appearance: {
-              theme: "night" as const,
-              variables: {
-                colorPrimary: "#B8963F",
-                colorBackground: "#1A1A1A",
-                colorText: "#F5F3EE",
-                colorDanger: "#ef4444",
-                fontFamily: "Inter, system-ui, sans-serif",
-                borderRadius: "8px",
-              },
-            },
-          }
-        : undefined,
-    [clientSecret]
-  );
 
   const amountLabel = plan === "monthly" ? "$7.95/mo" : "$69.95/yr";
 
@@ -235,19 +117,7 @@ const Upgrade = () => {
 
           <Card className="card-elevated mb-4">
             <CardContent className="pt-6">
-              {initLoading || !clientSecret ? (
-                <div className="flex items-center justify-center py-12">
-                  {initError ? (
-                    <p className="text-sm text-destructive text-center">{initError}</p>
-                  ) : (
-                    <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-                  )}
-                </div>
-              ) : (
-                <Elements key={clientSecret} stripe={stripePromise} options={elementsOptions}>
-                  <PaymentForm plan={plan} amountLabel={amountLabel} />
-                </Elements>
-              )}
+              <CheckoutButton plan={plan} amountLabel={amountLabel} />
             </CardContent>
           </Card>
 
