@@ -12,6 +12,7 @@ import AdminGuard from "@/components/guards/AdminGuard";
 import AdminLayout from "@/components/admin/AdminLayout";
 import AdminDashboard from "@/components/admin/AdminDashboard";
 import AdminUsers from "@/components/admin/AdminUsers";
+import AdminEntitlements from "@/components/admin/AdminEntitlements";
 import AdminAuditLog from "@/components/admin/AdminAuditLog";
 import AdminAnnouncements from "@/components/admin/AdminAnnouncements";
 import AdminCommunity from "@/components/admin/AdminCommunity";
@@ -89,6 +90,7 @@ const App = () => (
               <Route path="curriculum/weeks/:weekId" element={<WeekDetail />} />
               <Route path="curriculum/weeks/:weekId/lessons/:lessonId" element={<CurriculumLessonEditor />} />
               <Route path="users" element={<AdminUsers />} />
+              <Route path="entitlements" element={<AdminEntitlements />} />
               <Route path="community" element={<AdminCommunity />} />
               <Route path="announcements" element={<AdminAnnouncements />} />
               <Route path="audit-log" element={<AdminAuditLog />} />

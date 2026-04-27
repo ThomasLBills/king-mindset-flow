@@ -10,6 +10,7 @@ import {
   Megaphone,
   ChevronLeft,
   Menu,
+  ShieldCheck,
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -33,6 +34,7 @@ const navSections = [
     label: "People",
     items: [
       { label: "Users", path: "/admin/users", icon: Users },
+      { label: "Entitlements", path: "/admin/entitlements", icon: ShieldCheck },
       { label: "Community", path: "/admin/community", icon: MessageSquare },
     ],
   },
