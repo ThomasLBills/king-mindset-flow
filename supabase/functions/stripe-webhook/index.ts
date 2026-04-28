@@ -354,16 +354,28 @@ async function processSubscription(subscription: any, userId: string, supabase: 
   );
 
   // Upsert entitlement — set active flag and expires_at based on plan duration
-  await supabase.from("entitlements").upsert(
-    {
-      user_id: userId,
-      entitlement_type: "course_app_access",
-      active: isActive,
-      source: "stripe",
-      expires_at: entitlementExpiresAt,
-    },
-    { onConflict: "user_id,entitlement_type" }
-  );
+  // NEVER overwrite admin grants — these are permanent paywall-exempt entitlements.
+  const { data: existing } = await supabase
+    .from("entitlements")
+    .select("source")
+    .eq("user_id", userId)
+    .eq("entitlement_type", "course_app_access")
+    .maybeSingle();
+
+  if (existing?.source === "admin_grant") {
+    console.log("Skipping entitlement update — admin_grant is permanent for user:", userId);
+  } else {
+    await supabase.from("entitlements").upsert(
+      {
+        user_id: userId,
+        entitlement_type: "course_app_access",
+        active: isActive,
+        source: "stripe",
+        expires_at: entitlementExpiresAt,
+      },
+      { onConflict: "user_id,entitlement_type" }
+    );
+  }
 
   console.log("Subscription processed:", subscription.id, "active:", isActive, "user:", userId);
 }
