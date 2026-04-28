@@ -28,6 +28,18 @@ const CheckoutButton = ({ plan, amountLabel }: { plan: PlanKey; amountLabel: str
   const startCheckout = async () => {
     setSubmitting(true);
     setCheckoutUrl(null);
+
+    // CRITICAL for mobile (iOS Safari, Android Chrome):
+    // Browsers block window.open / top-level navigation that happens AFTER an
+    // async await unless it's tied to a user gesture. Open a placeholder tab
+    // synchronously here, then navigate it once we have the Checkout URL.
+    let popup: Window | null = null;
+    try {
+      popup = window.open("about:blank", "_blank");
+    } catch {
+      popup = null;
+    }
+
     try {
       const { data, error } = await supabase.functions.invoke("create-checkout-session", {
         body: {
@@ -38,24 +50,35 @@ const CheckoutButton = ({ plan, amountLabel }: { plan: PlanKey; amountLabel: str
       });
 
       if (error) throw error;
-      if (!data?.url) throw new Error("Could not open checkout");
+      if (!data?.url) {
+        if (popup) popup.close();
+        throw new Error("Could not open checkout");
+      }
 
-      // Try to break out of the iframe (Lovable preview) and redirect the top window
-      // to Stripe Checkout. If we can't access window.top (cross-origin) or it fails,
-      // fall back to opening in a new tab, then to a clickable link.
       let redirected = false;
-      try {
-        if (window.top && window.top !== window.self) {
-          window.top.location.href = data.url;
+
+      // Preferred path on mobile: navigate the tab we opened synchronously.
+      if (popup && !popup.closed) {
+        try {
+          popup.location.href = data.url;
           redirected = true;
-        } else {
-          window.location.assign(data.url);
-          redirected = true;
+        } catch {
+          // ignore — fall through to other strategies
         }
-      } catch {
-        const popup = window.open(data.url, "_blank", "noopener,noreferrer");
-        if (popup) {
-          redirected = true;
+      }
+
+      // Try to break out of the iframe (Lovable preview) and redirect the top window.
+      if (!redirected) {
+        try {
+          if (window.top && window.top !== window.self) {
+            window.top.location.href = data.url;
+            redirected = true;
+          } else {
+            window.location.assign(data.url);
+            redirected = true;
+          }
+        } catch {
+          // ignore
         }
       }
 
@@ -65,6 +88,7 @@ const CheckoutButton = ({ plan, amountLabel }: { plan: PlanKey; amountLabel: str
       }
       setSubmitting(false);
     } catch (err: any) {
+      if (popup && !popup.closed) popup.close();
       toast({ title: "Error", description: err.message, variant: "destructive" });
       setSubmitting(false);
     }
