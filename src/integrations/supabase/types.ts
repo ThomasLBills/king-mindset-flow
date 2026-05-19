@@ -1565,6 +1565,30 @@ export type Database = {
         }
         Relationships: []
       }
+      yield_logs: {
+        Row: {
+          created_at: string
+          custom_text: string | null
+          id: string
+          user_id: string
+          yield_type: string
+        }
+        Insert: {
+          created_at?: string
+          custom_text?: string | null
+          id?: string
+          user_id: string
+          yield_type: string
+        }
+        Update: {
+          created_at?: string
+          custom_text?: string | null
+          id?: string
+          user_id?: string
+          yield_type?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
