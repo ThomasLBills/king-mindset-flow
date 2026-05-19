@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShieldCheck, RotateCcw, Layers, Heart, BookOpen, Sparkles } from "lucide-react";
+import { ShieldCheck, RotateCcw, Layers, Heart, BookOpen, Sparkles, Wind } from "lucide-react";
 import AppLayout from "@/components/layout/AppLayout";
 import GraceProtocol from "@/components/tools/GraceProtocol";
 import GratitudeModal from "@/components/tools/GratitudeModal";
 import ScriptureTool from "@/components/tools/ScriptureTool";
 import DeclarationsModal from "@/components/tools/DeclarationsModal";
+import WalkWithSpiritModal from "@/components/tools/WalkWithSpiritModal";
 import { SpiritLedCrisisModal } from "@/components/layout/SpiritLedCrisisButton";
 import HelpMeNowModal, { ToolKey } from "@/components/tools/HelpMeNowModal";
 
@@ -18,6 +19,7 @@ const ToolsPage = () => {
   const [showGratitude, setShowGratitude] = useState(false);
   const [showScripture, setShowScripture] = useState(false);
   const [showHelpMeNow, setShowHelpMeNow] = useState(false);
+  const [showWalkWithSpirit, setShowWalkWithSpirit] = useState(false);
 
   const openToolByKey = (key: ToolKey) => {
     if (key === "tempted") setShowCrisisModal(true);
@@ -57,6 +59,14 @@ const ToolsPage = () => {
       subtitle: "Declare. Believe. Receive.",
       icon: Layers,
       onClick: () => setShowDeclarations(true),
+      urgent: false,
+      gold: false,
+    },
+    {
+      title: "Walk with the Spirit",
+      subtitle: "Surrender. Yield. Abide.",
+      icon: Wind,
+      onClick: () => setShowWalkWithSpirit(true),
       urgent: false,
       gold: false,
     },
@@ -152,6 +162,7 @@ const ToolsPage = () => {
         {showGratitude && <GratitudeModal onClose={() => setShowGratitude(false)} />}
         {showDeclarations && <DeclarationsModal onClose={() => setShowDeclarations(false)} />}
         {showScripture && <ScriptureTool onClose={() => setShowScripture(false)} />}
+        {showWalkWithSpirit && <WalkWithSpiritModal onClose={() => setShowWalkWithSpirit(false)} />}
         {showHelpMeNow && (
           <HelpMeNowModal
             onClose={() => setShowHelpMeNow(false)}
