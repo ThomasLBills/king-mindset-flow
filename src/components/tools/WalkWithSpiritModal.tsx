@@ -251,21 +251,27 @@ const AbideStep = ({ onReceive, isPending }: { onReceive: () => void; isPending:
       onClick={onReceive}
       disabled={isPending}
       style={{
-        background: "hsl(var(--primary))",
-        color: "#1A1A1A",
-        fontFamily: sansFont,
-        fontWeight: 600,
-        fontSize: "15px",
+        position: "relative",
+        width: "100%",
+        padding: "16px",
+        borderRadius: "12px",
         border: "none",
-        borderRadius: "999px",
-        padding: "14px 40px",
+        fontSize: "15px",
+        fontWeight: 600,
+        fontFamily: sansFont,
         cursor: isPending ? "default" : "pointer",
+        background: "#B8963F",
+        color: "#1A1A1A",
+        overflow: "hidden",
         outline: "none",
         boxShadow: "none",
         opacity: isPending ? 0.7 : 1,
+        transition: "opacity 0.3s ease",
       }}
     >
-      I receive it.
+      <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
+        I receive it.
+      </span>
     </button>
   </div>
 );
