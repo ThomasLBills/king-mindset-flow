@@ -399,7 +399,7 @@
 
   /* Fullscreen modal / tool overlay — scrollable, safe on short screens */
   .modal-fullscreen {
-    @apply fixed inset-0 z-50 flex flex-col;
+    @apply fixed inset-0 z-[60] flex flex-col;
   }
 
   .modal-fullscreen-body {

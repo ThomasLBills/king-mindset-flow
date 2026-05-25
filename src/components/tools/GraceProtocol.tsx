@@ -236,7 +236,7 @@ const GraceProtocol = ({ onClose }: GraceProtocolProps) => {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="fixed inset-0 z-50 flex flex-col items-center justify-center px-8"
+        className="fixed inset-0 z-[60] flex flex-col items-center justify-center px-8"
         style={{ background: "linear-gradient(180deg, #1C1C1C 0%, #161616 100%)" }}
       >
         <h2 style={{
