@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
 import { useEntitlement } from "@/hooks/useEntitlement";
+import { useAdminRole } from "@/hooks/useAdminRole";
 import { Mail, Lock, Loader2, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import lkLogo from "@/assets/lk-logo-horizontal.png";
@@ -18,6 +19,7 @@ const Login = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const { signInWithPassword, user } = useAuth();
   const { isEntitled, isLoading: entitlementLoading } = useEntitlement();
+  const { isAdmin, isLoading: adminLoading } = useAdminRole();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -33,13 +35,13 @@ const Login = () => {
 
   useEffect(() => {
     if (!user) return;
-    if (entitlementLoading) return;
-    if (isEntitled) {
+    if (entitlementLoading || adminLoading) return;
+    if (isEntitled || isAdmin) {
       navigate("/app", { replace: true });
     } else {
       navigate("/upgrade", { replace: true });
     }
-  }, [user, isEntitled, entitlementLoading, navigate]);
+  }, [user, isEntitled, isAdmin, entitlementLoading, adminLoading, navigate]);
 
   if (user) {
     return (
