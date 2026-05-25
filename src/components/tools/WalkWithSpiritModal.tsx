@@ -111,19 +111,19 @@ const SurrenderStep = ({ onComplete }: { onComplete: () => void }) => {
         disabled={visibleLines < lines.length}
         style={{
           position: "relative",
-          background: "transparent",
-          color: "hsl(var(--primary))",
-          fontFamily: sansFont,
+          width: "100%",
+          padding: "16px",
+          borderRadius: "12px",
+          border: "none",
+          fontSize: "15px",
           fontWeight: 600,
-          fontSize: "14px",
-          letterSpacing: "0.05em",
-          border: "1.5px solid hsl(var(--primary))",
-          borderRadius: "999px",
-          padding: "14px 36px",
+          fontFamily: sansFont,
           cursor: "pointer",
+          background: completed ? "#B8963F" : "#F5F3EE",
+          color: "#1A1A1A",
+          overflow: "hidden",
           outline: "none",
           boxShadow: "none",
-          overflow: "hidden",
           WebkitUserSelect: "none",
           userSelect: "none",
           opacity: visibleLines < lines.length ? 0.5 : 1,
@@ -133,14 +133,16 @@ const SurrenderStep = ({ onComplete }: { onComplete: () => void }) => {
         <div
           style={{
             position: "absolute",
-            inset: 0,
-            borderRadius: "999px",
-            background: "hsl(var(--primary) / 0.18)",
-            width: holding || completed ? "100%" : "0%",
-            transition: holding ? "width 1.5s linear" : completed ? "none" : "width 0.2s ease",
+            left: 0,
+            top: 0,
+            bottom: 0,
+            borderRadius: "12px",
+            background: "#B8963F",
+            width: holding ? "100%" : "0%",
+            transition: holding ? "width 1.5s linear" : "none",
           }}
         />
-        <span style={{ position: "relative", zIndex: 1, display: "inline-flex", alignItems: "center", gap: "6px" }}>
+        <span style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
           {completed ? <><Check className="w-4 h-4" /> Surrendered</> : "Hold to Surrender"}
         </span>
       </button>
