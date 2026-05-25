@@ -148,10 +148,7 @@ const SurrenderStep = ({ onComplete }: { onComplete: () => void }) => {
   );
 };
 
-const YieldStep = ({ onSelect }: { onSelect: (type: string, custom?: string) => void }) => {
-  const [showCustom, setShowCustom] = useState(false);
-  const [customText, setCustomText] = useState("");
-
+const YieldStep = ({ onSelect }: { onSelect: (type: string) => void }) => {
   const options: { label: string; value: string }[] = [
     { label: "Take a walk", value: "take_a_walk" },
     { label: "Pray, don't panic", value: "pray_dont_panic" },
@@ -175,7 +172,7 @@ const YieldStep = ({ onSelect }: { onSelect: (type: string, custom?: string) => 
         What is He prompting?
       </h2>
 
-      <div className="flex flex-col gap-3 w-full" style={{ marginBottom: "20px" }}>
+      <div className="flex flex-col gap-3 w-full">
         {options.map((opt) => (
           <motion.button
             key={opt.value}
@@ -201,63 +198,6 @@ const YieldStep = ({ onSelect }: { onSelect: (type: string, custom?: string) => 
           </motion.button>
         ))}
       </div>
-
-      {!showCustom ? (
-        <button
-          onClick={() => setShowCustom(true)}
-          style={{
-            background: "none",
-            border: "none",
-            color: "rgba(245, 243, 238, 0.5)",
-            fontFamily: sansFont,
-            fontSize: "14px",
-            cursor: "pointer",
-            outline: "none",
-          }}
-        >
-          Something else…
-        </button>
-      ) : (
-        <div className="w-full flex flex-col gap-3">
-          <input
-            value={customText}
-            onChange={(e) => setCustomText(e.target.value)}
-            placeholder="What is He prompting?"
-            autoFocus
-            style={{
-              width: "100%",
-              background: "#242424",
-              border: "none",
-              borderLeft: "3px solid hsl(var(--primary))",
-              borderRadius: "0 12px 12px 0",
-              padding: "16px 18px",
-              color: "#F5F3EE",
-              fontFamily: sansFont,
-              fontSize: "16px",
-              outline: "none",
-            }}
-          />
-          <button
-            onClick={() => customText.trim() && onSelect("custom", customText.trim())}
-            disabled={!customText.trim()}
-            style={{
-              width: "100%",
-              padding: "14px",
-              borderRadius: "12px",
-              border: "none",
-              background: customText.trim() ? "hsl(var(--primary))" : "#242424",
-              color: customText.trim() ? "#1A1A1A" : "rgba(245,243,238,0.3)",
-              fontFamily: sansFont,
-              fontWeight: 600,
-              fontSize: "15px",
-              cursor: customText.trim() ? "pointer" : "not-allowed",
-              outline: "none",
-            }}
-          >
-            Continue
-          </button>
-        </div>
-      )}
     </div>
   );
 };
@@ -335,13 +275,13 @@ const WalkWithSpiritModal = ({ onClose }: Props) => {
   const { user } = useAuth();
   const { addEvidence } = useEvidenceCounter();
 
-  const handleYield = async (yieldType: string, custom?: string) => {
+  const handleYield = async (yieldType: string) => {
     if (user) {
       try {
         await supabase.from("yield_logs" as any).insert({
           user_id: user.id,
           yield_type: yieldType,
-          custom_text: custom ?? null,
+          custom_text: null,
         });
       } catch (e) {
         // non-blocking
