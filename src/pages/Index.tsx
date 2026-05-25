@@ -64,27 +64,6 @@ const Index = () => {
           <BrotherhoodCallSection />
         </motion.div>
 
-        {/* 2c. Walk with the Spirit */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.14 }}
-        >
-          <motion.button
-            onClick={() => setShowWalkWithSpirit(true)}
-            whileTap={{ scale: 0.98 }}
-            className="armor-action-card w-full"
-          >
-            <div className="armor-action-card__icon">
-              <Wind className="w-[22px] h-[22px]" strokeWidth={2} />
-            </div>
-            <div className="armor-action-card__content">
-              <span className="armor-action-card__title">Walk with the Spirit</span>
-              <span className="armor-action-card__subtitle">Surrender. Yield. Abide.</span>
-            </div>
-          </motion.button>
-        </motion.div>
-
         {/* 3. This Week's Evidence */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
           <div className="grid grid-cols-2 gap-[10px] items-stretch">
@@ -98,7 +77,6 @@ const Index = () => {
       {/* Modals */}
       <AnimatePresence>
         {showReachOut && <ReachOut onClose={() => setShowReachOut(false)} />}
-        {showWalkWithSpirit && <WalkWithSpiritModal onClose={() => setShowWalkWithSpirit(false)} />}
       </AnimatePresence>
     </AppLayout>
   );
