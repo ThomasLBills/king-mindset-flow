@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Wind } from "lucide-react";
 import AppLayout from "@/components/layout/AppLayout";
 import FreedomStrip from "@/components/home/FreedomStrip";
 import UrgesRedirectedCard from "@/components/home/UrgesRedirectedCard";
@@ -8,12 +7,10 @@ import BrotherhoodCallSection from "@/components/home/BrotherhoodCallSection";
 import ArmorActivatedCard from "@/components/home/ArmorActivatedCard";
 import ReachOut from "@/components/brotherhood/ReachOut";
 import YourPathToday from "@/components/home/YourPathToday";
-import WalkWithSpiritModal from "@/components/tools/WalkWithSpiritModal";
 import { useAuth } from "@/hooks/useAuth";
 
 const Index = () => {
   const [showReachOut, setShowReachOut] = useState(false);
-  const [showWalkWithSpirit, setShowWalkWithSpirit] = useState(false);
 
   const { user } = useAuth();
 
