@@ -43,6 +43,19 @@ const Login = () => {
     }
   }, [user, isEntitled, isAdmin, entitlementLoading, adminLoading, navigate]);
 
+  // Safety net: if we're signed in but entitlement/admin checks stall on desktop
+  // (Chrome/Safari can hold fetches longer than mobile WebKit), force a hard
+  // navigation so the user is never trapped on the loader.
+  useEffect(() => {
+    if (!user) return;
+    const t = window.setTimeout(() => {
+      if (window.location.pathname === "/login") {
+        window.location.replace("/app");
+      }
+    }, 3500);
+    return () => window.clearTimeout(t);
+  }, [user]);
+
   if (user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -55,12 +68,13 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
     setErrorMessage(null);
-    const { error } = await signInWithPassword(email, password);
+    const normalizedEmail = email.trim().toLowerCase();
+    const { error } = await signInWithPassword(normalizedEmail, password);
     if (error) {
       // Check if this user exists but hasn't set a password yet
       try {
         const { data } = await supabase.functions.invoke("check-user-eligible", {
-          body: { email },
+          body: { email: normalizedEmail },
         });
         if (data?.eligible && data?.password_set === false) {
           // Redirect to setup-account — check-user-eligible already sent a code
@@ -74,8 +88,10 @@ const Login = () => {
       setLoading(false);
       setErrorMessage(error.message);
       toast({ title: "Error", description: error.message, variant: "destructive" });
+      return;
     }
-    setLoading(false);
+    // On success the auth listener will populate `user` and the effects above
+    // navigate. Keep the spinner shown until then so the form can't be re-submitted.
   };
 
 
