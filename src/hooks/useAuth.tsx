@@ -18,6 +18,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const applySession = (nextSession: Session | null) => {
+    setSession(nextSession);
+    setUser(nextSession?.user ?? null);
+    setLoading(false);
+  };
+
   useEffect(() => {
     const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
     const searchParams = new URLSearchParams(window.location.search);
@@ -30,9 +36,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     let settled = false;
     const settleFromSession = (nextSession: Session | null) => {
       settled = true;
-      setSession(nextSession);
-      setUser(nextSession?.user ?? null);
-      setLoading(false);
+      applySession(nextSession);
     };
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, nextSession) => {
@@ -55,6 +59,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (!hasAuthParams || effectiveSession) {
         settleFromSession(effectiveSession);
       }
+    }).catch(() => {
+      if (!hasAuthParams) settleFromSession(null);
     });
 
     const fallbackTimer = window.setTimeout(() => {
@@ -75,10 +81,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             }
           }
           if (next) {
-            setSession(next);
-            setUser(next.user);
+            applySession(next);
           }
-        });
+        }).catch(() => undefined);
       }
     };
 
@@ -92,8 +97,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const signInWithPassword = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    return { error: error as Error | null };
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (!error && data.session) {
+        applySession(data.session);
+      }
+      return { error: error as Error | null };
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error("Load failed");
+      return { error };
+    }
   };
 
   const signUp = async (email: string, password: string, name?: string) => {

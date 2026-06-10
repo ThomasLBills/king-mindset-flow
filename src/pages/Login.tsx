@@ -86,8 +86,11 @@ const Login = () => {
         // Ignore — fall through to normal error
       }
       setLoading(false);
-      setErrorMessage(error.message);
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      const message = /load failed|failed to fetch|network/i.test(error.message)
+        ? "Connection failed. Please refresh and try again."
+        : error.message;
+      setErrorMessage(message);
+      toast({ title: "Error", description: message, variant: "destructive" });
       return;
     }
     // On success the auth listener will populate `user` and the effects above
