@@ -354,16 +354,24 @@ async function processSubscription(subscription: any, userId: string, supabase: 
   );
 
   // Upsert entitlement — set active flag and expires_at based on plan duration
-  // NEVER overwrite admin grants — these are permanent paywall-exempt entitlements.
+  // NEVER overwrite admin grants that are STILL ACTIVE — those are permanent
+  // paywall-exempt entitlements. If an admin_grant has lapsed (inactive or
+  // expired), a paid Stripe subscription MUST be allowed to take over,
+  // otherwise paying users stay locked out of the app.
   const { data: existing } = await supabase
     .from("entitlements")
-    .select("source")
+    .select("source, active, expires_at")
     .eq("user_id", userId)
     .eq("entitlement_type", "course_app_access")
     .maybeSingle();
 
-  if (existing?.source === "admin_grant") {
-    console.log("Skipping entitlement update — admin_grant is permanent for user:", userId);
+  const adminGrantStillValid =
+    existing?.source === "admin_grant" &&
+    existing?.active === true &&
+    (existing?.expires_at == null || new Date(existing.expires_at) > new Date());
+
+  if (adminGrantStillValid) {
+    console.log("Skipping entitlement update — active admin_grant is permanent for user:", userId);
   } else {
     await supabase.from("entitlements").upsert(
       {
