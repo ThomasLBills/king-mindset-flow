@@ -353,6 +353,30 @@ async function processSubscription(subscription: any, userId: string, supabase: 
     { onConflict: "stripe_subscription_id" }
   );
 
+  // A user can accidentally create duplicate subscriptions. If one duplicate is
+  // later canceled, Stripe sends a deleted/canceled event for that subscription.
+  // Do not let that inactive event revoke access while another subscription for
+  // the same user is still active or trialing.
+  let effectiveIsActive = isActive;
+  let effectiveExpiresAt = entitlementExpiresAt;
+
+  if (!isActive) {
+    const { data: stillActiveSubscription } = await supabase
+      .from("subscriptions")
+      .select("current_period_end")
+      .eq("user_id", userId)
+      .in("status", ["active", "trialing"])
+      .gt("current_period_end", new Date().toISOString())
+      .order("current_period_end", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (stillActiveSubscription) {
+      effectiveIsActive = true;
+      effectiveExpiresAt = stillActiveSubscription.current_period_end;
+    }
+  }
+
   // Upsert entitlement — set active flag and expires_at based on plan duration
   // NEVER overwrite admin grants that are STILL ACTIVE — those are permanent
   // paywall-exempt entitlements. If an admin_grant has lapsed (inactive or
@@ -377,15 +401,15 @@ async function processSubscription(subscription: any, userId: string, supabase: 
       {
         user_id: userId,
         entitlement_type: "course_app_access",
-        active: isActive,
+        active: effectiveIsActive,
         source: "stripe",
-        expires_at: entitlementExpiresAt,
+        expires_at: effectiveExpiresAt,
       },
       { onConflict: "user_id,entitlement_type" }
     );
   }
 
-  console.log("Subscription processed:", subscription.id, "active:", isActive, "user:", userId);
+  console.log("Subscription processed:", subscription.id, "active:", effectiveIsActive, "user:", userId);
 }
 
 async function handleInvoicePayment(invoice: any, supabase: any, succeeded: boolean) {
