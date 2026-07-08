@@ -1,15 +1,16 @@
-import { motion } from "framer-motion";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, ShieldCheck, CalendarPlus } from "lucide-react";
+import { Loader2, CalendarPlus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
+import { Eyebrow, SectionCard } from "@/components/forge/atoms";
+import { LkMonogram } from "@/components/forge/brand";
 
 type Row = {
   user_id: string;
@@ -141,10 +142,10 @@ const AdminEntitlements = () => {
     const d = r.daysRemaining;
     const cls =
       d <= 0
-        ? "bg-destructive/15 text-destructive border-destructive/30"
+        ? "bg-ember/15 text-ember border-ember/40"
         : d <= 14
-        ? "bg-yellow-500/15 text-yellow-600 dark:text-yellow-400 border-yellow-500/30"
-        : "bg-success/15 text-success border-success/30";
+        ? "bg-gold/10 text-gold-bright border-gold-deep/50"
+        : "bg-forge-2 text-bone-2 border-line-soft";
     const label = d <= 0 ? "Expired" : `${d} day${d === 1 ? "" : "s"}`;
     return (
       <span className={cn("inline-flex items-center px-2 py-0.5 rounded-md border text-xs font-medium", cls)}>
@@ -154,14 +155,14 @@ const AdminEntitlements = () => {
   };
 
   const renderSub = (r: Row) => {
-    const map: Record<Row["subStatus"], { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
+    const map: Record<Row["subStatus"], { label: string; variant: "default" | "secondary" | "destructive" | "outline"; className?: string }> = {
       active: { label: "Active", variant: "default" },
-      cancelling: { label: "Cancelling", variant: "secondary" },
-      cancelled: { label: "Cancelled", variant: "destructive" },
-      none: { label: "None", variant: "outline" },
+      cancelling: { label: "Cancelling", variant: "outline", className: "border-ember/40 text-ember" },
+      cancelled: { label: "Cancelled", variant: "outline", className: "border-ember/40 bg-ember/15 text-ember" },
+      none: { label: "None", variant: "secondary" },
     };
     const m = map[r.subStatus];
-    return <Badge variant={m.variant}>{m.label}</Badge>;
+    return <Badge variant={m.variant} className={m.className}>{m.label}</Badge>;
   };
 
   const renderSource = (r: Row) => {
@@ -173,83 +174,89 @@ const AdminEntitlements = () => {
   };
 
   return (
-    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-      <div className="flex items-center gap-3">
-        <ShieldCheck className="w-6 h-6 text-primary" />
-        <div>
-          <h1 className="font-serif text-3xl font-bold">Entitlements</h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            Non-admin users sorted by expiration date (most urgent first).
-          </p>
-        </div>
-      </div>
+    <div className="space-y-6">
+      <header>
+        <Eyebrow className="mb-1 block">Access</Eyebrow>
+        <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-bone">
+          Entitlements
+        </h1>
+        <p className="mt-1 text-sm text-dim">
+          Non-admin users sorted by expiration date (most urgent first).
+        </p>
+      </header>
 
-      <Card className="card-elevated">
-        <CardHeader className="flex flex-row items-center justify-between gap-4">
-          <CardTitle className="text-base">All Users ({filtered.length})</CardTitle>
-          <Input
-            placeholder="Search by email..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="max-w-xs"
-          />
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="flex justify-center py-12">
-              <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Expires</TableHead>
-                    <TableHead>Days Remaining</TableHead>
-                    <TableHead>Subscription</TableHead>
-                    <TableHead>Source</TableHead>
-                    <TableHead className="text-right">Action</TableHead>
+      <SectionCard className="p-6">
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="font-display text-lg font-bold tracking-tight text-bone">
+            All users <span className="text-dim">({filtered.length})</span>
+          </h2>
+          <div className="relative w-full sm:max-w-xs">
+            <Label htmlFor="ent-search" className="sr-only">Search by email</Label>
+            <Input
+              id="ent-search"
+              placeholder="Search by email..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+        </div>
+        {isLoading ? (
+          <div className="flex justify-center py-12">
+            <Loader2 className="w-6 h-6 animate-spin text-dim" aria-hidden="true" />
+          </div>
+        ) : (
+          <div className="overflow-x-auto -mx-6 px-6">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Expires</TableHead>
+                  <TableHead>Days remaining</TableHead>
+                  <TableHead>Subscription</TableHead>
+                  <TableHead>Source</TableHead>
+                  <TableHead className="text-right">Action</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filtered.map((r) => (
+                  <TableRow key={r.user_id}>
+                    <TableCell className="text-sm font-medium text-bone">{r.email}</TableCell>
+                    <TableCell className="text-sm text-dim">
+                      {r.expires_at ? formatDate(r.expires_at) : "—"}
+                    </TableCell>
+                    <TableCell>{renderDays(r)}</TableCell>
+                    <TableCell>{renderSub(r)}</TableCell>
+                    <TableCell>{renderSource(r)}</TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="gap-1.5"
+                        onClick={() => extend.mutate(r.user_id)}
+                        disabled={extend.isPending}
+                      >
+                        <CalendarPlus className="w-3.5 h-3.5" aria-hidden="true" />
+                        +30 days
+                      </Button>
+                    </TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filtered.map((r) => (
-                    <TableRow key={r.user_id}>
-                      <TableCell className="text-sm font-medium">{r.email}</TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {r.expires_at ? formatDate(r.expires_at) : "—"}
-                      </TableCell>
-                      <TableCell>{renderDays(r)}</TableCell>
-                      <TableCell>{renderSub(r)}</TableCell>
-                      <TableCell>{renderSource(r)}</TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="gap-1.5"
-                          onClick={() => extend.mutate(r.user_id)}
-                          disabled={extend.isPending}
-                        >
-                          <CalendarPlus className="w-3.5 h-3.5" />
-                          +30 days
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  {filtered.length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={6} className="text-center text-muted-foreground py-8 text-sm">
-                        No users found.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    </motion.div>
+                ))}
+                {filtered.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={6} className="py-12 text-center">
+                      <LkMonogram className="mx-auto mb-3 h-8 w-11 opacity-70" />
+                      <p className="text-sm text-dim">
+                        {search ? "No one matches that search." : "No users found."}
+                      </p>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+      </SectionCard>
+    </div>
   );
 };
 

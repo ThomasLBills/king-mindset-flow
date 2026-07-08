@@ -1,4 +1,3 @@
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Users, CheckCircle, BookOpen, FileText, Plus, Loader2, TrendingUp, GraduationCap, BarChart3, Calendar, ShieldCheck } from "lucide-react";
 import { useAdminEngagementStats } from "@/hooks/useAdminEngagement";
@@ -6,7 +5,8 @@ import { useWeeks, useCurriculumSettings } from "@/hooks/useAdminCurriculumNew";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { motion } from "framer-motion";
+import { Eyebrow, SectionCard } from "@/components/forge/atoms";
+import { LkSeal } from "@/components/forge/brand";
 
 function useAdminCurriculumStats() {
   return useQuery({
@@ -41,78 +41,81 @@ const AdminDashboard = () => {
   ];
 
   return (
-    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
-      <div>
-        <h1 className="font-serif text-3xl font-bold">Admin Dashboard</h1>
-        <p className="text-muted-foreground mt-1">Manage your curriculum, users, and settings.</p>
-      </div>
+    <div className="space-y-8">
+      <header>
+        <Eyebrow className="mb-1 block">Overview</Eyebrow>
+        <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-bone">
+          Admin Dashboard
+        </h1>
+        <p className="mt-1 text-dim">Manage your curriculum, users, and settings.</p>
+      </header>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {statCards.map((s) => (
-          <Card key={s.label} className="card-elevated">
-            <CardContent className="pt-6 text-center">
+      {/* Stats — faint covenant seal engraved behind the row */}
+      <div className="relative">
+        <LkSeal className="pointer-events-none absolute left-1/2 top-1/2 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 text-gold opacity-5" />
+        <div className="relative grid grid-cols-2 md:grid-cols-4 gap-4">
+          {statCards.map((s) => (
+            <SectionCard key={s.label} className="p-5 text-center">
               {isLoading ? (
-                <Loader2 className="h-6 w-6 mx-auto animate-spin text-muted-foreground" />
+                <Loader2 className="h-6 w-6 mx-auto animate-spin text-dim" />
               ) : (
                 <>
                   <s.icon className={`h-6 w-6 mx-auto mb-2 ${s.color}`} />
-                  <p className="text-2xl font-bold">{s.value ?? 0}</p>
-                  <p className="text-sm text-muted-foreground">{s.label}</p>
+                  <p className="font-display text-2xl font-bold text-bone">{s.value ?? 0}</p>
+                  <p className="text-sm text-dim">{s.label}</p>
                 </>
               )}
-            </CardContent>
-          </Card>
-        ))}
+            </SectionCard>
+          ))}
+        </div>
       </div>
 
       {/* Engagement Stats */}
-      <div className="grid grid-cols-3 gap-4">
-        {[
-          { label: "Enrollments", value: engagement?.totalEnrollments, icon: GraduationCap, color: "text-accent" },
-          { label: "Lessons Done", value: engagement?.lessonsCompleted, icon: TrendingUp, color: "text-success" },
-          { label: "Completion Rate", value: engagement?.completionRate !== undefined ? `${engagement.completionRate}%` : undefined, icon: BarChart3, color: "text-primary", sublabel: "among active learners" },
-        ].map((s) => (
-          <Card key={s.label} className="card-elevated">
-            <CardContent className="pt-6 text-center">
+      <div>
+        <Eyebrow className="mb-3 block">Engagement</Eyebrow>
+        <div className="grid grid-cols-3 gap-4">
+          {[
+            { label: "Enrollments", value: engagement?.totalEnrollments, icon: GraduationCap, color: "text-accent" },
+            { label: "Lessons Done", value: engagement?.lessonsCompleted, icon: TrendingUp, color: "text-success" },
+            { label: "Completion Rate", value: engagement?.completionRate !== undefined ? `${engagement.completionRate}%` : undefined, icon: BarChart3, color: "text-primary", sublabel: "among active learners" },
+          ].map((s) => (
+            <SectionCard key={s.label} className="p-5 text-center">
               {engLoading ? (
-                <Loader2 className="h-6 w-6 mx-auto animate-spin text-muted-foreground" />
+                <Loader2 className="h-6 w-6 mx-auto animate-spin text-dim" />
               ) : (
                 <>
                   <s.icon className={`h-6 w-6 mx-auto mb-2 ${s.color}`} />
-                  <p className="text-2xl font-bold">{s.value ?? 0}</p>
-                  <p className="text-sm text-muted-foreground">{s.label}</p>
+                  <p className="font-display text-2xl font-bold text-bone">{s.value ?? 0}</p>
+                  <p className="text-sm text-dim">{s.label}</p>
                   {"sublabel" in s && s.sublabel && (
-                    <p className="text-xs text-muted-foreground/70 mt-0.5">{s.sublabel}</p>
+                    <p className="text-xs text-dim/70 mt-0.5">{s.sublabel}</p>
                   )}
                 </>
               )}
-            </CardContent>
-          </Card>
-        ))}
+            </SectionCard>
+          ))}
+        </div>
       </div>
 
       {/* Quick Actions */}
-      <Card className="card-elevated">
-        <CardContent className="pt-6">
-          <h3 className="font-serif text-lg font-semibold mb-4">Quick Actions</h3>
-          <div className="flex flex-wrap gap-3">
-            <Button onClick={() => navigate("/admin/curriculum")} className="gap-2">
-              <BookOpen className="h-4 w-4" /> Manage Curriculum
-            </Button>
-            <Button variant="outline" onClick={() => navigate("/admin/announcements")} className="gap-2">
-              <Plus className="h-4 w-4" /> New Announcement
-            </Button>
-            <Button variant="outline" onClick={() => navigate("/admin/users")}>
-              View Users
-            </Button>
-            <Button variant="outline" onClick={() => navigate("/admin/entitlements")} className="gap-2">
-              <ShieldCheck className="h-4 w-4" /> Entitlements
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </motion.div>
+      <SectionCard className="p-6">
+        <h3 className="font-display text-lg font-bold tracking-tight text-bone mb-4">Quick Actions</h3>
+        <div className="flex flex-wrap gap-3">
+          <Button onClick={() => navigate("/admin/curriculum")} className="gap-2">
+            <BookOpen className="h-4 w-4" /> Manage Curriculum
+          </Button>
+          <Button variant="outline" onClick={() => navigate("/admin/announcements")} className="gap-2">
+            <Plus className="h-4 w-4" /> New Announcement
+          </Button>
+          <Button variant="outline" onClick={() => navigate("/admin/users")}>
+            View Users
+          </Button>
+          <Button variant="outline" onClick={() => navigate("/admin/entitlements")} className="gap-2">
+            <ShieldCheck className="h-4 w-4" /> Entitlements
+          </Button>
+        </div>
+      </SectionCard>
+    </div>
   );
 };
 

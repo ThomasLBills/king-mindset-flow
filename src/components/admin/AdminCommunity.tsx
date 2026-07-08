@@ -1,15 +1,18 @@
 import AdminChannels from "./AdminChannels";
-import { motion } from "framer-motion";
+import { Eyebrow } from "@/components/forge/atoms";
 
 const AdminCommunity = () => {
   return (
-    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-      <div>
-        <h1 className="font-serif text-2xl font-bold">Community</h1>
-        <p className="text-sm text-muted-foreground">Manage channels and moderation</p>
-      </div>
+    <div className="space-y-6">
+      <header>
+        <Eyebrow className="mb-1 block">Community</Eyebrow>
+        <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-bone">
+          Where brothers gather
+        </h1>
+        <p className="mt-1 text-sm text-dim">Manage channels and moderation.</p>
+      </header>
       <AdminChannels />
-    </motion.div>
+    </div>
   );
 };
 

@@ -1,17 +1,16 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
-import { Hash, Plus, Trash2, Pin, Lock, Loader2 } from "lucide-react";
+import { Hash, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { SectionCard } from "@/components/forge/atoms";
 
 const AdminChannels = () => {
   const { user } = useAuth();
@@ -97,26 +96,26 @@ const AdminChannels = () => {
 
   return (
     <div className="space-y-6">
-      <Card className="card-elevated">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <Hash className="w-5 h-5" />
-            Channels
-          </CardTitle>
+      <SectionCard className="p-5 sm:p-6">
+        <div className="mb-5 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2.5">
+            <Hash className="h-5 w-5 text-gold" aria-hidden="true" />
+            <h2 className="font-display text-lg font-bold tracking-tight text-bone">Channels</h2>
+          </div>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button size="sm"><Plus className="w-4 h-4" /> New Channel</Button>
+              <Button size="sm"><Plus className="h-4 w-4" aria-hidden="true" /> New channel</Button>
             </DialogTrigger>
             <DialogContent>
-              <DialogHeader><DialogTitle>Create Channel</DialogTitle></DialogHeader>
+              <DialogHeader><DialogTitle className="font-display">Create channel</DialogTitle></DialogHeader>
               <div className="space-y-4">
                 <div>
-                  <Label>Name</Label>
-                  <Input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="channel-name" />
+                  <Label htmlFor="channel-name">Name</Label>
+                  <Input id="channel-name" value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="channel-name" />
                 </div>
                 <div>
-                  <Label>Description (optional)</Label>
-                  <Input value={newDesc} onChange={(e) => setNewDesc(e.target.value)} placeholder="What's this channel for?" />
+                  <Label htmlFor="channel-desc">Description (optional)</Label>
+                  <Input id="channel-desc" value={newDesc} onChange={(e) => setNewDesc(e.target.value)} placeholder="What's this channel for?" />
                 </div>
                 <Button onClick={() => createChannel.mutate()} disabled={!newName.trim() || createChannel.isPending} className="w-full">
                   Create
@@ -124,78 +123,82 @@ const AdminChannels = () => {
               </div>
             </DialogContent>
           </Dialog>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin" /></div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Channel</TableHead>
-                  <TableHead className="text-center">Default</TableHead>
-                  <TableHead className="text-center">Pinned</TableHead>
-                  <TableHead className="text-center">Locked</TableHead>
-                  <TableHead className="text-center">Delete</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {channels.map((ch) => (
-                  <TableRow key={ch.id}>
-                    <TableCell className="font-medium">#{ch.name}</TableCell>
-                    <TableCell className="text-center">
-                      <Switch
-                        checked={(ch as any).is_default}
-                        onCheckedChange={(v) => toggleField.mutate({ id: ch.id, field: "is_default", value: v })}
-                      />
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Switch
-                        checked={(ch as any).is_pinned}
-                        onCheckedChange={(v) => toggleField.mutate({ id: ch.id, field: "is_pinned", value: v })}
-                      />
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Switch
-                        checked={(ch as any).is_locked}
-                        onCheckedChange={(v) => toggleField.mutate({ id: ch.id, field: "is_locked", value: v })}
-                      />
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => deleteChannel.mutate(ch.id)}
-                      >
-                        <Trash2 className="w-4 h-4 text-destructive" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
+        </div>
 
-      <Card className="card-elevated">
-        <CardHeader>
-          <CardTitle>Brotherhood Settings</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center gap-4">
-            <Label>Max Brothers per User</Label>
-            <Input
-              type="number"
-              min={1}
-              max={20}
-              value={maxBrothers as number}
-              onChange={(e) => updateMaxBrothers.mutate(Number(e.target.value))}
-              className="w-20"
-            />
+        {isLoading ? (
+          <div className="space-y-3 py-2">
+            <Skeleton className="h-8 w-full" />
+            <Skeleton className="h-8 w-full" />
+            <Skeleton className="h-8 w-full" />
           </div>
-        </CardContent>
-      </Card>
+        ) : (
+          <ul>
+            {channels.map((ch) => (
+              <li
+                key={ch.id}
+                className="flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-line-soft py-3.5 first:border-t-0"
+              >
+                <span className="flex min-w-0 flex-1 items-center gap-2.5">
+                  <Hash className="h-4 w-4 shrink-0 text-dim" aria-hidden="true" />
+                  <span className="truncate font-display text-base font-bold tracking-tight text-bone">
+                    {ch.name}
+                  </span>
+                </span>
+                <div className="flex items-center gap-5">
+                  <span className="flex items-center gap-2 text-xs text-dim">
+                    <Switch
+                      checked={(ch as any).is_default}
+                      onCheckedChange={(v) => toggleField.mutate({ id: ch.id, field: "is_default", value: v })}
+                      aria-label={`Default channel: ${ch.name}`}
+                    />
+                    Default
+                  </span>
+                  <span className="flex items-center gap-2 text-xs text-dim">
+                    <Switch
+                      checked={(ch as any).is_pinned}
+                      onCheckedChange={(v) => toggleField.mutate({ id: ch.id, field: "is_pinned", value: v })}
+                      aria-label={`Pin channel: ${ch.name}`}
+                    />
+                    Pinned
+                  </span>
+                  <span className="flex items-center gap-2 text-xs text-dim">
+                    <Switch
+                      checked={(ch as any).is_locked}
+                      onCheckedChange={(v) => toggleField.mutate({ id: ch.id, field: "is_locked", value: v })}
+                      aria-label={`Lock channel: ${ch.name}`}
+                    />
+                    Locked
+                  </span>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => deleteChannel.mutate(ch.id)}
+                    aria-label={`Delete channel: ${ch.name}`}
+                  >
+                    <Trash2 className="h-4 w-4 text-ember" aria-hidden="true" />
+                  </Button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </SectionCard>
+
+      <SectionCard className="p-5 sm:p-6">
+        <h2 className="mb-4 font-display text-lg font-bold tracking-tight text-bone">Brotherhood settings</h2>
+        <div className="flex items-center gap-4">
+          <Label htmlFor="max-brothers">Max brothers per user</Label>
+          <Input
+            id="max-brothers"
+            type="number"
+            min={1}
+            max={20}
+            value={maxBrothers as number}
+            onChange={(e) => updateMaxBrothers.mutate(Number(e.target.value))}
+            className="w-20"
+          />
+        </div>
+      </SectionCard>
     </div>
   );
 };

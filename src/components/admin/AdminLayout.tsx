@@ -14,6 +14,8 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Eyebrow } from "@/components/forge/atoms";
+import { LkMonogram } from "@/components/forge/brand";
 
 const navSections = [
   {
@@ -51,22 +53,28 @@ const AdminLayout = () => {
   const location = useLocation();
 
   return (
-    <div className="min-h-dvh flex bg-background">
+    <div className="min-h-dvh flex bg-forge">
       {/* Sidebar */}
       <aside
         className={cn(
-          "hidden md:flex flex-col border-r border-border bg-sidebar transition-all duration-200",
+          "hidden md:flex flex-col border-r border-line bg-sidebar transition-all duration-200",
           collapsed ? "w-16" : "w-60"
         )}
       >
-        <div className="flex items-center justify-between p-4 border-b border-border">
+        <div className="flex items-center justify-between p-4 border-b border-line">
           {!collapsed && (
-            <h2 className="font-serif text-lg font-bold text-sidebar-foreground">Admin</h2>
+            <div className="flex items-center gap-2">
+              <LkMonogram className="h-6 w-8 text-gold" />
+              <h2 className="font-display text-lg font-bold uppercase tracking-wide text-bone">
+                Admin
+              </h2>
+            </div>
           )}
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 text-sidebar-foreground"
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            className="h-8 w-8 text-dim hover:text-bone"
             onClick={() => setCollapsed(!collapsed)}
           >
             {collapsed ? <Menu className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
@@ -77,9 +85,7 @@ const AdminLayout = () => {
           {navSections.map((section) => (
             <div key={section.label}>
               {!collapsed && (
-                <p className="px-4 mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  {section.label}
-                </p>
+                <Eyebrow className="px-4 mb-2 block">{section.label}</Eyebrow>
               )}
               <div className="space-y-0.5 px-2">
                 {section.items.map((item) => (
@@ -89,10 +95,10 @@ const AdminLayout = () => {
                     end={item.end}
                     className={({ isActive }) =>
                       cn(
-                        "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                        "flex items-center gap-3 rounded-lg border-l-2 border-transparent px-3 py-2.5 text-sm font-medium transition-colors",
                         isActive
-                          ? "bg-sidebar-accent text-sidebar-primary"
-                          : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+                          ? "border-gold bg-raised-2 text-gold"
+                          : "text-bone-2 hover:bg-raised-2/50 hover:text-bone"
                       )
                     }
                   >
@@ -106,10 +112,10 @@ const AdminLayout = () => {
         </nav>
 
         {/* Back to app */}
-        <div className="p-3 border-t border-border">
+        <div className="p-3 border-t border-line">
           <NavLink
             to="/app"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-sidebar-accent/50 transition-colors"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-dim transition-colors hover:bg-raised-2/50 hover:text-bone"
           >
             <ChevronLeft className="h-4 w-4" />
             {!collapsed && <span>Back to App</span>}
@@ -118,11 +124,12 @@ const AdminLayout = () => {
       </aside>
 
       {/* Mobile top bar */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-card border-b border-border px-4 pb-3 pt-[calc(0.75rem+env(safe-area-inset-top))] flex items-center gap-3">
-        <NavLink to="/app" className="text-muted-foreground">
+      <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-forge-2 border-b border-line px-4 pb-3 pt-[calc(0.75rem+env(safe-area-inset-top))] flex items-center gap-3">
+        <NavLink to="/app" aria-label="Back to app" className="text-dim transition-colors hover:text-bone">
           <ChevronLeft className="h-5 w-5" />
         </NavLink>
-        <h2 className="font-serif text-lg font-bold">Admin</h2>
+        <LkMonogram className="h-5 w-7 text-gold" />
+        <h2 className="font-display text-lg font-bold uppercase tracking-wide text-bone">Admin</h2>
       </div>
 
       {/* Main content */}
@@ -134,7 +141,7 @@ const AdminLayout = () => {
       </main>
 
       {/* Mobile bottom nav for admin */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-lg border-t border-border pb-[env(safe-area-inset-bottom)]">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-forge-2/95 backdrop-blur-lg border-t border-line pb-[env(safe-area-inset-bottom)]">
         <div className="flex items-center justify-around px-2 py-2">
           {[
             { icon: LayoutDashboard, label: "Home", path: "/admin", end: true },
@@ -152,8 +159,8 @@ const AdminLayout = () => {
                 to={item.path}
                 end={item.end}
                 className={cn(
-                  "flex flex-col items-center min-w-[56px] py-1.5 text-xs",
-                  isActive ? "text-primary font-semibold" : "text-muted-foreground"
+                  "flex flex-col items-center min-w-[56px] py-1.5 text-xs transition-colors",
+                  isActive ? "text-gold font-semibold" : "text-dim hover:text-bone"
                 )}
               >
                 <item.icon className="h-5 w-5 mb-0.5" />

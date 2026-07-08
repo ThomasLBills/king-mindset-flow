@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
@@ -17,7 +17,9 @@ import {
   useCurriculumSettings, useSaveCurriculumSettings,
   useWeeks, useSaveWeek, usePublishWeek,
 } from "@/hooks/useAdminCurriculumNew";
-import { motion } from "framer-motion";
+import { Eyebrow, SectionCard } from "@/components/forge/atoms";
+
+const pad = (n: number) => String(n).padStart(2, "0");
 
 const CurriculumOverview = () => {
   const navigate = useNavigate();
@@ -52,111 +54,109 @@ const CurriculumOverview = () => {
 
   if (settingsLoading || weeksLoading) {
     return (
-      <div className="flex justify-center py-12">
-        <Loader2 className="h-6 w-6 animate-spin" />
+      <div className="space-y-6">
+        <Skeleton className="h-16 w-64" />
+        <Skeleton className="h-24 w-full" />
+        <Skeleton className="h-64 w-full" />
       </div>
     );
   }
 
   return (
-    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="font-serif text-2xl font-bold">{settings?.title || "Curriculum"}</h1>
-          <p className="text-sm text-muted-foreground">{settings?.subtitle || "Manage your 8-week journey"}</p>
+          <Eyebrow className="mb-1 block">Curriculum</Eyebrow>
+          <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-bone">
+            {settings?.title || "Curriculum"}
+          </h1>
+          <p className="mt-1 text-sm text-dim">{settings?.subtitle || "Manage your 8-week journey"}</p>
         </div>
-        <div className="flex items-center gap-2">
-          <Badge variant={settings?.status === "published" ? "default" : "secondary"}>
+        <div className="flex shrink-0 items-center gap-2">
+          <Badge variant={settings?.status === "published" ? "default" : "secondary"} className="capitalize">
             {settings?.status}
           </Badge>
           <Button variant="outline" size="sm" onClick={openSettings} className="gap-2">
-            <Settings2 className="h-4 w-4" /> Settings
+            <Settings2 className="h-4 w-4" aria-hidden="true" /> Settings
           </Button>
         </div>
-      </div>
+      </header>
 
       {/* Quick Stats */}
       <div className="grid grid-cols-3 gap-4">
-        <Card>
-          <CardContent className="pt-6 text-center">
-            <Calendar className="h-5 w-5 mx-auto mb-2 text-primary" />
-            <p className="text-2xl font-bold">{weeks?.length || 0}</p>
-            <p className="text-xs text-muted-foreground">Weeks</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6 text-center">
-            <Eye className="h-5 w-5 mx-auto mb-2 text-success" />
-            <p className="text-2xl font-bold">{weeks?.filter(w => w.status === "published").length || 0}</p>
-            <p className="text-xs text-muted-foreground">Published</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6 text-center">
-            <EyeOff className="h-5 w-5 mx-auto mb-2 text-muted-foreground" />
-            <p className="text-2xl font-bold">{weeks?.filter(w => w.status === "draft").length || 0}</p>
-            <p className="text-xs text-muted-foreground">Drafts</p>
-          </CardContent>
-        </Card>
+        <SectionCard className="p-5 text-center">
+          <Calendar className="mx-auto mb-2 h-5 w-5 text-gold" aria-hidden="true" />
+          <p className="font-display text-2xl font-bold text-bone">{weeks?.length || 0}</p>
+          <Eyebrow className="mt-0.5 block">Weeks</Eyebrow>
+        </SectionCard>
+        <SectionCard className="p-5 text-center">
+          <Eye className="mx-auto mb-2 h-5 w-5 text-success" aria-hidden="true" />
+          <p className="font-display text-2xl font-bold text-bone">{weeks?.filter(w => w.status === "published").length || 0}</p>
+          <Eyebrow className="mt-0.5 block">Published</Eyebrow>
+        </SectionCard>
+        <SectionCard className="p-5 text-center">
+          <EyeOff className="mx-auto mb-2 h-5 w-5 text-dim" aria-hidden="true" />
+          <p className="font-display text-2xl font-bold text-bone">{weeks?.filter(w => w.status === "draft").length || 0}</p>
+          <Eyebrow className="mt-0.5 block">Drafts</Eyebrow>
+        </SectionCard>
       </div>
 
       {/* Drip Mode */}
-      <Card>
-        <CardContent className="py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium">Drip Mode</p>
-              <p className="text-xs text-muted-foreground">
-                {settings?.drip_mode === "weekly"
-                  ? "Weeks unlock every 7 days after enrollment"
-                  : settings?.drip_mode === "immediate"
-                  ? "All content available immediately"
-                  : "Learners must complete prior lessons"}
-              </p>
-            </div>
-            <Badge variant="outline" className="capitalize">{settings?.drip_mode}</Badge>
+      <SectionCard hatch className="p-5">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <Eyebrow className="mb-1 block">Drip mode</Eyebrow>
+            <p className="text-sm text-dim">
+              {settings?.drip_mode === "weekly"
+                ? "Weeks unlock every 7 days after enrollment"
+                : settings?.drip_mode === "immediate"
+                ? "All content available immediately"
+                : "Learners must complete prior lessons"}
+            </p>
           </div>
-        </CardContent>
-      </Card>
+          <Badge variant="outline" className="shrink-0 capitalize">{settings?.drip_mode}</Badge>
+        </div>
+      </SectionCard>
 
       {/* Weeks List */}
       <div>
-        <h2 className="font-serif text-lg font-semibold mb-3">Weeks</h2>
-        <div className="space-y-2">
-          {(weeks || []).map((week, i) => (
-            <Card
+        <Eyebrow className="mb-3 block">Weeks</Eyebrow>
+        <div className="flex flex-col gap-2">
+          {(weeks || []).map((week) => (
+            <SectionCard
               key={week.id}
-              className="card-elevated hover:shadow-elevated transition-shadow cursor-pointer"
+              className="cursor-pointer p-0 transition-colors hover:border-gold-deep hover:bg-raised-2"
               onClick={() => navigate(`/admin/curriculum/weeks/${week.id}`)}
             >
-              <CardContent className="py-4 flex items-center justify-between gap-4">
-                <div className="flex items-center gap-3 min-w-0 flex-1">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
-                    {week.week_number}
-                  </div>
+              <div className="flex items-center justify-between gap-4 px-4 py-3.5">
+                <div className="flex min-w-0 flex-1 items-center gap-4">
+                  <span className="font-display text-3xl font-bold leading-none tracking-tight text-gold" aria-hidden="true">
+                    {pad(week.week_number)}
+                  </span>
                   <div className="min-w-0">
-                    <h3 className="font-serif text-base font-semibold truncate">{week.title}</h3>
-                    <p className="text-sm text-muted-foreground truncate">{week.summary || "No summary"}</p>
+                    <h3 className="truncate font-display text-base font-bold tracking-tight text-bone">{week.title}</h3>
+                    <p className="truncate text-sm text-dim">{week.summary || "No summary"}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
-                  <span className="text-xs text-muted-foreground">Day {week.unlock_day_offset}</span>
-                  <Badge variant={week.status === "published" ? "default" : "secondary"}>{week.status}</Badge>
-                  <Button variant="ghost" size="icon" onClick={() => setWeekDialog({ ...week })}>
-                    <Pencil className="h-4 w-4" />
+                <div className="flex shrink-0 items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                  <span className="text-xs text-dim">Day {week.unlock_day_offset}</span>
+                  <Badge variant={week.status === "published" ? "default" : "secondary"} className="capitalize">{week.status}</Badge>
+                  <Button variant="ghost" size="icon" aria-label={`Edit week ${week.week_number}`} onClick={() => setWeekDialog({ ...week })}>
+                    <Pencil className="h-4 w-4" aria-hidden="true" />
                   </Button>
                   <Button
                     variant="ghost"
                     size="icon"
+                    aria-label={week.status === "published" ? "Unpublish week" : "Publish week"}
                     onClick={() => publishWeek.mutate({ id: week.id, publish: week.status !== "published" })}
                   >
-                    {week.status === "published" ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {week.status === "published" ? <EyeOff className="h-4 w-4" aria-hidden="true" /> : <Eye className="h-4 w-4" aria-hidden="true" />}
                   </Button>
                 </div>
-                <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
-              </CardContent>
-            </Card>
+                <ChevronRight className="h-4 w-4 shrink-0 text-dim" aria-hidden="true" />
+              </div>
+            </SectionCard>
           ))}
         </div>
       </div>
@@ -165,7 +165,7 @@ const CurriculumOverview = () => {
       <Dialog open={settingsOpen} onOpenChange={(o) => !o && setSettingsOpen(false)}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle className="font-serif">Curriculum Settings</DialogTitle>
+            <DialogTitle className="font-display text-lg font-bold tracking-tight">Curriculum Settings</DialogTitle>
           </DialogHeader>
           {settingsForm && (
             <div className="space-y-4">
@@ -207,7 +207,7 @@ const CurriculumOverview = () => {
           <DialogFooter>
             <Button variant="outline" onClick={() => setSettingsOpen(false)}>Cancel</Button>
             <Button onClick={handleSaveSettings} disabled={saveSettings.isPending}>
-              {saveSettings.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />} Save
+              {saveSettings.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />} Save
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -217,7 +217,7 @@ const CurriculumOverview = () => {
       <Dialog open={!!weekDialog} onOpenChange={(o) => !o && setWeekDialog(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="font-serif">Edit Week</DialogTitle>
+            <DialogTitle className="font-display text-lg font-bold tracking-tight">Edit Week</DialogTitle>
           </DialogHeader>
           {weekDialog && (
             <div className="space-y-4">
@@ -232,19 +232,19 @@ const CurriculumOverview = () => {
               <div>
                 <Label>Unlock Day Offset</Label>
                 <Input type="number" value={weekDialog.unlock_day_offset} onChange={(e) => setWeekDialog({ ...weekDialog, unlock_day_offset: parseInt(e.target.value) || 0 })} />
-                <p className="text-xs text-muted-foreground mt-1">Days after enrollment this week becomes available</p>
+                <p className="mt-1 text-xs text-dim">Days after enrollment this week becomes available</p>
               </div>
             </div>
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setWeekDialog(null)}>Cancel</Button>
             <Button onClick={handleSaveWeek} disabled={saveWeek.isPending}>
-              {saveWeek.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />} Save
+              {saveWeek.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />} Save
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </motion.div>
+    </div>
   );
 };
 

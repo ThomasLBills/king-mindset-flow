@@ -1,8 +1,8 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, ScrollText } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useAuditLog } from "@/hooks/useAdminCurriculum";
-import { motion } from "framer-motion";
+import { Eyebrow, SectionCard } from "@/components/forge/atoms";
+import { LkMonogram } from "@/components/forge/brand";
 
 const actionColors: Record<string, string> = {
   create: "default",
@@ -18,42 +18,50 @@ const AdminAuditLog = () => {
   const { data: logs, isLoading } = useAuditLog(100);
 
   return (
-    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-      <div>
-        <h1 className="font-serif text-2xl font-bold">Audit Log</h1>
-        <p className="text-sm text-muted-foreground">Track all admin actions</p>
-      </div>
+    <div className="space-y-6">
+      <header>
+        <Eyebrow className="mb-1 block">Admin</Eyebrow>
+        <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-bone">
+          Audit log
+        </h1>
+        <p className="mt-1 text-sm text-dim">A record of every admin action.</p>
+      </header>
 
-      <Card className="card-elevated">
-        <CardContent className="pt-6">
-          {isLoading ? (
-            <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin" /></div>
-          ) : !logs?.length ? (
-            <div className="text-center py-12">
-              <ScrollText className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
-              <p className="text-muted-foreground">No audit entries yet.</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {logs.map((log) => (
-                <div key={log.id} className="flex items-start gap-3 p-3 rounded-lg border border-border">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <Badge variant={actionColors[log.action] as any} className="capitalize">{log.action}</Badge>
-                      <span className="text-sm font-medium capitalize">{log.entity_type}</span>
-                      {log.entity_id && <span className="text-xs font-mono text-muted-foreground">{log.entity_id.slice(0, 8)}</span>}
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {new Date(log.created_at).toLocaleString()} · Admin: {log.admin_user_id.slice(0, 8)}
-                    </p>
+      <SectionCard className="p-5">
+        {isLoading ? (
+          <div className="space-y-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton key={i} className="h-14 w-full" />
+            ))}
+          </div>
+        ) : !logs?.length ? (
+          <div className="py-12 text-center">
+            <LkMonogram className="mx-auto mb-3 h-10 w-14 opacity-70" />
+            <p className="text-dim">No admin actions on record yet.</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {logs.map((log) => (
+              <div
+                key={log.id}
+                className="flex items-start gap-3 rounded-lg border border-line p-3"
+              >
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge variant={actionColors[log.action] as any} className="capitalize">{log.action}</Badge>
+                    <span className="text-sm font-medium capitalize text-bone">{log.entity_type}</span>
+                    {log.entity_id && <span className="font-mono text-xs text-dim">{log.entity_id.slice(0, 8)}</span>}
                   </div>
+                  <p className="mt-1 text-xs text-dim">
+                    {new Date(log.created_at).toLocaleString()} · Admin: {log.admin_user_id.slice(0, 8)}
+                  </p>
                 </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    </motion.div>
+              </div>
+            ))}
+          </div>
+        )}
+      </SectionCard>
+    </div>
   );
 };
 

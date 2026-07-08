@@ -1,4 +1,3 @@
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -9,14 +8,15 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Loader2, Search, Shield, ShieldCheck, ShieldOff, UserPlus, Trash2, CalendarDays, LogIn, Trophy, Copy, Check, UserRoundCog } from "lucide-react";
+import { Loader2, Search, Shield, ShieldCheck, ShieldOff, UserPlus, Trash2, LogIn, Trophy, Copy, Check, UserRoundCog } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import { format } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
 import { useImpersonation } from "@/contexts/ImpersonationContext";
+import { Eyebrow, SectionCard } from "@/components/forge/atoms";
+import { LkMonogram } from "@/components/forge/brand";
 
 const CT_TZ = "America/Chicago";
 const formatCT = (iso: string, fmt = "MMM d, yyyy") =>
@@ -195,8 +195,8 @@ const AdminUsers = () => {
   const renderAccessSummary = (ent?: { active?: boolean | null; expires_at?: string | null; source?: string | null } | null) => (
     <div className="min-w-36 space-y-1.5">
       <Badge variant={ent?.active ? "default" : "secondary"}>{ent?.active ? "Active" : "Inactive"}</Badge>
-      <div className="text-sm font-medium">{ent ? formatDaysRemaining(ent.expires_at) : "No access"}</div>
-      <div className="text-xs text-muted-foreground capitalize">{formatEntitlementSource(ent?.source)}</div>
+      <div className="text-sm font-medium text-bone-2">{ent ? formatDaysRemaining(ent.expires_at) : "No access"}</div>
+      <div className="text-xs capitalize text-dim">{formatEntitlementSource(ent?.source)}</div>
     </div>
   );
 
@@ -224,25 +224,28 @@ const AdminUsers = () => {
 
   return (
     <>
-    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <div className="space-y-6">
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="font-serif text-2xl font-bold">Users</h1>
-          <p className="text-sm text-muted-foreground">Manage user access, subscriptions, and roles</p>
+          <Eyebrow className="mb-1 block">Users</Eyebrow>
+          <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-bone">
+            People in the fight
+          </h1>
+          <p className="mt-1 text-sm text-dim">Manage user access, subscriptions, and roles.</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" asChild className="gap-1.5">
             <Link to="/admin/entitlements">
-              <ShieldCheck className="w-4 h-4" /> Entitlements
+              <ShieldCheck className="w-4 h-4" aria-hidden="true" /> Entitlements
             </Link>
           </Button>
           <Dialog open={addOpen} onOpenChange={setAddOpen}>
             <DialogTrigger asChild>
-              <Button className="gap-1.5"><UserPlus className="w-4 h-4" /> Add User</Button>
+              <Button className="gap-1.5"><UserPlus className="w-4 h-4" aria-hidden="true" /> Add user</Button>
             </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Create New User</DialogTitle>
+              <DialogTitle className="font-display text-lg font-bold uppercase tracking-wide text-bone">Create a user</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 pt-2">
               <div>
@@ -257,41 +260,41 @@ const AdminUsers = () => {
                 <Checkbox id="grant-access" checked={grantAccess} onCheckedChange={(v) => setGrantAccess(!!v)} />
                 <Label htmlFor="grant-access">Grant course access immediately</Label>
               </div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-dim">
                 A temporary password will be generated. No email will be sent — you'll share the credentials manually.
               </p>
               <Button className="w-full" onClick={() => createUser.mutate()} disabled={createUser.isPending || !newEmail}>
-                {createUser.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Create User"}
+                {createUser.isPending ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" /> : "Create user"}
               </Button>
             </div>
           </DialogContent>
           </Dialog>
         </div>
-      </div>
+      </header>
 
       {/* Credential Modal */}
       <Dialog open={!!credentialModal} onOpenChange={(open) => { if (!open) setCredentialModal(null); }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>User Created Successfully</DialogTitle>
+            <DialogTitle className="font-display text-lg font-bold uppercase tracking-wide text-bone">User created</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div>
-              <Label className="text-muted-foreground text-xs">Email</Label>
-              <p className="text-sm font-medium">{credentialModal?.email}</p>
+              <Label className="text-xs text-dim">Email</Label>
+              <p className="text-sm font-medium text-bone">{credentialModal?.email}</p>
             </div>
             <div>
-              <Label className="text-muted-foreground text-xs">Temporary Password</Label>
+              <Label className="text-xs text-dim">Temporary password</Label>
               <div className="mt-1 flex items-center gap-2">
-                <code className="flex-1 rounded-md border bg-muted px-4 py-3 text-xl font-mono font-bold tracking-widest text-center select-all">
+                <code className="flex-1 rounded-md border border-line bg-forge-2 px-4 py-3 text-xl font-mono font-bold tracking-widest text-center text-bone select-all">
                   {credentialModal?.tempPassword}
                 </code>
-                <Button variant="outline" size="icon" onClick={handleCopyPassword} className="shrink-0">
-                  {copied ? <Check className="w-4 h-4 text-success" /> : <Copy className="w-4 h-4" />}
+                <Button variant="outline" size="icon" onClick={handleCopyPassword} className="shrink-0" aria-label="Copy temporary password">
+                  {copied ? <Check className="w-4 h-4 text-success" aria-hidden="true" /> : <Copy className="w-4 h-4" aria-hidden="true" />}
                 </Button>
               </div>
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-dim">
               Share this password with the user. They will be asked to set their own password when they sign in.
             </p>
           </div>
@@ -302,14 +305,14 @@ const AdminUsers = () => {
       </Dialog>
 
       <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input placeholder="Search by email or name..." value={search} onChange={(e) => handleSearch(e.target.value)} className="pl-9" />
+        <Label htmlFor="user-search" className="sr-only">Search by email or name</Label>
+        <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-dim" aria-hidden="true" />
+        <Input id="user-search" placeholder="Search by email or name..." value={search} onChange={(e) => handleSearch(e.target.value)} className="pl-9" />
       </div>
 
-      <Card className="card-elevated">
-        <CardContent className="pt-6">
+      <SectionCard className="p-6">
           {isLoading ? (
-            <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin" /></div>
+            <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-dim" aria-hidden="true" /></div>
           ) : (
             <div className="overflow-x-auto -mx-6 px-6">
             <Table>
@@ -335,24 +338,24 @@ const AdminUsers = () => {
                   const liberations = getLiberationCount(p.user_id);
                   return (
                     <TableRow key={p.user_id}>
-                       <TableCell className="text-sm">{p.email}</TableCell>
-                       <TableCell className="text-sm">{p.display_name || p.name || "—"}</TableCell>
-                       <TableCell className="text-sm text-muted-foreground">
+                       <TableCell className="text-sm text-bone">{p.email}</TableCell>
+                       <TableCell className="text-sm text-bone-2">{p.display_name || p.name || "—"}</TableCell>
+                       <TableCell className="text-sm text-dim">
                          {formatCT(p.created_at)}
                        </TableCell>
-                       <TableCell className="text-sm text-muted-foreground">
+                       <TableCell className="text-sm text-dim">
                          {lastLogin ? (
                            <span className="flex items-center gap-1">
-                             <LogIn className="w-3.5 h-3.5 text-success" />
+                             <LogIn className="w-3.5 h-3.5 text-success" aria-hidden="true" />
                              {formatCT(lastLogin)}
                            </span>
                          ) : (
-                           <span className="text-muted-foreground/60">Never</span>
+                           <span className="text-dim/60">Never</span>
                          )}
                        </TableCell>
                        <TableCell>
-                         <span className="flex items-center gap-1 text-sm font-medium">
-                           <Trophy className="w-3.5 h-3.5 text-primary" />
+                         <span className="flex items-center gap-1 text-sm font-medium text-bone">
+                           <Trophy className="w-3.5 h-3.5 text-gold" aria-hidden="true" />
                            {liberations}
                          </span>
                        </TableCell>
@@ -378,7 +381,7 @@ const AdminUsers = () => {
                             disabled={toggleRole.isPending}
                             className="gap-1"
                           >
-                            {admin ? <><ShieldOff className="w-3.5 h-3.5" /> Remove Admin</> : <><Shield className="w-3.5 h-3.5" /> Make Admin</>}
+                            {admin ? <><ShieldOff className="w-3.5 h-3.5" aria-hidden="true" /> Remove admin</> : <><Shield className="w-3.5 h-3.5" aria-hidden="true" /> Make admin</>}
                           </Button>
                           {!admin && (
                             <Button
@@ -395,9 +398,9 @@ const AdminUsers = () => {
                               disabled={impersonatingId === p.user_id}
                             >
                               {impersonatingId === p.user_id ? (
-                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" aria-hidden="true" />
                               ) : (
-                                <UserRoundCog className="w-3.5 h-3.5" />
+                                <UserRoundCog className="w-3.5 h-3.5" aria-hidden="true" />
                               )}
                               Impersonate
                             </Button>
@@ -405,12 +408,12 @@ const AdminUsers = () => {
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
                               <Button size="sm" variant="destructive" className="gap-1">
-                                <Trash2 className="w-3.5 h-3.5" /> Delete
+                                <Trash2 className="w-3.5 h-3.5" aria-hidden="true" /> Delete
                               </Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
-                                <AlertDialogTitle>Delete User</AlertDialogTitle>
+                                <AlertDialogTitle className="font-display text-lg font-bold uppercase tracking-wide text-bone">Delete user</AlertDialogTitle>
                                 <AlertDialogDescription>
                                   This will permanently delete <strong>{p.email}</strong> and all their data. This action cannot be undone.
                                 </AlertDialogDescription>
@@ -421,7 +424,7 @@ const AdminUsers = () => {
                                   onClick={() => deleteUser.mutate(p.user_id)}
                                   className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                 >
-                                  {deleteUser.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Delete permanently"}
+                                  {deleteUser.isPending ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" /> : "Delete permanently"}
                                 </AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>
@@ -431,16 +434,25 @@ const AdminUsers = () => {
                     </TableRow>
                   );
                 })}
+                {paged.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={9} className="py-12 text-center">
+                      <LkMonogram className="mx-auto mb-3 h-8 w-11 opacity-70" />
+                      <p className="text-sm text-dim">
+                        {search ? "No one matches that search." : "No users yet."}
+                      </p>
+                    </TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
             </div>
           )}
-        </CardContent>
-      </Card>
+      </SectionCard>
 
       {totalPages > 1 && (
         <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-dim">
             Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length} users
           </p>
           <Pagination>
@@ -483,7 +495,7 @@ const AdminUsers = () => {
           </Pagination>
         </div>
       )}
-    </motion.div>
+    </div>
 
       <AlertDialog
         open={!!impersonateTarget}
@@ -493,7 +505,7 @@ const AdminUsers = () => {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Impersonate {impersonateTarget?.name}?</AlertDialogTitle>
+            <AlertDialogTitle className="font-display text-lg font-bold uppercase tracking-wide text-bone">Impersonate {impersonateTarget?.name}?</AlertDialogTitle>
             <AlertDialogDescription>
               You will see the app exactly as <strong>{impersonateTarget?.email}</strong> sees
               it. Row-level security is enforced against their account. You can browse and
