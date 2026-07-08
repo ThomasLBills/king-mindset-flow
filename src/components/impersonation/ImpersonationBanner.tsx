@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { UserRoundCog, X } from "lucide-react";
 import { useImpersonation } from "@/contexts/ImpersonationContext";
 import { useNavigate } from "react-router-dom";
@@ -5,6 +6,17 @@ import { useNavigate } from "react-router-dom";
 export const ImpersonationBanner = () => {
   const { isImpersonating, target, stopImpersonation } = useImpersonation();
   const navigate = useNavigate();
+
+  // Publish a CSS variable other layouts read to offset their sticky/fixed
+  // top elements (app header, chat header) so nothing hides behind the banner.
+  useEffect(() => {
+    if (!isImpersonating) return;
+    const OFFSET = "calc(40px + env(safe-area-inset-top, 0px))";
+    document.documentElement.style.setProperty("--impersonation-offset", OFFSET);
+    return () => {
+      document.documentElement.style.removeProperty("--impersonation-offset");
+    };
+  }, [isImpersonating]);
 
   if (!isImpersonating || !target) return null;
 
@@ -18,7 +30,7 @@ export const ImpersonationBanner = () => {
       <div className="flex min-w-0 items-center gap-2">
         <UserRoundCog className="h-4 w-4 shrink-0" aria-hidden />
         <span className="truncate">
-          Viewing as <strong>{name}</strong>
+          Impersonating <strong>{name}</strong>
           <span className="hidden sm:inline"> ({target.email})</span>
         </span>
       </div>
