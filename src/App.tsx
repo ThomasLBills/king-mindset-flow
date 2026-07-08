@@ -1,4 +1,4 @@
-import { Component, useEffect, type ErrorInfo, type ReactNode } from "react";
+import { Component, Suspense, lazy, useEffect, type ErrorInfo, type ReactNode } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -12,38 +12,49 @@ import AuthGuard from "@/components/guards/AuthGuard";
 import EntitlementGuard from "@/components/guards/EntitlementGuard";
 import OnboardingGuard from "@/components/guards/OnboardingGuard";
 import AdminGuard from "@/components/guards/AdminGuard";
-import AdminLayout from "@/components/admin/AdminLayout";
-import AdminDashboard from "@/components/admin/AdminDashboard";
-import AdminUsers from "@/components/admin/AdminUsers";
-import AdminEntitlements from "@/components/admin/AdminEntitlements";
-import AdminAuditLog from "@/components/admin/AdminAuditLog";
-import AdminAnnouncements from "@/components/admin/AdminAnnouncements";
-import AdminCommunity from "@/components/admin/AdminCommunity";
-import AdminSettings from "@/components/admin/AdminSettings";
-import CurriculumOverview from "@/components/admin/curriculum/CurriculumOverview";
-import WeekDetail from "@/components/admin/curriculum/WeekDetail";
-import CurriculumLessonEditor from "@/components/admin/curriculum/CurriculumLessonEditor";
 import AppShell from "@/components/shell/AppShell";
+import RouteFallback from "@/components/RouteFallback";
+import RouteMeta from "@/components/RouteMeta";
 import Landing from "./pages/forge/Landing";
-import Login from "./pages/forge/Login";
-import Signup from "./pages/forge/Signup";
-import Onboarding from "./pages/forge/Onboarding";
-import Today from "./pages/forge/Today";
-import StandFirm from "./pages/forge/StandFirm";
-import Brotherhood from "./pages/forge/Brotherhood";
-import Grow from "./pages/forge/Grow";
-import Lesson from "./pages/forge/Lesson";
-import Rhythms from "./pages/forge/Rhythms";
-import Profile from "./pages/forge/Profile";
-import Billing from "./pages/forge/Billing";
-import NotFound from "./pages/forge/NotFound";
-import { Privacy, Terms } from "./pages/forge/Legal";
-import ForgotPassword from "./pages/ForgotPassword";
-import ResetPassword from "./pages/ResetPassword";
-import SetupAccount from "./pages/SetupAccount";
-import ThankYou from "./pages/ThankYou";
-import Upgrade from "./pages/Upgrade";
-import ChangePassword from "./pages/ChangePassword";
+
+// Route-level code splitting: every page below ships as its own chunk,
+// fetched on first navigation, so the entry bundle stays small. Landing is
+// deliberately eager — it renders the "/" route and lazy-loading it would
+// push LCP behind a second network round trip for first-time visitors.
+// Guards, providers, and AppShell stay eager because they wrap every route.
+const Login = lazy(() => import("./pages/forge/Login"));
+const Signup = lazy(() => import("./pages/forge/Signup"));
+const Onboarding = lazy(() => import("./pages/forge/Onboarding"));
+const Today = lazy(() => import("./pages/forge/Today"));
+const StandFirm = lazy(() => import("./pages/forge/StandFirm"));
+const Brotherhood = lazy(() => import("./pages/forge/Brotherhood"));
+const Grow = lazy(() => import("./pages/forge/Grow"));
+const Lesson = lazy(() => import("./pages/forge/Lesson"));
+const Rhythms = lazy(() => import("./pages/forge/Rhythms"));
+const Profile = lazy(() => import("./pages/forge/Profile"));
+const Billing = lazy(() => import("./pages/forge/Billing"));
+const NotFound = lazy(() => import("./pages/forge/NotFound"));
+// Legal.tsx has named exports only; lazy() expects a default, so re-shape
+// the module on the fly. Both pages still share one chunk.
+const Privacy = lazy(() => import("./pages/forge/Legal").then((m) => ({ default: m.Privacy })));
+const Terms = lazy(() => import("./pages/forge/Legal").then((m) => ({ default: m.Terms })));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const SetupAccount = lazy(() => import("./pages/SetupAccount"));
+const ThankYou = lazy(() => import("./pages/ThankYou"));
+const Upgrade = lazy(() => import("./pages/Upgrade"));
+const ChangePassword = lazy(() => import("./pages/ChangePassword"));
+const AdminLayout = lazy(() => import("@/components/admin/AdminLayout"));
+const AdminDashboard = lazy(() => import("@/components/admin/AdminDashboard"));
+const AdminUsers = lazy(() => import("@/components/admin/AdminUsers"));
+const AdminEntitlements = lazy(() => import("@/components/admin/AdminEntitlements"));
+const AdminAuditLog = lazy(() => import("@/components/admin/AdminAuditLog"));
+const AdminAnnouncements = lazy(() => import("@/components/admin/AdminAnnouncements"));
+const AdminCommunity = lazy(() => import("@/components/admin/AdminCommunity"));
+const AdminSettings = lazy(() => import("@/components/admin/AdminSettings"));
+const CurriculumOverview = lazy(() => import("@/components/admin/curriculum/CurriculumOverview"));
+const WeekDetail = lazy(() => import("@/components/admin/curriculum/WeekDetail"));
+const CurriculumLessonEditor = lazy(() => import("@/components/admin/curriculum/CurriculumLessonEditor"));
 
 const queryClient = new QueryClient();
 
@@ -113,81 +124,87 @@ const App = () => (
               <ImpersonationProvider>
                 <ImpersonationBanner />
                 <ScrollToTop />
-                <Routes>
-                  {/* Public */}
-                  <Route path="/" element={<Landing />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/signup" element={<Signup />} />
-                  <Route path="/forgot-password" element={<ForgotPassword />} />
-                  <Route path="/reset-password" element={<ResetPassword />} />
-                  <Route path="/setup-account" element={<SetupAccount />} />
-                  <Route path="/checkout" element={<Navigate to="/upgrade" replace />} />
-                  <Route path="/thank-you" element={<ThankYou />} />
-                  <Route path="/privacy" element={<Privacy />} />
-                  <Route path="/terms" element={<Terms />} />
+                <RouteMeta />
+                {/* One Suspense boundary for every lazy route: chunk loads
+                    swap the whole viewport for the fallback instead of
+                    leaving half-rendered shells behind. */}
+                <Suspense fallback={<RouteFallback />}>
+                  <Routes>
+                    {/* Public */}
+                    <Route path="/" element={<Landing />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/signup" element={<Signup />} />
+                    <Route path="/forgot-password" element={<ForgotPassword />} />
+                    <Route path="/reset-password" element={<ResetPassword />} />
+                    <Route path="/setup-account" element={<SetupAccount />} />
+                    <Route path="/checkout" element={<Navigate to="/upgrade" replace />} />
+                    <Route path="/thank-you" element={<ThankYou />} />
+                    <Route path="/privacy" element={<Privacy />} />
+                    <Route path="/terms" element={<Terms />} />
 
-                  {/* Signed in, no entitlement required */}
-                  <Route path="/change-password" element={<AuthGuard><ChangePassword /></AuthGuard>} />
-                  <Route path="/upgrade" element={<AuthGuard><Upgrade /></AuthGuard>} />
-                  <Route path="/onboarding" element={<AuthGuard><Onboarding /></AuthGuard>} />
-                  {/* Standalone profile/billing stay reachable without an active
-                      subscription (manage/cancel/renew), matching production. */}
-                  <Route path="/profile" element={<AuthGuard><Profile /></AuthGuard>} />
-                  <Route path="/billing" element={<AuthGuard><Billing /></AuthGuard>} />
+                    {/* Signed in, no entitlement required */}
+                    <Route path="/change-password" element={<AuthGuard><ChangePassword /></AuthGuard>} />
+                    <Route path="/upgrade" element={<AuthGuard><Upgrade /></AuthGuard>} />
+                    <Route path="/onboarding" element={<AuthGuard><Onboarding /></AuthGuard>} />
+                    {/* Standalone profile/billing stay reachable without an active
+                        subscription (manage/cancel/renew), matching production. */}
+                    <Route path="/profile" element={<AuthGuard><Profile /></AuthGuard>} />
+                    <Route path="/billing" element={<AuthGuard><Billing /></AuthGuard>} />
 
-                  {/* Crisis: full screen, outside the shell, one tap from anywhere */}
-                  <Route
-                    path="/stand-firm"
-                    element={
-                      <EntitlementGuard>
-                        <OnboardingGuard>
-                          <StandFirm />
-                        </OnboardingGuard>
-                      </EntitlementGuard>
-                    }
-                  />
+                    {/* Crisis: full screen, outside the shell, one tap from anywhere */}
+                    <Route
+                      path="/stand-firm"
+                      element={
+                        <EntitlementGuard>
+                          <OnboardingGuard>
+                            <StandFirm />
+                          </OnboardingGuard>
+                        </EntitlementGuard>
+                      }
+                    />
 
-                  {/* Member app */}
-                  <Route
-                    path="/app"
-                    element={
-                      <EntitlementGuard>
-                        <OnboardingGuard>
-                          <AppShell />
-                        </OnboardingGuard>
-                      </EntitlementGuard>
-                    }
-                  >
-                    <Route index element={<Today />} />
-                    <Route path="brotherhood" element={<Brotherhood />} />
-                    <Route path="grow" element={<Grow />} />
-                    <Route path="grow/lesson/:lessonId" element={<Lesson />} />
-                    <Route path="rhythms" element={<Rhythms />} />
-                    <Route path="profile" element={<Profile />} />
-                    <Route path="billing" element={<Billing />} />
-                  </Route>
+                    {/* Member app */}
+                    <Route
+                      path="/app"
+                      element={
+                        <EntitlementGuard>
+                          <OnboardingGuard>
+                            <AppShell />
+                          </OnboardingGuard>
+                        </EntitlementGuard>
+                      }
+                    >
+                      <Route index element={<Today />} />
+                      <Route path="brotherhood" element={<Brotherhood />} />
+                      <Route path="grow" element={<Grow />} />
+                      <Route path="grow/lesson/:lessonId" element={<Lesson />} />
+                      <Route path="rhythms" element={<Rhythms />} />
+                      <Route path="profile" element={<Profile />} />
+                      <Route path="billing" element={<Billing />} />
+                    </Route>
 
-                  {/* Admin */}
-                  <Route path="/admin" element={<AdminGuard><AdminLayout /></AdminGuard>}>
-                    <Route index element={<AdminDashboard />} />
-                    <Route path="curriculum" element={<CurriculumOverview />} />
-                    <Route path="curriculum/weeks/:weekId" element={<WeekDetail />} />
-                    <Route path="curriculum/weeks/:weekId/lessons/:lessonId" element={<CurriculumLessonEditor />} />
-                    <Route path="users" element={<AdminUsers />} />
-                    <Route path="entitlements" element={<AdminEntitlements />} />
-                    <Route path="community" element={<AdminCommunity />} />
-                    <Route path="announcements" element={<AdminAnnouncements />} />
-                    <Route path="audit-log" element={<AdminAuditLog />} />
-                    <Route path="settings" element={<AdminSettings />} />
-                  </Route>
+                    {/* Admin */}
+                    <Route path="/admin" element={<AdminGuard><AdminLayout /></AdminGuard>}>
+                      <Route index element={<AdminDashboard />} />
+                      <Route path="curriculum" element={<CurriculumOverview />} />
+                      <Route path="curriculum/weeks/:weekId" element={<WeekDetail />} />
+                      <Route path="curriculum/weeks/:weekId/lessons/:lessonId" element={<CurriculumLessonEditor />} />
+                      <Route path="users" element={<AdminUsers />} />
+                      <Route path="entitlements" element={<AdminEntitlements />} />
+                      <Route path="community" element={<AdminCommunity />} />
+                      <Route path="announcements" element={<AdminAnnouncements />} />
+                      <Route path="audit-log" element={<AdminAuditLog />} />
+                      <Route path="settings" element={<AdminSettings />} />
+                    </Route>
 
-                  {/* Legacy paths from the old IA */}
-                  <Route path="/tools" element={<Navigate to="/stand-firm" replace />} />
-                  <Route path="/library" element={<Navigate to="/app/grow" replace />} />
-                  <Route path="/chat" element={<Navigate to="/app/brotherhood" replace />} />
+                    {/* Legacy paths from the old IA */}
+                    <Route path="/tools" element={<Navigate to="/stand-firm" replace />} />
+                    <Route path="/library" element={<Navigate to="/app/grow" replace />} />
+                    <Route path="/chat" element={<Navigate to="/app/brotherhood" replace />} />
 
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </Suspense>
               </ImpersonationProvider>
             </BrowserRouter>
           </UnreadProvider>

@@ -1,7 +1,43 @@
-import { defineConfig } from "vite";
+import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
+
+// Production Content-Security-Policy, injected into index.html at build time
+// only. Dev must stay CSP-free: the React refresh preamble is an inline
+// script and HMR runs over websockets, both of which this policy would block.
+// Note: frame-ancestors (clickjacking protection) is ignored in <meta> CSP by
+// spec, so that directive has to live at the hosting layer as a response header.
+const PRODUCTION_CSP = [
+  "default-src 'self'",
+  "script-src 'self'",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "font-src 'self' https://fonts.gstatic.com",
+  "img-src 'self' data: https:",
+  "connect-src 'self' https://ahsadpsvknpsdwgrdecu.supabase.co wss://ahsadpsvknpsdwgrdecu.supabase.co",
+  "frame-src 'self' https://player.vimeo.com",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "upgrade-insecure-requests",
+].join("; ");
+
+const injectCsp = (): Plugin => ({
+  name: "inject-csp",
+  // `apply: "build"` keeps the dev server untouched (see PRODUCTION_CSP note).
+  apply: "build",
+  transformIndexHtml() {
+    return [
+      {
+        tag: "meta",
+        attrs: { "http-equiv": "Content-Security-Policy", content: PRODUCTION_CSP },
+        // Prepend so the policy is parsed before any <script> in <head> —
+        // a meta CSP only governs resources that appear after it.
+        injectTo: "head-prepend",
+      },
+    ];
+  },
+});
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
@@ -42,10 +78,22 @@ export default defineConfig(({ mode }) => {
     // Redesign note: vite-plugin-pwa removed (PWA out of scope this round).
     // public/sw.js is a kill-switch that unregisters the old worker from
     // users' browsers; keep serving it for as long as old installs may exist.
-    plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
+    plugins: [react(), mode === "development" && componentTagger(), injectCsp()].filter(Boolean),
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "./src"),
+      },
+    },
+    build: {
+      rollupOptions: {
+        output: {
+          // One stable vendor chunk for the React runtime: it changes far
+          // less often than app code, so route chunks can churn between
+          // deploys while returning visitors keep this one warm in cache.
+          manualChunks: {
+            "react-vendor": ["react", "react-dom", "react-router-dom"],
+          },
+        },
       },
     },
   };
