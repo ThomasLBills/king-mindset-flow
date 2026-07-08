@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { UnreadProvider } from "@/contexts/UnreadContext";
+import { ImpersonationProvider } from "@/contexts/ImpersonationContext";
+import ImpersonationBanner from "@/components/impersonation/ImpersonationBanner";
 import AuthGuard from "@/components/guards/AuthGuard";
 import EntitlementGuard from "@/components/guards/EntitlementGuard";
 import OnboardingGuard from "@/components/guards/OnboardingGuard";
@@ -54,6 +56,8 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <ImpersonationProvider>
+          <ImpersonationBanner />
           <Routes>
             {/* Public routes */}
             <Route path="/" element={<Landing />} />
@@ -99,6 +103,7 @@ const App = () => (
 
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </ImpersonationProvider>
         </BrowserRouter>
         </UnreadProvider>
       </AuthProvider>
