@@ -729,6 +729,36 @@ export type Database = {
         }
         Relationships: []
       }
+      edge_rate_limits: {
+        Row: {
+          bucket_key: string
+          count: number
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+          window_start: string
+        }
+        Insert: {
+          bucket_key: string
+          count?: number
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+          window_start: string
+        }
+        Update: {
+          bucket_key?: string
+          count?: number
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
       entitlements: {
         Row: {
           active: boolean
@@ -1591,6 +1621,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      bump_rate_limit: {
+        Args: { _bucket_key: string; _user_id: string; _window_start: string }
+        Returns: number
+      }
       deactivate_expired_entitlements: { Args: never; Returns: number }
       get_community_armor_stats: { Args: never; Returns: Json }
       get_evidence_counts_by_user: {
