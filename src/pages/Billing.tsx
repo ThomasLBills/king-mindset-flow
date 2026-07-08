@@ -95,7 +95,7 @@ const Billing = () => {
             </CardContent>
           </Card>
 
-          <Button onClick={openBillingPortal} size="lg" className="w-full" disabled={portalLoading}>
+        <Button onClick={openBillingPortal} size="lg" className="w-full" disabled={portalLoading || customerLoading || !hasStripeCustomer}>
             {portalLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <>Manage Billing <ExternalLink className="w-4 h-4" /></>}
           </Button>
           {!customerLoading && !hasStripeCustomer && (
