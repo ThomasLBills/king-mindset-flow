@@ -9,13 +9,14 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Loader2, Search, Shield, ShieldCheck, ShieldOff, UserPlus, Trash2, CalendarDays, LogIn, Trophy, Copy, Check } from "lucide-react";
+import { Loader2, Search, Shield, ShieldCheck, ShieldOff, UserPlus, Trash2, CalendarDays, LogIn, Trophy, Copy, Check, UserRoundCog } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useMemo } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
+import { useImpersonation } from "@/contexts/ImpersonationContext";
 
 const CT_TZ = "America/Chicago";
 const formatCT = (iso: string, fmt = "MMM d, yyyy") =>
@@ -27,6 +28,10 @@ const PAGE_SIZE = 25;
 const AdminUsers = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const { startImpersonation } = useImpersonation();
+  const [impersonatingId, setImpersonatingId] = useState<string | null>(null);
+  const [impersonateTarget, setImpersonateTarget] = useState<{ id: string; name: string; email: string } | null>(null);
   const [search, setSearch] = useState("");
   const [addOpen, setAddOpen] = useState(false);
   const [newEmail, setNewEmail] = useState("");
