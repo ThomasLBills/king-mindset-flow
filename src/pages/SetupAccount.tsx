@@ -9,6 +9,8 @@ import { Mail, Lock, KeyRound, Loader2, ArrowRight, ArrowLeft, RefreshCw, AlertT
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import lkLogo from "@/assets/lk-logo-horizontal.png";
+import PasswordStrengthMeter from "@/components/auth/PasswordStrengthMeter";
+import { evaluatePassword } from "@/lib/passwordStrength";
 
 type PageState = "form" | "expired" | "submitting";
 
@@ -29,8 +31,14 @@ const SetupAccount = () => {
       toast({ title: "Passwords don't match", variant: "destructive" });
       return;
     }
-    if (password.length < 6) {
-      toast({ title: "Password too short", description: "Must be at least 6 characters.", variant: "destructive" });
+    const strength = evaluatePassword(password);
+    if (!strength.meetsRequirements) {
+      toast({
+        title: "Password not strong enough",
+        description:
+          "Use 10+ characters with an uppercase letter, a number, and a symbol (like #).",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -148,14 +156,15 @@ const SetupAccount = () => {
                 <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                 <Input
                   type="password"
-                  placeholder="Create password (min 6 characters)"
+                  placeholder="Create a strong password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="pl-10"
                   required
-                  minLength={6}
+                  minLength={10}
                 />
               </div>
+              <PasswordStrengthMeter password={password} />
               <div className="relative">
                 <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                 <Input
@@ -165,10 +174,19 @@ const SetupAccount = () => {
                   onChange={(e) => setConfirm(e.target.value)}
                   className="pl-10"
                   required
-                  minLength={6}
+                  minLength={10}
                 />
               </div>
-              <Button type="submit" className="w-full" size="lg" disabled={pageState === "submitting"}>
+              <Button
+                type="submit"
+                className="w-full"
+                size="lg"
+                disabled={
+                  pageState === "submitting" ||
+                  !evaluatePassword(password).meetsRequirements ||
+                  password !== confirm
+                }
+              >
                 {pageState === "submitting" ? <Loader2 className="w-4 h-4 animate-spin" /> : <>Create Account <ArrowRight className="w-4 h-4" /></>}
               </Button>
             </form>
