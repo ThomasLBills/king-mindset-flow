@@ -19,7 +19,7 @@ const NotFound = () => {
   }, []);
 
   return (
-    <div className="relative grid min-h-[100dvh] place-items-center overflow-hidden bg-forge px-6 text-center">
+    <div className="relative grid min-h-dvh place-items-center overflow-hidden bg-forge px-6 text-center">
       <Grain />
       <div className="relative">
         <LkMonogram className="mx-auto mb-6 h-8 w-11 text-gold opacity-80" />

@@ -12,7 +12,7 @@ const Section = ({ heading, children }: { heading: string; children: React.React
 );
 
 const Frame = ({ title, children }: { title: string; children: React.ReactNode }) => (
-  <div className="min-h-screen bg-forge">
+  <div className="min-h-dvh bg-forge">
     <div className="mx-auto max-w-2xl px-6 py-10">
       <Link to="/" className="mb-8 inline-flex items-center gap-2 text-sm text-dim transition-colors hover:text-bone-2">
         <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Home

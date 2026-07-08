@@ -6,7 +6,7 @@ import { Grain, SceneRidge } from "./scenes";
 
 /** Split editorial frame for login/signup: scene panel left, form right. */
 const AuthLayout = ({ children }: { children: ReactNode }) => (
-  <div className="flex min-h-[100dvh] bg-forge">
+  <div className="flex min-h-dvh bg-forge">
     <div className="relative hidden flex-1 overflow-hidden border-r border-line lg:block">
       <SceneRidge variant="tall" />
       <Grain />
@@ -24,7 +24,7 @@ const AuthLayout = ({ children }: { children: ReactNode }) => (
         </p>
       </div>
     </div>
-    <div className="relative flex min-h-[100dvh] w-full flex-col justify-center px-6 py-12 lg:w-[480px] lg:shrink-0 lg:px-12">
+    <div className="relative flex min-h-dvh w-full flex-col justify-center px-6 py-12 lg:w-[480px] lg:shrink-0 lg:px-12">
       <Link to="/" className="mb-10 flex items-center gap-2.5 lg:hidden" aria-label="Liberated Kings home">
         <LkMonogram className="h-7 w-9 text-gold" />
         <Eyebrow tone="gold">Liberated Kings</Eyebrow>

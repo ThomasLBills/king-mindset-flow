@@ -38,7 +38,7 @@ const ThankYou = () => {
   }, [sessionId]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 gradient-peace">
+    <div className="min-h-dvh flex items-center justify-center px-4 gradient-peace">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
         <Card className="card-elevated">
           <CardContent className="pt-8 pb-8 text-center space-y-6">

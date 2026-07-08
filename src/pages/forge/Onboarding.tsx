@@ -197,7 +197,7 @@ const Onboarding = () => {
   const assessmentComplete = ASSESSMENT.every((q) => answers[q.key]);
 
   return (
-    <div className="relative min-h-[100dvh] overflow-hidden bg-forge">
+    <div className="relative min-h-dvh overflow-hidden bg-forge">
       <div className="ember-bg pointer-events-none absolute inset-0" aria-hidden="true" />
       {step === totalSteps - 1 && FEATURES.covenant && (
         <SceneRidge className="h-[480px] opacity-40 [mask-image:linear-gradient(to_bottom,black_20%,transparent_100%)]" />
@@ -210,7 +210,7 @@ const Onboarding = () => {
           // Covenant is a long scrolling document; every other step is short
           // and belongs vertically centered on the canvas, not floating at the top.
           !(FEATURES.covenant && step === totalSteps - 1) &&
-            "flex min-h-[100dvh] flex-col justify-center"
+            "flex min-h-dvh flex-col justify-center"
         )}
       >
         <Ticks total={totalSteps} done={step + 1} />

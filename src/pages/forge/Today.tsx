@@ -343,7 +343,7 @@ const Today = () => {
         </div>
 
         {/* Side rail: desktop column, stacked cards on smaller screens */}
-        <aside className="flex w-full flex-col gap-6 border-t border-line bg-forge-2 px-5 py-7 sm:px-8 xl:sticky xl:top-0 xl:h-screen xl:w-[300px] xl:shrink-0 xl:self-start xl:overflow-y-auto xl:border-l xl:border-t-0 xl:px-5">
+        <aside className="flex w-full flex-col gap-6 border-t border-line bg-forge-2 px-5 py-7 sm:px-8 xl:sticky xl:top-0 xl:h-dvh xl:w-[300px] xl:shrink-0 xl:self-start xl:overflow-y-auto xl:border-l xl:border-t-0 xl:px-5">
           <div>
             <h2 className="mb-3">
               <Eyebrow>Next brotherhood call</Eyebrow>

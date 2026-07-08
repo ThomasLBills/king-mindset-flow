@@ -24,7 +24,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
       .then();
   }, [user]);
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-dvh bg-background">
       <header
         className="sticky z-40 bg-background/80 backdrop-blur-md"
         style={{ top: "var(--impersonation-offset, 0px)" }}

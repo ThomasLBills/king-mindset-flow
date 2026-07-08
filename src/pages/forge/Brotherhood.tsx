@@ -500,7 +500,7 @@ const Brotherhood = () => {
       {tab === "group" && <GroupTab openDm={openDm} />}
 
       {(tab === "channels" || tab === "messages") && (
-        <div className="flex h-[62vh] min-h-[420px] gap-4">
+        <div className="flex h-[62dvh] min-h-[420px] gap-4">
           <div className={cn("w-full md:w-80 md:shrink-0", thread && "hidden md:block")}>{list}</div>
           <SectionCard className={cn("min-w-0 flex-1", !thread && "hidden md:block")}>
             {target ? (

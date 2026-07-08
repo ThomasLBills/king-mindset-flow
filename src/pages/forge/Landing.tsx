@@ -35,7 +35,7 @@ const Landing = () => {
   const enterTo = user ? "/app" : "/signup";
 
   return (
-    <div className="relative min-h-screen bg-forge">
+    <div className="relative min-h-dvh bg-forge">
       {/* Hero photo bleeds down past the fold, feathered out by a mask */}
       <SceneRidge className="h-[560px] [mask-image:linear-gradient(to_bottom,black_35%,transparent_100%)] lg:h-[660px]" />
       {/* Nav */}

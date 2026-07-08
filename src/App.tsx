@@ -77,7 +77,7 @@ class RootErrorBoundary extends Component<{ children: ReactNode }, { error: Erro
   render() {
     if (!this.state.error) return this.props.children;
     return (
-      <div className="grid min-h-screen place-items-center bg-background px-6 text-center">
+      <div className="grid min-h-dvh place-items-center bg-background px-6 text-center">
         <div>
           <p className="font-display text-xs font-semibold uppercase tracking-[0.2em] text-dim">
             Something broke

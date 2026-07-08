@@ -51,7 +51,7 @@ const AdminLayout = () => {
   const location = useLocation();
 
   return (
-    <div className="min-h-screen flex bg-background">
+    <div className="min-h-dvh flex bg-background">
       {/* Sidebar */}
       <aside
         className={cn(
@@ -118,7 +118,7 @@ const AdminLayout = () => {
       </aside>
 
       {/* Mobile top bar */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-card border-b border-border px-4 py-3 flex items-center gap-3">
+      <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-card border-b border-border px-4 pb-3 pt-[calc(0.75rem+env(safe-area-inset-top))] flex items-center gap-3">
         <NavLink to="/app" className="text-muted-foreground">
           <ChevronLeft className="h-5 w-5" />
         </NavLink>
@@ -127,14 +127,14 @@ const AdminLayout = () => {
 
       {/* Main content */}
       <main className="flex-1 min-w-0 md:overflow-y-auto">
-        <div className="md:hidden pt-14" />
+        <div className="md:hidden pt-[calc(3.5rem+env(safe-area-inset-top))]" />
         <div className="p-4 md:p-8 max-w-7xl mx-auto">
           <Outlet />
         </div>
       </main>
 
       {/* Mobile bottom nav for admin */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-lg border-t border-border">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-lg border-t border-border pb-[env(safe-area-inset-bottom)]">
         <div className="flex items-center justify-around px-2 py-2">
           {[
             { icon: LayoutDashboard, label: "Home", path: "/admin", end: true },

@@ -122,7 +122,7 @@ const Upgrade = () => {
   const amountLabel = plan === "monthly" ? "$7.95/mo" : "$69.95/yr";
 
   return (
-    <div className="min-h-screen gradient-peace px-4 py-12">
+    <div className="min-h-dvh gradient-peace px-4 py-12">
       <div className="max-w-lg mx-auto">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <div className="text-center mb-8">
