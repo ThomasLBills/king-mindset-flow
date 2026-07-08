@@ -116,14 +116,22 @@ export const ImpersonationProvider = ({ children }: { children: ReactNode }) => 
       try {
         const savedRaw = localStorage.getItem(ADMIN_SESSION_KEY);
         const currentMeta = readMeta();
-        // Fire audit log first (while we still have a session at all).
+        // Fire audit log first — use the SAVED ADMIN token explicitly,
+        // because the live session is currently the impersonated (non-admin)
+        // user and would be rejected as Forbidden by the edge function.
         try {
-          await supabase.functions.invoke("admin-impersonate", {
-            body: {
-              action: "stop",
-              target_user_id: currentMeta?.target?.user_id,
-            },
-          });
+          const savedAdmin = savedRaw ? (JSON.parse(savedRaw) as SavedSession) : null;
+          if (savedAdmin?.access_token) {
+            await supabase.functions.invoke("admin-impersonate", {
+              body: {
+                action: "stop",
+                target_user_id: currentMeta?.target?.user_id,
+              },
+              headers: {
+                Authorization: `Bearer ${savedAdmin.access_token}`,
+              },
+            });
+          }
         } catch {
           // best-effort
         }
