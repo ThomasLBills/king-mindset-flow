@@ -10,6 +10,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Lock, ArrowRight, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import lkLogo from "@/assets/lk-logo-horizontal.png";
+import PasswordStrengthMeter from "@/components/auth/PasswordStrengthMeter";
+import { evaluatePassword } from "@/lib/passwordStrength";
 
 const ChangePassword = () => {
   const [password, setPassword] = useState("");
@@ -22,8 +24,14 @@ const ChangePassword = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password.length < 6) {
-      toast({ title: "Error", description: "Password must be at least 6 characters", variant: "destructive" });
+    const strength = evaluatePassword(password);
+    if (!strength.meetsRequirements) {
+      toast({
+        title: "Password not strong enough",
+        description:
+          "Use 10+ characters with an uppercase letter, a number, and a symbol (like #).",
+        variant: "destructive",
+      });
       return;
     }
     if (password !== confirm) {
@@ -82,9 +90,10 @@ const ChangePassword = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   className="pl-10"
                   required
-                  minLength={6}
+                  minLength={10}
                 />
               </div>
+              <PasswordStrengthMeter password={password} />
               <div className="relative">
                 <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                 <Input
@@ -94,10 +103,19 @@ const ChangePassword = () => {
                   onChange={(e) => setConfirm(e.target.value)}
                   className="pl-10"
                   required
-                  minLength={6}
+                  minLength={10}
                 />
               </div>
-              <Button type="submit" className="w-full" size="lg" disabled={loading}>
+              <Button
+                type="submit"
+                className="w-full"
+                size="lg"
+                disabled={
+                  loading ||
+                  !evaluatePassword(password).meetsRequirements ||
+                  password !== confirm
+                }
+              >
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <>Set Password <ArrowRight className="w-4 h-4" /></>}
               </Button>
             </form>
