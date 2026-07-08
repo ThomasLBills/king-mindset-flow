@@ -11,6 +11,9 @@
  *      hostname to be localhost. Deployed domains can never bypass auth.
  */
 export function isDevBypassEnabled(): boolean {
+  // Belt: production Vite mode can never bypass, regardless of __DEV_BYPASS__.
+  if (import.meta.env.MODE === "production" || import.meta.env.PROD) return false;
+
   // Build-time gate — production bundles compile this to `if (false) { ... }`
   // and the entire body is stripped by the bundler.
   if (!__DEV_BYPASS__) return false;
