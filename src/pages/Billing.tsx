@@ -197,7 +197,7 @@ const Billing = () => {
             onClick={openBillingPortal}
             size="lg"
             className="w-full"
-            disabled={portalLoading || customerLoading || !hasStripeCustomer}
+            disabled={portalLoading || customerLoading || !hasStripeCustomer || isImpersonating}
           >
             {portalLoading ? (
               <Loader2 className="w-4 h-4 animate-spin" />
