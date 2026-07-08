@@ -7,16 +7,14 @@ export const ImpersonationBanner = () => {
   const { isImpersonating, target, stopImpersonation } = useImpersonation();
   const navigate = useNavigate();
 
-  // Push app content down so nothing (profile menu, headers) hides behind the banner.
+  // Publish a CSS variable other layouts read to offset their sticky/fixed
+  // top elements (app header, chat header) so nothing hides behind the banner.
   useEffect(() => {
     if (!isImpersonating) return;
-    const prev = document.body.style.getPropertyValue("--impersonation-banner-offset");
-    document.body.style.setProperty("--impersonation-banner-offset", "44px");
-    document.body.style.paddingTop = "var(--impersonation-banner-offset)";
+    const OFFSET = "calc(40px + env(safe-area-inset-top, 0px))";
+    document.documentElement.style.setProperty("--impersonation-offset", OFFSET);
     return () => {
-      document.body.style.paddingTop = "";
-      if (prev) document.body.style.setProperty("--impersonation-banner-offset", prev);
-      else document.body.style.removeProperty("--impersonation-banner-offset");
+      document.documentElement.style.removeProperty("--impersonation-offset");
     };
   }, [isImpersonating]);
 
