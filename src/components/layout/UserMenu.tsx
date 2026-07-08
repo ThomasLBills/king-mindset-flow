@@ -9,14 +9,38 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const UserMenu = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
+  const { data: profile } = useQuery({
+    queryKey: ["my-profile-menu", user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data } = await supabase
+        .from("profiles")
+        .select("display_name, first_name, last_name, name")
+        .eq("user_id", user.id)
+        .single();
+      return data;
+    },
+    enabled: !!user,
+  });
+
   if (!user) return null;
 
-  const name = user.user_metadata?.name || user.email || "";
+  const displayName =
+    profile?.display_name ||
+    (profile?.first_name && profile?.last_name
+      ? `${profile.first_name} ${profile.last_name}`
+      : null) ||
+    profile?.name ||
+    user.user_metadata?.name ||
+    user.email ||
+    "";
   const initials = name
     .split(" ")
     .map((n: string) => n[0])
