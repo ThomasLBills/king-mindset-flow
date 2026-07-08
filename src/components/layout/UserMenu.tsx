@@ -41,7 +41,7 @@ const UserMenu = () => {
     user.user_metadata?.name ||
     user.email ||
     "";
-  const initials = name
+  const initials = displayName
     .split(" ")
     .map((n: string) => n[0])
     .join("")
