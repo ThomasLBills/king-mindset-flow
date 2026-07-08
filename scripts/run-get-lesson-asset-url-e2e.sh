@@ -20,6 +20,10 @@
 
 set -u -o pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+cd "${PROJECT_ROOT}"
+
 FN_NAME="get-lesson-asset-url"
 TEST_FILE="supabase/functions/${FN_NAME}/index.test.ts"
 LABEL="[${FN_NAME} E2E]"
@@ -30,7 +34,9 @@ if [[ ! -f "${TEST_FILE}" ]]; then
 fi
 
 # Load .env for URL/anon fallbacks without leaking values into logs.
-if [[ -f .env ]]; then
+# Set SKIP_DOTENV=1 to disable this (used by the meta-test to exercise the
+# misconfigured-env branch deterministically).
+if [[ -f .env && "${SKIP_DOTENV:-0}" != "1" ]]; then
   set -a
   # shellcheck disable=SC1091
   source .env
