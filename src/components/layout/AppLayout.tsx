@@ -25,7 +25,10 @@ const AppLayout = ({ children }: AppLayoutProps) => {
   }, [user]);
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-md">
+      <header
+        className="sticky z-40 bg-background/80 backdrop-blur-md"
+        style={{ top: "var(--impersonation-offset, 0px)" }}
+      >
         <div className="flex items-center justify-end px-4 py-3">
           <UserMenu />
         </div>
