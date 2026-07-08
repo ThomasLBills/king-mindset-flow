@@ -238,6 +238,38 @@ Deno.test({
         assert(seconds > 0 && seconds <= 600, `Retry-After out of range: ${seconds}`);
         await last!.body?.cancel();
       });
+
+      await t.step("signed URL expires after ttlSeconds", async () => {
+        // Clear rate-limit counters so this step isn't already throttled
+        const admin = createClient(SUPABASE_URL, SERVICE_KEY!, {
+          auth: { persistSession: false, autoRefreshToken: false },
+        });
+        await admin.from("edge_rate_limits").delete().eq("user_id", ctx.userId);
+
+        const shortTtl = 2;
+        const mint = await callFn(ctx.userJwt, {
+          path: ctx.storagePath,
+          lessonId: ctx.publishedLessonId,
+          ttlSeconds: shortTtl,
+        });
+        assertEquals(mint.status, 200, `mint status ${mint.status}`);
+        const { url, ttlSeconds } = await mint.json();
+        assertEquals(ttlSeconds, shortTtl, "server did not honor short TTL");
+
+        // Immediately: URL works
+        const first = await fetch(url);
+        assertEquals(first.status, 200, "signed URL did not work immediately");
+        await first.body?.cancel();
+
+        // Wait past TTL + Supabase clock skew tolerance, then retry
+        await new Promise((r) => setTimeout(r, (shortTtl + 4) * 1000));
+        const second = await fetch(url);
+        assert(
+          !second.ok && [400, 401, 403].includes(second.status),
+          `expected 400/401/403 after TTL, got ${second.status}`,
+        );
+        await second.body?.cancel();
+      });
     } finally {
       await teardown(ctx);
     }
