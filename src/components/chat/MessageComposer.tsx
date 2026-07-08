@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useIsImpersonating } from "@/contexts/ImpersonationContext";
 
 const EMOJI_LIST = ["😀", "😂", "😍", "🤔", "👍", "👏", "🔥", "💪", "🙏", "❤️", "💯", "🎉", "😎", "🤝", "✅", "⭐"];
 
@@ -15,6 +16,7 @@ interface MessageComposerProps {
 
 const MessageComposer = ({ onSend, placeholder = "Type a message…" }: MessageComposerProps) => {
   const isMobile = useIsMobile();
+  const isImpersonating = useIsImpersonating();
   const [value, setValue] = useState("");
   const [sending, setSending] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -23,6 +25,14 @@ const MessageComposer = ({ onSend, placeholder = "Type a message…" }: MessageC
   const { toast } = useToast();
 
   const handleSend = async () => {
+    if (isImpersonating) {
+      toast({
+        title: "Disabled during impersonation",
+        description: "Exit impersonation before sending messages.",
+        variant: "destructive",
+      });
+      return;
+    }
     const trimmed = value.trim();
     if (!trimmed || sending) return;
     setSending(true);
@@ -104,7 +114,7 @@ const MessageComposer = ({ onSend, placeholder = "Type a message…" }: MessageC
         size="icon"
         className="shrink-0 rounded-xl"
         onClick={() => fileInputRef.current?.click()}
-        disabled={uploading}
+        disabled={uploading || isImpersonating}
       >
         {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ImagePlus className="w-4 h-4" />}
       </Button>
@@ -150,7 +160,8 @@ const MessageComposer = ({ onSend, placeholder = "Type a message…" }: MessageC
       <Button
         size="icon"
         onClick={handleSend}
-        disabled={!value.trim() || sending}
+        disabled={!value.trim() || sending || isImpersonating}
+        title={isImpersonating ? "Disabled during impersonation" : undefined}
         className="shrink-0 rounded-xl"
       >
         <Send className="w-4 h-4" />

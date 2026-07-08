@@ -1,62 +1,151 @@
+# PRD: Admin User Impersonation
 
-# Plan: Write a full PRD for the Liberated Kings codebase
+## 1. Overview
+Allow platform admins to temporarily "view as" any user account so they can reproduce bugs, verify entitlement/paywall state, walk a member through their app, and QA new features without asking the member for their password.
 
-## Approach
+Impersonation is **view + limited-action** access to the app under another user's identity, with a persistent, unmissable banner and a full audit trail. It never exposes the target's password, and it is not a permission escalation for the target.
 
-Following the referenced framework (Carlin Yuen, "Writing PRDs and Product Requirements"), a single monolithic doc for an app this size would become the exact anti-pattern the article warns against ("massive documents that people don't read"). Instead, I'll produce **one top-level Product PRD** plus **linked mini Feature PRDs** for each major surface, in one file for easy handoff.
+## 2. Goals
+- Admins can start an impersonation session for any non-admin user from `/admin/users`.
+- The app reliably renders as that user (auth session, entitlements, RLS reads, UI personalization).
+- Every impersonation start, stop, and destructive action is written to `admin_audit_log`.
+- Admins can end impersonation from anywhere in the app in one click.
+- Zero risk of an admin forgetting they are impersonating (persistent banner + route guards).
 
-**Deliverable:** `docs/PRD.md` — a single Markdown file with a top-level Product PRD, then feature-PRD sections, then appendix. Table of contents at the top so readers can jump. Roughly 25–40 pages when printed; the top-level Product PRD alone stays in Carlin's recommended 6–8 page range.
+## 3. Non-Goals
+- Impersonating another admin (blocked).
+- Impersonation from unauthenticated context.
+- "Silent" mode with no banner.
+- Long-lived tokens (max 60 min, then must re-elevate).
+- Performing password changes, email changes, deleting the target's account, or purchasing on their behalf while impersonating.
 
-If you'd prefer this as a `.docx` (using the docx skill) or split into multiple files under `docs/prd/`, tell me and I'll adjust before writing.
+## 4. Users & Permissions
+- Only `user_roles.role = 'admin'` can start impersonation.
+- Verified server-side on every impersonation request; client role check is UX-only.
+- Target user must not have the `admin` role.
 
-## Document structure
+## 5. User Stories
+1. As an admin, I open `/admin/users`, click "View as" on a user row, confirm the intent modal, and the app reloads into that user's Home screen with a red top banner reading "Viewing as {name} — Exit".
+2. As an admin impersonating, I can navigate Home, Armor, Brothers, Path, Billing, and admin-visible progress screens exactly as the user sees them.
+3. As an admin impersonating, if I try to perform a blocked action (delete account, change password, open Stripe portal, send a chat message, post a declaration), I get a toast: "Action disabled while impersonating."
+4. As an admin, I click "Exit" in the banner and am returned to `/admin/users` as myself, session fully restored.
+5. As a compliance reviewer, I can query `admin_audit_log` to see every impersonation session (who, whom, when, duration, IP-hash).
 
-### Part 1 — Product PRD (top-level, ~6–8 pages)
+## 6. UX
 
-Follows the article's structure exactly:
+### 6.1 Entry point
+- On `/admin/users`, add a "View as" action in each row's action menu (icon: `UserRoundCog`).
+- Clicking opens a confirmation dialog:
+  - Title: "View as {display_name}"
+  - Body: "You will see the app exactly as this member sees it. All actions are read-only or logged. Session ends automatically after 60 minutes."
+  - Buttons: Cancel / Start session.
 
-1. **Problem / Opportunity** — men struggling with compulsive sexual behavior lack a grace-first, non-clinical, spiritually-grounded recovery environment; existing tools are either clinical trackers, shame-inducing streak counters, or generic productivity apps.
-2. **Target users & use cases** — Christian men in recovery (primary), invited by an admin or Stripe checkout; secondary: admins/coaches provisioning and moderating.
-3. **Current journeys / Landscape** — brief sketch of typical alternatives (accountability apps, secular recovery, in-person groups) and why they fall short for this user.
-4. **Proposed solution / Elevator pitch** — 2–3 lines + the 3 MVP value props (daily rhythm, in-the-moment recovery tools, brotherhood accountability) + conceptual model diagram (ASCII: Home → Armor / Path / Brotherhood / Rhythms).
-5. **Goals / Measurable outcomes** — 3 bullets (activation into daily use, urges-redirected events per active user, brotherhood connection retention).
-6. **MVP / Functional requirements** — bucketed by critical user journey, prioritized P0/P1/P2. High-level only; details deferred to Feature PRDs below.
-7. **Appendix** — links to the Feature PRDs, data model, integrations, security posture, known issues.
+### 6.2 Global banner
+- Fixed top banner, `bg-destructive text-destructive-foreground`, 40px tall, above every route.
+- Content: "Viewing as {first_name} ({email}) • {remaining_time_mm:ss}   [Exit]"
+- Present on every route including admin routes. Route guard: admin routes require impersonation OFF (so admins don't accidentally alter data as the target).
 
-### Part 2 — Feature PRDs (one mini-PRD per surface)
+### 6.3 Blocked-action affordances
+- Buttons for destructive/financial actions render disabled with a tooltip: "Disabled during impersonation."
+- Chat composer, declaration create, Manage Billing, Delete Account, password/email forms are all disabled.
 
-Each follows the same 7-section skeleton but scoped and shorter (~1–2 pages each):
+### 6.4 Exit
+- Banner Exit button + `Esc` shortcut.
+- After exit: toast "Exited impersonation of {name}", route pushed to `/admin/users`.
 
-- **F1. Authentication & onboarding** (Login, Signup-disabled, SetupAccount, ForgotPassword, ChangePassword, ResetPassword, Onboarding, guards, temp password / 6-digit verify flow)
-- **F2. Home dashboard** (Freedom strip, calendar, King Profile, week progress, tool cards, daily check-in, urges redirected, armor activated, brotherhood call)
-- **F3. Armor & recovery tools** (Grace Protocol, Spirit-Led Crisis, Temptation, Pressure Rising, After Fall, Gratitude, Declarations, Help Me Now AI, Quick Help, Scripture tool, hold-to-confirm interaction)
-- **F4. Rhythms / Faith** (Prayer, Scripture, Renewed Mind, daily content rotation)
-- **F5. Path / Curriculum** (8-week drip, weeks/modules/lessons, LessonView, signed asset URLs, progress tracking)
-- **F6. Library** (browse published content)
-- **F7. Brotherhood & Chat** (channels, DMs, brotherhood connections, reach out, reactions, image uploads, realtime, unread counts, Liberated Sessions read-only channel)
-- **F8. Profile & billing** (Profile, Billing/Upgrade/ThankYou, Stripe customer portal)
-- **F9. Admin console** (Users, Entitlements, Curriculum CMS with 12 block types, Community/Channels, Announcements, Audit log, Settings)
-- **F10. Integrations** (Stripe checkout + webhook, Zapier provisioning, Resend transactional email, Lovable AI Gateway for help-me-now, Vimeo video embeds)
+## 7. Technical Design (for engineering)
 
-### Part 3 — Appendix
+### 7.1 Auth strategy — signed impersonation JWT via edge function
+We do **not** rotate the admin's Supabase auth session on the client. Instead, the frontend maintains two concurrent sessions:
 
-- **A1. Data model** — every `public.*` table (from `src/integrations/supabase/types.ts`), storage buckets (`curriculum-files`, `chat-files`), RLS pattern, roles enum.
-- **A2. Edge functions catalog** — every function in `supabase/functions/*` with purpose and auth requirement.
-- **A3. Routing map** — every route from `src/App.tsx` with guard chain.
-- **A4. Non-functional requirements** — PWA/offline, mobile-first, safe-area insets, dark charcoal + gold aesthetic, tone/voice rules, ESV scripture, "Workbook" not "coursebook", React error #290 constraint, viewport `user-scalable=no`.
-- **A5. Security posture & known issues** — current guard/RLS model plus the 19 open security scan findings visible in the More panel (grouped by severity, one-line summary + affected file), so the roadmap is honest.
-- **A6. Roadmap & out-of-scope** — items intentionally not built (public sign-up, financial tracking, productivity features per brand rules).
-- **A7. Glossary** — Workbook, Armor, Path, Brotherhood, Rhythms, Urges Redirected, Liberation Evidence, entitlement, etc.
+1. **Admin session** (always the real logged-in admin, stored in the normal Supabase localStorage key).
+2. **Impersonation session** (short-lived, stored in a separate localStorage key, used to construct a *second* Supabase client used by all app data reads/writes while impersonating).
 
-## Rules I'll follow while writing
+This keeps "Exit" instant and safe (no re-login), and lets the audit trail always attribute the requesting identity to the real admin.
 
-- Focus on functionality and user needs, not implementation. No component/file names in the Product PRD body; they live in the appendix.
-- Prioritize with **[P0] / [P1] / [P2]** on every requirement line, per the article.
-- Bucket by critical user journey, not by screen.
-- No em-dashes, use "Workbook" and ESV, keep the tone rules from project memory.
-- Cite file paths only in the appendix, using backticks.
-- Include the currently-open security findings verbatim (by internal_id + one line) in A5 so the PRD reflects the truthful state of the product.
+### 7.2 Edge function: `admin-impersonate`
+- `POST /admin-impersonate` `{ target_user_id }`
+  - Verify caller JWT → `admin` role.
+  - Reject if target has `admin` role or does not exist.
+  - Use service role client to call `auth.admin.generateLink({ type: 'magiclink', email: target.email })` OR issue a `signInWithIdToken` — preferred approach: use `supabase.auth.admin.createUser`-style flow is wrong; use `supabase.auth.admin.generateLink` to mint a 60-min access token, or issue a custom JWT signed with `SUPABASE_JWT_SECRET` scoped to the target user with a custom claim `impersonated_by = <admin_uuid>` and `exp = now + 60m`.
+  - Write `admin_audit_log` row: `{ action: 'impersonation_start', actor_id, target_id, before_json: null, after_json: { session_id, expires_at } }`.
+  - Return `{ access_token, refresh_token, expires_at, target_profile }`.
+- `POST /admin-impersonate/stop` `{ session_id }`
+  - Writes `impersonation_stop` audit row with duration.
 
-## What I need from you
+### 7.3 Impersonation context (client)
+- New React context `ImpersonationProvider` wrapping `<App />`.
+- Holds `{ impersonatedClient, targetProfile, expiresAt, endImpersonation }`.
+- All existing `supabase` imports continue to point to the admin client. Introduce a `useAppSupabase()` hook that returns `impersonatedClient ?? supabase` — swap call sites in feature code (Home, Armor, Brothers, Path, Billing, Profile) to use the hook. Admin screens keep using the raw `supabase` import.
+- Auto-logout of impersonation on `expiresAt`.
 
-Confirm the format (`docs/PRD.md` in this repo, one file). Otherwise I'll proceed as above when you switch me to build mode.
+### 7.4 Blocked actions
+Central helper `isImpersonating()`. Wrap sensitive mutations:
+- Chat send (`MessageComposer`)
+- Declaration create/delete
+- Profile edit (name, avatar, password, email)
+- Delete account
+- `create-billing-portal`, `create-checkout-session` invocations
+- Any admin route → redirect to `/admin` with toast "Exit impersonation first."
+
+Server-side backstop: edge functions that require the real user (billing, delete account, password reset) reject JWTs containing the `impersonated_by` claim.
+
+### 7.5 Database
+Reuse existing `admin_audit_log` (no schema change). Add action values: `impersonation_start`, `impersonation_stop`. No new table required.
+
+### 7.6 Security
+- Only admins can call `admin-impersonate` (JWT + role check).
+- Cannot impersonate admins (server enforced).
+- Impersonation JWTs carry `impersonated_by` claim; downstream edge functions inspect it and refuse destructive ops.
+- Max session 60 min, no refresh.
+- All start/stop events audited with actor, target, timestamps, and (hashed) IP + user agent.
+- Rate limit: max 20 impersonation starts per admin per hour (via `edge_rate_limits`).
+
+## 8. Analytics / Audit
+- Query surface: `SELECT * FROM admin_audit_log WHERE action LIKE 'impersonation_%' ORDER BY created_at DESC`.
+- Optional future: dedicated `/admin/audit` view (out of scope for v1).
+
+## 9. Rollout
+- Ship behind `admin` role gate only — no feature flag needed.
+- Announce to admin team via internal doc.
+
+## 10. Risks & Mitigations
+| Risk | Mitigation |
+|------|------------|
+| Admin forgets they're impersonating and messages a member as them | Chat composer disabled; persistent red banner; timeout |
+| Admin abuses feature | Full audit log; rate-limited; only admins allowed |
+| Token leakage | Short-lived (60m); separate storage key; not sent to third parties |
+| RLS bypass surprises | Impersonation uses a real user JWT — RLS still applies as the target |
+| Billing action performed as target | Edge functions reject `impersonated_by` JWTs |
+
+## 11. Success Metrics
+- Time-to-repro user-reported bugs decreases (qualitative).
+- Zero incidents of destructive admin actions performed while impersonating (audit review).
+- 100% of impersonation sessions have matching start/stop audit rows.
+
+---
+
+# Implementation Plan (v1)
+
+1. **ADR** — add `docs/adr/0009-admin-impersonation.md` documenting the dual-session approach and `impersonated_by` JWT claim.
+2. **Edge function** `supabase/functions/admin-impersonate/index.ts`
+   - Actions: `start`, `stop`.
+   - Uses `SUPABASE_JWT_SECRET` (add secret if missing) to mint a scoped access token, OR uses `supabase.auth.admin.generateLink` to obtain a real session for the target.
+   - Writes to `admin_audit_log`.
+   - Rate-limited via `bump_rate_limit`.
+3. **Client context** `src/contexts/ImpersonationContext.tsx`
+   - `useImpersonation()`, `useAppSupabase()`, `useIsImpersonating()`.
+   - Persists impersonation session in `lk_impersonation_v1` localStorage key.
+   - Auto-expiry timer.
+4. **Global banner** `src/components/impersonation/ImpersonationBanner.tsx`
+   - Mounted in root layout above router outlet.
+5. **Admin UI**
+   - `/admin/users`: add "View as" menu action + confirmation dialog.
+6. **Guarded actions**
+   - Swap `supabase` → `useAppSupabase()` in: `src/pages/Home*`, `Armor*`, `Brotherhood*`, `Path*`, `Billing.tsx`, `Profile*`, chat feature.
+   - Add `useIsImpersonating()` gate on: chat send, declarations CRUD, profile mutations, billing portal, delete account, admin routes.
+7. **Server backstops**
+   - `create-billing-portal`, `create-checkout-session`, `delete-account` (and any password/email edge functions): reject JWTs whose payload includes `impersonated_by`.
+8. **Docs** — update `README.md` admin section with a short "How to impersonate" note.
+
+Out of scope for v1: dedicated audit viewer UI, mobile push-notification suppression during impersonation, screen-recording, cross-device session sync.

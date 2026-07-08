@@ -9,13 +9,14 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Loader2, Search, Shield, ShieldCheck, ShieldOff, UserPlus, Trash2, CalendarDays, LogIn, Trophy, Copy, Check } from "lucide-react";
+import { Loader2, Search, Shield, ShieldCheck, ShieldOff, UserPlus, Trash2, CalendarDays, LogIn, Trophy, Copy, Check, UserRoundCog } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useMemo } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
+import { useImpersonation } from "@/contexts/ImpersonationContext";
 
 const CT_TZ = "America/Chicago";
 const formatCT = (iso: string, fmt = "MMM d, yyyy") =>
@@ -27,6 +28,10 @@ const PAGE_SIZE = 25;
 const AdminUsers = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const { startImpersonation } = useImpersonation();
+  const [impersonatingId, setImpersonatingId] = useState<string | null>(null);
+  const [impersonateTarget, setImpersonateTarget] = useState<{ id: string; name: string; email: string } | null>(null);
   const [search, setSearch] = useState("");
   const [addOpen, setAddOpen] = useState(false);
   const [newEmail, setNewEmail] = useState("");
@@ -218,6 +223,7 @@ const AdminUsers = () => {
   };
 
   return (
+    <>
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
@@ -374,6 +380,28 @@ const AdminUsers = () => {
                           >
                             {admin ? <><ShieldOff className="w-3.5 h-3.5" /> Remove Admin</> : <><Shield className="w-3.5 h-3.5" /> Make Admin</>}
                           </Button>
+                          {!admin && (
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              className="gap-1"
+                              onClick={() =>
+                                setImpersonateTarget({
+                                  id: p.user_id,
+                                  name: p.display_name || p.name || p.email,
+                                  email: p.email,
+                                })
+                              }
+                              disabled={impersonatingId === p.user_id}
+                            >
+                              {impersonatingId === p.user_id ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              ) : (
+                                <UserRoundCog className="w-3.5 h-3.5" />
+                              )}
+                              View as
+                            </Button>
+                          )}
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
                               <Button size="sm" variant="destructive" className="gap-1">
@@ -456,6 +484,53 @@ const AdminUsers = () => {
         </div>
       )}
     </motion.div>
+
+      <AlertDialog
+        open={!!impersonateTarget}
+        onOpenChange={(open) => {
+          if (!open) setImpersonateTarget(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>View as {impersonateTarget?.name}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              You will see the app exactly as <strong>{impersonateTarget?.email}</strong> sees
+              it. Row-level security is enforced against their account. Destructive actions
+              (billing, chat, declarations, deletion) are disabled while impersonating.
+              This session is fully audited and expires automatically after ~1 hour.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                if (!impersonateTarget) return;
+                const target = impersonateTarget;
+                setImpersonatingId(target.id);
+                setImpersonateTarget(null);
+                try {
+                  await startImpersonation(target.id);
+                  toast({ title: `Viewing as ${target.name}` });
+                  navigate("/app");
+                } catch (err: any) {
+                  toast({
+                    title: "Impersonation failed",
+                    description: err?.message ?? "Unknown error",
+                    variant: "destructive",
+                  });
+                } finally {
+                  setImpersonatingId(null);
+                }
+              }}
+            >
+              Start session
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+    </>
   );
 };
 

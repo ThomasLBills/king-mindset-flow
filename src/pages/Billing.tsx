@@ -9,6 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ExternalLink, Loader2, CheckCircle, XCircle, AlertTriangle, RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useIsImpersonating } from "@/contexts/ImpersonationContext";
 
 type PortalErrorCode =
   | "no_stripe_customer"
@@ -60,6 +61,7 @@ const ERROR_COPY: Record<PortalErrorCode, { title: string; description: string }
 const Billing = () => {
   const { user } = useAuth();
   const { isEntitled } = useEntitlement();
+  const isImpersonating = useIsImpersonating();
   const [portalLoading, setPortalLoading] = useState(false);
   const [portalError, setPortalError] = useState<PortalError | null>(null);
   const { toast } = useToast();
@@ -95,6 +97,14 @@ const Billing = () => {
   const hasStripeCustomer = !!stripeCustomer?.stripe_customer_id;
 
   const openBillingPortal = async () => {
+    if (isImpersonating) {
+      toast({
+        title: "Disabled during impersonation",
+        description: "Exit impersonation to open the billing portal.",
+        variant: "destructive",
+      });
+      return;
+    }
     setPortalLoading(true);
     setPortalError(null);
     try {
@@ -187,7 +197,7 @@ const Billing = () => {
             onClick={openBillingPortal}
             size="lg"
             className="w-full"
-            disabled={portalLoading || customerLoading || !hasStripeCustomer}
+            disabled={portalLoading || customerLoading || !hasStripeCustomer || isImpersonating}
           >
             {portalLoading ? (
               <Loader2 className="w-4 h-4 animate-spin" />
