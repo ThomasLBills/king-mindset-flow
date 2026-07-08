@@ -117,8 +117,8 @@ const CurriculumLessonEditor = () => {
       return;
     }
 
-    const { data: urlData } = supabase.storage.from("curriculum-files").getPublicUrl(path);
-    updateBlock(blockId, { url: urlData.publicUrl, filename: file.name, size: file.size });
+    // Bucket is private; store the storage path and resolve to a signed URL at render time.
+    updateBlock(blockId, { storagePath: path, url: null, filename: file.name, size: file.size });
     setUploading(null);
     toast({ title: "File uploaded" });
   };
