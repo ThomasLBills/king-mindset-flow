@@ -1,6 +1,6 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import { LogOut, Settings, CreditCard, User } from "lucide-react";
+import { LogOut, CreditCard, User } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,15 +9,39 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const UserMenu = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
+  const { data: profile } = useQuery({
+    queryKey: ["my-profile-menu", user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data } = await supabase
+        .from("profiles")
+        .select("display_name, first_name, last_name, name")
+        .eq("user_id", user.id)
+        .single();
+      return data;
+    },
+    enabled: !!user,
+  });
+
   if (!user) return null;
 
-  const name = user.user_metadata?.name || user.email || "";
-  const initials = name
+  const displayName =
+    profile?.display_name ||
+    (profile?.first_name && profile?.last_name
+      ? `${profile.first_name} ${profile.last_name}`
+      : null) ||
+    profile?.name ||
+    user.user_metadata?.name ||
+    user.email ||
+    "";
+  const initials = displayName
     .split(" ")
     .map((n: string) => n[0])
     .join("")
@@ -40,7 +64,7 @@ const UserMenu = () => {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
         <div className="px-3 py-2">
-          <p className="text-sm font-medium truncate">{name}</p>
+          <p className="text-sm font-medium truncate">{displayName}</p>
           <p className="text-xs text-muted-foreground truncate">{user.email}</p>
         </div>
         <DropdownMenuSeparator />
