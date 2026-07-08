@@ -1160,7 +1160,6 @@ export type Database = {
           onboarding_completed: boolean
           password_set: boolean
           phone: string | null
-          temp_password: string | null
           timezone: string | null
           updated_at: string
           user_id: string
@@ -1178,7 +1177,6 @@ export type Database = {
           onboarding_completed?: boolean
           password_set?: boolean
           phone?: string | null
-          temp_password?: string | null
           timezone?: string | null
           updated_at?: string
           user_id: string
@@ -1196,7 +1194,6 @@ export type Database = {
           onboarding_completed?: boolean
           password_set?: boolean
           phone?: string | null
-          temp_password?: string | null
           timezone?: string | null
           updated_at?: string
           user_id?: string

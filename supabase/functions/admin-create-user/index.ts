@@ -117,10 +117,11 @@ Deno.serve(async (req) => {
       newUserId = newUser.user.id;
     }
 
-    // Set must_change_password and store temp_password in profile
+    // Set must_change_password. Plaintext temp password is returned in the
+    // response body only — never persisted to the database.
     await supabase
       .from("profiles")
-      .update({ must_change_password: true, password_set: false, temp_password: tempPassword })
+      .update({ must_change_password: true, password_set: false })
       .eq("user_id", newUserId);
 
     // Grant entitlement if requested

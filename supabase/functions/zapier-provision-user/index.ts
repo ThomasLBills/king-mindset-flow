@@ -101,19 +101,18 @@ Deno.serve(async (req) => {
       userId = existingProfile.user_id;
       console.log("User already exists:", userId);
 
-      // If user still hasn't set their password, generate a fresh temp password
-      // so Zapier/GHL can always retrieve it
+      // If user still hasn't set their permanent password, mint a FRESH temp
+      // password and return it in this response. Never persist the plaintext.
       const { data: profileFlags } = await supabase
         .from("profiles")
-        .select("must_change_password, temp_password")
+        .select("must_change_password, password_set")
         .eq("user_id", userId)
         .maybeSingle();
 
-      if (profileFlags?.must_change_password && !profileFlags?.temp_password) {
+      if (profileFlags?.must_change_password || profileFlags?.password_set === false) {
         tempPassword = generateTempPassword();
         await supabase.auth.admin.updateUserById(userId, { password: tempPassword });
-        await supabase.from("profiles").update({ temp_password: tempPassword }).eq("user_id", userId);
-        console.log("Generated new temp password for existing uninitialized user:", userId);
+        console.log("Rotated temp password for existing uninitialized user:", userId);
       }
     } else {
       // Create user with a temporary password
@@ -161,7 +160,7 @@ Deno.serve(async (req) => {
         name: name || "",
         display_name: name || "",
         first_name: name || "",
-        ...(isNewUser ? { must_change_password: true, password_set: false, temp_password: tempPassword || null } : {}),
+        ...(isNewUser ? { must_change_password: true, password_set: false } : {}),
       },
       { onConflict: "user_id" }
     );
@@ -200,31 +199,15 @@ Deno.serve(async (req) => {
 
     console.log("Provisioned user via Zapier, plan:", plan_key, "isNewUser:", isNewUser);
 
-    // Build response with clear new vs existing user distinction
-    if (isNewUser && tempPassword) {
-      return new Response(JSON.stringify({
-        success: true,
-        user_id: userId!,
-        temporary_password: tempPassword,
-        is_new_user: true,
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    // Existing user — retrieve stored temp password if available
-    const { data: existingProfileData } = await supabase
-      .from("profiles")
-      .select("temp_password")
-      .eq("user_id", userId!)
-      .maybeSingle();
-
+    // Build response with clear new vs existing user distinction.
+    // The plaintext password is only ever sent back in THIS response — never
+    // persisted in the database.
     return new Response(JSON.stringify({
       success: true,
       user_id: userId!,
-      is_new_user: false,
-      ...(existingProfileData?.temp_password ? { temporary_password: existingProfileData.temp_password } : {}),
-      message: "User already exists",
+      is_new_user: isNewUser,
+      ...(tempPassword ? { temporary_password: tempPassword } : {}),
+      ...(isNewUser ? {} : { message: "User already exists" }),
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

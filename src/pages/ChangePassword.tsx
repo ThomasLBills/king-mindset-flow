@@ -35,10 +35,10 @@ const ChangePassword = () => {
       const { error } = await supabase.auth.updateUser({ password });
       if (error) throw error;
 
-      // Mark password as set, clear must_change_password and temp_password
+      // Mark password as permanently set.
       await supabase
         .from("profiles")
-        .update({ must_change_password: false, password_set: true, temp_password: null } as any)
+        .update({ must_change_password: false, password_set: true } as any)
         .eq("user_id", user!.id);
 
       toast({ title: "Password updated", description: "Your new password has been set." });
