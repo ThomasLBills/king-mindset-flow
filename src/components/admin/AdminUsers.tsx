@@ -496,9 +496,9 @@ const AdminUsers = () => {
             <AlertDialogTitle>Impersonate {impersonateTarget?.name}?</AlertDialogTitle>
             <AlertDialogDescription>
               You will see the app exactly as <strong>{impersonateTarget?.email}</strong> sees
-              it. Row-level security is enforced against their account. Destructive actions
-              (billing, chat, declarations, deletion) are disabled while impersonating.
-              This session is fully audited and expires automatically after ~1 hour.
+              it. Row-level security is enforced against their account. You can browse and
+              view everything, but billing, chat, declarations, and account deletion are
+              disabled. This session is fully audited.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
