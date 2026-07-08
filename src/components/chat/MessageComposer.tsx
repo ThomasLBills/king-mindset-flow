@@ -56,8 +56,14 @@ const MessageComposer = ({ onSend, placeholder = "Type a message…" }: MessageC
       return;
     }
     setUploading(true);
+    const { data: userData, error: userErr } = await supabase.auth.getUser();
+    if (userErr || !userData?.user) {
+      toast({ title: "Upload failed", description: "You must be signed in", variant: "destructive" });
+      setUploading(false);
+      return;
+    }
     const ext = file.name.split(".").pop();
-    const path = `chat/${Date.now()}-${crypto.randomUUID()}.${ext}`;
+    const path = `${userData.user.id}/${Date.now()}-${crypto.randomUUID()}.${ext}`;
     const { error } = await supabase.storage.from("chat-files").upload(path, file);
     if (error) {
       toast({ title: "Upload failed", description: error.message, variant: "destructive" });
