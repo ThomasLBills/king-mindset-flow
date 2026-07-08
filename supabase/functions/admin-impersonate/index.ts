@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { logSystemError } from "../_shared/errorLogger.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -17,6 +18,8 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const requestId = req.headers.get("x-request-id") ?? crypto.randomUUID();
+  let callerId: string | null = null;
   try {
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -33,6 +36,7 @@ serve(async (req) => {
     const { data: userData, error: userErr } = await admin.auth.getUser(token);
     if (userErr || !userData?.user) return json({ error: "Unauthorized" }, 401);
     const adminUser = userData.user;
+    callerId = adminUser.id;
 
     const { data: adminRole } = await admin
       .from("user_roles")
@@ -96,7 +100,13 @@ serve(async (req) => {
       email: targetProfile.email,
     });
     if (linkErr || !link?.properties?.hashed_token) {
-      console.error("generateLink failed", linkErr);
+      await logSystemError({
+        functionName: "admin-impersonate",
+        error: linkErr ?? new Error("generateLink returned no token"),
+        userId: callerId,
+        requestId,
+        context: { stage: "generateLink", target_user_id: targetUserId },
+      });
       return json({ error: "Could not mint impersonation session" }, 500);
     }
 
@@ -113,7 +123,13 @@ serve(async (req) => {
       token_hash: link.properties.hashed_token,
     });
     if (verifyErr || !verified?.session) {
-      console.error("verifyOtp failed", verifyErr);
+      await logSystemError({
+        functionName: "admin-impersonate",
+        error: verifyErr ?? new Error("verifyOtp returned no session"),
+        userId: callerId,
+        requestId,
+        context: { stage: "verifyOtp", target_user_id: targetUserId },
+      });
       return json({ error: "Could not verify impersonation session" }, 500);
     }
 
@@ -139,7 +155,13 @@ serve(async (req) => {
       target_profile: targetProfile,
     });
   } catch (err) {
-    console.error("admin-impersonate error:", err);
+    await logSystemError({
+      functionName: "admin-impersonate",
+      error: err,
+      severity: "fatal",
+      userId: callerId,
+      requestId,
+    });
     return json({ error: (err as Error).message ?? "Server error" }, 500);
   }
 });

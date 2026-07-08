@@ -1366,6 +1366,42 @@ export type Database = {
           },
         ]
       }
+      system_errors: {
+        Row: {
+          context: Json | null
+          created_at: string
+          function_name: string
+          id: string
+          message: string
+          request_id: string | null
+          severity: string
+          stack: string | null
+          user_id: string | null
+        }
+        Insert: {
+          context?: Json | null
+          created_at?: string
+          function_name: string
+          id?: string
+          message: string
+          request_id?: string | null
+          severity?: string
+          stack?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          context?: Json | null
+          created_at?: string
+          function_name?: string
+          id?: string
+          message?: string
+          request_id?: string | null
+          severity?: string
+          stack?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       user_action_items: {
         Row: {
           completed_at: string | null
