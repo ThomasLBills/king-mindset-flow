@@ -30,6 +30,21 @@ const Billing = () => {
     enabled: !!user,
   });
 
+  const { data: stripeCustomer, isLoading: customerLoading } = useQuery({
+    queryKey: ["stripe-customer", user?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("stripe_customers")
+        .select("stripe_customer_id")
+        .eq("user_id", user!.id)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!user,
+  });
+
+  const hasStripeCustomer = !!stripeCustomer?.stripe_customer_id;
+
   const openBillingPortal = async () => {
     setPortalLoading(true);
     try {
@@ -80,9 +95,16 @@ const Billing = () => {
             </CardContent>
           </Card>
 
-          <Button onClick={openBillingPortal} size="lg" className="w-full" disabled={portalLoading}>
+        <Button onClick={openBillingPortal} size="lg" className="w-full" disabled={portalLoading || customerLoading || !hasStripeCustomer}>
             {portalLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <>Manage Billing <ExternalLink className="w-4 h-4" /></>}
           </Button>
+          {!customerLoading && !hasStripeCustomer && (
+            <p className="text-sm text-muted-foreground text-center mt-4">
+              No Stripe billing account is linked to your profile yet. Once you
+              subscribe through checkout, you can manage your billing here. For
+              help with an existing plan, contact hello@liberatedkings.com.
+            </p>
+          )}
         </motion.div>
       </div>
     </div>
