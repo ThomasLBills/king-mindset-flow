@@ -379,6 +379,28 @@ const AdminUsers = () => {
                           >
                             {admin ? <><ShieldOff className="w-3.5 h-3.5" /> Remove Admin</> : <><Shield className="w-3.5 h-3.5" /> Make Admin</>}
                           </Button>
+                          {!admin && (
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              className="gap-1"
+                              onClick={() =>
+                                setImpersonateTarget({
+                                  id: p.user_id,
+                                  name: p.display_name || p.name || p.email,
+                                  email: p.email,
+                                })
+                              }
+                              disabled={impersonatingId === p.user_id}
+                            >
+                              {impersonatingId === p.user_id ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              ) : (
+                                <UserRoundCog className="w-3.5 h-3.5" />
+                              )}
+                              View as
+                            </Button>
+                          )}
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
                               <Button size="sm" variant="destructive" className="gap-1">
