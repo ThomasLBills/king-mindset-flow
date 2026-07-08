@@ -101,7 +101,8 @@ Deno.serve(async (req) => {
     }
 
     if (profile.password_set) {
-      return new Response(JSON.stringify({ sent: true, already_setup: true }), {
+      // Uniform response — do not reveal that this email has completed setup
+      return new Response(JSON.stringify({ sent: true }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
