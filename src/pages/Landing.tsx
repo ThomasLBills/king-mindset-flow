@@ -1,15 +1,11 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { useEntitlement } from "@/hooks/useEntitlement";
-import { useAdminRole } from "@/hooks/useAdminRole";
 import { Loader2 } from "lucide-react";
 
 const Landing = () => {
   const { user, loading: authLoading } = useAuth();
-  const { isEntitled, isLoading: entLoading } = useEntitlement();
-  const { isAdmin, isLoading: adminLoading } = useAdminRole();
 
-  if (authLoading || (user && (entLoading || adminLoading))) {
+  if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -17,14 +13,8 @@ const Landing = () => {
     );
   }
 
-  if (user && (isEntitled || isAdmin)) {
-    return <Navigate to="/app" replace />;
-  }
-
-  if (user) {
-    return <Navigate to="/upgrade" replace />;
-  }
-
+  // Paywall disabled until Stripe is live — send all signed-in users to the app.
+  if (user) return <Navigate to="/app" replace />;
   return <Navigate to="/login" replace />;
 };
 
