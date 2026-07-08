@@ -138,12 +138,14 @@ const ChatThread = ({
   return (
     <div className="flex h-full min-h-0 flex-col">
       <div className="flex items-center gap-2.5 border-b border-line px-4 py-3">
-        <button onClick={onBack} className="text-dim transition-colors hover:text-bone md:hidden" aria-label="Back to list">
+        {/* after:-inset-2 pads the hit target to ≥24px without changing the rendered icon. */}
+        <button onClick={onBack} className="relative text-dim transition-colors after:absolute after:-inset-2 hover:text-bone md:hidden" aria-label="Back to list">
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
         </button>
         <span className="font-display text-sm font-bold uppercase tracking-[0.1em] text-bone">{title}</span>
       </div>
-      <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
+      {/* role=log is an implicit polite live region — appended messages get announced. */}
+      <div role="log" aria-label="Messages" className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
         {loading && messages.length === 0 ? (
           <p className="py-8 text-center text-sm text-dim">Loading messages…</p>
         ) : (
@@ -189,7 +191,8 @@ const ChatThread = ({
                             onClick={() => !isImpersonating && toggleReaction(m.id, r.emoji)}
                             disabled={isImpersonating}
                             className={cn(
-                              "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs transition-colors",
+                              // after:-inset-y-0.5 grows the ~22px pill's hit target to ≥24px invisibly.
+                              "relative inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs transition-colors after:absolute after:inset-x-0 after:-inset-y-0.5",
                               r.reacted
                                 ? "border-gold-deep/60 bg-raised-2 text-gold"
                                 : "border-line bg-raised text-bone-2 hover:border-gold-deep/50"

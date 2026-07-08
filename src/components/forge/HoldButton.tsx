@@ -7,7 +7,7 @@
  * Keyboard and assistive-tech users activate normally with Enter/Space —
  * the ritual is a pointer gesture, never an accessibility gate.
  */
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 const TICK_MS = 40;
@@ -30,6 +30,7 @@ export const HoldButton = ({
   const [progress, setProgress] = useState(0);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
   const done = useRef(false);
+  const descriptionId = useId();
 
   const stop = useCallback(() => {
     if (timer.current) clearInterval(timer.current);
@@ -67,32 +68,39 @@ export const HoldButton = ({
   };
 
   return (
-    <button
-      type="button"
-      disabled={disabled}
-      title="Press and hold"
-      onPointerDown={start}
-      onPointerUp={stop}
-      onPointerLeave={stop}
-      onPointerCancel={stop}
-      onContextMenu={(e) => e.preventDefault()}
-      onKeyDown={keyActivate}
-      className={cn(
-        "relative inline-flex h-12 w-full select-none items-center justify-center overflow-hidden rounded-md",
-        "bg-primary px-8 text-base font-semibold text-primary-foreground",
-        "transition-[filter] hover:brightness-110",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-bright focus-visible:ring-offset-2 ring-offset-background",
-        "disabled:pointer-events-none disabled:opacity-50",
-        className
-      )}
-      style={{ touchAction: "none" }}
-    >
-      <span
-        aria-hidden="true"
-        className="absolute inset-y-0 left-0 bg-black/25 transition-none"
-        style={{ width: `${progress * 100}%` }}
-      />
-      <span className="relative">{children}</span>
-    </button>
+    <>
+      <button
+        type="button"
+        disabled={disabled}
+        title="Press and hold"
+        aria-describedby={descriptionId}
+        onPointerDown={start}
+        onPointerUp={stop}
+        onPointerLeave={stop}
+        onPointerCancel={stop}
+        onContextMenu={(e) => e.preventDefault()}
+        onKeyDown={keyActivate}
+        className={cn(
+          "relative inline-flex h-12 w-full select-none items-center justify-center overflow-hidden rounded-md",
+          "bg-primary px-8 text-base font-semibold text-primary-foreground",
+          "transition-[filter] hover:brightness-110",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-bright focus-visible:ring-offset-2 ring-offset-background",
+          "disabled:pointer-events-none disabled:opacity-50",
+          className
+        )}
+        style={{ touchAction: "none" }}
+      >
+        <span
+          aria-hidden="true"
+          className="absolute inset-y-0 left-0 bg-black/25 transition-none"
+          style={{ width: `${progress * 100}%` }}
+        />
+        <span className="relative">{children}</span>
+      </button>
+      <span id={descriptionId} className="sr-only">
+        With a pointer, press and hold until the button fills. With a keyboard, press Enter or
+        Space to activate immediately.
+      </span>
+    </>
   );
 };
