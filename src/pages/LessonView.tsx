@@ -9,6 +9,7 @@ import { useMarkLessonComplete, useCurriculumLessonProgress } from "@/hooks/useC
 import { useEvidenceCounter } from "@/hooks/useEvidenceCounter";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
+import { SignedAsset } from "@/components/curriculum/SignedAsset";
 
 type ContentBlock = {
   id: string;
@@ -113,7 +114,7 @@ const LessonView = () => {
           {/* Content blocks */}
           <div className="space-y-4 mb-8">
             {blocks.map((block) => (
-              <BlockRenderer key={block.id} block={block} />
+              <BlockRenderer key={block.id} block={block} lessonId={lessonId} />
             ))}
           </div>
 
@@ -156,7 +157,7 @@ function VideoEmbed({ url }: { url: string }) {
   );
 }
 
-function BlockRenderer({ block }: { block: ContentBlock }) {
+function BlockRenderer({ block, lessonId }: { block: ContentBlock; lessonId: string | undefined }) {
   switch (block.type) {
     case "heading": {
       const Tag = (block.data.level || "h2") as keyof JSX.IntrinsicElements;
@@ -192,28 +193,38 @@ function BlockRenderer({ block }: { block: ContentBlock }) {
         </div>
       );
     case "video_upload":
-      return block.data.url ? (
+      return (block.data.storagePath || block.data.url) ? (
         <div className="rounded-xl overflow-hidden bg-secondary aspect-video">
-          <video src={block.data.url} controls className="w-full h-full" />
+          <SignedAsset rawValue={block.data.storagePath || block.data.url} lessonId={lessonId}>
+            {(url) => <video src={url} controls className="w-full h-full" />}
+          </SignedAsset>
         </div>
       ) : null;
     case "audio_upload":
-      return block.data.url ? (
+      return (block.data.storagePath || block.data.url) ? (
         <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary">
           <Music className="h-5 w-5 text-primary shrink-0" />
-          <audio src={block.data.url} controls className="w-full" />
+          <SignedAsset rawValue={block.data.storagePath || block.data.url} lessonId={lessonId}>
+            {(url) => <audio src={url} controls className="w-full" />}
+          </SignedAsset>
         </div>
       ) : null;
     case "file_upload":
-      return block.data.url ? (
-        <a href={block.data.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 rounded-xl bg-secondary hover:bg-secondary/80 transition-colors">
-          <FileText className="h-5 w-5 text-primary shrink-0" />
-          <span className="text-sm font-medium">{block.data.filename || "Download File"}</span>
-        </a>
+      return (block.data.storagePath || block.data.url) ? (
+        <SignedAsset rawValue={block.data.storagePath || block.data.url} lessonId={lessonId}>
+          {(url) => (
+            <a href={url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 rounded-xl bg-secondary hover:bg-secondary/80 transition-colors">
+              <FileText className="h-5 w-5 text-primary shrink-0" />
+              <span className="text-sm font-medium">{block.data.filename || "Download File"}</span>
+            </a>
+          )}
+        </SignedAsset>
       ) : null;
     case "image":
-      return block.data.url ? (
-        <img src={block.data.url} alt={block.data.alt || ""} className="rounded-xl w-full" />
+      return (block.data.storagePath || block.data.url) ? (
+        <SignedAsset rawValue={block.data.storagePath || block.data.url} lessonId={lessonId}>
+          {(url) => <img src={url} alt={block.data.alt || ""} className="rounded-xl w-full" />}
+        </SignedAsset>
       ) : null;
     case "external_link":
       return block.data.url ? (
