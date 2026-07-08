@@ -35,13 +35,9 @@ const Login = () => {
 
   useEffect(() => {
     if (!user) return;
-    if (entitlementLoading || adminLoading) return;
-    if (isEntitled || isAdmin) {
-      navigate("/app", { replace: true });
-    } else {
-      navigate("/upgrade", { replace: true });
-    }
-  }, [user, isEntitled, isAdmin, entitlementLoading, adminLoading, navigate]);
+    // Paywall disabled until Stripe is live — always route signed-in users to /app.
+    navigate("/app", { replace: true });
+  }, [user, navigate]);
 
   // Safety net: if we're signed in but entitlement/admin checks stall on desktop
   // (Chrome/Safari can hold fetches longer than mobile WebKit), force a hard
