@@ -98,10 +98,10 @@ async function teardown(ctx: Ctx) {
   const admin = createClient(SUPABASE_URL, SERVICE_KEY!, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
-  await admin.storage.from(BUCKET).remove([ctx.storagePath]).catch(() => {});
-  await admin.from("curriculum_lessons").delete().eq("id", ctx.draftLessonId).catch(() => {});
-  await admin.from("edge_rate_limits").delete().eq("user_id", ctx.userId).catch(() => {});
-  await admin.auth.admin.deleteUser(ctx.userId).catch(() => {});
+  try { await admin.storage.from(BUCKET).remove([ctx.storagePath]); } catch { /* ignore */ }
+  try { await admin.from("curriculum_lessons").delete().eq("id", ctx.draftLessonId); } catch { /* ignore */ }
+  try { await admin.from("edge_rate_limits").delete().eq("user_id", ctx.userId); } catch { /* ignore */ }
+  try { await admin.auth.admin.deleteUser(ctx.userId); } catch { /* ignore */ }
 }
 
 async function callFn(
