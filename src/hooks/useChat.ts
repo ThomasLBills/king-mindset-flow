@@ -140,6 +140,9 @@ export function useMessages(target: ChatTarget | null, ready = true) {
 
   const sendMessage = useCallback(async (content: string, imageUrl?: string) => {
     if (!target || !user) throw new Error("Not ready to send");
+    if (typeof window !== "undefined" && localStorage.getItem("lk_impersonation_meta")) {
+      throw new Error("Sending is disabled during impersonation.");
+    }
     const { error } = await supabase.from("chat_messages").insert({
       content,
       user_id: user.id,
