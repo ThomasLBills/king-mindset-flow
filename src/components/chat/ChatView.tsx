@@ -73,7 +73,26 @@ const ChatView = ({ target }: ChatViewProps) => {
       </div>
 
       <MessageList messages={messages} loading={loading} isAdmin={isAdmin} onDeleteMessage={handleDeleteMessage} channelName={target.type === "channel" ? target.name : undefined} />
-      {canPost ? (
+      {isImpersonating ? (
+        <div className="border-t border-border p-4 flex items-center justify-between gap-3 bg-card shrink-0">
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Eye className="w-4 h-4 shrink-0" />
+            <span className="text-sm">
+              Read only — viewing as <strong className="text-foreground">{impersonationTarget?.display_name || impersonationTarget?.first_name || impersonationTarget?.email}</strong>
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={async () => {
+              await stopImpersonation();
+              navigate("/admin/users");
+            }}
+            className="inline-flex items-center gap-1 rounded-md bg-destructive px-3 py-1.5 text-xs font-semibold text-destructive-foreground uppercase tracking-wide transition hover:bg-destructive/90"
+          >
+            <X className="h-3.5 w-3.5" /> Exit
+          </button>
+        </div>
+      ) : canPost ? (
         <MessageComposer
           onSend={sendMessage}
           placeholder="Message…"
