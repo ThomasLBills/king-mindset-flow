@@ -173,20 +173,8 @@ export const ImpersonationProvider = ({ children }: { children: ReactNode }) => 
     [],
   );
 
-  // Expiry watcher — auto-exit when the impersonation token expires.
-  useEffect(() => {
-    if (!meta) return;
-    const msUntilExpiry = meta.expires_at * 1000 - Date.now();
-    if (msUntilExpiry <= 0) {
-      stopImpersonation({ silent: true });
-      return;
-    }
-    const timer = window.setTimeout(() => {
-      toast.info("Impersonation session expired.");
-      stopImpersonation({ silent: true });
-    }, msUntilExpiry);
-    return () => window.clearTimeout(timer);
-  }, [meta, stopImpersonation]);
+  // No client-side expiry: admin sessions last until the admin clicks Exit.
+  // The Supabase client auto-refreshes the impersonated session's tokens.
 
   // Cross-tab sync: if another tab starts/stops, reflect it here.
   useEffect(() => {
