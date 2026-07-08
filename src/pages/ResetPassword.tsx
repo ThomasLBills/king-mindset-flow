@@ -8,6 +8,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Lock, Loader2, CheckCircle, AlertTriangle, Copy } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import lkLogo from "@/assets/lk-logo-horizontal.png";
+import PasswordStrengthMeter from "@/components/auth/PasswordStrengthMeter";
+import { evaluatePassword } from "@/lib/passwordStrength";
 
 type PageState = "loading" | "no-token" | "error" | "ready" | "done";
 
@@ -97,8 +99,14 @@ const ResetPassword = () => {
       toast({ title: "Passwords don't match", variant: "destructive" });
       return;
     }
-    if (password.length < 6) {
-      toast({ title: "Password too short", description: "Must be at least 6 characters.", variant: "destructive" });
+    const strength = evaluatePassword(password);
+    if (!strength.meetsRequirements) {
+      toast({
+        title: "Password not strong enough",
+        description:
+          "Use 10+ characters with an uppercase letter, a number, and a symbol (like #).",
+        variant: "destructive",
+      });
       return;
     }
     setSaving(true);
@@ -234,13 +242,23 @@ const ResetPassword = () => {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="relative">
                 <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                <Input type="password" placeholder="New password" value={password} onChange={(e) => setPassword(e.target.value)} className="pl-10" required minLength={6} />
+                <Input type="password" placeholder="New password" value={password} onChange={(e) => setPassword(e.target.value)} className="pl-10" required minLength={10} />
               </div>
+              <PasswordStrengthMeter password={password} />
               <div className="relative">
                 <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                <Input type="password" placeholder="Confirm password" value={confirm} onChange={(e) => setConfirm(e.target.value)} className="pl-10" required minLength={6} />
+                <Input type="password" placeholder="Confirm password" value={confirm} onChange={(e) => setConfirm(e.target.value)} className="pl-10" required minLength={10} />
               </div>
-              <Button type="submit" className="w-full" size="lg" disabled={saving}>
+              <Button
+                type="submit"
+                className="w-full"
+                size="lg"
+                disabled={
+                  saving ||
+                  !evaluatePassword(password).meetsRequirements ||
+                  password !== confirm
+                }
+              >
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Update Password"}
               </Button>
             </form>
