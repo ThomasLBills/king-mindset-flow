@@ -105,13 +105,28 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { message } = await req.json();
+    const { message: rawMessage } = await req.json();
 
-    if (!message || typeof message !== "string") {
+    if (!rawMessage || typeof rawMessage !== "string") {
       return new Response(JSON.stringify({ error: "message is required" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
+
+    const message = rawMessage.trim();
+    const MAX_MESSAGE_LENGTH = 2000;
+    if (message.length === 0) {
+      return new Response(JSON.stringify({ error: "message is required" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    if (message.length > MAX_MESSAGE_LENGTH) {
+      return new Response(
+        JSON.stringify({ error: `Message too long (max ${MAX_MESSAGE_LENGTH} characters)` }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
     }
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
