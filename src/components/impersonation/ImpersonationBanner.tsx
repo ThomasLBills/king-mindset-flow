@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { UserRoundCog, X } from "lucide-react";
 import { useImpersonation } from "@/contexts/ImpersonationContext";
 import { useNavigate } from "react-router-dom";
@@ -5,6 +6,19 @@ import { useNavigate } from "react-router-dom";
 export const ImpersonationBanner = () => {
   const { isImpersonating, target, stopImpersonation } = useImpersonation();
   const navigate = useNavigate();
+
+  // Push app content down so nothing (profile menu, headers) hides behind the banner.
+  useEffect(() => {
+    if (!isImpersonating) return;
+    const prev = document.body.style.getPropertyValue("--impersonation-banner-offset");
+    document.body.style.setProperty("--impersonation-banner-offset", "44px");
+    document.body.style.paddingTop = "var(--impersonation-banner-offset)";
+    return () => {
+      document.body.style.paddingTop = "";
+      if (prev) document.body.style.setProperty("--impersonation-banner-offset", prev);
+      else document.body.style.removeProperty("--impersonation-banner-offset");
+    };
+  }, [isImpersonating]);
 
   if (!isImpersonating || !target) return null;
 
@@ -18,7 +32,7 @@ export const ImpersonationBanner = () => {
       <div className="flex min-w-0 items-center gap-2">
         <UserRoundCog className="h-4 w-4 shrink-0" aria-hidden />
         <span className="truncate">
-          Viewing as <strong>{name}</strong>
+          Impersonating <strong>{name}</strong>
           <span className="hidden sm:inline"> ({target.email})</span>
         </span>
       </div>
