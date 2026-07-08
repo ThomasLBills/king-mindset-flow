@@ -12,6 +12,19 @@ const BUCKET = "curriculum-files";
 // with a clear message rather than crashing.
 const canRunE2E = !!SERVICE_KEY && !!SUPABASE_URL && !!ANON_KEY;
 
+// Emit a one-time diagnostic so a skipped run is easy to explain.
+if (!canRunE2E) {
+  const missing = [
+    !SUPABASE_URL && "SUPABASE_URL",
+    !ANON_KEY && "SUPABASE_ANON_KEY / VITE_SUPABASE_PUBLISHABLE_KEY",
+    !SERVICE_KEY && "SUPABASE_SERVICE_ROLE_KEY",
+  ].filter(Boolean).join(", ");
+  console.warn(
+    `[get-lesson-asset-url E2E] Skipping — missing env: ${missing}. ` +
+      `Provide these to the test runner to enable the live tests.`,
+  );
+}
+
 type Ctx = {
   userEmail: string;
   userPassword: string;
