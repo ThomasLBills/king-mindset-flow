@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { useForm } from "react-hook-form";
@@ -7,7 +7,11 @@ import { z } from "zod";
 import { ChevronRight, LogOut, ScrollText } from "lucide-react";
 import { toast } from "sonner";
 import { FEATURES } from "@/features";
-import { useMockAuth } from "@/mock/auth";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useForgeUser, useUpdateForgeProfile } from "@/hooks/useForgeProfile";
+import { useCovenant, useSetWhy } from "@/hooks/useCovenant";
+import { WEEKLY_CALL } from "@/data/weeklyCall";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -72,19 +76,44 @@ const TIMEZONES = ["Eastern", "Central", "Mountain", "Pacific"] as const;
 const PREFS = [
   { key: "reminder", label: "Daily rhythm reminder", sub: "One quiet nudge each morning." },
   { key: "discretion", label: "Discretion mode", sub: "Neutral tab title and icon in your browser." },
-  { key: "call", label: "Weekly call reminder", sub: "A heads-up before Tuesday 6 PM Central." },
+  { key: "call", label: "Weekly call reminder", sub: `A heads-up before ${WEEKLY_CALL.label}.` },
 ] as const;
 
+/**
+ * There is no notification backend yet, so these toggles are honest
+ * client-side preferences persisted to localStorage.
+ */
+const PREFS_STORAGE_KEY = "lk-prefs-v1";
+
+const DEFAULT_PREFS: Record<string, boolean> = {
+  reminder: true,
+  discretion: false,
+  call: true,
+};
+
+const loadPrefs = (): Record<string, boolean> => {
+  try {
+    const raw = localStorage.getItem(PREFS_STORAGE_KEY);
+    return raw ? { ...DEFAULT_PREFS, ...JSON.parse(raw) } : DEFAULT_PREFS;
+  } catch {
+    return DEFAULT_PREFS;
+  }
+};
+
 const Profile = () => {
-  const { user, why, covenant, setWhy, signOut, updateProfile } = useMockAuth();
+  const { signOut } = useAuth();
+  const { user } = useForgeUser();
+  const updateProfile = useUpdateForgeProfile();
+  const { data: covenant } = useCovenant();
+  const setWhy = useSetWhy();
   const navigate = useNavigate();
   const [whyOpen, setWhyOpen] = useState(false);
   const [vowsOpen, setVowsOpen] = useState(false);
-  const [prefs, setPrefs] = useState<Record<string, boolean>>({
-    reminder: true,
-    discretion: false,
-    call: true,
-  });
+  const [signingOut, setSigningOut] = useState(false);
+  const [prefs, setPrefs] = useState<Record<string, boolean>>(loadPrefs);
+
+  const why = covenant?.why ?? null;
+  const sealed = FEATURES.covenant && covenant && covenant.signed_name;
 
   const whyForm = useForm<z.infer<typeof whySchema>>({
     resolver: zodResolver(whySchema),
@@ -100,10 +129,47 @@ const Profile = () => {
     },
   });
 
+  // Profile data arrives async; hydrate the form when it lands (and after saves).
+  useEffect(() => {
+    if (!user) return;
+    infoForm.reset({
+      name: user.name,
+      phone: user.phone ?? "",
+      timezone:
+        user.timezone && (TIMEZONES as readonly string[]).includes(user.timezone)
+          ? user.timezone
+          : "Central",
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.name, user?.phone, user?.timezone]);
+
   const passwordForm = useForm<z.infer<typeof passwordSchema>>({
     resolver: zodResolver(passwordSchema),
     defaultValues: { password: "", confirm: "" },
   });
+
+  const setPref = (key: string, value: boolean) => {
+    setPrefs((prev) => {
+      const next = { ...prev, [key]: value };
+      try {
+        localStorage.setItem(PREFS_STORAGE_KEY, JSON.stringify(next));
+      } catch {
+        // Storage unavailable (private mode) — keep the in-memory toggle.
+      }
+      return next;
+    });
+  };
+
+  const handleSignOut = async () => {
+    setSigningOut(true);
+    try {
+      await signOut();
+      navigate("/");
+    } catch {
+      toast.error("Couldn't sign out. Try again.");
+      setSigningOut(false);
+    }
+  };
 
   return (
     <div className="mx-auto max-w-3xl px-5 py-7 sm:px-8">
@@ -122,29 +188,24 @@ const Profile = () => {
               <p className="font-display text-xl font-bold tracking-tight text-bone">{user?.name}</p>
               <p className="text-sm text-dim">{user?.email}</p>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                signOut();
-                navigate("/");
-              }}
-            >
+            <Button variant="outline" size="sm" disabled={signingOut} onClick={handleSignOut}>
               <LogOut className="h-4 w-4" aria-hidden="true" /> Sign out
             </Button>
           </div>
         </SectionCard>
 
-        {FEATURES.covenant && covenant && (
+        {sealed && (
           <SectionCard hatch className="border-gold-deep/60 p-5">
             <div className="flex items-start gap-4">
               <LkSeal className="h-14 w-14 shrink-0 text-gold opacity-80" />
               <div className="min-w-0 flex-1">
                 <Eyebrow tone="gold">The Covenant</Eyebrow>
-                <p className="mt-1 font-script text-3xl text-gold-bright">{covenant.signedName}</p>
-                <p className="mt-1 text-xs text-dim">
-                  Sealed {format(new Date(covenant.dateISO), "d MMMM yyyy")}
-                </p>
+                <p className="mt-1 font-script text-3xl text-gold-bright">{covenant.signed_name}</p>
+                {covenant.signed_at && (
+                  <p className="mt-1 text-xs text-dim">
+                    Sealed {format(new Date(covenant.signed_at), "d MMMM yyyy")}
+                  </p>
+                )}
               </div>
               <Button variant="outline" size="sm" onClick={() => setVowsOpen(true)}>
                 <ScrollText className="h-4 w-4" aria-hidden="true" /> Re-read
@@ -199,7 +260,7 @@ const Profile = () => {
                   id={`pref-${p.key}`}
                   checked={prefs[p.key]}
                   onCheckedChange={(v) => {
-                    setPrefs((prev) => ({ ...prev, [p.key]: v }));
+                    setPref(p.key, v);
                     toast.success(`${p.label} ${v ? "on" : "off"}.`);
                   }}
                 />
@@ -213,11 +274,18 @@ const Profile = () => {
           <Form {...infoForm}>
             <form
               onSubmit={infoForm.handleSubmit((values) => {
-                updateProfile(values);
-                toast.success("Saved.");
+                updateProfile.mutate(values, {
+                  onSuccess: () => toast.success("Saved."),
+                  onError: (err) =>
+                    toast.error(err instanceof Error ? err.message : "Couldn't save. Try again."),
+                });
               })}
               className="space-y-4"
             >
+              <div className="space-y-2">
+                <Label htmlFor="profile-email">Email</Label>
+                <Input id="profile-email" value={user?.email ?? ""} disabled readOnly />
+              </div>
               <FormField
                 control={infoForm.control}
                 name="name"
@@ -270,8 +338,8 @@ const Profile = () => {
                   )}
                 />
               </div>
-              <Button type="submit" variant="outline">
-                Save changes
+              <Button type="submit" variant="outline" disabled={updateProfile.isPending}>
+                {updateProfile.isPending ? "Saving…" : "Save changes"}
               </Button>
             </form>
           </Form>
@@ -281,7 +349,12 @@ const Profile = () => {
           <Eyebrow className="mb-4 block">Security</Eyebrow>
           <Form {...passwordForm}>
             <form
-              onSubmit={passwordForm.handleSubmit(() => {
+              onSubmit={passwordForm.handleSubmit(async ({ password }) => {
+                const { error } = await supabase.auth.updateUser({ password });
+                if (error) {
+                  toast.error(error.message);
+                  return;
+                }
                 passwordForm.reset();
                 toast.success("Password updated.");
               })}
@@ -315,8 +388,8 @@ const Profile = () => {
                   )}
                 />
               </div>
-              <Button type="submit" variant="outline">
-                Update password
+              <Button type="submit" variant="outline" disabled={passwordForm.formState.isSubmitting}>
+                {passwordForm.formState.isSubmitting ? "Updating…" : "Update password"}
               </Button>
             </form>
           </Form>
@@ -351,9 +424,13 @@ const Profile = () => {
           <Form {...whyForm}>
             <form
               onSubmit={whyForm.handleSubmit(({ why: next }) => {
-                setWhy(next.trim());
-                setWhyOpen(false);
-                toast.success("Kept. It'll be there when you need it.");
+                setWhy.mutate(next, {
+                  onSuccess: () => {
+                    setWhyOpen(false);
+                    toast.success("Kept. It'll be there when you need it.");
+                  },
+                  onError: () => toast.error("Couldn't save it. Check your connection and try again."),
+                });
               })}
               className="space-y-4"
             >
@@ -369,8 +446,8 @@ const Profile = () => {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full">
-                Keep it
+              <Button type="submit" className="w-full" disabled={setWhy.isPending}>
+                {setWhy.isPending ? "Keeping…" : "Keep it"}
               </Button>
             </form>
           </Form>
@@ -384,7 +461,8 @@ const Profile = () => {
               The Covenant
             </DialogTitle>
             <DialogDescription className="text-center font-serif italic">
-              Sworn {covenant ? format(new Date(covenant.dateISO), "d MMMM yyyy") : ""}. Still standing.
+              Sworn {covenant?.signed_at ? format(new Date(covenant.signed_at), "d MMMM yyyy") : ""}.
+              Still standing.
             </DialogDescription>
           </DialogHeader>
           <ol className="my-2 flex flex-col gap-3.5">
@@ -397,7 +475,7 @@ const Profile = () => {
               </li>
             ))}
           </ol>
-          <p className="text-center font-script text-2xl text-gold-bright">{covenant?.signedName}</p>
+          <p className="text-center font-script text-2xl text-gold-bright">{covenant?.signed_name}</p>
         </DialogContent>
       </Dialog>
     </div>

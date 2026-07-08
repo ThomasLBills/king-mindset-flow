@@ -5,8 +5,10 @@ import { z } from "zod";
 import { BookOpen, Check, HandHeart, RefreshCcw, Sun } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { useAddDeclaration, useCompleteRhythm, useRhythms, useVerseOfDay } from "@/mock/hooks";
-import type { RhythmKind } from "@/mock/types";
+import { useDailyCompletions } from "@/hooks/useDailyProgress";
+import { useDeclarations } from "@/hooks/useDeclarations";
+import { useGratitude } from "@/hooks/useGratitude";
+import { useVerseOfDay } from "@/hooks/useForgeVerses";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { HoldButton } from "@/components/forge/HoldButton";
@@ -28,6 +30,21 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Eyebrow, SectionCard } from "@/components/forge/atoms";
+
+type RhythmKind = "prayer" | "scripture" | "renewedMind" | "gratitude";
+
+/**
+ * The three faith rhythms persist to daily_completions under the SAME
+ * category ("faith") and item ids the original FaithSection used, so the
+ * user's historical data lines up with the redesign.
+ */
+type FaithKind = Exclude<RhythmKind, "gratitude">;
+const FAITH_ITEM_BY_KIND: Record<FaithKind, string> = {
+  prayer: "prayer",
+  scripture: "scripture",
+  renewedMind: "renewed-mind",
+};
+const FAITH_ITEM_IDS = Object.values(FAITH_ITEM_BY_KIND);
 
 const PRAYER_STEPS = [
   { lead: "Be still", line: "Father, I'm here. Slow me down." },
@@ -125,7 +142,7 @@ const RenewedMindDialog = ({
   onOpenChange: (o: boolean) => void;
   onDone: () => void;
 }) => {
-  const addDeclaration = useAddDeclaration();
+  const { addDeclaration } = useDeclarations();
   const form = useForm<z.infer<typeof reframeSchema>>({
     resolver: zodResolver(reframeSchema),
     defaultValues: { lie: "", truth: "" },
@@ -135,6 +152,21 @@ const RenewedMindDialog = ({
   useEffect(() => {
     if (open) form.reset({ lie: "", truth: "" });
   }, [open, form]);
+
+  const declareTruth = (truth: string) => {
+    // The truth you wrote becomes yours to keep — it resurfaces
+    // under "Stand on the Word" in Stand Firm.
+    addDeclaration.mutate(truth, {
+      onError: (error) =>
+        toast.error(
+          error instanceof Error && error.message === "Maximum 5 declarations"
+            ? "Your five declarations are full. Retire one in Stand Firm to keep this truth."
+            : "Couldn't save that truth as a declaration."
+        ),
+    });
+    onDone();
+    form.reset();
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -148,16 +180,7 @@ const RenewedMindDialog = ({
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(({ truth }) => {
-              // The truth you wrote becomes yours to keep — it resurfaces
-              // under "Stand on the Word" in Stand Firm.
-              addDeclaration.mutate(truth);
-              onDone();
-              form.reset();
-            })}
-            className="space-y-4"
-          >
+          <form onSubmit={form.handleSubmit(({ truth }) => declareTruth(truth))} className="space-y-4">
             <FormField
               control={form.control}
               name="lie"
@@ -188,15 +211,7 @@ const RenewedMindDialog = ({
                 </FormItem>
               )}
             />
-            <HoldButton
-              onComplete={() =>
-                form.handleSubmit(({ truth }) => {
-                  addDeclaration.mutate(truth);
-                  onDone();
-                  form.reset();
-                })()
-              }
-            >
+            <HoldButton onComplete={() => form.handleSubmit(({ truth }) => declareTruth(truth))()}>
               Hold to declare it
             </HoldButton>
           </form>
@@ -212,6 +227,8 @@ const gratitudeSchema = z.object({
   third: z.string().min(1, "One more. There's always a third."),
 });
 
+type GratitudeEntries = { entry_1: string; entry_2: string; entry_3: string };
+
 const GratitudeDialog = ({
   open,
   onOpenChange,
@@ -219,7 +236,7 @@ const GratitudeDialog = ({
 }: {
   open: boolean;
   onOpenChange: (o: boolean) => void;
-  onDone: () => void;
+  onDone: (entries: GratitudeEntries) => void;
 }) => {
   const form = useForm<z.infer<typeof gratitudeSchema>>({
     resolver: zodResolver(gratitudeSchema),
@@ -243,8 +260,8 @@ const GratitudeDialog = ({
         </DialogHeader>
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(() => {
-              onDone();
+            onSubmit={form.handleSubmit(({ first, second, third }) => {
+              onDone({ entry_1: first, entry_2: second, entry_3: third });
               form.reset();
             })}
             className="space-y-4"
@@ -312,22 +329,41 @@ const RHYTHM_CARDS: {
 ];
 
 const Rhythms = () => {
-  const { data: rhythms } = useRhythms();
-  const complete = useCompleteRhythm();
+  const {
+    isCompleted,
+    markCompleted,
+    isLoading: faithLoading,
+  } = useDailyCompletions("faith", FAITH_ITEM_IDS);
+  const { alreadySubmittedToday, submitGratitude, isLoading: gratitudeLoading } = useGratitude();
   const [openKind, setOpenKind] = useState<RhythmKind | null>(null);
 
-  const done = (kind: RhythmKind, message: string) => {
-    complete.mutate(kind, { onSuccess: () => toast.success(message) });
+  const done = (kind: FaithKind, message: string) => {
+    markCompleted.mutate(FAITH_ITEM_BY_KIND[kind], { onSuccess: () => toast.success(message) });
     setOpenKind(null);
   };
 
-  if (!rhythms) {
+  const doneGratitude = (entries: GratitudeEntries) => {
+    submitGratitude.mutate(entries, {
+      onSuccess: () => toast.success("Gratitude recorded. Eyes trained on grace."),
+      onError: () => toast.error("Couldn't save today's gratitude. Try again."),
+    });
+    setOpenKind(null);
+  };
+
+  if (faithLoading || gratitudeLoading) {
     return (
       <div className="mx-auto max-w-3xl px-5 py-7 sm:px-8">
         <Skeleton className="h-64 w-full" />
       </div>
     );
   }
+
+  const rhythms: Record<RhythmKind, boolean> = {
+    prayer: isCompleted("prayer"),
+    scripture: isCompleted("scripture"),
+    renewedMind: isCompleted("renewed-mind"),
+    gratitude: alreadySubmittedToday,
+  };
 
   const doneCount = Object.values(rhythms).filter(Boolean).length;
 
@@ -396,7 +432,7 @@ const Rhythms = () => {
       <GratitudeDialog
         open={openKind === "gratitude"}
         onOpenChange={(o) => !o && setOpenKind(null)}
-        onDone={() => done("gratitude", "Gratitude recorded. Eyes trained on grace.")}
+        onDone={doneGratitude}
       />
     </div>
   );

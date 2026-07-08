@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { BookOpen, Shield, Users } from "lucide-react";
-import { useMockAuth } from "@/mock/auth";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Eyebrow, FoilRule, SectionCard } from "@/components/forge/atoms";
 import { LkMonogram, LkSeal, LkWordmark } from "@/components/forge/brand";
@@ -31,8 +31,8 @@ const VOW_PREVIEW = [
 ];
 
 const Landing = () => {
-  const { user, onboarded } = useMockAuth();
-  const enterTo = user ? (onboarded ? "/app" : "/onboarding") : "/signup";
+  const { user } = useAuth();
+  const enterTo = user ? "/app" : "/signup";
 
   return (
     <div className="relative min-h-screen bg-forge">

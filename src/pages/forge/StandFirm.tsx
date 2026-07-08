@@ -15,16 +15,14 @@ import {
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { FEATURES } from "@/features";
-import { useMockAuth } from "@/mock/auth";
-import {
-  useDeclarations,
-  useFightingVerses,
-  useGroup,
-  useLogRedirect,
-  useRaiseBanner,
-  useRecordFall,
-} from "@/mock/hooks";
-import { PRAYER_TEMPLATES } from "@/mock/fixtures";
+import { useCovenant } from "@/hooks/useCovenant";
+import { useForgeUser } from "@/hooks/useForgeProfile";
+import { useGroup, useRaiseBanner } from "@/hooks/useForgeGroup";
+import { useDeclarations } from "@/hooks/useDeclarations";
+import { useUrgeCounter } from "@/hooks/useUrgeCounter";
+import { useRecordFall } from "@/hooks/useStandard";
+import { useCrisisEventLogger } from "@/hooks/useTriggerPatterns";
+import { FIGHTING_VERSES } from "@/data/scriptureLibrary";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
@@ -117,15 +115,24 @@ const TRACE_QUESTIONS = [
   "What were you feeling an hour before?",
 ];
 
+/** Client-approved copy for the "raise the banner" prayer request. */
+const PRAYER_TEMPLATES = [
+  "Brothers, the pull is strong right now. Stand with me.",
+  "In the fight this hour. Pray I hold the line.",
+  "Tempted and tired. I'm not hiding it. Pray for me.",
+];
+
 const StandFirm = () => {
   const navigate = useNavigate();
-  const { why, user } = useMockAuth();
+  const { data: covenant } = useCovenant();
+  const why = covenant?.why;
+  const { user } = useForgeUser();
   const { data: group } = useGroup();
-  const { data: verses } = useFightingVerses();
-  const { data: declarations } = useDeclarations();
+  const { declarations } = useDeclarations();
   const raiseBanner = useRaiseBanner();
-  const logRedirect = useLogRedirect();
+  const { addUrge } = useUrgeCounter();
   const recordFall = useRecordFall();
+  const { logCrisisEvent } = useCrisisEventLogger();
 
   const [view, setView] = useState<View>("triage");
   const [selected, setSelected] = useState<string[]>([]);
@@ -134,18 +141,23 @@ const StandFirm = () => {
   const [commitReach, setCommitReach] = useState(false);
   const [commitRhythms, setCommitRhythms] = useState(false);
 
-  const brothers = (group?.members ?? []).filter((m) => m.initials !== user?.initials);
+  const brothers = (group?.members ?? []).filter((m) => m.id !== user?.id);
   const allIds = brothers.map((b) => b.id);
   const effectiveSelected = selected.length ? selected : allIds;
 
   const steady = () => {
-    logRedirect.mutate(undefined, {
+    addUrge.mutate(undefined, {
       onSuccess: () => toast.success("Logged as a win. Well fought."),
     });
     navigate("/app");
   };
 
-  const verse = verses?.[verseIndex % (verses.length || 1)];
+  const triage = (feeling: string, next: View) => {
+    logCrisisEvent.mutate(feeling);
+    setView(next);
+  };
+
+  const verse = FIGHTING_VERSES[verseIndex % FIGHTING_VERSES.length];
 
   return (
     <div className="relative flex min-h-[100dvh] flex-col items-center justify-center overflow-hidden bg-forge px-6 py-12 text-center">
@@ -184,25 +196,25 @@ const StandFirm = () => {
                 title="I'm being tempted"
                 sub="Ride the wave out with help"
                 primary
-                onClick={() => setView("menu")}
+                onClick={() => triage("tempted", "menu")}
               />
               <ActionRow
                 icon={Undo2}
                 title="I already fell"
                 sub="Come back quickly, without hiding"
-                onClick={() => setView("fall-truth")}
+                onClick={() => triage("already fell", "fall-truth")}
               />
               <ActionRow
                 icon={BookOpen}
                 title="I'm anxious or heavy"
                 sub="Stand on the Word for a minute"
-                onClick={() => setView("word")}
+                onClick={() => triage("anxious", "word")}
               />
               <ActionRow
                 icon={Heart}
                 title="I'm steady, just grounding"
                 sub="Remember what this is all for"
-                onClick={() => setView("why")}
+                onClick={() => triage("grounding", "why")}
               />
             </div>
           </>
@@ -377,16 +389,16 @@ const StandFirm = () => {
                 <Eyebrow tone="gold">{verse.ref}</Eyebrow>
               </footer>
             </blockquote>
-            {(declarations?.length ?? 0) > 0 && (
+            {declarations.length > 0 && (
               <div className="mt-8 w-full text-left">
                 <Eyebrow className="mb-2 block text-center">Your declarations</Eyebrow>
                 <ul className="flex flex-col gap-1.5">
-                  {declarations!.map((d) => (
+                  {declarations.map((d) => (
                     <li
-                      key={d}
+                      key={d.id}
                       className="rounded-md border border-line bg-raised/80 px-4 py-2.5 font-serif text-sm italic text-bone"
                     >
-                      “{d}”
+                      “{d.declaration_text}”
                     </li>
                   ))}
                 </ul>

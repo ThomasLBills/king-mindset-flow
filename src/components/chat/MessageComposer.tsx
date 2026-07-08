@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useImpersonation } from "@/contexts/ImpersonationContext";
+import { useImpersonation, useIsImpersonating } from "@/contexts/ImpersonationContext";
 
 const EMOJI_LIST = ["😀", "😂", "😍", "🤔", "👍", "👏", "🔥", "💪", "🙏", "❤️", "💯", "🎉", "😎", "🤝", "✅", "⭐"];
 
@@ -17,7 +17,8 @@ interface MessageComposerProps {
 
 const MessageComposer = ({ onSend, placeholder = "Type a message…" }: MessageComposerProps) => {
   const isMobile = useIsMobile();
-  const { isImpersonating, target: impersonationTarget, stopImpersonation } = useImpersonation();
+  const isImpersonating = useIsImpersonating();
+  const { target: impersonationTarget, stopImpersonation } = useImpersonation();
   const navigate = useNavigate();
   const [value, setValue] = useState("");
   const [sending, setSending] = useState(false);

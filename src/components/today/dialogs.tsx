@@ -22,7 +22,9 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useCompleteCheckIn, useCompleteReflection } from "@/mock/hooks";
+import { useDailyCheckIn } from "@/hooks/useDailyProgress";
+import { useEvidenceCounter } from "@/hooks/useEvidenceCounter";
+import { useCompleteReflection } from "@/hooks/usePathToday";
 
 const checkInSchema = z.object({
   mood: z.enum(["strong", "steady", "shaky"], { required_error: "How are you arriving?" }),
@@ -63,7 +65,8 @@ export const CheckInDialog = ({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) => {
-  const mutation = useCompleteCheckIn();
+  const { isCheckedIn, submitCheckIn } = useDailyCheckIn();
+  const { addEvidence } = useEvidenceCounter();
   const form = useForm<CheckInValues>({
     resolver: zodResolver(checkInSchema),
     defaultValues: { note: "" },
@@ -75,13 +78,24 @@ export const CheckInDialog = ({
   }, [open, form]);
 
   const onSubmit = (values: CheckInValues) => {
-    mutation.mutate(values, {
-      onSuccess: () => {
-        toast.success("Checked in. Good to see you, brother.");
-        onOpenChange(false);
-        form.reset({ note: "" });
+    // Idempotency: only the first check-in of the day logs an evidence event
+    // (same rule as the original DailyCheckIn card). Capture before submit.
+    const wasFirstCheckInToday = !isCheckedIn;
+    submitCheckIn.mutate(
+      {
+        feelings: [values.mood, values.sleep === "well" ? "rested" : "tired"],
+        needsSupport: values.mood === "shaky",
+        spiritResponse: values.note || undefined,
       },
-    });
+      {
+        onSuccess: () => {
+          if (wasFirstCheckInToday) addEvidence.mutate("check_in");
+          toast.success("Checked in. Good to see you, brother.");
+          onOpenChange(false);
+          form.reset({ note: "" });
+        },
+      }
+    );
   };
 
   return (
@@ -177,8 +191,8 @@ export const CheckInDialog = ({
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full" disabled={mutation.isPending}>
-              {mutation.isPending ? "Logging…" : "Log check-in"}
+            <Button type="submit" className="w-full" disabled={submitCheckIn.isPending}>
+              {submitCheckIn.isPending ? "Logging…" : "Log check-in"}
             </Button>
           </form>
         </Form>

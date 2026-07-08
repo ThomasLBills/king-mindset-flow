@@ -1,9 +1,28 @@
 import { Component, useEffect, type ErrorInfo, type ReactNode } from "react";
+import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
-import { MockAuthProvider, RequireAuth, RequireOnboarded } from "@/mock/auth";
+import { AuthProvider } from "@/hooks/useAuth";
+import { UnreadProvider } from "@/contexts/UnreadContext";
+import { ImpersonationProvider } from "@/contexts/ImpersonationContext";
+import ImpersonationBanner from "@/components/impersonation/ImpersonationBanner";
+import AuthGuard from "@/components/guards/AuthGuard";
+import EntitlementGuard from "@/components/guards/EntitlementGuard";
+import OnboardingGuard from "@/components/guards/OnboardingGuard";
+import AdminGuard from "@/components/guards/AdminGuard";
+import AdminLayout from "@/components/admin/AdminLayout";
+import AdminDashboard from "@/components/admin/AdminDashboard";
+import AdminUsers from "@/components/admin/AdminUsers";
+import AdminEntitlements from "@/components/admin/AdminEntitlements";
+import AdminAuditLog from "@/components/admin/AdminAuditLog";
+import AdminAnnouncements from "@/components/admin/AdminAnnouncements";
+import AdminCommunity from "@/components/admin/AdminCommunity";
+import AdminSettings from "@/components/admin/AdminSettings";
+import CurriculumOverview from "@/components/admin/curriculum/CurriculumOverview";
+import WeekDetail from "@/components/admin/curriculum/WeekDetail";
+import CurriculumLessonEditor from "@/components/admin/curriculum/CurriculumLessonEditor";
 import AppShell from "@/components/shell/AppShell";
 import Landing from "./pages/forge/Landing";
 import Login from "./pages/forge/Login";
@@ -19,6 +38,12 @@ import Profile from "./pages/forge/Profile";
 import Billing from "./pages/forge/Billing";
 import NotFound from "./pages/forge/NotFound";
 import { Privacy, Terms } from "./pages/forge/Legal";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
+import SetupAccount from "./pages/SetupAccount";
+import ThankYou from "./pages/ThankYou";
+import Upgrade from "./pages/Upgrade";
+import ChangePassword from "./pages/ChangePassword";
 
 const queryClient = new QueryClient();
 
@@ -80,69 +105,93 @@ const App = () => (
   <RootErrorBoundary>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <MockAuthProvider>
-          <Sonner />
-          <BrowserRouter>
-          <ScrollToTop />
-          <Routes>
-            {/* Public */}
-            <Route path="/" element={<Landing />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/terms" element={<Terms />} />
+        <AuthProvider>
+          <UnreadProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <ImpersonationProvider>
+                <ImpersonationBanner />
+                <ScrollToTop />
+                <Routes>
+                  {/* Public */}
+                  <Route path="/" element={<Landing />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/signup" element={<Signup />} />
+                  <Route path="/forgot-password" element={<ForgotPassword />} />
+                  <Route path="/reset-password" element={<ResetPassword />} />
+                  <Route path="/setup-account" element={<SetupAccount />} />
+                  <Route path="/checkout" element={<Navigate to="/upgrade" replace />} />
+                  <Route path="/thank-you" element={<ThankYou />} />
+                  <Route path="/privacy" element={<Privacy />} />
+                  <Route path="/terms" element={<Terms />} />
 
-            {/* Signed in, pre-app */}
-            <Route
-              path="/onboarding"
-              element={
-                <RequireAuth>
-                  <Onboarding />
-                </RequireAuth>
-              }
-            />
+                  {/* Signed in, no entitlement required */}
+                  <Route path="/change-password" element={<AuthGuard><ChangePassword /></AuthGuard>} />
+                  <Route path="/upgrade" element={<AuthGuard><Upgrade /></AuthGuard>} />
+                  <Route path="/onboarding" element={<AuthGuard><Onboarding /></AuthGuard>} />
+                  {/* Standalone profile/billing stay reachable without an active
+                      subscription (manage/cancel/renew), matching production. */}
+                  <Route path="/profile" element={<AuthGuard><Profile /></AuthGuard>} />
+                  <Route path="/billing" element={<AuthGuard><Billing /></AuthGuard>} />
 
-            {/* Crisis: full screen, outside the shell, one tap from anywhere */}
-            <Route
-              path="/stand-firm"
-              element={
-                <RequireAuth>
-                  <StandFirm />
-                </RequireAuth>
-              }
-            />
+                  {/* Crisis: full screen, outside the shell, one tap from anywhere */}
+                  <Route
+                    path="/stand-firm"
+                    element={
+                      <EntitlementGuard>
+                        <OnboardingGuard>
+                          <StandFirm />
+                        </OnboardingGuard>
+                      </EntitlementGuard>
+                    }
+                  />
 
-            {/* Member app */}
-            <Route
-              path="/app"
-              element={
-                <RequireAuth>
-                  <RequireOnboarded>
-                    <AppShell />
-                  </RequireOnboarded>
-                </RequireAuth>
-              }
-            >
-              <Route index element={<Today />} />
-              <Route path="brotherhood" element={<Brotherhood />} />
-              <Route path="grow" element={<Grow />} />
-              <Route path="grow/lesson/:lessonId" element={<Lesson />} />
-              <Route path="rhythms" element={<Rhythms />} />
-              <Route path="profile" element={<Profile />} />
-              <Route path="billing" element={<Billing />} />
-            </Route>
+                  {/* Member app */}
+                  <Route
+                    path="/app"
+                    element={
+                      <EntitlementGuard>
+                        <OnboardingGuard>
+                          <AppShell />
+                        </OnboardingGuard>
+                      </EntitlementGuard>
+                    }
+                  >
+                    <Route index element={<Today />} />
+                    <Route path="brotherhood" element={<Brotherhood />} />
+                    <Route path="grow" element={<Grow />} />
+                    <Route path="grow/lesson/:lessonId" element={<Lesson />} />
+                    <Route path="rhythms" element={<Rhythms />} />
+                    <Route path="profile" element={<Profile />} />
+                    <Route path="billing" element={<Billing />} />
+                  </Route>
 
-            {/* Legacy paths from the old IA */}
-            <Route path="/tools" element={<Navigate to="/stand-firm" replace />} />
-            <Route path="/library" element={<Navigate to="/app/grow" replace />} />
-            <Route path="/chat" element={<Navigate to="/app/brotherhood" replace />} />
-            <Route path="/profile" element={<Navigate to="/app/profile" replace />} />
-            <Route path="/billing" element={<Navigate to="/app/billing" replace />} />
+                  {/* Admin */}
+                  <Route path="/admin" element={<AdminGuard><AdminLayout /></AdminGuard>}>
+                    <Route index element={<AdminDashboard />} />
+                    <Route path="curriculum" element={<CurriculumOverview />} />
+                    <Route path="curriculum/weeks/:weekId" element={<WeekDetail />} />
+                    <Route path="curriculum/weeks/:weekId/lessons/:lessonId" element={<CurriculumLessonEditor />} />
+                    <Route path="users" element={<AdminUsers />} />
+                    <Route path="entitlements" element={<AdminEntitlements />} />
+                    <Route path="community" element={<AdminCommunity />} />
+                    <Route path="announcements" element={<AdminAnnouncements />} />
+                    <Route path="audit-log" element={<AdminAuditLog />} />
+                    <Route path="settings" element={<AdminSettings />} />
+                  </Route>
 
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          </BrowserRouter>
-        </MockAuthProvider>
+                  {/* Legacy paths from the old IA */}
+                  <Route path="/tools" element={<Navigate to="/stand-firm" replace />} />
+                  <Route path="/library" element={<Navigate to="/app/grow" replace />} />
+                  <Route path="/chat" element={<Navigate to="/app/brotherhood" replace />} />
+
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </ImpersonationProvider>
+            </BrowserRouter>
+          </UnreadProvider>
+        </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>
   </RootErrorBoundary>

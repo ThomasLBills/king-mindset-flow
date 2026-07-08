@@ -7,8 +7,10 @@ import { format } from "date-fns";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { FEATURES } from "@/features";
-import { useMockAuth } from "@/mock/auth";
-import { useGroup } from "@/mock/hooks";
+import { useForgeUser, useCompleteOnboarding } from "@/hooks/useForgeProfile";
+import { useSetWhy, useSealCovenant } from "@/hooks/useCovenant";
+import { useGroup } from "@/hooks/useForgeGroup";
+import { WEEKLY_CALL } from "@/data/weeklyCall";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -67,7 +69,13 @@ const whySchema = z.object({
     .max(140, "Keep it short enough to remember under fire"),
 });
 
-const CovenantStep = ({ onSealed }: { onSealed: (signedName: string) => void }) => {
+const CovenantStep = ({
+  onSealed,
+  pending,
+}: {
+  onSealed: (signedName: string) => void;
+  pending: boolean;
+}) => {
   const [signature, setSignature] = useState("");
   const today = useMemo(() => format(new Date(), "d MMMM yyyy"), []);
   const ready = signature.trim().length >= 2;
@@ -140,10 +148,10 @@ const CovenantStep = ({ onSealed }: { onSealed: (signedName: string) => void }) 
         <Button
           size="lg"
           className="mx-auto mt-7 block w-full max-w-[340px]"
-          disabled={!ready}
+          disabled={!ready || pending}
           onClick={() => onSealed(signature.trim())}
         >
-          Seal the covenant
+          {pending ? "Sealing…" : "Seal the covenant"}
         </Button>
       </div>
     </div>
@@ -152,7 +160,10 @@ const CovenantStep = ({ onSealed }: { onSealed: (signedName: string) => void }) 
 
 const Onboarding = () => {
   const navigate = useNavigate();
-  const { user, setWhy, sealCovenant, completeOnboarding } = useMockAuth();
+  const { user } = useForgeUser();
+  const setWhy = useSetWhy();
+  const sealCovenant = useSealCovenant();
+  const completeOnboarding = useCompleteOnboarding();
   const { data: group } = useGroup();
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -165,9 +176,20 @@ const Onboarding = () => {
   // welcome · assessment · why · group · covenant (flag)
   const totalSteps = FEATURES.covenant ? 5 : 4;
 
-  const finish = (signedName?: string) => {
-    if (signedName) sealCovenant(signedName);
-    completeOnboarding();
+  const finish = async (signedName?: string) => {
+    // Covenant is a new table whose migration may not be live yet; never let
+    // its failure block a member from finishing onboarding.
+    if (signedName) {
+      sealCovenant.mutate(signedName, {
+        onError: (err) => console.warn("Covenant not saved (non-blocking):", err),
+      });
+    }
+    try {
+      await completeOnboarding.mutateAsync();
+    } catch {
+      toast.error("Couldn't finish onboarding. Check your connection and try again.");
+      return;
+    }
     toast.success(signedName ? "The covenant is sealed. Welcome, king." : "Welcome, brother.");
     navigate("/app", { replace: true });
   };
@@ -269,7 +291,11 @@ const Onboarding = () => {
             <Form {...whyForm}>
               <form
                 onSubmit={whyForm.handleSubmit(({ why }) => {
-                  setWhy(why.trim());
+                  // Fire-and-forget: the why lives in the new covenant table,
+                  // and saving it must never block the next step.
+                  setWhy.mutate(why.trim(), {
+                    onError: (err) => console.warn("Why not saved (non-blocking):", err),
+                  });
                   setStep(3);
                 })}
                 className="mt-6 space-y-5"
@@ -325,7 +351,7 @@ const Onboarding = () => {
               </ul>
             )}
             <p className="mt-5 text-xs text-dim">
-              Weekly call: Tuesday · 6:00 PM Central. Be there, {user?.firstName ?? "brother"}.
+              Weekly call: {WEEKLY_CALL.label}. Be there, {user?.firstName ?? "brother"}.
               They'll be expecting you.
             </p>
             {FEATURES.covenant ? (
@@ -333,14 +359,21 @@ const Onboarding = () => {
                 One last thing: the Covenant
               </Button>
             ) : (
-              <Button size="lg" className="mt-7 w-full" onClick={() => finish()}>
-                Enter the brotherhood
+              <Button
+                size="lg"
+                className="mt-7 w-full"
+                disabled={completeOnboarding.isPending}
+                onClick={() => finish()}
+              >
+                {completeOnboarding.isPending ? "Entering…" : "Enter the brotherhood"}
               </Button>
             )}
           </div>
         )}
 
-        {step === 4 && FEATURES.covenant && <CovenantStep onSealed={(name) => finish(name)} />}
+        {step === 4 && FEATURES.covenant && (
+          <CovenantStep onSealed={(name) => finish(name)} pending={completeOnboarding.isPending} />
+        )}
 
         {step > 0 && (
           <button

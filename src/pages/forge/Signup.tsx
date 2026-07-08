@@ -1,8 +1,11 @@
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useMockAuth } from "@/mock/auth";
+import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -23,22 +26,55 @@ const schema = z.object({
 });
 
 const Signup = () => {
-  const { signUp } = useMockAuth();
+  const { signUp } = useAuth();
   const navigate = useNavigate();
+  const [awaitingConfirmation, setAwaitingConfirmation] = useState(false);
 
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: { name: "", email: "", password: "" },
   });
 
-  // Testing mode: submit creates the account with whatever was typed,
-  // validation skipped. To restore, route through form.handleSubmit(onValid).
-  const onSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const { name, email } = form.getValues();
-    signUp(name.trim() || "Test King", email.trim() || "tester@liberatedkings.com");
-    navigate("/app", { replace: true });
+  const onValid = async (values: z.infer<typeof schema>) => {
+    const { error } = await signUp(
+      values.email.trim().toLowerCase(),
+      values.password,
+      values.name.trim()
+    );
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    // Depending on email-confirmation settings, signUp may or may not
+    // establish a session immediately.
+    const { data } = await supabase.auth.getSession();
+    if (data.session) {
+      navigate("/app", { replace: true });
+    } else {
+      setAwaitingConfirmation(true);
+    }
   };
+
+  const submitting = form.formState.isSubmitting;
+
+  if (awaitingConfirmation) {
+    return (
+      <AuthLayout>
+        <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-bone">
+          Take your place
+        </h1>
+        <p className="mb-8 mt-2 text-sm text-bone-2">
+          Check your email to confirm your account, then sign in.
+        </p>
+        <p className="text-sm text-dim">
+          Already confirmed?{" "}
+          <Link to="/login" className="text-gold underline-offset-4 hover:underline">
+            Sign in
+          </Link>
+        </p>
+      </AuthLayout>
+    );
+  }
 
   return (
     <AuthLayout>
@@ -49,7 +85,7 @@ const Signup = () => {
         Every man here started with this step. You're in good company.
       </p>
       <Form {...form}>
-        <form onSubmit={onSubmit} className="space-y-5" noValidate>
+        <form onSubmit={form.handleSubmit(onValid)} className="space-y-5" noValidate>
           <FormField
             control={form.control}
             name="name"
@@ -57,7 +93,7 @@ const Signup = () => {
               <FormItem>
                 <FormLabel>Full name</FormLabel>
                 <FormControl>
-                  <Input autoComplete="name" placeholder="Marcus Ellison" {...field} />
+                  <Input autoComplete="name" placeholder="First and last name" {...field} />
                 </FormControl>
                 <FormDescription>Real names only. This is a brotherhood, not a forum.</FormDescription>
                 <FormMessage />
@@ -90,8 +126,8 @@ const Signup = () => {
               </FormItem>
             )}
           />
-          <Button type="submit" className="w-full" size="lg">
-            Create account
+          <Button type="submit" className="w-full" size="lg" disabled={submitting}>
+            {submitting ? "Creating account…" : "Create account"}
           </Button>
         </form>
       </Form>

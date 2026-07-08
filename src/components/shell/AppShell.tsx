@@ -6,8 +6,9 @@
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { BookOpen, ChevronsUpDown, Home, LogOut, Shield, UserRound, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useMockAuth } from "@/mock/auth";
-import { useChannels, useDms } from "@/mock/hooks";
+import { useAuth } from "@/hooks/useAuth";
+import { useForgeUser } from "@/hooks/useForgeProfile";
+import { useUnread } from "@/contexts/UnreadContext";
 import { LkMonogram, LkWordmark } from "@/components/forge/brand";
 import { InitialsAvatar } from "@/components/forge/atoms";
 import {
@@ -27,12 +28,8 @@ const NAV = [
 ] as const;
 
 const useUnreadCount = () => {
-  const { data: channels } = useChannels();
-  const { data: dms } = useDms();
-  return (
-    (channels ?? []).reduce((sum, c) => sum + c.unread, 0) +
-    (dms ?? []).reduce((sum, t) => sum + t.unread, 0)
-  );
+  const { counts } = useUnread();
+  return counts.total;
 };
 
 const UnreadBadge = ({ count, className }: { count: number; className?: string }) => {
@@ -52,7 +49,8 @@ const UnreadBadge = ({ count, className }: { count: number; className?: string }
 
 /** Profile / Billing / Sign out, reachable from every screen. */
 const AccountMenu = ({ trigger }: { trigger: React.ReactNode }) => {
-  const { user, signOut } = useMockAuth();
+  const { user } = useForgeUser();
+  const { signOut } = useAuth();
   const navigate = useNavigate();
   return (
     <DropdownMenu>
@@ -65,8 +63,8 @@ const AccountMenu = ({ trigger }: { trigger: React.ReactNode }) => {
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="text-ember focus:text-ember"
-          onSelect={() => {
-            signOut();
+          onSelect={async () => {
+            await signOut();
             navigate("/");
           }}
         >
@@ -87,7 +85,7 @@ const railLink = ({ isActive }: { isActive: boolean }) =>
   );
 
 const NavRail = () => {
-  const { user } = useMockAuth();
+  const { user } = useForgeUser();
   const unread = useUnreadCount();
   return (
     <aside className="sticky top-0 hidden h-screen w-56 shrink-0 flex-col border-r border-line bg-forge-2 px-4 py-5 lg:flex">
@@ -139,7 +137,7 @@ const NavRail = () => {
 };
 
 const MobileTopBar = () => {
-  const { user } = useMockAuth();
+  const { user } = useForgeUser();
   return (
     <header className="sticky top-0 z-20 flex items-center justify-between border-b border-line-soft bg-forge/80 px-4 py-3 backdrop-blur-md lg:hidden">
       <Link to="/app" aria-label="Liberated Kings, back to Today">

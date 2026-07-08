@@ -5,20 +5,14 @@ import { Check, Lock, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { FEATURES } from "@/features";
-import { useMockAuth } from "@/mock/auth";
-import {
-  useBanner,
-  useGroup,
-  usePath,
-  useSendStrength,
-  useSideVerse,
-  useStandard,
-  useVerseOfDay,
-  useWeekStats,
-  useWeeks,
-} from "@/mock/hooks";
-import { WEEKLY_CALL } from "@/mock/fixtures";
-import type { Brother, PathStep, StandardCycle } from "@/mock/types";
+import { useForgeUser } from "@/hooks/useForgeProfile";
+import { useStandard, type StandardCycle } from "@/hooks/useStandard";
+import { usePathToday, type PathStep } from "@/hooks/usePathToday";
+import { useSideVerse, useVerseOfDay } from "@/hooks/useForgeVerses";
+import { useBanner, useGroup, useSendStrength, type ForgeBrother } from "@/hooks/useForgeGroup";
+import { useWeekStats } from "@/hooks/useWeekStats";
+import { useForgeWeeks } from "@/hooks/useForgeCurriculum";
+import { WEEKLY_CALL, isCallDay } from "@/data/weeklyCall";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Eyebrow, InitialsAvatar, SectionCard } from "@/components/forge/atoms";
@@ -192,22 +186,22 @@ const PathToday = ({
   </SectionCard>
 );
 
-const statusDot: Record<Brother["status"], { className: string; label: string }> = {
+const statusDot: Record<ForgeBrother["status"], { className: string; label: string }> = {
   steady: { className: "bg-gold", label: "steady" },
   struggling: { className: "bg-ember", label: "in the fight" },
   away: { className: "bg-line", label: "away" },
 };
 
 const Today = () => {
-  const { user } = useMockAuth();
+  const { user } = useForgeUser();
   const { data: standard } = useStandard();
-  const { data: path } = usePath();
+  const { data: path } = usePathToday();
   const { data: verse } = useVerseOfDay();
   const { data: sideVerse } = useSideVerse();
   const { data: group } = useGroup();
   const { data: banner } = useBanner();
   const { data: stats } = useWeekStats();
-  const { data: weeks } = useWeeks();
+  const { data: weeks } = useForgeWeeks();
   const sendStrength = useSendStrength();
   const [checkInOpen, setCheckInOpen] = useState(false);
   const [reflectOpen, setReflectOpen] = useState(false);
@@ -216,7 +210,11 @@ const Today = () => {
     revealPlayed = true;
   }, []);
 
-  const currentWeek = weeks?.find((w) => !w.locked && w.lessons.some((l) => !l.done)) ?? weeks?.[0];
+  // Workbook (week 0) is prep material, not part of the numbered journey.
+  const journeyWeeks = weeks?.filter((w) => !w.isWorkbook);
+  const currentWeek =
+    journeyWeeks?.find((w) => !w.locked && w.lessons.some((l) => !l.done)) ?? journeyWeeks?.[0];
+  const totalWeeks = journeyWeeks?.length ?? 0;
 
   return (
     <div className="relative">
@@ -231,7 +229,7 @@ const Today = () => {
             <div className="relative mx-auto max-w-[760px]">
               {currentWeek && (
                 <p className="mb-1.5">
-                  <Eyebrow>Week {currentWeek.number} of 8</Eyebrow>{" "}
+                  <Eyebrow>Week {currentWeek.number} of {totalWeeks}</Eyebrow>{" "}
                   <span className="ml-1 font-serif text-base italic text-gold-bright">
                     {currentWeek.title}
                   </span>
@@ -297,7 +295,7 @@ const Today = () => {
                             className="w-full"
                             disabled={sendStrength.isPending}
                             onClick={() =>
-                              sendStrength.mutate(undefined, {
+                              sendStrength.mutate(banner, {
                                 onSuccess: () =>
                                   toast.success(`${banner.name} will see you standing with him.`),
                               })
@@ -359,7 +357,11 @@ const Today = () => {
                 variant="outline"
                 size="sm"
                 className="mt-3 w-full"
-                onClick={() => toast.info("The room opens Tuesday at 6:00 PM Central.")}
+                onClick={() =>
+                  isCallDay()
+                    ? window.open(WEEKLY_CALL.joinUrl, "_blank", "noopener,noreferrer")
+                    : toast.info("The room opens Tuesday at 6:00 PM Central.")
+                }
               >
                 Join the call
               </Button>

@@ -25,9 +25,12 @@ const DIST = join(ROOT, "dist-devbypass-regression");
 const BUILD_TIMEOUT_MS = 240_000;
 
 function runVite(args: string[], env: NodeJS.ProcessEnv = {}) {
+  // Invoke vite's JS entry with the current node binary directly: no shell,
+  // no bunx dependency, and immune to spaces in the repo path on Windows.
+  const viteBin = join(ROOT, "node_modules", "vite", "bin", "vite.js");
   return spawnSync(
-    "bunx",
-    ["vite", "build", "--mode", "production", "--outDir", DIST, ...args],
+    process.execPath,
+    [viteBin, "build", "--mode", "production", "--outDir", DIST, ...args],
     {
       cwd: ROOT,
       env: { ...process.env, ...env },

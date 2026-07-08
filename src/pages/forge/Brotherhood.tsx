@@ -1,28 +1,43 @@
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { format, formatDistanceToNow } from "date-fns";
-import { ArrowLeft, Hash, SendHorizonal } from "lucide-react";
+import { ArrowLeft, Eye, Hash, SendHorizonal, SmilePlus } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { FEATURES } from "@/features";
-import { useMockAuth } from "@/mock/auth";
+import { useAuth } from "@/hooks/useAuth";
 import {
   useChannels,
-  useDms,
-  useGroup,
-  useMarkThreadRead,
+  useDMs,
+  useJoinChannel,
   useMessages,
-  useSendMessage,
-} from "@/mock/hooks";
-import { GROUND_RULES, WEEKLY_CALL } from "@/mock/fixtures";
-import type { Brother } from "@/mock/types";
+  type ChatTarget,
+} from "@/hooks/useChat";
+import { useChatReactions } from "@/hooks/useChatReactions";
+import { useUnread } from "@/contexts/UnreadContext";
+import { useImpersonation, useIsImpersonating } from "@/contexts/ImpersonationContext";
+import { useGroup, type BrotherStatus } from "@/hooks/useForgeGroup";
+import { initialsOf } from "@/hooks/useForgeProfile";
+import { WEEKLY_CALL, isCallDay } from "@/data/weeklyCall";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Eyebrow, InitialsAvatar, SectionCard } from "@/components/forge/atoms";
 
-const statusMeta: Record<Brother["status"], { className: string; label: string }> = {
+/** Fixed product copy from production (BrotherhoodPage ground rules). */
+const GROUND_RULES = [
+  "Connection matters more than details",
+  "Restore with grace, not condemnation",
+  "What's spoken here stays here",
+];
+
+/** Same quick-reaction set the original chat's MessageList offers. */
+const QUICK_EMOJIS = ["❤️", "👍", "🙏", "🔥", "💪", "😂", "👏", "💯"];
+
+const statusMeta: Record<BrotherStatus, { className: string; label: string }> = {
   steady: { className: "bg-gold", label: "Steady" },
   struggling: { className: "bg-ember", label: "In the fight" },
   away: { className: "bg-line", label: "Away" },
@@ -37,38 +52,87 @@ const when = (iso: string) => {
 
 /** Message list + composer, shared by channels and DMs. */
 const ChatThread = ({
-  threadId,
+  target,
   title,
   readOnly = false,
   onBack,
 }: {
-  threadId: string;
+  target: ChatTarget;
   title: string;
   readOnly?: boolean;
   onBack: () => void;
 }) => {
-  const { user } = useMockAuth();
-  const { data: messages } = useMessages(threadId);
-  const sendMessage = useSendMessage();
-  const markRead = useMarkThreadRead();
+  const { user } = useAuth();
+  const isImpersonating = useIsImpersonating();
+  const { target: impersonationTarget } = useImpersonation();
+  const { markAsRead } = useUnread();
+  const joinChannel = useJoinChannel();
+
+  // Channels: join first (mirrors the original Chat page), then load messages.
+  const [channelReady, setChannelReady] = useState(false);
+  useEffect(() => {
+    setChannelReady(false);
+    if (target.type === "channel") {
+      joinChannel(target.id).then(() => setChannelReady(true));
+    }
+  }, [target.id, target.type, joinChannel]);
+  const ready = target.type === "dm" ? true : channelReady;
+
+  const { messages, loading, sendMessage } = useMessages(target, ready);
+  const { reactions, toggleReaction } = useChatReactions(messages.map((m) => m.id));
   const [draft, setDraft] = useState("");
+  const [sending, setSending] = useState(false);
+  const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
   const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    markRead.mutate(threadId);
+    markAsRead(target.id, target.type);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [threadId]);
+  }, [target.id, target.type]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: "end" });
-  }, [messages?.length]);
+  }, [messages.length]);
 
-  const submit = (e: React.FormEvent) => {
+  // Private chat-files bucket: swap stored URLs for signed ones (same as MessageList).
+  // Only sign images not already signed — the messages array changes identity on
+  // every realtime insert, and re-signing all of them each time is wasted work.
+  useEffect(() => {
+    const withImages = messages.filter(
+      (m) => m.image_url?.includes("chat-files") && !signedUrls[m.id]
+    );
+    if (!withImages.length) return;
+    let cancelled = false;
+    Promise.all(
+      withImages.map(async (m) => {
+        const match = m.image_url!.match(/chat-files\/(.+)$/);
+        if (!match) return null;
+        const { data } = await supabase.storage.from("chat-files").createSignedUrl(match[1], 3600);
+        return data?.signedUrl ? ([m.id, data.signedUrl] as const) : null;
+      })
+    ).then((entries) => {
+      if (cancelled) return;
+      const next = Object.fromEntries(entries.filter(Boolean) as (readonly [string, string])[]);
+      if (Object.keys(next).length) setSignedUrls((prev) => ({ ...prev, ...next }));
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [messages]);
+
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     const body = draft.trim();
-    if (!body || !user) return;
-    setDraft("");
-    sendMessage.mutate({ threadId, body, author: { name: user.name, initials: user.initials } });
+    if (!body || sending) return;
+    setSending(true);
+    try {
+      await sendMessage(body);
+      setDraft("");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't send that message.");
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -80,33 +144,110 @@ const ChatThread = ({
         <span className="font-display text-sm font-bold uppercase tracking-[0.1em] text-bone">{title}</span>
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
-        <ul className="flex flex-col gap-4">
-          {(messages ?? []).map((m) => (
-            <li key={m.id} className={cn("flex gap-2.5", m.own && "flex-row-reverse")}>
-              <InitialsAvatar
-                initials={m.authorInitials}
-                tone={m.own ? "gold" : "raised"}
-                className="h-7 w-7 text-[11px]"
-              />
-              <div className={cn("max-w-[80%]", m.own && "text-right")}>
-                <p className="mb-0.5 text-[11px] text-dim">
-                  {m.own ? "You" : m.authorName} · {when(m.sentAtISO)}
-                </p>
-                <p
-                  className={cn(
-                    "inline-block rounded-lg border px-3.5 py-2.5 text-left text-sm leading-relaxed",
-                    m.own ? "border-gold-deep/60 bg-raised-2 text-bone" : "border-line bg-raised text-bone-2"
-                  )}
-                >
-                  {m.body}
-                </p>
-              </div>
-            </li>
-          ))}
-        </ul>
+        {loading && messages.length === 0 ? (
+          <p className="py-8 text-center text-sm text-dim">Loading messages…</p>
+        ) : (
+          <ul className="flex flex-col gap-4">
+            {messages.map((m) => {
+              const own = m.user_id === user?.id;
+              const authorName = m.profile?.display_name || m.profile?.first_name || "Brother";
+              const msgReactions = reactions[m.id] ?? [];
+              return (
+                <li key={m.id} className={cn("flex gap-2.5", own && "flex-row-reverse")}>
+                  <InitialsAvatar
+                    initials={initialsOf(authorName)}
+                    tone={own ? "gold" : "raised"}
+                    className="h-7 w-7 text-[11px]"
+                  />
+                  <div className={cn("max-w-[80%]", own && "text-right")}>
+                    <p className="mb-0.5 text-[11px] text-dim">
+                      {own ? "You" : authorName} · {when(m.created_at)}
+                    </p>
+                    {m.content && (
+                      <p
+                        className={cn(
+                          "inline-block rounded-lg border px-3.5 py-2.5 text-left text-sm leading-relaxed",
+                          own ? "border-gold-deep/60 bg-raised-2 text-bone" : "border-line bg-raised text-bone-2"
+                        )}
+                      >
+                        {m.content}
+                      </p>
+                    )}
+                    {m.image_url && (
+                      <img
+                        src={signedUrls[m.id] || m.image_url}
+                        alt="Shared attachment"
+                        loading="lazy"
+                        className="mt-1.5 inline-block max-w-full rounded-lg border border-line"
+                      />
+                    )}
+                    {(msgReactions.length > 0 || !isImpersonating) && (
+                      <div className={cn("mt-1.5 flex flex-wrap items-center gap-1", own && "justify-end")}>
+                        {msgReactions.map((r) => (
+                          <button
+                            key={r.emoji}
+                            onClick={() => !isImpersonating && toggleReaction(m.id, r.emoji)}
+                            disabled={isImpersonating}
+                            className={cn(
+                              "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs transition-colors",
+                              r.reacted
+                                ? "border-gold-deep/60 bg-raised-2 text-gold"
+                                : "border-line bg-raised text-bone-2 hover:border-gold-deep/50"
+                            )}
+                          >
+                            <span>{r.emoji}</span>
+                            <span>{r.count}</span>
+                          </button>
+                        ))}
+                        {!isImpersonating && (
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <button
+                                className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-line bg-raised text-dim transition-colors hover:border-gold-deep/50 hover:text-bone"
+                                aria-label="Add reaction"
+                              >
+                                <SmilePlus className="h-3.5 w-3.5" aria-hidden="true" />
+                              </button>
+                            </PopoverTrigger>
+                            <PopoverContent side="top" className="w-auto border-line bg-raised p-1.5">
+                              <div className="flex gap-0.5">
+                                {QUICK_EMOJIS.map((emoji) => (
+                                  <button
+                                    key={emoji}
+                                    onClick={() => toggleReaction(m.id, emoji)}
+                                    className="grid h-8 w-8 place-items-center rounded-md text-lg transition-transform hover:scale-110"
+                                    aria-label={`React with ${emoji}`}
+                                  >
+                                    {emoji}
+                                  </button>
+                                ))}
+                              </div>
+                            </PopoverContent>
+                          </Popover>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
         <div ref={endRef} />
       </div>
-      {readOnly ? (
+      {isImpersonating ? (
+        <div className="flex items-center justify-center gap-2 border-t border-line p-3 text-xs text-dim">
+          <Eye className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+          <span>
+            Read only — viewing as{" "}
+            <strong className="font-semibold text-bone">
+              {impersonationTarget?.display_name ||
+                impersonationTarget?.first_name ||
+                impersonationTarget?.email}
+            </strong>
+          </span>
+        </div>
+      ) : readOnly ? (
         <p className="border-t border-line p-3 text-center text-xs text-dim">
           This channel is view only.
         </p>
@@ -122,7 +263,7 @@ const ChatThread = ({
             placeholder="Speak plainly, brother…"
             autoComplete="off"
           />
-          <Button type="submit" size="icon" disabled={!draft.trim() || sendMessage.isPending} aria-label="Send">
+          <Button type="submit" size="icon" disabled={!draft.trim() || sending} aria-label="Send">
             <SendHorizonal className="h-4 w-4" aria-hidden="true" />
           </Button>
         </form>
@@ -131,8 +272,8 @@ const ChatThread = ({
   );
 };
 
-const GroupTab = ({ openDm }: { openDm: (brotherId: string) => void }) => {
-  const { user } = useMockAuth();
+const GroupTab = ({ openDm }: { openDm: (brotherId: string, name: string) => void }) => {
+  const { user } = useAuth();
   const { data: group } = useGroup();
   const members = group?.members ?? [];
   return (
@@ -159,7 +300,13 @@ const GroupTab = ({ openDm }: { openDm: (brotherId: string) => void }) => {
         </p>
         <Button
           className="mt-4"
-          onClick={() => toast.info("The room opens Tuesday at 6:00 PM Central.")}
+          onClick={() => {
+            if (isCallDay()) {
+              window.open(WEEKLY_CALL.joinUrl, "_blank", "noopener,noreferrer");
+            } else {
+              toast.info("The room opens Tuesday at 6:00 PM Central.");
+            }
+          }}
         >
           Join the call
         </Button>
@@ -173,7 +320,7 @@ const GroupTab = ({ openDm }: { openDm: (brotherId: string) => void }) => {
           </div>
           <ul className="flex flex-col">
             {members.map((m, i) => {
-              const self = m.initials === user?.initials;
+              const self = m.id === user?.id;
               return (
                 <li
                   key={m.id}
@@ -193,7 +340,7 @@ const GroupTab = ({ openDm }: { openDm: (brotherId: string) => void }) => {
                     )}
                   </div>
                   {!self && (
-                    <Button variant="outline" size="sm" onClick={() => openDm(m.id)}>
+                    <Button variant="outline" size="sm" onClick={() => openDm(m.id, m.name)}>
                       Message
                     </Button>
                   )}
@@ -201,14 +348,6 @@ const GroupTab = ({ openDm }: { openDm: (brotherId: string) => void }) => {
               );
             })}
           </ul>
-          <button
-            className="mt-3 text-xs text-dim underline-offset-4 transition-colors hover:text-gold hover:underline"
-            onClick={() =>
-              toast.info("Request sent to the shepherds. They'll follow up within a day.")
-            }
-          >
-            Request a change or add a brother
-          </button>
         </SectionCard>
       )}
     </div>
@@ -219,8 +358,12 @@ const Brotherhood = () => {
   const [params, setParams] = useSearchParams();
   const tab = params.get("tab") ?? "group";
   const thread = params.get("thread");
-  const { data: channels } = useChannels();
-  const { data: dms } = useDms();
+  const { user } = useAuth();
+  const { channels } = useChannels();
+  const { dms } = useDMs();
+  const { counts } = useUnread();
+  // DMs opened from the group card that aren't in the fetched list yet.
+  const [openedDms, setOpenedDms] = useState<Record<string, string>>({});
 
   const setTab = (next: string) => setParams({ tab: next }, { replace: true });
   const setThread = (next: string | null) => {
@@ -229,68 +372,108 @@ const Brotherhood = () => {
     setParams(p, { replace: true });
   };
 
-  const openDm = (brotherId: string) => {
-    const dm = dms?.find((t) => t.brotherId === brotherId);
-    if (dm) setParams({ tab: "messages", thread: dm.id }, { replace: true });
+  const openDm = async (brotherId: string, name: string) => {
+    if (!user) return;
+    const cached = dms.find((d) => d.user_a === brotherId || d.user_b === brotherId);
+    if (cached) {
+      setParams({ tab: "messages", thread: cached.id }, { replace: true });
+      return;
+    }
+    // Find-or-create, same as the original Brotherhood page. The DM may exist
+    // without being in our fetched list (created in another tab / by the other
+    // brother first), so check the table before inserting a duplicate.
+    const { data: existing } = await supabase
+      .from("chat_dms")
+      .select("id")
+      .or(
+        `and(user_a.eq.${user.id},user_b.eq.${brotherId}),and(user_a.eq.${brotherId},user_b.eq.${user.id})`
+      )
+      .limit(1)
+      .maybeSingle();
+    let dmId = existing?.id;
+    if (!dmId) {
+      const [userA, userB] = [user.id, brotherId].sort();
+      const { data: created, error } = await supabase
+        .from("chat_dms")
+        .insert({ user_a: userA, user_b: userB })
+        .select("id")
+        .single();
+      if (error || !created) {
+        toast.error("Couldn't open that conversation. Try again in a moment.");
+        return;
+      }
+      dmId = created.id;
+    }
+    setOpenedDms((prev) => ({ ...prev, [dmId!]: name }));
+    setParams({ tab: "messages", thread: dmId! }, { replace: true });
   };
 
-  const activeChannel = channels?.find((c) => c.id === thread);
-  const activeDm = dms?.find((t) => t.id === thread);
-  const activeTitle = activeChannel ? `# ${activeChannel.name}` : activeDm?.name ?? "";
+  const activeChannel = channels.find((c) => c.id === thread);
+  const activeDm = dms.find((d) => d.id === thread);
+  const target: ChatTarget | null = activeChannel
+    ? { type: "channel", id: activeChannel.id, name: activeChannel.name }
+    : activeDm
+      ? { type: "dm", id: activeDm.id, name: activeDm.otherName }
+      : thread && openedDms[thread]
+        ? { type: "dm", id: thread, name: openedDms[thread] }
+        : null;
+  const activeTitle = target ? (target.type === "channel" ? `# ${target.name}` : target.name) : "";
 
   const list =
     tab === "channels" ? (
       <ul className="flex flex-col gap-1.5">
-        {(channels ?? []).map((c) => (
-          <li key={c.id}>
-            <button
-              onClick={() => setThread(c.id)}
-              className={cn(
-                "flex w-full items-center gap-3 rounded-md border px-3.5 py-3 text-left transition-colors",
-                thread === c.id
-                  ? "border-gold-deep bg-raised-2"
-                  : "border-line bg-raised hover:border-gold-deep/50"
-              )}
-            >
-              <Hash className="h-4 w-4 shrink-0 text-dim" aria-hidden="true" />
-              <span className="min-w-0 flex-1">
-                <span className="block text-sm font-semibold text-bone">{c.name}</span>
-                <span className="block truncate text-xs text-dim">{c.description}</span>
-              </span>
-              {c.unread > 0 && (
-                <Badge className="bg-gold text-primary-foreground hover:bg-gold">{c.unread}</Badge>
-              )}
-            </button>
-          </li>
-        ))}
+        {channels.map((c) => {
+          const unread = counts.byConversation[c.id] ?? 0;
+          return (
+            <li key={c.id}>
+              <button
+                onClick={() => setThread(c.id)}
+                className={cn(
+                  "flex w-full items-center gap-3 rounded-md border px-3.5 py-3 text-left transition-colors",
+                  thread === c.id
+                    ? "border-gold-deep bg-raised-2"
+                    : "border-line bg-raised hover:border-gold-deep/50"
+                )}
+              >
+                <Hash className="h-4 w-4 shrink-0 text-dim" aria-hidden="true" />
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-semibold text-bone">{c.name}</span>
+                  {c.description && (
+                    <span className="block truncate text-xs text-dim">{c.description}</span>
+                  )}
+                </span>
+                {unread > 0 && (
+                  <Badge className="bg-gold text-primary-foreground hover:bg-gold">{unread}</Badge>
+                )}
+              </button>
+            </li>
+          );
+        })}
       </ul>
     ) : (
       <ul className="flex flex-col gap-1.5">
-        {(dms ?? []).map((t) => (
-          <li key={t.id}>
-            <button
-              onClick={() => setThread(t.id)}
-              className={cn(
-                "flex w-full items-center gap-3 rounded-md border px-3.5 py-3 text-left transition-colors",
-                thread === t.id
-                  ? "border-gold-deep bg-raised-2"
-                  : "border-line bg-raised hover:border-gold-deep/50"
-              )}
-            >
-              <InitialsAvatar initials={t.initials} tone="raised" />
-              <span className="min-w-0 flex-1">
-                <span className="flex items-baseline justify-between gap-2">
-                  <span className="text-sm font-semibold text-bone">{t.name}</span>
-                  <span className="shrink-0 text-[11px] text-dim">{when(t.lastAtISO)}</span>
-                </span>
-                <span className="block truncate text-xs text-dim">{t.lastMessage}</span>
-              </span>
-              {t.unread > 0 && (
-                <Badge className="bg-gold text-primary-foreground hover:bg-gold">{t.unread}</Badge>
-              )}
-            </button>
-          </li>
-        ))}
+        {dms.map((d) => {
+          const unread = counts.byConversation[d.id] ?? 0;
+          return (
+            <li key={d.id}>
+              <button
+                onClick={() => setThread(d.id)}
+                className={cn(
+                  "flex w-full items-center gap-3 rounded-md border px-3.5 py-3 text-left transition-colors",
+                  thread === d.id
+                    ? "border-gold-deep bg-raised-2"
+                    : "border-line bg-raised hover:border-gold-deep/50"
+                )}
+              >
+                <InitialsAvatar initials={initialsOf(d.otherName)} tone="raised" />
+                <span className="min-w-0 flex-1 text-sm font-semibold text-bone">{d.otherName}</span>
+                {unread > 0 && (
+                  <Badge className="bg-gold text-primary-foreground hover:bg-gold">{unread}</Badge>
+                )}
+              </button>
+            </li>
+          );
+        })}
       </ul>
     );
 
@@ -317,11 +500,11 @@ const Brotherhood = () => {
         <div className="flex h-[62vh] min-h-[420px] gap-4">
           <div className={cn("w-full md:w-80 md:shrink-0", thread && "hidden md:block")}>{list}</div>
           <SectionCard className={cn("min-w-0 flex-1", !thread && "hidden md:block")}>
-            {thread && (activeChannel || activeDm) ? (
+            {target ? (
               <ChatThread
-                threadId={thread}
+                target={target}
                 title={activeTitle}
-                readOnly={activeChannel?.readOnly}
+                readOnly={activeChannel?.is_locked}
                 onBack={() => setThread(null)}
               />
             ) : (

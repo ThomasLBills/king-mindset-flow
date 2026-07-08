@@ -5,7 +5,7 @@ import { useAuth } from "./useAuth";
 /**
  * Returns Monday 00:00 in the user's LOCAL time zone as a UTC ISO string.
  */
-function getLocalWeekStartISO(): string {
+export function getLocalWeekStartISO(): string {
   const now = new Date();
   const dow = now.getDay(); // 0=Sun
   const diff = dow === 0 ? 6 : dow - 1; // days since Monday

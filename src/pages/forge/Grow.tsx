@@ -1,8 +1,7 @@
 import { Link } from "react-router-dom";
 import { Check, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useWeeks } from "@/mock/hooks";
-import type { Week } from "@/mock/types";
+import { useForgeWeeks, type ForgeWeek } from "@/hooks/useForgeCurriculum";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -16,7 +15,7 @@ import { Eyebrow, SectionCard } from "@/components/forge/atoms";
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
-const LessonRow = ({ weekLocked, lesson }: { weekLocked: boolean; lesson: Week["lessons"][number] }) => (
+const LessonRow = ({ weekLocked, lesson }: { weekLocked: boolean; lesson: ForgeWeek["lessons"][number] }) => (
   <li className="border-t border-line-soft first:border-t-0">
     {weekLocked ? (
       <span className="flex items-center gap-3 py-3 text-sm text-dim">
@@ -53,7 +52,7 @@ const LessonRow = ({ weekLocked, lesson }: { weekLocked: boolean; lesson: Week["
 );
 
 const Grow = () => {
-  const { data: weeks } = useWeeks();
+  const { data: weeks } = useForgeWeeks();
 
   if (!weeks) {
     return (
@@ -79,7 +78,10 @@ const Grow = () => {
           Eight weeks of ground taken
         </h1>
         <div className="mt-4 flex items-center gap-3">
-          <Progress value={(doneCount / allLessons.length) * 100} className="h-1.5 flex-1" />
+          <Progress
+            value={allLessons.length ? (doneCount / allLessons.length) * 100 : 0}
+            className="h-1.5 flex-1"
+          />
           <span className="shrink-0 text-xs text-bone-2">
             {doneCount} of {allLessons.length} readings
           </span>
@@ -176,7 +178,7 @@ const Grow = () => {
             </span>
             <span className="flex items-center gap-1.5 text-xs text-dim">
               <Lock className="h-3.5 w-3.5" aria-hidden="true" />
-              Unlocks in order
+              {w.unlocksAt ? `Unlocks ${w.unlocksAt}` : "Unlocks in order"}
             </span>
           </li>
         ))}

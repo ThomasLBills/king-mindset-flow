@@ -4,6 +4,9 @@ import path from "path";
 
 export default defineConfig({
   plugins: [react()],
+  // Guards call isDevBypassEnabled(), which reads this build-time constant;
+  // vite.config.ts injects it for app builds, vitest needs its own define.
+  define: { __DEV_BYPASS__: false },
   test: {
     environment: "jsdom",
     globals: true,
