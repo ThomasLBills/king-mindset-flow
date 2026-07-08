@@ -51,7 +51,10 @@ serve(async (req) => {
       .maybeSingle();
 
     if (!customer?.stripe_customer_id) {
-      return new Response(JSON.stringify({ error: "No billing account found" }), {
+      return new Response(JSON.stringify({
+        error: "No Stripe billing account is linked to your profile.",
+        code: "no_stripe_customer",
+      }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -92,8 +95,24 @@ serve(async (req) => {
     const portal = await stripeRes.json();
     if (portal.error) {
       console.error("Stripe portal error:", portal.error);
-      return new Response(JSON.stringify({ error: portal.error.message }), {
+      const isPortalConfig =
+        typeof portal.error.message === "string" &&
+        portal.error.message.toLowerCase().includes("configuration");
+      return new Response(JSON.stringify({
+        error: portal.error.message,
+        code: isPortalConfig ? "portal_not_configured" : "stripe_error",
+      }), {
         status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (!portal.url) {
+      return new Response(JSON.stringify({
+        error: "Stripe did not return a portal link.",
+        code: "missing_portal_url",
+      }), {
+        status: 502,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -105,7 +124,10 @@ serve(async (req) => {
     });
   } catch (err) {
     console.error("create-billing-portal error:", err);
-    return new Response(JSON.stringify({ error: err.message }), {
+    return new Response(JSON.stringify({
+      error: err.message ?? "Unexpected server error",
+      code: "server_error",
+    }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
