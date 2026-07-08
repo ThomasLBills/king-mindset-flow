@@ -59,10 +59,26 @@ serve(async (req) => {
 
     const { returnUrl } = await req.json();
 
+    const ALLOWED_ORIGINS = [
+      "https://app.liberatedkings.com",
+      "https://king-mindset-flow.lovable.app",
+    ];
+    let safeReturnUrl = "https://app.liberatedkings.com/billing";
+    if (typeof returnUrl === "string" && returnUrl.length > 0) {
+      try {
+        const parsed = new URL(returnUrl);
+        if (ALLOWED_ORIGINS.includes(parsed.origin)) {
+          safeReturnUrl = returnUrl;
+        }
+      } catch {
+        // fall through to default
+      }
+    }
+
     // Create billing portal session
     const params = new URLSearchParams();
     params.append("customer", customer.stripe_customer_id);
-    params.append("return_url", returnUrl || `${SUPABASE_URL.replace('.supabase.co', '')}/billing`);
+    params.append("return_url", safeReturnUrl);
 
     const stripeRes = await fetch("https://api.stripe.com/v1/billing_portal/sessions", {
       method: "POST",
