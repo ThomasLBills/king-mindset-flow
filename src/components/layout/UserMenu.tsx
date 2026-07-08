@@ -1,6 +1,6 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import { LogOut, Settings, CreditCard, User } from "lucide-react";
+import { LogOut, CreditCard, User } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
