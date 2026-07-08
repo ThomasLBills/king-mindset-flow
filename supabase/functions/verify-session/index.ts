@@ -71,10 +71,7 @@ serve(async (req) => {
     console.log("Session verification:", sessionId, "paid:", verified);
 
     return new Response(
-      JSON.stringify({
-        verified,
-        customerEmail: session.customer_details?.email || session.customer_email,
-      }),
+      JSON.stringify({ verified }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
