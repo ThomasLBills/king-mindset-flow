@@ -94,10 +94,10 @@ Deno.serve(async (req) => {
       .update({ used: true })
       .eq("id", codeRecord.id);
 
-    // Mark password_set in profile and clear temp_password
+    // Mark password as permanently set on the profile.
     await supabase
       .from("profiles")
-      .update({ password_set: true, must_change_password: false, temp_password: null })
+      .update({ password_set: true, must_change_password: false })
       .eq("user_id", profile.user_id);
 
     console.log("Password set successfully for", normalizedEmail);
