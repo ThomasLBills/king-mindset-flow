@@ -2,7 +2,6 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
-import { VitePWA } from "vite-plugin-pwa";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
@@ -28,39 +27,26 @@ export default defineConfig(({ mode }) => {
   const devBypass = bypassRequested && isDevBuild;
 
   return {
-  server: {
-    host: "::",
-    port: 8080,
-    hmr: {
-      overlay: false,
+    server: {
+      host: "::",
+      port: 8080,
+      // Redesign note: hmr.overlay is intentionally NOT disabled anymore.
+      // Hiding compile errors made HMR failures look like app bugs.
     },
-  },
-  define: {
-    // Build-time constant. Production builds inline `false`, letting the
-    // bundler drop every `if (__DEV_BYPASS__)` branch and eliminate the
-    // bypass helper from the shipped code.
-    __DEV_BYPASS__: JSON.stringify(devBypass),
-  },
-  plugins: [
-    react(),
-    mode === "development" && componentTagger(),
-    VitePWA({
-      registerType: "autoUpdate",
-      injectRegister: "auto",
-      workbox: {
-        globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
-        navigateFallback: "/index.html",
-        navigateFallbackDenylist: [/^\/~oauth/],
-        // Don't precache large assets
-        maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
+    define: {
+      // Build-time constant. Production builds inline `false`, letting the
+      // bundler drop every `if (__DEV_BYPASS__)` branch and eliminate the
+      // bypass helper from the shipped code.
+      __DEV_BYPASS__: JSON.stringify(devBypass),
+    },
+    // Redesign note: vite-plugin-pwa removed (PWA out of scope this round).
+    // public/sw.js is a kill-switch that unregisters the old worker from
+    // users' browsers; keep serving it for as long as old installs may exist.
+    plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
+    resolve: {
+      alias: {
+        "@": path.resolve(__dirname, "./src"),
       },
-      manifest: false, // We use our own public/manifest.json
-    }),
-  ].filter(Boolean),
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
     },
-  },
   };
 });

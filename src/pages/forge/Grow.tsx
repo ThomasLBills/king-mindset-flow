@@ -1,0 +1,188 @@
+import { Link } from "react-router-dom";
+import { Check, Lock } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useWeeks } from "@/mock/hooks";
+import type { Week } from "@/mock/types";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Eyebrow, SectionCard } from "@/components/forge/atoms";
+
+const pad = (n: number) => String(n).padStart(2, "0");
+
+const LessonRow = ({ weekLocked, lesson }: { weekLocked: boolean; lesson: Week["lessons"][number] }) => (
+  <li className="border-t border-line-soft first:border-t-0">
+    {weekLocked ? (
+      <span className="flex items-center gap-3 py-3 text-sm text-dim">
+        <span className="grid h-5 w-5 place-items-center rounded-full border border-line" aria-hidden="true" />
+        {lesson.title}
+        <span className="ml-auto text-xs">{lesson.minutes} min</span>
+      </span>
+    ) : (
+      <Link
+        to={`/app/grow/lesson/${lesson.id}`}
+        className="group flex items-center gap-3 py-3 text-sm"
+      >
+        <span
+          className={cn(
+            "grid h-5 w-5 shrink-0 place-items-center rounded-full border",
+            lesson.done ? "border-gold-deep bg-[hsl(38_45%_9%)] text-gold" : "border-line text-dim"
+          )}
+          aria-hidden="true"
+        >
+          {lesson.done && <Check className="h-3 w-3" />}
+        </span>
+        <span
+          className={cn(
+            "transition-colors group-hover:text-gold-bright",
+            lesson.done ? "text-bone-2" : "text-bone"
+          )}
+        >
+          {lesson.title}
+        </span>
+        <span className="ml-auto text-xs text-dim">{lesson.minutes} min</span>
+      </Link>
+    )}
+  </li>
+);
+
+const Grow = () => {
+  const { data: weeks } = useWeeks();
+
+  if (!weeks) {
+    return (
+      <div className="mx-auto max-w-3xl px-5 py-7 sm:px-8">
+        <Skeleton className="mb-4 h-24 w-full" />
+        <Skeleton className="h-72 w-full" />
+      </div>
+    );
+  }
+
+  const allLessons = weeks.flatMap((w) => w.lessons);
+  const doneCount = allLessons.filter((l) => l.done).length;
+  const current = weeks.find((w) => !w.locked && w.lessons.some((l) => !l.done));
+  const past = weeks.filter((w) => !w.locked && w !== current);
+  const locked = weeks.filter((w) => w.locked);
+  const nextLesson = current?.lessons.find((l) => !l.done);
+
+  return (
+    <div className="mx-auto max-w-4xl px-5 py-7 sm:px-8">
+      <header className="mb-6">
+        <Eyebrow className="mb-1 block">Grow · The Liberated Path</Eyebrow>
+        <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-bone">
+          Eight weeks of ground taken
+        </h1>
+        <div className="mt-4 flex items-center gap-3">
+          <Progress value={(doneCount / allLessons.length) * 100} className="h-1.5 flex-1" />
+          <span className="shrink-0 text-xs text-bone-2">
+            {doneCount} of {allLessons.length} readings
+          </span>
+        </div>
+      </header>
+
+      {current && (
+        <SectionCard hatch className="mb-6 border-gold-deep/60 p-5 sm:p-6">
+          <div className="flex items-start gap-5">
+            <span
+              className="font-display text-6xl font-bold leading-none tracking-tight text-gold"
+              aria-hidden="true"
+            >
+              {pad(current.number)}
+            </span>
+            <div className="min-w-0 flex-1 pt-1">
+              <Eyebrow tone="gold">This week</Eyebrow>
+              <h2 className="font-display text-2xl font-bold tracking-tight text-bone">
+                {current.title}
+              </h2>
+              <p className="font-serif text-sm italic text-bone-2">{current.theme}</p>
+            </div>
+          </div>
+          <ul className="mt-4">
+            {current.lessons.map((l) => (
+              <LessonRow key={l.id} weekLocked={false} lesson={l} />
+            ))}
+          </ul>
+          {nextLesson && (
+            <Button asChild className="mt-3 w-full sm:w-auto">
+              <Link to={`/app/grow/lesson/${nextLesson.id}`}>Continue: {nextLesson.title}</Link>
+            </Button>
+          )}
+        </SectionCard>
+      )}
+
+      {past.length > 0 && (
+        <>
+          <h2 className="mb-3">
+            <Eyebrow>Ground already taken</Eyebrow>
+          </h2>
+          <Accordion type="multiple" className="mb-6 flex flex-col gap-2">
+            {past.map((w) => (
+              <AccordionItem
+                key={w.id}
+                value={w.id}
+                className="rounded-lg border border-line bg-raised px-4"
+              >
+                <AccordionTrigger className="py-3.5 hover:no-underline">
+                  <span className="flex items-center gap-4 text-left">
+                    <span className="font-display text-2xl font-bold text-dim" aria-hidden="true">
+                      {pad(w.number)}
+                    </span>
+                    <span>
+                      <span className="block font-display text-base font-bold tracking-tight text-bone">
+                        {w.title}
+                      </span>
+                      <span className="text-xs font-normal text-dim">
+                        {w.lessons.filter((l) => l.done).length} of {w.lessons.length} finished
+                      </span>
+                    </span>
+                  </span>
+                </AccordionTrigger>
+                <AccordionContent>
+                  <ul>
+                    {w.lessons.map((l) => (
+                      <LessonRow key={l.id} weekLocked={false} lesson={l} />
+                    ))}
+                  </ul>
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </>
+      )}
+
+      <h2 className="mb-3">
+        <Eyebrow>The road ahead</Eyebrow>
+      </h2>
+      <ul className="flex flex-col gap-2">
+        {locked.map((w) => (
+          <li
+            key={w.id}
+            className="flex items-center gap-4 rounded-lg border border-line-soft bg-forge-2 px-4 py-3.5"
+          >
+            <span className="font-display text-2xl font-bold text-line" aria-hidden="true">
+              {pad(w.number)}
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block font-display text-base font-bold tracking-tight text-dim">
+                {w.title}
+              </span>
+              <span className="font-serif text-xs italic text-dim">{w.theme}</span>
+            </span>
+            <span className="flex items-center gap-1.5 text-xs text-dim">
+              <Lock className="h-3.5 w-3.5" aria-hidden="true" />
+              Unlocks in order
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+export default Grow;
