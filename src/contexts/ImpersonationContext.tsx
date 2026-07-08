@@ -61,26 +61,6 @@ const readAdminSnapshot = (): SavedSession | null => {
   }
 };
 
-// supabase.functions.invoke throws a FunctionsHttpError on non-2xx that hides
-// the response body behind `error.context` (a Response). Extract the JSON
-// error message from the edge function so toasts show the real reason.
-const extractInvokeError = async (
-  error: unknown,
-  fallback = "Impersonation failed",
-): Promise<string> => {
-  try {
-    const ctx = (error as { context?: Response }).context;
-    if (ctx && typeof ctx.clone === "function") {
-      const body = await ctx.clone().json().catch(() => null);
-      if (body?.error && typeof body.error === "string") return body.error;
-    }
-  } catch {
-    // ignore — fall through to message
-  }
-  const msg = (error as { message?: string })?.message;
-  return msg && msg !== "Edge Function returned a non-2xx status code" ? msg : fallback;
-};
-
 export const ImpersonationProvider = ({ children }: { children: ReactNode }) => {
   const [meta, setMeta] = useState<ImpersonationMeta | null>(() => readMeta());
   const stoppingRef = useRef(false);
