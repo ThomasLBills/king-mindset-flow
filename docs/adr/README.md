@@ -27,3 +27,4 @@ Each record uses the following headings:
 | [0006](0006-chat-files-storage-model.md) | Private `chat-files` bucket with user-scoped upload paths and membership-gated reads | Accepted |
 | [0007](0007-dev-auth-bypass-hardening.md) | Multi-layer hardening of `VITE_DEV_BYPASS_AUTH` | Accepted |
 | [0008](0008-stripe-return-url-allowlist.md) | Enforce returnUrl origin allowlist in Stripe edge functions | Accepted |
+| [0009](0009-admin-impersonation.md) | Admin user impersonation via session swap | Accepted |
