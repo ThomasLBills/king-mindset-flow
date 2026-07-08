@@ -32,10 +32,8 @@ export function useBrothers() {
         c.requester_id === user!.id ? c.recipient_id : c.requester_id
       );
       const { data: profiles } = await supabase
-        .from("profiles")
-        .select("user_id, display_name, first_name, avatar_url")
-        .in("user_id", otherIds);
-      const profileMap = new Map(profiles?.map(p => [p.user_id, p]));
+        .rpc("get_profiles_directory", { _user_ids: otherIds });
+      const profileMap = new Map((profiles ?? []).map((p: any) => [p.user_id, p] as const));
 
       return data.map(c => {
         const otherId = c.requester_id === user!.id ? c.recipient_id : c.requester_id;
@@ -66,10 +64,8 @@ export function useBrothers() {
 
       const requesterIds = data.map(c => c.requester_id);
       const { data: profiles } = await supabase
-        .from("profiles")
-        .select("user_id, display_name, first_name, avatar_url")
-        .in("user_id", requesterIds);
-      const profileMap = new Map(profiles?.map(p => [p.user_id, p]));
+        .rpc("get_profiles_directory", { _user_ids: requesterIds });
+      const profileMap = new Map((profiles ?? []).map((p: any) => [p.user_id, p] as const));
 
       return data.map(c => {
         const p = profileMap.get(c.requester_id);
@@ -199,11 +195,7 @@ export function useSearchUsers(query: string) {
     enabled: !!user && query.length >= 2,
     queryFn: async () => {
       const { data } = await supabase
-        .from("profiles")
-        .select("user_id, display_name, first_name, avatar_url")
-        .neq("user_id", user!.id)
-        .or(`display_name.ilike.%${query}%,first_name.ilike.%${query}%,email.ilike.%${query}%`)
-        .limit(10);
+        .rpc("search_profiles_directory", { _query: query });
       return data ?? [];
     },
   });
