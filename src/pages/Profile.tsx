@@ -13,6 +13,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import PasswordStrengthMeter from "@/components/auth/PasswordStrengthMeter";
+import { evaluatePassword } from "@/lib/passwordStrength";
 
 const TIMEZONES = [
   "America/New_York", "America/Chicago", "America/Denver", "America/Los_Angeles",
@@ -87,7 +89,11 @@ const Profile = () => {
   const changePassword = useMutation({
     mutationFn: async () => {
       if (newPassword !== confirmPassword) throw new Error("Passwords don't match");
-      if (newPassword.length < 8) throw new Error("Password must be at least 8 characters");
+      if (!evaluatePassword(newPassword).meetsRequirements) {
+        throw new Error(
+          "Password not strong enough. Use 10+ characters with an uppercase letter, a number, and a symbol (like #).",
+        );
+      }
       const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) throw error;
     },
@@ -187,8 +193,9 @@ const Profile = () => {
             <CardContent className="space-y-4">
               <div>
                 <Label>New Password</Label>
-                <Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Min 8 characters" />
+                <Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Create a strong password" />
               </div>
+              <PasswordStrengthMeter password={newPassword} />
               <div>
                 <Label>Confirm Password</Label>
                 <Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Confirm new password" />
@@ -196,7 +203,12 @@ const Profile = () => {
               <Button
                 variant="secondary"
                 onClick={() => changePassword.mutate()}
-                disabled={!newPassword || changePassword.isPending}
+                disabled={
+                  !newPassword ||
+                  changePassword.isPending ||
+                  !evaluatePassword(newPassword).meetsRequirements ||
+                  newPassword !== confirmPassword
+                }
                 className="w-full"
               >
                 Update Password
