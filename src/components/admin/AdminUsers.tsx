@@ -493,7 +493,7 @@ const AdminUsers = () => {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>View as {impersonateTarget?.name}?</AlertDialogTitle>
+            <AlertDialogTitle>Impersonate {impersonateTarget?.name}?</AlertDialogTitle>
             <AlertDialogDescription>
               You will see the app exactly as <strong>{impersonateTarget?.email}</strong> sees
               it. Row-level security is enforced against their account. Destructive actions
