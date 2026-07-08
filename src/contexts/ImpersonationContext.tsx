@@ -52,12 +52,56 @@ const readMeta = (): ImpersonationMeta | null => {
   }
 };
 
+const readAdminSnapshot = (): SavedSession | null => {
+  try {
+    const raw = localStorage.getItem(ADMIN_SESSION_KEY);
+    return raw ? (JSON.parse(raw) as SavedSession) : null;
+  } catch {
+    return null;
+  }
+};
+
+// supabase.functions.invoke throws a FunctionsHttpError on non-2xx that hides
+// the response body behind `error.context` (a Response). Extract the JSON
+// error message from the edge function so toasts show the real reason.
+const extractInvokeError = async (
+  error: unknown,
+  fallback = "Impersonation failed",
+): Promise<string> => {
+  try {
+    const ctx = (error as { context?: Response }).context;
+    if (ctx && typeof ctx.clone === "function") {
+      const body = await ctx.clone().json().catch(() => null);
+      if (body?.error && typeof body.error === "string") return body.error;
+    }
+  } catch {
+    // ignore — fall through to message
+  }
+  const msg = (error as { message?: string })?.message;
+  return msg && msg !== "Edge Function returned a non-2xx status code" ? msg : fallback;
+};
+
 export const ImpersonationProvider = ({ children }: { children: ReactNode }) => {
   const [meta, setMeta] = useState<ImpersonationMeta | null>(() => readMeta());
   const stoppingRef = useRef(false);
 
   const startImpersonation = useCallback(async (targetUserId: string) => {
-    // 1. Snapshot current admin session BEFORE any auth swap.
+    // 1. If we already have an admin snapshot (from a prior impersonation
+    //    that may not have fully cleaned up), restore it first so we're
+    //    guaranteed to call the edge function AS the admin, not as a
+    //    previously-impersonated user.
+    const existingSnapshot = readAdminSnapshot();
+    if (existingSnapshot) {
+      await supabase.auth.setSession({
+        access_token: existingSnapshot.access_token,
+        refresh_token: existingSnapshot.refresh_token,
+      }).catch(() => {
+        // If restore fails, fall through and try with whatever the current
+        // session is; the edge function will 403 and we'll surface it.
+      });
+    }
+
+    // 2. Snapshot current (admin) session BEFORE any auth swap.
     const { data: sessionData, error: sessionErr } = await supabase.auth.getSession();
     if (sessionErr || !sessionData.session) {
       throw new Error("You must be signed in to impersonate a user.");
@@ -67,7 +111,7 @@ export const ImpersonationProvider = ({ children }: { children: ReactNode }) => 
       refresh_token: sessionData.session.refresh_token,
     };
 
-    // 2. Ask the edge function to mint a target session.
+    // 3. Ask the edge function to mint a target session.
     const { data, error } = await supabase.functions.invoke<{
       access_token?: string;
       refresh_token?: string;
@@ -79,13 +123,14 @@ export const ImpersonationProvider = ({ children }: { children: ReactNode }) => 
     });
 
     if (error) {
-      throw new Error(data?.error ?? error.message ?? "Impersonation failed");
+      const msg = await extractInvokeError(error);
+      throw new Error(data?.error ?? msg);
     }
     if (!data?.access_token || !data?.refresh_token || !data?.target_profile) {
       throw new Error(data?.error ?? "Impersonation response missing tokens.");
     }
 
-    // 3. Persist admin session snapshot + impersonation meta.
+    // 4. Persist admin session snapshot + impersonation meta.
     localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(adminSession));
     const nextMeta: ImpersonationMeta = {
       target: data.target_profile,
@@ -95,7 +140,7 @@ export const ImpersonationProvider = ({ children }: { children: ReactNode }) => 
     localStorage.setItem(IMPERSONATION_META_KEY, JSON.stringify(nextMeta));
     setMeta(nextMeta);
 
-    // 4. Swap the live session to the target.
+    // 5. Swap the live session to the target.
     const { error: setErr } = await supabase.auth.setSession({
       access_token: data.access_token,
       refresh_token: data.refresh_token,
