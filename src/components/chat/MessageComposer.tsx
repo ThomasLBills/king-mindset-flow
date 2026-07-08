@@ -1,11 +1,12 @@
 import { useState, useRef, KeyboardEvent } from "react";
-import { Send, SmilePlus, ImagePlus, Loader2 } from "lucide-react";
+import { Send, SmilePlus, ImagePlus, Loader2, Eye, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useIsImpersonating } from "@/contexts/ImpersonationContext";
+import { useImpersonation } from "@/contexts/ImpersonationContext";
 
 const EMOJI_LIST = ["😀", "😂", "😍", "🤔", "👍", "👏", "🔥", "💪", "🙏", "❤️", "💯", "🎉", "😎", "🤝", "✅", "⭐"];
 
@@ -16,7 +17,8 @@ interface MessageComposerProps {
 
 const MessageComposer = ({ onSend, placeholder = "Type a message…" }: MessageComposerProps) => {
   const isMobile = useIsMobile();
-  const isImpersonating = useIsImpersonating();
+  const { isImpersonating, target: impersonationTarget, stopImpersonation } = useImpersonation();
+  const navigate = useNavigate();
   const [value, setValue] = useState("");
   const [sending, setSending] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -24,15 +26,39 @@ const MessageComposer = ({ onSend, placeholder = "Type a message…" }: MessageC
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
+  if (isImpersonating) {
+    const name =
+      impersonationTarget?.display_name ||
+      impersonationTarget?.first_name ||
+      impersonationTarget?.email ||
+      "user";
+    return (
+      <div
+        className="border-t border-border p-3 flex items-center justify-between gap-3 bg-card shrink-0"
+        style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom, 0px))" }}
+      >
+        <div className="flex items-center gap-2 text-muted-foreground min-w-0">
+          <Eye className="w-4 h-4 shrink-0" />
+          <span className="text-sm truncate">
+            Read only — impersonating{" "}
+            <strong className="text-foreground">{name}</strong>
+          </span>
+        </div>
+        <button
+          type="button"
+          onClick={async () => {
+            await stopImpersonation();
+            navigate("/admin/users");
+          }}
+          className="inline-flex items-center gap-1 rounded-md bg-destructive px-3 py-1.5 text-xs font-semibold text-destructive-foreground uppercase tracking-wide transition hover:bg-destructive/90 shrink-0"
+        >
+          <X className="h-3.5 w-3.5" /> Exit
+        </button>
+      </div>
+    );
+  }
+
   const handleSend = async () => {
-    if (isImpersonating) {
-      toast({
-        title: "Disabled during impersonation",
-        description: "Exit impersonation before sending messages.",
-        variant: "destructive",
-      });
-      return;
-    }
     const trimmed = value.trim();
     if (!trimmed || sending) return;
     setSending(true);
