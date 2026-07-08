@@ -483,6 +483,53 @@ const AdminUsers = () => {
         </div>
       )}
     </motion.div>
+
+      <AlertDialog
+        open={!!impersonateTarget}
+        onOpenChange={(open) => {
+          if (!open) setImpersonateTarget(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>View as {impersonateTarget?.name}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              You will see the app exactly as <strong>{impersonateTarget?.email}</strong> sees
+              it. Row-level security is enforced against their account. Destructive actions
+              (billing, chat, declarations, deletion) are disabled while impersonating.
+              This session is fully audited and expires automatically after ~1 hour.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                if (!impersonateTarget) return;
+                const target = impersonateTarget;
+                setImpersonatingId(target.id);
+                setImpersonateTarget(null);
+                try {
+                  await startImpersonation(target.id);
+                  toast({ title: `Viewing as ${target.name}` });
+                  navigate("/app");
+                } catch (err: any) {
+                  toast({
+                    title: "Impersonation failed",
+                    description: err?.message ?? "Unknown error",
+                    variant: "destructive",
+                  });
+                } finally {
+                  setImpersonatingId(null);
+                }
+              }}
+            >
+              Start session
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+    </>
   );
 };
 
