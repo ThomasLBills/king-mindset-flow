@@ -1,6 +1,8 @@
-import { Hash, MessageCircle, Lock } from "lucide-react";
+import { Hash, MessageCircle, Lock, Eye, X } from "lucide-react";
 import { useMessages, useJoinChannel, useChannels, type ChatTarget } from "@/hooks/useChat";
 import { useAdminRole } from "@/hooks/useAdminRole";
+import { useIsImpersonating, useImpersonation } from "@/contexts/ImpersonationContext";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import MessageList from "./MessageList";
