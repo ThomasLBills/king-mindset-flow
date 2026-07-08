@@ -21,6 +21,22 @@ serve(async (req) => {
 
     const { planKey, email, returnUrl } = await req.json();
 
+    const ALLOWED_ORIGINS = [
+      "https://app.liberatedkings.com",
+      "https://king-mindset-flow.lovable.app",
+    ];
+    let safeReturnOrigin = "https://app.liberatedkings.com";
+    if (typeof returnUrl === "string" && returnUrl.length > 0) {
+      try {
+        const parsed = new URL(returnUrl);
+        if (ALLOWED_ORIGINS.includes(parsed.origin)) {
+          safeReturnOrigin = parsed.origin;
+        }
+      } catch {
+        // fall through to default
+      }
+    }
+
     // Get the Supabase client to look up price ID
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -195,8 +211,8 @@ serve(async (req) => {
     params.append("mode", "subscription");
     params.append("line_items[0][price]", priceId);
     params.append("line_items[0][quantity]", "1");
-    params.append("success_url", `${returnUrl}/thank-you?session_id={CHECKOUT_SESSION_ID}`);
-    params.append("cancel_url", `${returnUrl}/upgrade?canceled=true`);
+    params.append("success_url", `${safeReturnOrigin}/thank-you?session_id={CHECKOUT_SESSION_ID}`);
+    params.append("cancel_url", `${safeReturnOrigin}/upgrade?canceled=true`);
     params.append("metadata[plan]", planKey);
     if (userId) {
       params.append("metadata[user_id]", userId);
