@@ -19,6 +19,9 @@ const ChatView = ({ target }: ChatViewProps) => {
   const { channels } = useChannels();
   const { isAdmin } = useAdminRole();
   const { toast } = useToast();
+  const isImpersonating = useIsImpersonating();
+  const { target: impersonationTarget, stopImpersonation } = useImpersonation();
+  const navigate = useNavigate();
 
   // For DMs, no join needed — ready immediately
   const isReady = target ? (target.type === "dm" ? true : channelReady) : false;
