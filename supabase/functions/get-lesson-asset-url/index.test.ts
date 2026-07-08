@@ -12,7 +12,11 @@ const BUCKET = "curriculum-files";
 // with a clear message rather than crashing.
 const canRunE2E = !!SERVICE_KEY && !!SUPABASE_URL && !!ANON_KEY;
 
-// Emit a one-time diagnostic so a skipped run is easy to explain.
+// Emit a one-time diagnostic so a skipped authenticated run is easy to explain.
+// The service-role key is intentionally not exposed inside Lovable Cloud test
+// runs, so these tests will be "ignored" there and only run when the file is
+// executed in an environment that has SUPABASE_SERVICE_ROLE_KEY available
+// (a local Supabase CLI env, a self-hosted CI, etc.).
 if (!canRunE2E) {
   const missing = [
     !SUPABASE_URL && "SUPABASE_URL",
@@ -20,10 +24,49 @@ if (!canRunE2E) {
     !SERVICE_KEY && "SUPABASE_SERVICE_ROLE_KEY",
   ].filter(Boolean).join(", ");
   console.warn(
-    `[get-lesson-asset-url E2E] Skipping — missing env: ${missing}. ` +
-      `Provide these to the test runner to enable the live tests.`,
+    `[get-lesson-asset-url authenticated E2E] Skipping — missing env: ${missing}. ` +
+      `Run in an environment with SUPABASE_SERVICE_ROLE_KEY to enable the ` +
+      `authorized-download / draft-403 / rate-limit-429 tests.`,
   );
 }
+
+// ---------------------------------------------------------------------------
+// Unauthenticated contract tests — always run. These verify the function
+// enforces auth and method/body validation before any privileged path.
+// ---------------------------------------------------------------------------
+
+Deno.test("get-lesson-asset-url rejects GET with 405", async () => {
+  const res = await fetch(FN_URL, {
+    method: "GET",
+    headers: { apikey: ANON_KEY },
+  });
+  assertEquals(res.status, 405);
+  await res.body?.cancel();
+});
+
+Deno.test("get-lesson-asset-url rejects POST without bearer with 401", async () => {
+  const res = await fetch(FN_URL, {
+    method: "POST",
+    headers: { apikey: ANON_KEY, "Content-Type": "application/json" },
+    body: JSON.stringify({ path: "videos/x/y.mp4", lessonId: crypto.randomUUID() }),
+  });
+  assertEquals(res.status, 401);
+  await res.body?.cancel();
+});
+
+Deno.test("get-lesson-asset-url rejects malformed JWT with 401", async () => {
+  const res = await fetch(FN_URL, {
+    method: "POST",
+    headers: {
+      apikey: ANON_KEY,
+      "Content-Type": "application/json",
+      Authorization: "Bearer eyJnot.a.valid",
+    },
+    body: JSON.stringify({ path: "videos/x/y.mp4", lessonId: crypto.randomUUID() }),
+  });
+  assertEquals(res.status, 401);
+  await res.body?.cancel();
+});
 
 type Ctx = {
   userEmail: string;
