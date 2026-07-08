@@ -223,6 +223,7 @@ const AdminUsers = () => {
   };
 
   return (
+    <>
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
