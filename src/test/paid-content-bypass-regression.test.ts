@@ -71,7 +71,7 @@ describe("paid-content bypass regression guards", () => {
           `SELECT policy on ${table} in ${p!.file} is missing has_active_entitlement gate:\n${sql}`,
         ).toBe(true);
         expect(
-          /has_role\s*\([^)]*'?admin/i.test(sql),
+          /has_role\s*\(/i.test(sql) && /'admin'/i.test(sql),
           `SELECT policy on ${table} in ${p!.file} is missing admin bypass:\n${sql}`,
         ).toBe(true);
       });
