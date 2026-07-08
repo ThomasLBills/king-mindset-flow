@@ -114,7 +114,7 @@ const MessageComposer = ({ onSend, placeholder = "Type a message…" }: MessageC
         size="icon"
         className="shrink-0 rounded-xl"
         onClick={() => fileInputRef.current?.click()}
-        disabled={uploading}
+        disabled={uploading || isImpersonating}
       >
         {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ImagePlus className="w-4 h-4" />}
       </Button>
@@ -160,7 +160,8 @@ const MessageComposer = ({ onSend, placeholder = "Type a message…" }: MessageC
       <Button
         size="icon"
         onClick={handleSend}
-        disabled={!value.trim() || sending}
+        disabled={!value.trim() || sending || isImpersonating}
+        title={isImpersonating ? "Disabled during impersonation" : undefined}
         className="shrink-0 rounded-xl"
       >
         <Send className="w-4 h-4" />
