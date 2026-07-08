@@ -2,7 +2,9 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 
 const BUCKET = "curriculum-files";
-const SIGNED_URL_TTL_SECONDS = 600; // 10 min
+const DEFAULT_TTL_SECONDS = 600; // 10 min
+const MIN_TTL_SECONDS = 1;
+const MAX_TTL_SECONDS = 600;
 const RATE_LIMIT_MAX = 60;
 const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000; // 10 min
 const ALLOWED_PREFIXES = ["videos/", "audios/", "files/", "images/"];
@@ -75,7 +77,11 @@ Deno.serve(async (req) => {
     safeLog("bad_request_json_parse", { userId });
     return json(400, { error: "Invalid JSON body" });
   }
-  const { path, lessonId } = (body ?? {}) as { path?: unknown; lessonId?: unknown };
+  const { path, lessonId, ttlSeconds } = (body ?? {}) as {
+    path?: unknown;
+    lessonId?: unknown;
+    ttlSeconds?: unknown;
+  };
   if (!validPath(path)) {
     safeLog("bad_request_invalid_path", { userId });
     return json(400, { error: "Invalid path" });
@@ -83,6 +89,14 @@ Deno.serve(async (req) => {
   if (!validUuid(lessonId)) {
     safeLog("bad_request_invalid_lesson", { userId });
     return json(400, { error: "Invalid lessonId" });
+  }
+  let ttl = DEFAULT_TTL_SECONDS;
+  if (ttlSeconds !== undefined) {
+    if (typeof ttlSeconds !== "number" || !Number.isFinite(ttlSeconds)) {
+      safeLog("bad_request_invalid_ttl", { userId });
+      return json(400, { error: "Invalid ttlSeconds" });
+    }
+    ttl = Math.min(MAX_TTL_SECONDS, Math.max(MIN_TTL_SECONDS, Math.floor(ttlSeconds)));
   }
 
   const service = createClient(supabaseUrl, serviceKey, {
@@ -155,7 +169,7 @@ Deno.serve(async (req) => {
   // Mint signed URL
   const { data: signed, error: signError } = await service.storage
     .from(BUCKET)
-    .createSignedUrl(path as string, SIGNED_URL_TTL_SECONDS);
+    .createSignedUrl(path as string, ttl);
   if (signError || !signed?.signedUrl) {
     safeLog("sign_error", { userId, lessonId: lessonId as string });
     return json(500, { error: "Could not sign asset" });
@@ -164,11 +178,12 @@ Deno.serve(async (req) => {
   safeLog("signed_ok", {
     userId,
     lessonId: lessonId as string,
-    extra: { admin: !!isAdmin, count },
+    extra: { admin: !!isAdmin, count, ttl },
   });
 
   return json(200, {
     url: signed.signedUrl,
-    expiresAt: new Date(now + SIGNED_URL_TTL_SECONDS * 1000).toISOString(),
+    expiresAt: new Date(now + ttl * 1000).toISOString(),
+    ttlSeconds: ttl,
   });
 });
