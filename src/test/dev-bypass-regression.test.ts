@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll } from "vitest";
+import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { execSync, spawnSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
@@ -55,6 +55,15 @@ function collectBundleFiles(dir: string): string[] {
 }
 
 describe("__DEV_BYPASS__ regression", () => {
+  // A prior run's clean-build leaves DIST behind; the abort test asserts on
+  // its absence, so both ends of the file must clean it.
+  beforeAll(() => {
+    rmSync(DIST, { recursive: true, force: true });
+  });
+  afterAll(() => {
+    rmSync(DIST, { recursive: true, force: true });
+  });
+
   it(
     "production build ABORTS when VITE_DEV_BYPASS_AUTH=true is set",
     () => {

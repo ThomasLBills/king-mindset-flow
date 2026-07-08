@@ -360,7 +360,7 @@ const Today = () => {
                 onClick={() =>
                   isCallDay()
                     ? window.open(WEEKLY_CALL.joinUrl, "_blank", "noopener,noreferrer")
-                    : toast.info("The room opens Tuesday at 6:00 PM Central.")
+                    : toast.info(`The room opens ${WEEKLY_CALL.label}.`)
                 }
               >
                 Join the call

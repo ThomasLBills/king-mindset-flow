@@ -308,7 +308,7 @@ const Onboarding = () => {
                       <FormControl>
                         <Textarea
                           rows={3}
-                          placeholder={'e.g. "To be present for Elise." or "To look my sons in the eye."'}
+                          placeholder={'e.g. "To look my sons in the eye."'}
                           className="font-serif text-lg italic placeholder:font-sans placeholder:text-sm placeholder:not-italic"
                           {...field}
                         />

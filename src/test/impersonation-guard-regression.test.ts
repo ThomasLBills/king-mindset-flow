@@ -25,7 +25,7 @@ const EDGE = join(ROOT, "supabase", "functions", "admin-impersonate", "index.ts"
 
 const GUARDED_CLIENT_FILES = [
   "src/components/chat/MessageComposer.tsx",
-  "src/pages/Billing.tsx",
+  "src/pages/forge/Billing.tsx",
 ];
 
 describe("admin-impersonate edge function guards", () => {

@@ -375,8 +375,8 @@ const Rhythms = () => {
           The ordinary days
         </h1>
         <p className="mt-2 max-w-[52ch] font-serif italic text-bone-2">
-          Freedom isn't won on the hard days. It's built on days like this one. {doneCount} of 4
-          kept so far.
+          Freedom isn't won on the hard days. It's built on days like this one. {doneCount} of{" "}
+          {RHYTHM_CARDS.length} kept so far.
         </p>
       </header>
 

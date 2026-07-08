@@ -1,7 +1,7 @@
 /**
  * Maps the real curriculum (weeks / curriculum_lessons / progress /
  * enrollment / drip settings) into the shapes the Forge Grow + Today screens
- * render. Unlock rules mirror src/pages/Library.tsx exactly: the first week
+ * render. Unlock rules mirror the original production app: the first week
  * is always open, the rest unlock by enrollment day offset (or all at once
  * in "immediate" drip mode).
  */
