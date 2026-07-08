@@ -23,3 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 dist-devbypass-regression
+
+# Local reminder notes, never committed
+TODO-HARDENING.md
