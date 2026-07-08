@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { logSystemError } from "../_shared/errorLogger.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -101,7 +102,11 @@ Deno.serve(async (req) => {
     });
 
     if (updateErr) {
-      console.error("Failed to set password:", updateErr.message);
+      await logSystemError({
+        functionName: "verify-code-set-password",
+        error: updateErr,
+        context: { stage: "updateUserById" },
+      });
       return new Response(JSON.stringify({ error: "Failed to set password" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -126,7 +131,11 @@ Deno.serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err: any) {
-    console.error("verify-code-set-password error:", err.message);
+    await logSystemError({
+      functionName: "verify-code-set-password",
+      error: err,
+      severity: "fatal",
+    });
     return new Response(JSON.stringify({ error: "Internal error" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },

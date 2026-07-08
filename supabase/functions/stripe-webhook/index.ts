@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { logSystemError } from "../_shared/errorLogger.ts";
 
 // Stripe webhook handler - processes subscription events
 // Verifies signatures, enforces idempotency, manages entitlements
@@ -181,7 +182,12 @@ serve(async (req) => {
     console.log("Event processed successfully:", event.id);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    console.error("Webhook processing error:", err);
+    await logSystemError({
+      functionName: "stripe-webhook",
+      error: err,
+      severity: "fatal",
+      context: { stripe_event_id: event.id, event_type: event.type },
+    });
     await supabase
       .from("webhook_events")
       .update({ status: "error", error_message: message, processed_at: new Date().toISOString() })
