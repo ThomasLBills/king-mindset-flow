@@ -40,7 +40,7 @@ const MessageComposer = ({ onSend, placeholder = "Type a message…" }: MessageC
         <div className="flex items-center gap-2 text-muted-foreground min-w-0">
           <Eye className="w-4 h-4 shrink-0" />
           <span className="text-sm truncate">
-            Read only — impersonating{" "}
+            Read only - impersonating{" "}
             <strong className="text-foreground">{name}</strong>
           </span>
         </div>
