@@ -61,26 +61,6 @@ const readAdminSnapshot = (): SavedSession | null => {
   }
 };
 
-// supabase.functions.invoke throws a FunctionsHttpError on non-2xx that hides
-// the response body behind `error.context` (a Response). Extract the JSON
-// error message from the edge function so toasts show the real reason.
-const extractInvokeError = async (
-  error: unknown,
-  fallback = "Impersonation failed",
-): Promise<string> => {
-  try {
-    const ctx = (error as { context?: Response }).context;
-    if (ctx && typeof ctx.clone === "function") {
-      const body = await ctx.clone().json().catch(() => null);
-      if (body?.error && typeof body.error === "string") return body.error;
-    }
-  } catch {
-    // ignore — fall through to message
-  }
-  const msg = (error as { message?: string })?.message;
-  return msg && msg !== "Edge Function returned a non-2xx status code" ? msg : fallback;
-};
-
 export const ImpersonationProvider = ({ children }: { children: ReactNode }) => {
   const [meta, setMeta] = useState<ImpersonationMeta | null>(() => readMeta());
   const stoppingRef = useRef(false);
@@ -101,9 +81,16 @@ export const ImpersonationProvider = ({ children }: { children: ReactNode }) => 
       });
     }
 
-    // 2. Snapshot current (admin) session BEFORE any auth swap.
-    const { data: sessionData, error: sessionErr } = await supabase.auth.getSession();
-    if (sessionErr || !sessionData.session) {
+    // 2. Force a token refresh so we send a guaranteed-fresh admin JWT.
+    //    A stale/expired token in localStorage is the usual cause of 401.
+    let { data: sessionData } = await supabase.auth.getSession();
+    if (sessionData.session?.refresh_token) {
+      const { data: refreshed } = await supabase.auth.refreshSession({
+        refresh_token: sessionData.session.refresh_token,
+      });
+      if (refreshed?.session) sessionData = { session: refreshed.session } as typeof sessionData;
+    }
+    if (!sessionData.session) {
       throw new Error("You must be signed in to impersonate a user.");
     }
     const adminSession: SavedSession = {
@@ -111,20 +98,28 @@ export const ImpersonationProvider = ({ children }: { children: ReactNode }) => 
       refresh_token: sessionData.session.refresh_token,
     };
 
-    // 3. Ask the edge function to mint a target session.
-    const { data, error } = await supabase.functions.invoke<{
+    // 3. Call the edge function via direct fetch so we can explicitly send
+    //    the fresh admin bearer token (invoke can send a stale one).
+    const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
+    const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string;
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/admin-impersonate`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${adminSession.access_token}`,
+      },
+      body: JSON.stringify({ action: "start", target_user_id: targetUserId }),
+    });
+    const data = (await res.json().catch(() => ({}))) as {
       access_token?: string;
       refresh_token?: string;
       expires_at?: number;
       target_profile?: ImpersonationTarget;
       error?: string;
-    }>("admin-impersonate", {
-      body: { action: "start", target_user_id: targetUserId },
-    });
-
-    if (error) {
-      const msg = await extractInvokeError(error);
-      throw new Error(data?.error ?? msg);
+    };
+    if (!res.ok) {
+      throw new Error(data?.error ?? `Impersonation failed (${res.status})`);
     }
     if (!data?.access_token || !data?.refresh_token || !data?.target_profile) {
       throw new Error(data?.error ?? "Impersonation response missing tokens.");
