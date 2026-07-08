@@ -1,15 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
-import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { Lock, ArrowRight, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import lkLogo from "@/assets/lk-logo-horizontal.png";
+import AuthLayout from "@/components/forge/AuthLayout";
+import { Eyebrow } from "@/components/forge/atoms";
 import PasswordStrengthMeter from "@/components/auth/PasswordStrengthMeter";
 import { evaluatePassword } from "@/lib/passwordStrength";
 
@@ -67,62 +66,54 @@ const ChangePassword = () => {
   };
 
   return (
-    <div className="min-h-dvh flex flex-col items-center justify-center px-4 bg-white">
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
-        <div className="flex justify-center mb-8">
-          <img src={lkLogo} alt="Liberated Kings" className="h-16 object-contain" />
+    <AuthLayout>
+      <Eyebrow tone="gold" className="mb-2 block">
+        One last step
+      </Eyebrow>
+      <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-bone">
+        Set your new password
+      </h1>
+      <p className="mb-8 mt-2 text-sm text-bone-2">
+        You signed in with a temporary password. Choose your own to continue.
+      </p>
+      <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+        <div className="space-y-2">
+          <Label htmlFor="new-password">New password</Label>
+          <Input
+            id="new-password"
+            type="password"
+            autoComplete="new-password"
+            placeholder="••••••••"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            minLength={10}
+          />
+          <PasswordStrengthMeter password={password} />
         </div>
-        <Card className="card-elevated border border-primary/40">
-          <CardHeader className="text-center">
-            <CardTitle className="font-serif text-2xl">Set Your New Password</CardTitle>
-            <CardDescription>
-              You signed in with a temporary password. Please choose a new password to continue.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="relative">
-                <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                <Input
-                  type="password"
-                  placeholder="New password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10"
-                  required
-                  minLength={10}
-                />
-              </div>
-              <PasswordStrengthMeter password={password} />
-              <div className="relative">
-                <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                <Input
-                  type="password"
-                  placeholder="Confirm new password"
-                  value={confirm}
-                  onChange={(e) => setConfirm(e.target.value)}
-                  className="pl-10"
-                  required
-                  minLength={10}
-                />
-              </div>
-              <Button
-                type="submit"
-                className="w-full"
-                size="lg"
-                disabled={
-                  loading ||
-                  !evaluatePassword(password).meetsRequirements ||
-                  password !== confirm
-                }
-              >
-                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <>Set Password <ArrowRight className="w-4 h-4" /></>}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-      </motion.div>
-    </div>
+        <div className="space-y-2">
+          <Label htmlFor="confirm-password">Confirm new password</Label>
+          <Input
+            id="confirm-password"
+            type="password"
+            autoComplete="new-password"
+            placeholder="••••••••"
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+            required
+            minLength={10}
+          />
+        </div>
+        <Button
+          type="submit"
+          className="w-full"
+          size="lg"
+          disabled={loading || !evaluatePassword(password).meetsRequirements || password !== confirm}
+        >
+          {loading ? "Setting password…" : "Set password"}
+        </Button>
+      </form>
+    </AuthLayout>
   );
 };
 

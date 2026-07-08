@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { Check } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Check, Loader2 } from "lucide-react";
-import lkIcon from "@/assets/lk-icon.png";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Eyebrow, SectionCard } from "@/components/forge/atoms";
+import { LkMonogram } from "@/components/forge/brand";
 
 const benefits = [
   "Daily check-ins to build evidence of your freedom",
@@ -96,18 +96,17 @@ const CheckoutButton = ({ plan, amountLabel }: { plan: PlanKey; amountLabel: str
 
   return (
     <div className="space-y-4">
-      <Button type="button" onClick={startCheckout} size="xl" className="w-full" disabled={submitting}>
-        {submitting ? (
-          <Loader2 className="w-5 h-5 animate-spin" />
-        ) : (
-          <>Continue to Pay {amountLabel}</>
-        )}
+      <Button type="button" onClick={startCheckout} size="lg" className="w-full" disabled={submitting}>
+        {submitting ? "Opening checkout…" : `Continue to pay ${amountLabel}`}
       </Button>
-      <p className="text-xs text-center text-muted-foreground">
-        Secure payment via Stripe. Cancel anytime.
-      </p>
+      <p className="text-center text-xs text-dim">Secure payment via Stripe. Cancel anytime.</p>
       {checkoutUrl && (
-        <a href={checkoutUrl} target="_blank" rel="noopener noreferrer" className="block text-center text-sm text-primary underline">
+        <a
+          href={checkoutUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block text-center text-sm text-gold underline underline-offset-4"
+        >
           Open secure checkout
         </a>
       )}
@@ -122,63 +121,83 @@ const Upgrade = () => {
   const amountLabel = plan === "monthly" ? "$7.95/mo" : "$69.95/yr";
 
   return (
-    <div className="min-h-dvh gradient-peace px-4 py-12">
-      <div className="max-w-lg mx-auto">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <div className="text-center mb-8">
-            <img src={lkIcon} alt="Liberated Kings" className="w-14 h-14 mx-auto mb-4" />
-            <h1 className="font-serif text-3xl font-bold mb-2">Continue Walking in Your Freedom.</h1>
-            <p className="text-muted-foreground">Keep your tools, brotherhood, and daily rhythm active.</p>
-          </div>
+    <div className="ember-bg min-h-dvh px-6 py-12">
+      <div className="mx-auto max-w-lg">
+        <div className="mb-8 text-center">
+          <LkMonogram className="mx-auto mb-4 h-11 w-14 text-gold" />
+          <Eyebrow tone="gold" className="mb-2 block">
+            Keep your ground
+          </Eyebrow>
+          <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-bone">
+            Continue walking in freedom
+          </h1>
+          <p className="mt-2 text-sm text-bone-2">
+            Keep your tools, your brotherhood, and your daily rhythm active.
+          </p>
+        </div>
 
-          <div className="flex gap-3 mb-6">
-            <button
-              onClick={() => setPlan("monthly")}
-              className={`flex-1 p-4 rounded-xl border-2 transition-all text-left ${plan === "monthly" ? "border-primary bg-primary/5" : "border-border"}`}
-            >
-              <p className="font-semibold">Monthly</p>
-              <p className="text-2xl font-bold font-serif">
-                $7.95<span className="text-sm font-normal text-muted-foreground">/mo</span>
-              </p>
-            </button>
-            <button
-              onClick={() => setPlan("annual")}
-              className={`flex-1 p-4 rounded-xl border-2 transition-all text-left relative ${plan === "annual" ? "border-primary bg-primary/5" : "border-border"}`}
-            >
-              <span className="absolute -top-2.5 right-3 bg-accent text-accent-foreground text-xs font-bold px-2 py-0.5 rounded-full">
-                Save 27%
-              </span>
-              <p className="font-semibold">Annual</p>
-              <p className="text-2xl font-bold font-serif">
-                $5.83<span className="text-sm font-normal text-muted-foreground">/mo</span>
-              </p>
-              <p className="text-xs text-muted-foreground">$69.95 billed annually</p>
-            </button>
-          </div>
-
-          <Card className="card-elevated mb-6">
-            <CardContent className="pt-6">
-              <ul className="space-y-2.5">
-                {benefits.map((b) => (
-                  <li key={b} className="flex items-center gap-3 text-sm">
-                    <Check className="w-4 h-4 text-primary shrink-0" />
-                    {b}
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-
-          <Card className="card-elevated mb-4">
-            <CardContent className="pt-6">
-              <CheckoutButton plan={plan} amountLabel={amountLabel} />
-            </CardContent>
-          </Card>
-
-          <button onClick={signOut} className="block mx-auto mt-4 text-sm text-muted-foreground hover:text-foreground">
-            Sign out
+        <div className="mb-6 flex gap-3">
+          <button
+            type="button"
+            onClick={() => setPlan("monthly")}
+            aria-pressed={plan === "monthly"}
+            className={cn(
+              "flex-1 rounded-lg border p-4 text-left transition-colors",
+              plan === "monthly"
+                ? "border-gold bg-gold/10"
+                : "border-line bg-raised hover:border-line-soft"
+            )}
+          >
+            <p className="font-display text-sm font-bold uppercase tracking-wide text-bone">Monthly</p>
+            <p className="font-display text-2xl font-bold text-bone">
+              $7.95<span className="text-sm font-normal text-dim">/mo</span>
+            </p>
           </button>
-        </motion.div>
+          <button
+            type="button"
+            onClick={() => setPlan("annual")}
+            aria-pressed={plan === "annual"}
+            className={cn(
+              "relative flex-1 rounded-lg border p-4 text-left transition-colors",
+              plan === "annual"
+                ? "border-gold bg-gold/10"
+                : "border-line bg-raised hover:border-line-soft"
+            )}
+          >
+            <span className="absolute -top-2.5 right-3 rounded-full bg-gold px-2 py-0.5 font-display text-[10px] font-bold uppercase tracking-wide text-primary-foreground">
+              Save 27%
+            </span>
+            <p className="font-display text-sm font-bold uppercase tracking-wide text-bone">Annual</p>
+            <p className="font-display text-2xl font-bold text-bone">
+              $5.83<span className="text-sm font-normal text-dim">/mo</span>
+            </p>
+            <p className="text-xs text-dim">$69.95 billed annually</p>
+          </button>
+        </div>
+
+        <SectionCard className="mb-6 p-5">
+          <Eyebrow className="mb-3 block">What stays yours</Eyebrow>
+          <ul className="space-y-2.5">
+            {benefits.map((b) => (
+              <li key={b} className="flex items-center gap-3 text-sm text-bone-2">
+                <Check className="h-4 w-4 shrink-0 text-gold" aria-hidden="true" />
+                {b}
+              </li>
+            ))}
+          </ul>
+        </SectionCard>
+
+        <SectionCard className="mb-4 p-5">
+          <CheckoutButton plan={plan} amountLabel={amountLabel} />
+        </SectionCard>
+
+        <button
+          type="button"
+          onClick={signOut}
+          className="mx-auto mt-4 block text-sm text-dim underline-offset-4 transition-colors hover:text-bone-2 hover:underline"
+        >
+          Sign out
+        </button>
       </div>
     </div>
   );

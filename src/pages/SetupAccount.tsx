@@ -1,14 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
-import { Mail, Lock, KeyRound, Loader2, ArrowRight, ArrowLeft, RefreshCw, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import lkLogo from "@/assets/lk-logo-horizontal.png";
+import AuthLayout from "@/components/forge/AuthLayout";
+import { Eyebrow } from "@/components/forge/atoms";
 import PasswordStrengthMeter from "@/components/auth/PasswordStrengthMeter";
 import { evaluatePassword } from "@/lib/passwordStrength";
 
@@ -88,127 +87,128 @@ const SetupAccount = () => {
   // --- Expired code state ---
   if (pageState === "expired") {
     return (
-      <div className="min-h-dvh flex flex-col items-center justify-center px-4 bg-white">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
-          <div className="flex justify-center mb-8">
-            <img src={lkLogo} alt="Liberated Kings" className="h-16 object-contain" />
-          </div>
-          <Card className="card-elevated border border-primary/40">
-            <CardContent className="pt-8 pb-8 text-center space-y-4">
-              <AlertTriangle className="w-12 h-12 text-primary mx-auto" />
-              <p className="font-serif text-xl font-semibold">Code Expired</p>
-              <p className="text-sm text-muted-foreground">
-                Your verification code has expired. Click below to receive a new one.
-              </p>
-              <Button onClick={handleResendCode} className="w-full" size="lg" disabled={resending}>
-                {resending ? <Loader2 className="w-4 h-4 animate-spin" /> : <><RefreshCw className="w-4 h-4 mr-2" /> Resend Code</>}
-              </Button>
-              <button type="button" onClick={() => navigate("/login")} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                <ArrowLeft className="w-3 h-3 inline mr-1" /> Back to login
-              </button>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </div>
+      <AuthLayout>
+        <Eyebrow className="mb-2 block">Verification</Eyebrow>
+        <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-bone">
+          Code expired
+        </h1>
+        <p className="mb-8 mt-2 text-sm text-bone-2">
+          That code timed out — they don't last long, on purpose. Send yourself a fresh one.
+        </p>
+        <Button onClick={handleResendCode} className="w-full" size="lg" disabled={resending}>
+          {resending ? "Sending…" : "Resend code"}
+        </Button>
+        <p className="mt-6 text-sm">
+          <button
+            type="button"
+            onClick={() => navigate("/login")}
+            className="text-dim underline-offset-4 transition-colors hover:text-bone-2 hover:underline"
+          >
+            Back to sign in
+          </button>
+        </p>
+      </AuthLayout>
     );
   }
 
   // --- Main form ---
   return (
-    <div className="min-h-dvh flex flex-col items-center justify-center px-4 bg-white">
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
-        <div className="flex justify-center mb-8">
-          <img src={lkLogo} alt="Liberated Kings" className="h-16 object-contain" />
+    <AuthLayout>
+      <Eyebrow tone="gold" className="mb-2 block">
+        Bought the course
+      </Eyebrow>
+      <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-bone">
+        Set up your account
+      </h1>
+      <p className="mb-8 mt-2 text-sm text-bone-2">
+        Enter the verification code from your email and choose a password.
+      </p>
+      <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+        <div className="space-y-2">
+          <Label htmlFor="setup-email">Email</Label>
+          <Input
+            id="setup-email"
+            type="email"
+            autoComplete="email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
         </div>
-        <Card className="card-elevated border border-primary/40">
-          <CardHeader className="text-center">
-            <CardTitle className="font-serif text-2xl">Create Your Account</CardTitle>
-            <CardDescription>Enter the verification code from your email and choose a password.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="relative">
-                <Mail className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                <Input
-                  type="email"
-                  placeholder="your@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10"
-                  required
-                />
-              </div>
-              <div className="relative">
-                <KeyRound className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                <Input
-                  type="text"
-                  inputMode="numeric"
-                  pattern="[0-9]{6}"
-                  maxLength={6}
-                  placeholder="6-digit verification code"
-                  value={code}
-                  onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                  className="pl-10 text-center tracking-[0.3em] font-mono text-lg"
-                  required
-                />
-              </div>
-              <div className="relative">
-                <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                <Input
-                  type="password"
-                  placeholder="Create a strong password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10"
-                  required
-                  minLength={10}
-                />
-              </div>
-              <PasswordStrengthMeter password={password} />
-              <div className="relative">
-                <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                <Input
-                  type="password"
-                  placeholder="Confirm password"
-                  value={confirm}
-                  onChange={(e) => setConfirm(e.target.value)}
-                  className="pl-10"
-                  required
-                  minLength={10}
-                />
-              </div>
-              <Button
-                type="submit"
-                className="w-full"
-                size="lg"
-                disabled={
-                  pageState === "submitting" ||
-                  !evaluatePassword(password).meetsRequirements ||
-                  password !== confirm
-                }
-              >
-                {pageState === "submitting" ? <Loader2 className="w-4 h-4 animate-spin" /> : <>Create Account <ArrowRight className="w-4 h-4" /></>}
-              </Button>
-            </form>
-            <div className="mt-4 space-y-2 text-center">
-              <button
-                type="button"
-                onClick={handleResendCode}
-                disabled={resending}
-                className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-              >
-                {resending ? "Sending..." : "Didn't get a code? Resend it"}
-              </button>
-              <div>
-                <button type="button" onClick={() => navigate("/login")} className="text-xs text-muted-foreground hover:text-foreground transition-colors">
-                  <ArrowLeft className="w-3 h-3 inline mr-1" /> Back to login
-                </button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
-    </div>
+        <div className="space-y-2">
+          <Label htmlFor="setup-code">Verification code</Label>
+          <Input
+            id="setup-code"
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]{6}"
+            maxLength={6}
+            placeholder="000000"
+            value={code}
+            onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+            className="text-center font-mono text-lg tracking-[0.4em]"
+            required
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="setup-password">Password</Label>
+          <Input
+            id="setup-password"
+            type="password"
+            autoComplete="new-password"
+            placeholder="Create a strong password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            minLength={10}
+          />
+          <PasswordStrengthMeter password={password} />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="setup-confirm">Confirm password</Label>
+          <Input
+            id="setup-confirm"
+            type="password"
+            autoComplete="new-password"
+            placeholder="••••••••"
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+            required
+            minLength={10}
+          />
+        </div>
+        <Button
+          type="submit"
+          className="w-full"
+          size="lg"
+          disabled={
+            pageState === "submitting" ||
+            !evaluatePassword(password).meetsRequirements ||
+            password !== confirm
+          }
+        >
+          {pageState === "submitting" ? "Creating account…" : "Create account"}
+        </Button>
+      </form>
+      <div className="mt-6 flex items-center justify-between text-sm">
+        <button
+          type="button"
+          onClick={handleResendCode}
+          disabled={resending}
+          className="text-dim underline-offset-4 transition-colors hover:text-bone-2 hover:underline disabled:opacity-60"
+        >
+          {resending ? "Sending…" : "Didn't get a code? Resend it"}
+        </button>
+        <button
+          type="button"
+          onClick={() => navigate("/login")}
+          className="text-dim underline-offset-4 transition-colors hover:text-bone-2 hover:underline"
+        >
+          Back to sign in
+        </button>
+      </div>
+    </AuthLayout>
   );
 };
 

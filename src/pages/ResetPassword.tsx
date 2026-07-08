@@ -1,13 +1,13 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
-import { Lock, Loader2, CheckCircle, AlertTriangle, Copy } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import lkLogo from "@/assets/lk-logo-horizontal.png";
+import AuthLayout from "@/components/forge/AuthLayout";
+import { Eyebrow } from "@/components/forge/atoms";
 import PasswordStrengthMeter from "@/components/auth/PasswordStrengthMeter";
 import { evaluatePassword } from "@/lib/passwordStrength";
 
@@ -129,143 +129,126 @@ const ResetPassword = () => {
   // --- Loading ---
   if (pageState === "loading") {
     return (
-      <div className="min-h-dvh flex flex-col items-center justify-center px-4 bg-white">
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="w-full max-w-md text-center">
-          <div className="flex justify-center mb-8">
-            <img src={lkLogo} alt="Liberated Kings" className="h-16 object-contain" />
-          </div>
-          <Card className="card-elevated border border-primary/40">
-            <CardContent className="pt-8 pb-8 text-center space-y-4">
-              <Loader2 className="w-10 h-10 animate-spin text-primary mx-auto" />
-              <p className="font-serif text-xl font-semibold">Verifying your link...</p>
-              <p className="text-sm text-muted-foreground">Please wait while we verify your reset link.</p>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </div>
+      <AuthLayout>
+        <Loader2 className="mb-5 h-8 w-8 animate-spin text-gold motion-reduce:animate-none" aria-hidden="true" />
+        <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-bone">
+          Verifying your link
+        </h1>
+        <p className="mt-2 text-sm text-bone-2">Hold on — confirming your reset link is valid.</p>
+      </AuthLayout>
     );
   }
 
   // --- No token ---
   if (pageState === "no-token") {
     return (
-      <div className="min-h-dvh flex flex-col items-center justify-center px-4 bg-white">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
-          <div className="flex justify-center mb-8">
-            <img src={lkLogo} alt="Liberated Kings" className="h-16 object-contain" />
-          </div>
-          <Card className="card-elevated border border-primary/40">
-            <CardContent className="pt-8 pb-8 text-center space-y-4">
-              <AlertTriangle className="w-12 h-12 text-primary mx-auto" />
-              <p className="font-serif text-xl font-semibold">Open in Your Browser</p>
-              <p className="text-sm text-muted-foreground">
-                For the best experience, please open this link in Safari or Chrome. Email apps can sometimes prevent the link from working properly.
-              </p>
-              <Button onClick={handleCopyLink} className="w-full" size="lg">
-                {copied ? (
-                  <><CheckCircle className="w-4 h-4 mr-2" /> Link Copied!</>
-                ) : (
-                  <><Copy className="w-4 h-4 mr-2" /> Copy Link to Clipboard</>
-                )}
-              </Button>
-              <p className="text-xs text-muted-foreground">
-                After copying, open Safari or Chrome and paste the link in the address bar.
-              </p>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </div>
+      <AuthLayout>
+        <Eyebrow className="mb-2 block">Reset link</Eyebrow>
+        <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-bone">
+          Open in your browser
+        </h1>
+        <p className="mb-8 mt-2 text-sm text-bone-2">
+          For this to work, open the link in Safari or Chrome. Email apps sometimes block it. Copy
+          the link, then paste it into your browser's address bar.
+        </p>
+        <Button onClick={handleCopyLink} className="w-full" size="lg">
+          {copied ? "Link copied" : "Copy link to clipboard"}
+        </Button>
+      </AuthLayout>
     );
   }
 
   // --- Error / expired ---
   if (pageState === "error") {
     return (
-      <div className="min-h-dvh flex flex-col items-center justify-center px-4 bg-white">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
-          <div className="flex justify-center mb-8">
-            <img src={lkLogo} alt="Liberated Kings" className="h-16 object-contain" />
-          </div>
-          <Card className="card-elevated border border-primary/40">
-            <CardContent className="pt-8 pb-8 text-center space-y-4">
-              <AlertTriangle className="w-12 h-12 text-destructive mx-auto" />
-              <p className="font-serif text-xl font-semibold">Link Expired</p>
-              <p className="text-sm text-muted-foreground">
-                This reset link has expired or is no longer valid. Please request a new one from the login page.
-              </p>
-              <Button variant="outline" onClick={() => navigate("/forgot-password", { replace: true })} className="w-full" size="lg">
-                Request New Link
-              </Button>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </div>
+      <AuthLayout>
+        <Eyebrow className="mb-2 block">Reset link</Eyebrow>
+        <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-bone">
+          Link expired
+        </h1>
+        <p className="mb-8 mt-2 text-sm text-bone-2">
+          This reset link has expired or is no longer valid. Request a fresh one and we'll send it
+          straight over.
+        </p>
+        <Button
+          variant="outline"
+          className="w-full"
+          size="lg"
+          onClick={() => navigate("/forgot-password", { replace: true })}
+        >
+          Request a new link
+        </Button>
+      </AuthLayout>
     );
   }
 
   // --- Done ---
   if (pageState === "done") {
     return (
-      <div className="min-h-dvh flex flex-col items-center justify-center px-4 bg-white">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
-          <div className="flex justify-center mb-8">
-            <img src={lkLogo} alt="Liberated Kings" className="h-16 object-contain" />
-          </div>
-          <Card className="card-elevated border border-primary/40">
-            <CardContent className="pt-8 pb-8 text-center space-y-4">
-              <CheckCircle className="w-12 h-12 text-success mx-auto" />
-              <p className="font-serif text-xl font-semibold">Password Updated</p>
-              <p className="text-sm text-muted-foreground">Sign in to continue.</p>
-              <Button onClick={() => navigate("/login?message=Password+updated.+Sign+in+to+continue.", { replace: true })} className="w-full" size="lg">
-                Go to Login
-              </Button>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </div>
+      <AuthLayout>
+        <Eyebrow tone="gold" className="mb-2 block">
+          All set
+        </Eyebrow>
+        <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-bone">
+          Password updated
+        </h1>
+        <p className="mb-8 mt-2 text-sm text-bone-2">Sign in with your new password to continue.</p>
+        <Button
+          className="w-full"
+          size="lg"
+          onClick={() => navigate("/login?message=Password+updated.+Sign+in+to+continue.", { replace: true })}
+        >
+          Go to sign in
+        </Button>
+      </AuthLayout>
     );
   }
 
   // --- Ready: password form ---
   return (
-    <div className="min-h-dvh flex flex-col items-center justify-center px-4 bg-white">
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
-        <div className="flex justify-center mb-8">
-          <img src={lkLogo} alt="Liberated Kings" className="h-16 object-contain" />
+    <AuthLayout>
+      <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-bone">
+        Reset your password
+      </h1>
+      <p className="mb-8 mt-2 text-sm text-bone-2">Enter your new password below.</p>
+      <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+        <div className="space-y-2">
+          <Label htmlFor="reset-password">New password</Label>
+          <Input
+            id="reset-password"
+            type="password"
+            autoComplete="new-password"
+            placeholder="••••••••"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            minLength={10}
+          />
+          <PasswordStrengthMeter password={password} />
         </div>
-        <Card className="card-elevated border border-primary/40">
-          <CardHeader className="text-center">
-            <CardTitle className="font-serif text-2xl">Reset Your Password</CardTitle>
-            <CardDescription>Enter your new password below.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="relative">
-                <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                <Input type="password" placeholder="New password" value={password} onChange={(e) => setPassword(e.target.value)} className="pl-10" required minLength={10} />
-              </div>
-              <PasswordStrengthMeter password={password} />
-              <div className="relative">
-                <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                <Input type="password" placeholder="Confirm password" value={confirm} onChange={(e) => setConfirm(e.target.value)} className="pl-10" required minLength={10} />
-              </div>
-              <Button
-                type="submit"
-                className="w-full"
-                size="lg"
-                disabled={
-                  saving ||
-                  !evaluatePassword(password).meetsRequirements ||
-                  password !== confirm
-                }
-              >
-                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Update Password"}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-      </motion.div>
-    </div>
+        <div className="space-y-2">
+          <Label htmlFor="reset-confirm">Confirm password</Label>
+          <Input
+            id="reset-confirm"
+            type="password"
+            autoComplete="new-password"
+            placeholder="••••••••"
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+            required
+            minLength={10}
+          />
+        </div>
+        <Button
+          type="submit"
+          className="w-full"
+          size="lg"
+          disabled={saving || !evaluatePassword(password).meetsRequirements || password !== confirm}
+        >
+          {saving ? "Updating…" : "Update password"}
+        </Button>
+      </form>
+    </AuthLayout>
   );
 };
 

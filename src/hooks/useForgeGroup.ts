@@ -4,8 +4,8 @@
  *
  * Tables: groups / group_members / prayer_requests / prayer_request_strength
  * (migrations 20260709*; not yet in generated types.ts, hence the casts).
- * The outreach message itself is composed over the existing chat DMs, same
- * find-or-create pattern as components/brotherhood/ReachOut.tsx.
+ * The outreach message itself is composed over the existing chat DMs, using
+ * the standard find-or-create conversation pattern.
  *
  * Falls back to the member's accepted 1:1 brotherhood connections when no
  * named group exists, so the UI stays alive for ungrouped members.
