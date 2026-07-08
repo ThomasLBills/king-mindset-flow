@@ -21,11 +21,31 @@ Deno.serve(async (req) => {
       });
     }
 
-    if (typeof password !== "string" || password.length < 6) {
-      return new Response(JSON.stringify({ error: "Password must be at least 6 characters" }), {
+    if (typeof password !== "string") {
+      return new Response(JSON.stringify({ error: "Password must be a string" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
+
+    // Server-side strength backstop (mirrors src/lib/passwordStrength.ts).
+    const strong =
+      password.length >= 10 &&
+      /[A-Z]/.test(password) &&
+      /[a-z]/.test(password) &&
+      /[0-9]/.test(password) &&
+      /[^A-Za-z0-9]/.test(password);
+    if (!strong) {
+      return new Response(
+        JSON.stringify({
+          error:
+            "Password not strong enough. Use 10+ characters with an uppercase letter, a number, and a symbol (like #).",
+        }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
     }
 
     const normalizedEmail = email.trim().toLowerCase();
