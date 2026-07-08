@@ -81,6 +81,7 @@ assert_exit_and_label "no-service-key" 0 "SKIPPED" "${RC1}" "${OUT1}"
 # --- Scenario 2: service key set but URL/anon missing → MISCONFIGURED / exit 2 ---
 SCRATCH2="$(mktemp -d)"
 OUT2="$(cd "${SCRATCH2}" && env -i HOME="${HOME}" PATH="${PATH}" \
+  SKIP_DOTENV=1 \
   SUPABASE_SERVICE_ROLE_KEY="fake-service-role-for-meta-test" \
   bash "${RUNNER}" 2>&1)"
 RC2=$?
@@ -94,6 +95,7 @@ assert_exit_and_label "service-key-without-url-or-anon" 2 "MISCONFIGURED" "${RC2
 EMPTY_BIN="$(mktemp -d)"
 SCRATCH3="$(mktemp -d)"
 OUT3="$(cd "${SCRATCH3}" && env -i HOME="${HOME}" PATH="${EMPTY_BIN}:/usr/bin:/bin" \
+  SKIP_DOTENV=1 \
   SUPABASE_SERVICE_ROLE_KEY="fake-service-role-for-meta-test" \
   SUPABASE_URL="https://example.supabase.co" \
   SUPABASE_ANON_KEY="fake-anon-for-meta-test" \
