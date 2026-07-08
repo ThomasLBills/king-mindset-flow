@@ -48,10 +48,12 @@ export function useDMs() {
         if (!data) { setLoading(false); return; }
         const otherIds = data.map(d => d.user_a === user.id ? d.user_b : d.user_a);
         const { data: profiles } = await supabase
-          .from("profiles")
-          .select("user_id, display_name, first_name")
-          .in("user_id", otherIds);
-        const profileMap = new Map(profiles?.map(p => [p.user_id, p.display_name || p.first_name || "User"]));
+          .rpc("get_profiles_directory", { _user_ids: otherIds });
+        const profileMap = new Map(
+          (profiles ?? []).map((p: { user_id: string; display_name: string | null; first_name: string | null }) =>
+            [p.user_id, p.display_name || p.first_name || "User"] as const
+          )
+        );
         setDMs(data.map(d => ({
           ...d,
           otherName: profileMap.get(d.user_a === user.id ? d.user_b : d.user_a) || "User",
@@ -89,10 +91,8 @@ export function useMessages(target: ChatTarget | null, ready = true) {
     const orderedMessages = [...data].reverse();
     const userIds = [...new Set(orderedMessages.map(m => m.user_id))];
     const { data: profiles } = await supabase
-      .from("profiles")
-      .select("user_id, display_name, first_name, avatar_url")
-      .in("user_id", userIds);
-    const profileMap = new Map(profiles?.map(p => [p.user_id, p]));
+      .rpc("get_profiles_directory", { _user_ids: userIds });
+    const profileMap = new Map((profiles ?? []).map((p: any) => [p.user_id, p] as const));
 
     setMessages(orderedMessages.map(m => ({
       ...m,
@@ -117,11 +117,9 @@ export function useMessages(target: ChatTarget | null, ready = true) {
           : `dm_id=eq.${target.id}`,
       }, async (payload) => {
         const msg = payload.new as Message;
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("user_id, display_name, first_name, avatar_url")
-          .eq("user_id", msg.user_id)
-          .single();
+        const { data: profiles } = await supabase
+          .rpc("get_profiles_directory", { _user_ids: [msg.user_id] });
+        const profile = profiles?.[0];
         setMessages(prev => [...prev, { ...msg, profile: profile ?? undefined }]);
       })
       .on("postgres_changes", {

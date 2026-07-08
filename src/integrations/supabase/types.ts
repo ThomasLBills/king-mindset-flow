@@ -1600,6 +1600,15 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_profiles_directory: {
+        Args: { _user_ids: string[] }
+        Returns: {
+          avatar_url: string
+          display_name: string
+          first_name: string
+          user_id: string
+        }[]
+      }
       has_active_entitlement: {
         Args: { _type?: string; _user_id: string }
         Returns: boolean
@@ -1610,6 +1619,15 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      search_profiles_directory: {
+        Args: { _query: string }
+        Returns: {
+          avatar_url: string
+          display_name: string
+          first_name: string
+          user_id: string
+        }[]
       }
     }
     Enums: {
