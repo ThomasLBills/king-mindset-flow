@@ -28,11 +28,9 @@ const EntitlementGuard = ({ children }: { children: React.ReactNode }) => {
     return <Navigate to="/login" replace />;
   }
 
-  // Paywall is currently disabled — Stripe payments are not live yet.
-  // Do not redirect unentitled users to /upgrade. Re-enable this check
-  // when billing goes live.
-  void isEntitled;
-  void isAdmin;
+  if (!isEntitled && !isAdmin) {
+    return <Navigate to="/upgrade" replace />;
+  }
 
   return <>{children}</>;
 };
