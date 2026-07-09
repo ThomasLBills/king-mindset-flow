@@ -482,7 +482,7 @@ const Brotherhood = () => {
     );
 
   return (
-    <PageBackdrop className="mx-auto max-w-6xl px-5 py-7 sm:px-8">
+    <PageBackdrop className="mx-auto max-w-3xl px-5 py-7 sm:px-8">
       <header className="mb-5">
         <Eyebrow className="mb-1 block">Never fight alone</Eyebrow>
         <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-bone">

@@ -204,8 +204,8 @@ const Today = () => {
       <div className="relative flex flex-col xl:flex-row">
         <div className="min-w-0 flex-1">
           {/* Greeting hero */}
-          <div className="relative px-5 pb-6 pt-8 sm:px-8 lg:pt-10">
-            <div className="relative mx-auto max-w-[760px]">
+          <div className="relative mx-auto max-w-3xl px-5 pb-6 pt-8 sm:px-8 lg:pt-10">
+            <div className="relative">
               {currentWeek && (
                 <p className="mb-1.5">
                   <Eyebrow>Week {currentWeek.number} of {totalWeeks}</Eyebrow>{" "}
@@ -220,7 +220,7 @@ const Today = () => {
             </div>
           </div>
 
-          <div className="mx-auto flex w-full max-w-[760px] flex-col gap-4 px-5 pb-10 sm:px-8">
+          <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-5 pb-10 sm:px-8">
             {!path ? (
               <>
                 <Skeleton className="h-48 w-full" />
