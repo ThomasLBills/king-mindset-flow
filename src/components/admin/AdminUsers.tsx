@@ -385,7 +385,10 @@ const AdminUsers = () => {
           }
           rowActionsHeader={<span className="sr-only">Actions</span>}
           rowActions={(u) => (
-            <DropdownMenu>
+            // modal={false}: a modal dropdown locks body scroll (react-remove-scroll)
+            // and pads the body to compensate for the hidden scrollbar, which shoves
+            // the layout sideways. A menu needs no scroll lock. Matches AppShell.
+            <DropdownMenu modal={false}>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="h-8 w-8" aria-label={`Actions for ${u.email}`}>
                   {impersonatingId === u.user_id ? (
