@@ -34,4 +34,12 @@ describe("toCsv", () => {
   it("renders null/undefined as empty", () => {
     expect(toCsv(["a"], [[null], [undefined]])).toBe("a\r\n\r\n");
   });
+  it("neutralizes spreadsheet formula injection", () => {
+    // Leading = + - @ get a quote prefix; the =...() also contains no comma so
+    // it is not additionally wrapped.
+    expect(toCsv(["a"], [["=1+1"]])).toBe("a\r\n'=1+1");
+    expect(toCsv(["a"], [["@SUM(A1)"]])).toBe("a\r\n'@SUM(A1)");
+    // A benign leading char is untouched.
+    expect(toCsv(["a"], [["hello"]])).toBe("a\r\nhello");
+  });
 });

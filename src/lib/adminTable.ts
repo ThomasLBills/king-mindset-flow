@@ -26,9 +26,13 @@ export function buildOrIlike(columns: string[], term: string): string {
   return columns.map((c) => `${c}.ilike.%${t}%`).join(",");
 }
 
-/** RFC-4180-ish CSV cell: quote when it contains a comma, quote or newline. */
+/** RFC-4180-ish CSV cell, hardened against spreadsheet formula injection. */
 function csvCell(value: unknown): string {
-  const s = value == null ? "" : String(value);
+  let s = value == null ? "" : String(value);
+  // Formula injection: a cell that starts with = + - @ (or a control char that
+  // some parsers strip to reach one) can execute when opened in Excel/Sheets.
+  // Neutralize by prefixing a single quote, the standard mitigation.
+  if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`;
   return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 
