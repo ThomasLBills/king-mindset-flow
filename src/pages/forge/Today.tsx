@@ -63,7 +63,7 @@ const Standing = ({ covenant }: { covenant: CovenantRow | null | undefined }) =>
         <>
           <p className="font-serif text-2xl italic leading-snug text-bone">“{why}”</p>
           <p className="mt-3 text-sm text-bone-2">
-            This is what you're standing for. Not a streak to protect, but a life to live.
+            This is what you're standing for. Live it today.
           </p>
         </>
       ) : (
