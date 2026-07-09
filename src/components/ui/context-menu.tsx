@@ -4,7 +4,15 @@ import { Check, ChevronRight, Circle } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
-const ContextMenu = ContextMenuPrimitive.Root;
+// Non-modal by default, same rationale as DropdownMenu: a modal Radix menu
+// locks body scroll (react-remove-scroll) and shifts the layout on open.
+const ContextMenu = ({
+  modal = false,
+  ...props
+}: React.ComponentProps<typeof ContextMenuPrimitive.Root>) => (
+  <ContextMenuPrimitive.Root modal={modal} {...props} />
+);
+ContextMenu.displayName = "ContextMenu";
 
 const ContextMenuTrigger = ContextMenuPrimitive.Trigger;
 

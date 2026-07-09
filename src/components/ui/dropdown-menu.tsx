@@ -4,7 +4,20 @@ import { Check, ChevronRight, Circle } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
-const DropdownMenu = DropdownMenuPrimitive.Root;
+/**
+ * Default every dropdown menu to non-modal. A modal Radix menu engages
+ * react-remove-scroll's body scroll-lock, which reserves scrollbar-width
+ * padding on the body and shoves the whole layout sideways the moment the menu
+ * opens. Menus never need scroll lock, so this is safe app-wide; a caller that
+ * genuinely wants modal behavior can still pass `modal` explicitly.
+ */
+const DropdownMenu = ({
+  modal = false,
+  ...props
+}: React.ComponentProps<typeof DropdownMenuPrimitive.Root>) => (
+  <DropdownMenuPrimitive.Root modal={modal} {...props} />
+);
+DropdownMenu.displayName = "DropdownMenu";
 
 const DropdownMenuTrigger = DropdownMenuPrimitive.Trigger;
 
