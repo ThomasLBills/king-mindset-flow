@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { logAdminAudit } from "@/lib/adminAudit";
 import { Eyebrow, SectionCard } from "@/components/forge/atoms";
 
 const AdminSettings = () => {
@@ -32,6 +33,7 @@ const AdminSettings = () => {
     mutationFn: async ({ key, value }: { key: string; value: any }) => {
       const { error } = await supabase.from("app_settings").upsert({ key, value }, { onConflict: "key" });
       if (error) throw error;
+      await logAdminAudit({ action: "update", entityType: "app_settings", entityId: key, after: { value } });
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["app-settings"] });

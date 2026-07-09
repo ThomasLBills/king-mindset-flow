@@ -1,20 +1,35 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
 import { useAnnouncements, useSaveAnnouncement } from "@/hooks/useAdminCurriculum";
-import { Eyebrow, SectionCard } from "@/components/forge/atoms";
-import { LkMonogram } from "@/components/forge/brand";
+import { Eyebrow } from "@/components/forge/atoms";
+import { AdminList, type AdminColumn } from "@/components/admin/AdminList";
+
+type Announcement = {
+  id: string;
+  title: string;
+  body: string;
+  scope: string;
+  status: string;
+  created_at: string;
+  published_at: string | null;
+};
+
+const dateOf = (a: Announcement) => a.published_at ?? a.created_at;
+const formatDate = (a: Announcement) => new Date(dateOf(a)).toLocaleDateString();
 
 const AdminAnnouncements = () => {
-  const { data: announcements, isLoading } = useAnnouncements();
+  const { data: announcements, isLoading, isError, refetch } = useAnnouncements();
   const saveAnnouncement = useSaveAnnouncement();
   const [editDialog, setEditDialog] = useState<any>(null);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
 
   const handleSave = async () => {
     if (!editDialog.title || !editDialog.body) return;
@@ -24,54 +39,95 @@ const AdminAnnouncements = () => {
     setEditDialog(null);
   };
 
+  // Announcements are few, so filter/search client-side over the created_at-desc
+  // list the query already returns (no server pagination).
+  const rows = useMemo<Announcement[]>(() => {
+    const list = (announcements ?? []) as Announcement[];
+    const q = search.trim().toLowerCase();
+    return list.filter(
+      (a) =>
+        (statusFilter === "all" || a.status === statusFilter) &&
+        (!q || a.title.toLowerCase().includes(q)),
+    );
+  }, [announcements, search, statusFilter]);
+
+  const columns: AdminColumn<Announcement>[] = [
+    {
+      id: "title",
+      header: "Title",
+      truncate: true,
+      csv: (a) => a.title,
+      cell: (a) => <span className="font-display text-sm font-bold tracking-tight text-bone">{a.title}</span>,
+    },
+    {
+      id: "scope",
+      header: "Scope",
+      csv: (a) => a.scope,
+      cell: (a) => <Badge variant="outline" className="capitalize">{a.scope}</Badge>,
+    },
+    {
+      id: "status",
+      header: "Status",
+      csv: (a) => a.status,
+      cell: (a) => <Badge variant={a.status === "published" ? "default" : "secondary"} className="capitalize">{a.status}</Badge>,
+    },
+    {
+      id: "date",
+      header: "Date",
+      csv: (a) => formatDate(a),
+      cell: (a) => <span className="whitespace-nowrap text-sm text-dim tabular-nums">{formatDate(a)}</span>,
+    },
+  ];
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between gap-4">
-        <header>
-          <Eyebrow className="mb-1 block">Announcements</Eyebrow>
-          <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-bone">
-            Speak to the camp
-          </h1>
-          <p className="mt-1 text-sm text-dim">Publish updates for the brothers.</p>
-        </header>
-        <Button onClick={() => setEditDialog({ title: "", body: "", scope: "global", status: "draft" })} className="gap-2">
-          <Plus className="h-4 w-4" aria-hidden="true" /> New
-        </Button>
-      </div>
+      <header>
+        <Eyebrow className="mb-1 block">Announcements</Eyebrow>
+        <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-bone">
+          Speak to the camp
+        </h1>
+        <p className="mt-1 text-sm text-dim">Publish updates for the brothers.</p>
+      </header>
 
-      {isLoading ? (
-        <div className="space-y-3">
-          <Skeleton className="h-20 w-full" />
-          <Skeleton className="h-20 w-full" />
-          <Skeleton className="h-20 w-full" />
-        </div>
-      ) : !(announcements || []).length ? (
-        <SectionCard className="p-12 text-center">
-          <LkMonogram className="mx-auto mb-3 h-10 w-14 opacity-70" />
-          <p className="text-sm text-dim">No announcements yet. Write the first one to reach the camp.</p>
-        </SectionCard>
-      ) : (
-        <div className="space-y-3">
-          {announcements!.map((a) => (
-            <SectionCard
-              key={a.id}
-              className="cursor-pointer p-4 transition-colors hover:bg-raised-2"
-              onClick={() => setEditDialog(a)}
-            >
-              <div className="flex items-center justify-between gap-4">
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <h3 className="truncate font-display text-base font-bold tracking-tight text-bone">{a.title}</h3>
-                    <Badge variant={a.status === "published" ? "default" : "secondary"}>{a.status}</Badge>
-                  </div>
-                  <p className="mt-0.5 truncate text-sm text-dim">{a.body.slice(0, 80)}</p>
-                </div>
-                <span className="shrink-0 text-xs text-dim">{new Date(a.created_at).toLocaleDateString()}</span>
-              </div>
-            </SectionCard>
-          ))}
-        </div>
-      )}
+      <AdminList<Announcement>
+        caption="Member announcements"
+        noun="announcements"
+        columns={columns}
+        rows={rows}
+        getRowId={(a) => a.id}
+        isLoading={isLoading}
+        isError={isError}
+        onRetry={refetch}
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Search by title..."
+        csvFilename="announcements"
+        emptyTitle="No announcements yet"
+        emptyHint="Write the first one to reach the camp."
+        filters={
+          <div>
+            <Label htmlFor="announcement-status" className="sr-only">Filter by status</Label>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger id="announcement-status" className="w-40">
+                <SelectValue placeholder="All statuses" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All statuses</SelectItem>
+                <SelectItem value="published">Published</SelectItem>
+                <SelectItem value="draft">Draft</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        }
+        toolbarActions={
+          <Button onClick={() => setEditDialog({ title: "", body: "", scope: "global", status: "draft" })} className="gap-2">
+            <Plus className="h-4 w-4" aria-hidden="true" /> New
+          </Button>
+        }
+        rowActions={(a) => (
+          <Button size="sm" variant="outline" onClick={() => setEditDialog(a)}>Edit</Button>
+        )}
+      />
 
       <Dialog open={!!editDialog} onOpenChange={(o) => !o && setEditDialog(null)}>
         <DialogContent>
