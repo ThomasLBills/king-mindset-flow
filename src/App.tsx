@@ -118,6 +118,9 @@ const ScrollToTop = () => {
   // and an implicit return would hand React a non-function "cleanup" that
   // crashes the tree on the next navigation.
   useEffect(() => {
+    // The member shell scrolls inside #app-scroll, not the document, so reset
+    // both: the container for /app routes, the window for everything else.
+    document.getElementById("app-scroll")?.scrollTo?.(0, 0);
     window.scrollTo(0, 0);
   }, [pathname]);
   return null;

@@ -210,9 +210,16 @@ const MobileTabBar = () => {
 };
 
 const AppShell = () => (
-  <div className="min-h-dvh bg-background lg:flex">
+  // The content column - not the document - is the scroll container, and it
+  // reserves its scrollbar gutter (scrollbar-gutter: stable). That keeps the
+  // column a constant width whether or not a page scrolls, so the shared page
+  // backdrop no longer shifts a few px when moving between short pages
+  // (Brotherhood) and tall ones (Today/Grow/Profile). Because the document
+  // itself never scrolls, Radix dialogs have no document scrollbar to
+  // compensate for, so they don't shift the layout on open either.
+  <div className="h-dvh overflow-hidden bg-background lg:flex">
     <NavRail />
-    <div className="min-w-0 flex-1">
+    <div id="app-scroll" className="h-dvh min-w-0 flex-1 overflow-y-auto [scrollbar-gutter:stable]">
       <MobileTopBar />
       <main className="pb-28 lg:pb-0">
         <Outlet />
