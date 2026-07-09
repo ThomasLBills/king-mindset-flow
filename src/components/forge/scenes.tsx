@@ -41,10 +41,10 @@ export const Hatch = ({ className }: { className?: string }) => {
   );
 };
 
-/** Light shafts through a dark room - real photo (public/pics/scene-shafts.png). */
+/** Light shafts through a dark room - real photo (public/pics/scene-shafts.webp). */
 export const SceneShafts = ({ className }: { className?: string }) => (
   <img
-    src="/pics/scene-shafts.png"
+    src="/pics/scene-shafts.webp"
     alt=""
     aria-hidden="true"
     className={cn(wrap, "object-cover", className)}
@@ -63,17 +63,17 @@ export const SceneRidge = ({
   variant?: "wide" | "tall";
 }) => (
   <img
-    src={variant === "tall" ? "/pics/scene-ridge-tall.png" : "/pics/scene-ridge-wide.png"}
+    src={variant === "tall" ? "/pics/scene-ridge-tall.webp" : "/pics/scene-ridge-wide.webp"}
     alt=""
     aria-hidden="true"
     className={cn(wrap, "object-cover", className)}
   />
 );
 
-/** A figure standing in light - real photo (public/pics/scene-figure.png). */
+/** A figure standing in light - real photo (public/pics/scene-figure.webp). */
 export const SceneFigure = ({ className }: { className?: string }) => (
   <img
-    src="/pics/scene-figure.png"
+    src="/pics/scene-figure.webp"
     alt=""
     aria-hidden="true"
     className={cn(wrap, "object-cover", className)}
