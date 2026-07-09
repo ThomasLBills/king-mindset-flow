@@ -209,6 +209,7 @@ const AdminUsers = () => {
     {
       id: "email",
       header: "Email",
+      primary: true,
       sortKey: "email",
       truncate: true,
       csv: (u) => u.email,

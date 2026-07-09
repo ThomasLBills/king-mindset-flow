@@ -76,6 +76,7 @@ const AdminAuditLog = () => {
     {
       id: "entity",
       header: "Entity",
+      primary: true,
       truncate: true,
       csv: (r) => `${r.entity_type}${r.entity_id ? ` ${r.entity_id}` : ""}`,
       cell: (r) => (
@@ -128,10 +129,10 @@ const AdminAuditLog = () => {
         emptyHint="Actions like create, update, and delete will appear here as they happen."
         filters={
           <>
-            <div>
+            <div className="w-full sm:w-40">
               <Label htmlFor="audit-action" className="sr-only">Filter by action</Label>
               <Select value={collection.filters.action ?? "all"} onValueChange={(v) => collection.setFilter("action", v === "all" ? undefined : v)}>
-                <SelectTrigger id="audit-action" className="w-40">
+                <SelectTrigger id="audit-action" className="w-full">
                   <SelectValue placeholder="All actions" />
                 </SelectTrigger>
                 <SelectContent>
@@ -142,11 +143,15 @@ const AdminAuditLog = () => {
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex items-center gap-1.5">
-              <Label htmlFor="audit-from" className="text-xs text-dim">From</Label>
-              <Input id="audit-from" type="date" value={collection.filters.from ?? ""} onChange={(e) => collection.setFilter("from", e.target.value || undefined)} className="w-[9.5rem]" />
-              <Label htmlFor="audit-to" className="text-xs text-dim">To</Label>
-              <Input id="audit-to" type="date" value={collection.filters.to ?? ""} onChange={(e) => collection.setFilter("to", e.target.value || undefined)} className="w-[9.5rem]" />
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:gap-1.5">
+              <div className="flex items-center gap-1.5">
+                <Label htmlFor="audit-from" className="w-8 shrink-0 text-xs text-dim sm:w-auto">From</Label>
+                <Input id="audit-from" type="date" value={collection.filters.from ?? ""} onChange={(e) => collection.setFilter("from", e.target.value || undefined)} className="flex-1 sm:w-[9.5rem] sm:flex-none" />
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Label htmlFor="audit-to" className="w-8 shrink-0 text-xs text-dim sm:w-auto">To</Label>
+                <Input id="audit-to" type="date" value={collection.filters.to ?? ""} onChange={(e) => collection.setFilter("to", e.target.value || undefined)} className="flex-1 sm:w-[9.5rem] sm:flex-none" />
+              </div>
             </div>
           </>
         }

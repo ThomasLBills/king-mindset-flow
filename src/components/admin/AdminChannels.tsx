@@ -130,6 +130,7 @@ const AdminChannels = () => {
     {
       id: "name",
       header: "Channel",
+      primary: true,
       truncate: true,
       csv: (ch) => ch.name,
       cell: (ch) => (
@@ -239,7 +240,7 @@ const AdminChannels = () => {
 
       <SectionCard className="p-5 sm:p-6">
         <h2 className="mb-4 font-display text-lg font-bold tracking-tight text-bone">Brotherhood settings</h2>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-4">
           <Label htmlFor="max-brothers">Max brothers per user</Label>
           <Input
             id="max-brothers"

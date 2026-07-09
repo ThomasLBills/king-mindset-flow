@@ -217,6 +217,7 @@ const AdminEntitlements = () => {
     {
       id: "email",
       header: "Email",
+      primary: true,
       truncate: true,
       csv: (r) => r.email,
       cell: (r) => <span className="text-sm font-medium text-bone">{r.email}</span>,
@@ -290,13 +291,13 @@ const AdminEntitlements = () => {
             : "No non-admin users match these filters."
         }
         filters={
-          <div>
+          <div className="w-full sm:w-40">
             <Label htmlFor="ent-status" className="sr-only">Filter by status</Label>
             <Select
               value={status ?? "all"}
               onValueChange={(v) => setStatus(v === "all" ? undefined : v)}
             >
-              <SelectTrigger id="ent-status" className="w-40">
+              <SelectTrigger id="ent-status" className="w-full">
                 <SelectValue placeholder="All statuses" />
               </SelectTrigger>
               <SelectContent>

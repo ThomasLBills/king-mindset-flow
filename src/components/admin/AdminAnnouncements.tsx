@@ -55,6 +55,7 @@ const AdminAnnouncements = () => {
     {
       id: "title",
       header: "Title",
+      primary: true,
       truncate: true,
       csv: (a) => a.title,
       cell: (a) => <span className="font-display text-sm font-bold tracking-tight text-bone">{a.title}</span>,
@@ -105,10 +106,10 @@ const AdminAnnouncements = () => {
         emptyTitle="No announcements yet"
         emptyHint="Write the first one to reach the camp."
         filters={
-          <div>
+          <div className="w-full sm:w-40">
             <Label htmlFor="announcement-status" className="sr-only">Filter by status</Label>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger id="announcement-status" className="w-40">
+              <SelectTrigger id="announcement-status" className="w-full">
                 <SelectValue placeholder="All statuses" />
               </SelectTrigger>
               <SelectContent>

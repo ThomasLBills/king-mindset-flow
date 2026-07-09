@@ -145,15 +145,17 @@ const CurriculumLessonEditor = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon" aria-label="Back to week" onClick={() => navigate(`/admin/curriculum/weeks/${weekId}`)}>
-          <ChevronLeft className="h-5 w-5" aria-hidden="true" />
-        </Button>
-        <div className="min-w-0 flex-1">
-          <Eyebrow className="mb-0.5 block">Lesson</Eyebrow>
-          <h1 className="truncate font-display text-xl font-bold tracking-tight text-bone">{title || "Untitled Lesson"}</h1>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="flex min-w-0 flex-1 items-center gap-3">
+          <Button variant="ghost" size="icon" aria-label="Back to week" onClick={() => navigate(`/admin/curriculum/weeks/${weekId}`)}>
+            <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+          </Button>
+          <div className="min-w-0 flex-1">
+            <Eyebrow className="mb-0.5 block">Lesson</Eyebrow>
+            <h1 className="truncate font-display text-xl font-bold tracking-tight text-bone">{title || "Untitled Lesson"}</h1>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Badge variant={lesson?.status === "published" ? "default" : "secondary"} className="capitalize">{lesson?.status}</Badge>
           {dirty && <Badge variant="outline" className="border-warning text-warning">Unsaved</Badge>}
           <Button

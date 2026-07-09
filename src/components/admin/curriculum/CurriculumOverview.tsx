@@ -140,7 +140,7 @@ const CurriculumOverview = () => {
                   </div>
                 </div>
                 <div className="flex shrink-0 items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                  <span className="text-xs text-dim">Day {week.unlock_day_offset}</span>
+                  <span className="hidden text-xs text-dim sm:inline">Day {week.unlock_day_offset}</span>
                   <Badge variant={week.status === "published" ? "default" : "secondary"} className="capitalize">{week.status}</Badge>
                   <Button variant="ghost" size="icon" aria-label={`Edit week ${week.week_number}`} onClick={() => setWeekDialog({ ...week })}>
                     <Pencil className="h-4 w-4" aria-hidden="true" />
