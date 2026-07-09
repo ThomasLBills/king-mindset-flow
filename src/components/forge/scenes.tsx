@@ -2,7 +2,7 @@
  * Hand-drawn SVG scene art, cropped and bleeding under scrims. Gradient ids are
  * namespaced with useId so a scene can appear more than once per page.
  */
-import { useId } from "react";
+import { useId, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 const wrap = "pointer-events-none absolute inset-0 h-full w-full";
@@ -79,3 +79,38 @@ export const SceneFigure = ({ className }: { className?: string }) => (
     className={cn(wrap, "object-cover", className)}
   />
 );
+
+/**
+ * The shared Today-style page backdrop: warm ember wash + film grain + the
+ * light-shafts photo bleeding from the top under a fade mask. Used across
+ * Today, Brotherhood, Grow, and Profile so every screen shares one atmosphere.
+ */
+const BackdropLayers = () => (
+  <>
+    <div className="ember-bg pointer-events-none absolute inset-0" aria-hidden="true" />
+    <Grain />
+    <SceneShafts className="h-[440px] opacity-90 [mask-image:linear-gradient(to_bottom,black_25%,transparent_100%)] lg:h-[500px]" />
+  </>
+);
+
+/**
+ * Drop-in page background. With no children it renders just the layers (place
+ * it as the first child of your own `relative` wrapper, e.g. Today). With
+ * children it provides the `relative` wrapper and lifts the content above the
+ * layers via `className` (the page's centered column classes).
+ */
+export const PageBackdrop = ({
+  children,
+  className,
+}: {
+  children?: ReactNode;
+  className?: string;
+}) =>
+  children === undefined ? (
+    <BackdropLayers />
+  ) : (
+    <div className="relative">
+      <BackdropLayers />
+      <div className={cn("relative", className)}>{children}</div>
+    </div>
+  );

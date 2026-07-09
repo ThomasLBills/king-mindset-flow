@@ -26,6 +26,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Eyebrow, InitialsAvatar, SectionCard } from "@/components/forge/atoms";
+import { PageBackdrop } from "@/components/forge/scenes";
 
 /** Fixed product copy from production (BrotherhoodPage ground rules). */
 const GROUND_RULES = [
@@ -481,7 +482,7 @@ const Brotherhood = () => {
     );
 
   return (
-    <div className="mx-auto max-w-6xl px-5 py-7 sm:px-8">
+    <PageBackdrop className="mx-auto max-w-6xl px-5 py-7 sm:px-8">
       <header className="mb-5">
         <Eyebrow className="mb-1 block">Never fight alone</Eyebrow>
         <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-bone">
@@ -522,7 +523,7 @@ const Brotherhood = () => {
           </SectionCard>
         </div>
       )}
-    </div>
+    </PageBackdrop>
   );
 };
 

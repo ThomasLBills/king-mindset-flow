@@ -12,6 +12,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Eyebrow, SectionCard } from "@/components/forge/atoms";
+import { PageBackdrop } from "@/components/forge/scenes";
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
@@ -71,7 +72,7 @@ const Grow = () => {
   const nextLesson = current?.lessons.find((l) => !l.done);
 
   return (
-    <div className="mx-auto max-w-4xl px-5 py-7 sm:px-8">
+    <PageBackdrop className="mx-auto max-w-4xl px-5 py-7 sm:px-8">
       <header className="mb-6">
         <Eyebrow className="mb-1 block">Grow · The Liberated Path</Eyebrow>
         <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-bone">
@@ -183,7 +184,7 @@ const Grow = () => {
           </li>
         ))}
       </ul>
-    </div>
+    </PageBackdrop>
   );
 };
 

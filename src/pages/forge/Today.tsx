@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Eyebrow, InitialsAvatar, SectionCard } from "@/components/forge/atoms";
 import { LkSeal } from "@/components/forge/brand";
-import { Grain, SceneShafts } from "@/components/forge/scenes";
+import { PageBackdrop } from "@/components/forge/scenes";
 import { CheckInDialog, ReflectionDialog } from "@/components/today/dialogs";
 
 const timeOfDay = () => {
@@ -200,10 +200,7 @@ const Today = () => {
 
   return (
     <div className="relative">
-      <div className="ember-bg pointer-events-none absolute inset-0" aria-hidden="true" />
-      <Grain />
-      {/* Hero photo bleeds down behind the first cards, feathered out by a mask */}
-      <SceneShafts className="h-[440px] opacity-90 [mask-image:linear-gradient(to_bottom,black_25%,transparent_100%)] lg:h-[500px]" />
+      <PageBackdrop />
       <div className="relative flex flex-col xl:flex-row">
         <div className="min-w-0 flex-1">
           {/* Greeting hero */}

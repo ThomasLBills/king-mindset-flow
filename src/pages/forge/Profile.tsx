@@ -41,6 +41,7 @@ import {
 } from "@/components/ui/form";
 import { Eyebrow, InitialsAvatar, SectionCard } from "@/components/forge/atoms";
 import { LkSeal } from "@/components/forge/brand";
+import { PageBackdrop } from "@/components/forge/scenes";
 
 const VOWS = [
   "I will not fight alone.",
@@ -172,7 +173,7 @@ const Profile = () => {
   };
 
   return (
-    <div className="mx-auto max-w-3xl px-5 py-7 sm:px-8">
+    <PageBackdrop className="mx-auto max-w-3xl px-5 py-7 sm:px-8">
       <header className="mb-6">
         <Eyebrow className="mb-1 block">Profile</Eyebrow>
         <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-bone">
@@ -478,7 +479,7 @@ const Profile = () => {
           <p className="text-center font-script text-2xl text-gold-bright">{covenant?.signed_name}</p>
         </DialogContent>
       </Dialog>
-    </div>
+    </PageBackdrop>
   );
 };
 
