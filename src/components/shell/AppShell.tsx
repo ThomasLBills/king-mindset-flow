@@ -4,9 +4,10 @@
  * global account menu (Profile / Billing / Sign out).
  */
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
-import { BookOpen, ChevronsUpDown, Home, LogOut, Shield, UserRound, Users } from "lucide-react";
+import { BookOpen, ChevronsUpDown, Home, LogOut, Shield, ShieldCheck, UserRound, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
+import { useAdminRole } from "@/hooks/useAdminRole";
 import { useForgeUser } from "@/hooks/useForgeProfile";
 import { useUnread } from "@/contexts/UnreadContext";
 import { LkMonogram, LkWordmark } from "@/components/forge/brand";
@@ -51,6 +52,7 @@ const UnreadBadge = ({ count, className }: { count: number; className?: string }
 const AccountMenu = ({ trigger }: { trigger: React.ReactNode }) => {
   const { user } = useForgeUser();
   const { signOut } = useAuth();
+  const { isAdmin } = useAdminRole();
   const navigate = useNavigate();
   return (
     // modal={false}: a modal dropdown locks body scroll (react-remove-scroll),
@@ -64,6 +66,14 @@ const AccountMenu = ({ trigger }: { trigger: React.ReactNode }) => {
         <DropdownMenuSeparator />
         <DropdownMenuItem onSelect={() => navigate("/app/profile")}>Profile</DropdownMenuItem>
         <DropdownMenuItem onSelect={() => navigate("/app/billing")}>Billing</DropdownMenuItem>
+        {isAdmin && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onSelect={() => navigate("/admin")}>
+              <ShieldCheck className="mr-2 h-4 w-4 text-gold" aria-hidden="true" /> Admin
+            </DropdownMenuItem>
+          </>
+        )}
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="text-ember focus:text-ember"
