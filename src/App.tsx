@@ -188,6 +188,13 @@ const AnimatedRoutes = () => {
           initial="enter"
           animate="center"
           exit="exit"
+          // min-w-0: this is a grid item (gridArea 1/1). Grid items default to
+          // min-width:auto, so a page whose min-content is wider than the
+          // viewport (e.g. a long unbroken email in a table cell) stretches the
+          // whole column past the screen — and body's overflow-x:clip cuts it
+          // off instead of scrolling. min-w-0 lets the track clamp to the
+          // viewport so wide content wraps/scrolls within its own container.
+          className="min-w-0"
           style={{ gridArea: "1 / 1" }}
           transition={{ duration: moves ? 0.6 : 0, ease: EASE }}
         >

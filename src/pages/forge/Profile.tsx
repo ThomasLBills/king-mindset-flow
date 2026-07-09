@@ -186,8 +186,8 @@ const Profile = () => {
           <div className="flex items-center gap-4">
             <InitialsAvatar initials={user?.initials ?? "LK"} className="h-14 w-14 text-lg" />
             <div className="min-w-0 flex-1">
-              <p className="font-display text-xl font-bold tracking-tight text-bone">{user?.name}</p>
-              <p className="text-sm text-dim">{user?.email}</p>
+              <p className="truncate font-display text-xl font-bold tracking-tight text-bone">{user?.name}</p>
+              <p className="truncate text-sm text-dim">{user?.email}</p>
             </div>
             <Button variant="outline" size="sm" disabled={signingOut} onClick={handleSignOut}>
               <LogOut className="h-4 w-4" aria-hidden="true" /> Sign out
