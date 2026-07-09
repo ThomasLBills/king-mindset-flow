@@ -100,7 +100,7 @@ const PILLARS = [
     titleBottom: "Firm",
     img: "/pics/hero-armor.png",
     bigImg: true,
-    imgClass: "right-[16%] h-[122%] max-w-[86%]",
+    imgClass: "lg:right-[16%] lg:h-[122%] lg:max-w-[86%]",
     tags: [
       { label: "One Tap", icon: Hand },
       { label: "Breathe", icon: Wind },
@@ -157,19 +157,25 @@ const Landing = () => {
           wordmark's edges; the eagle layers between (over the buttons, which stay
           clickable since it's pointer-events-none). */}
       <section ref={heroRef} className="relative min-h-dvh overflow-hidden">
-        <div className="relative z-20 mx-auto flex min-h-dvh w-fit max-w-[92vw] flex-col justify-start pt-[8vh]">
-          <h1
-            aria-label="Liberated Kings"
-            className="hero-word relative z-10 flex select-none flex-col items-center gap-[2vw] font-display font-bold uppercase leading-[0.78] tracking-tight text-forge"
-          >
-            <span className="block text-[18.5vw]">Liberated</span>
-            <span className="block text-[29vw]">Kings</span>
-          </h1>
-          <FloatingSubject
-            src="/pics/hero-eagle.png"
-            className="hero-render left-1/2 top-[2%] z-30 w-[54vw] max-w-[760px] -translate-x-1/2"
-            delay="120ms"
-          />
+        <div className="relative z-20 mx-auto flex min-h-dvh w-fit max-w-[92vw] flex-col justify-center lg:justify-start lg:pt-[8vh]">
+          {/* Wordmark + eagle as one group so the eagle stays glued to the
+              wordmark when the column centres vertically on mobile. */}
+          <div className="relative">
+            <h1
+              aria-label="Liberated Kings"
+              className="hero-word relative z-10 flex select-none flex-col items-center gap-[clamp(0.5rem,2vw,3rem)] font-display font-bold uppercase leading-[0.78] tracking-tight text-forge"
+            >
+              {/* Sizes handpicked as vw; clamp only floors sub-250px screens and
+                  caps past ~2250px (raw vw was unbounded → huge on ultrawide). */}
+              <span className="block text-[clamp(3rem,18.5vw,26rem)]">Liberated</span>
+              <span className="block text-[clamp(4.5rem,29vw,40rem)]">Kings</span>
+            </h1>
+            <FloatingSubject
+              src="/pics/hero-eagle.png"
+              className="hero-render left-1/2 top-[2%] z-30 w-[54vw] max-w-[760px] -translate-x-1/2 lg:top-[-6%]"
+              delay="120ms"
+            />
+          </div>
           <div className="relative z-40 mt-10 flex w-full flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <p className="hero-tagline font-display text-3xl font-bold uppercase leading-[0.9] tracking-tight text-forge sm:text-5xl">
               Freedom is fought for. Together.
@@ -242,9 +248,12 @@ const Landing = () => {
       {/* 6 — CTA: God's hand reaching for you. Hand is an overlay (z-20, above the
           copy) that bleeds off the right edge — page overflow-x-clip eats the bleed. */}
       <section className="relative">
+        {/* Hand shows on every size now. Mobile: faded, behind the copy (z-0),
+            bleeding from the right so only the reaching hand reads. lg: the
+            original over-the-right overlay. */}
         <FloatingSubject
           src="/pics/hero-hand.png"
-          className="right-[-13%] top-1/2 z-20 hidden w-[72vw] max-w-[1320px] -translate-y-1/2 -rotate-[22deg] lg:block"
+          className="right-[-32%] top-1/2 z-0 w-[94vw] max-w-[1320px] -translate-y-1/2 -rotate-[22deg] opacity-60 lg:right-[-13%] lg:z-20 lg:w-[72vw] lg:opacity-100"
         />
         <div className="relative z-10 mx-auto max-w-6xl px-6 py-32 text-center lg:py-44 lg:text-left">
           <LinesReveal className="mx-auto flex flex-col items-center font-sans font-bold leading-[0.9] tracking-tight text-forge lg:mx-0 lg:items-start">
@@ -286,7 +295,7 @@ const Landing = () => {
         <span
           ref={kingRef}
           aria-hidden="true"
-          className="block select-none text-center font-display text-[32vw] font-bold uppercase leading-[0.7] tracking-tight text-forge [clip-path:inset(-0.4em_0_0_0)]"
+          className="block select-none text-center font-display text-[clamp(4rem,32vw,44rem)] font-bold uppercase leading-[0.7] tracking-tight text-forge [clip-path:inset(-0.4em_0_0_0)]"
         >
           {"King".split("").map((ch, i) => (
             <KingLetter
@@ -300,11 +309,14 @@ const Landing = () => {
           ))}
         </span>
 
-        <div className="relative z-10 mx-auto -mt-[7%] max-w-[1200px] px-4 sm:px-6">
+        {/* -mt-[7%] handpicked; 7vw ≡ 7%-of-viewport here, capped past ~2050px. */}
+        <div className="relative z-10 mx-auto -mt-[clamp(1.5rem,7vw,9rem)] max-w-[1200px] px-4 sm:px-6">
           {/* Crown crests the card's top edge, overlapping the wordmark behind it. */}
+          {/* Mobile: smaller + lifted so it cleanly crests the card seam
+              instead of sinking in. sm+: original size/overlap. */}
           <FloatingSubject
             src="/pics/hero-crown.png"
-            className="left-1/2 top-0 z-20 w-[76vw] max-w-[880px] -translate-x-1/2 -translate-y-[40%]"
+            className="left-1/2 top-0 z-20 w-[62vw] max-w-[880px] -translate-x-1/2 translate-y-[8%] sm:w-[76vw] sm:-translate-y-[40%]"
             delay="80ms"
           />
 

@@ -314,9 +314,17 @@ export const PillarDeck = ({ pillars }: { pillars: Pillar[] }) => {
                 Left-fade mask keeps the title legible where they meet. */}
             <div
               className={cn(
-                "pointer-events-none absolute top-1/2 z-0 -translate-y-1/2",
+                "pointer-events-none absolute z-0",
+                // Mobile: small, faint accent tucked upper-right, clear of the
+                // tags/body so it never crowds the copy. ponytail: nudge if a
+                // subject still collides on very small screens.
+                "right-0 top-5 h-[38%] max-w-[44%]",
+                // lg+: the tuned per-pillar placement (vertically centred, big).
+                "lg:top-1/2 lg:-translate-y-1/2",
                 p.imgClass ??
-                  (p.bigImg ? "right-[16%] h-[98%] max-w-[64%]" : "right-[4%] h-[78%] max-w-[46%]")
+                  (p.bigImg
+                    ? "lg:right-[16%] lg:h-[98%] lg:max-w-[64%]"
+                    : "lg:right-[4%] lg:h-[78%] lg:max-w-[46%]")
               )}
             >
               <img
@@ -324,7 +332,7 @@ export const PillarDeck = ({ pillars }: { pillars: Pillar[] }) => {
                 alt=""
                 aria-hidden="true"
                 draggable={false}
-                className="lk-float subject-grade h-full w-auto object-contain opacity-[0.6]"
+                className="lk-float subject-grade h-full w-auto object-contain opacity-40 lg:opacity-60"
                 style={{
                   maskImage: "linear-gradient(to left, #000 55%, transparent)",
                   WebkitMaskImage: "linear-gradient(to left, #000 55%, transparent)",
