@@ -11,13 +11,6 @@
     max-width: 100vw;
   }
 
-  html {
-    /* Reserve the scrollbar gutter permanently so opening a Radix overlay
-       (dropdown, dialog, select) doesn't lock body scroll and shove the
-       whole layout sideways / overflow. */
-    scrollbar-gutter: stable;
-  }
-
   /* The Forge - single dark theme. All color routes through these tokens. */
   :root {
     color-scheme: dark;

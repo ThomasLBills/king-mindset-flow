@@ -53,7 +53,11 @@ const AccountMenu = ({ trigger }: { trigger: React.ReactNode }) => {
   const { signOut } = useAuth();
   const navigate = useNavigate();
   return (
-    <DropdownMenu>
+    // modal={false}: a modal dropdown locks body scroll (react-remove-scroll),
+    // which compensates for the hidden scrollbar by padding the body and shoves
+    // the whole layout sideways / leaves a gap. A menu doesn't need scroll
+    // locking, so opting out keeps the layout stable when it opens.
+    <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-52">
         <DropdownMenuLabel className="text-xs font-normal text-dim">{user?.email}</DropdownMenuLabel>
