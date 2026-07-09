@@ -9,7 +9,7 @@ import { join } from "node:path";
  * These tests guarantee two invariants of the production build:
  *
  *   1. It is IMPOSSIBLE to produce a production build with the bypass flag
- *      enabled — `vite.config.ts` throws before any asset is emitted.
+ *      enabled - `vite.config.ts` throws before any asset is emitted.
  *   2. A clean production build contains no reference to the bypass code:
  *      no `__DEV_BYPASS__` literal, no `VITE_DEV_BYPASS_AUTH` env-var name,
  *      no `isDevBypassEnabled` symbol, and no localhost hostname check that

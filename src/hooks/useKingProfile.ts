@@ -8,7 +8,7 @@ export function useKingProfile() {
   const { user } = useAuth();
   const { daysFree, hasStreak } = useFreedomStreak();
 
-  // Days Consistent — count of distinct daily_check_ins
+  // Days Consistent - count of distinct daily_check_ins
   const { data: daysConsistent = 0 } = useQuery({
     queryKey: ["king-profile-days-consistent", user?.id],
     enabled: !!user,
@@ -22,7 +22,7 @@ export function useKingProfile() {
     },
   });
 
-  // Pillars Completed — total daily_completions across all categories
+  // Pillars Completed - total daily_completions across all categories
   const { data: pillarsCompleted = 0 } = useQuery({
     queryKey: ["king-profile-pillars", user?.id],
     enabled: !!user,
@@ -36,7 +36,7 @@ export function useKingProfile() {
     },
   });
 
-  // Support Connections — daily_check_ins where needs_support = true
+  // Support Connections - daily_check_ins where needs_support = true
   const { data: supportConnections = 0 } = useQuery({
     queryKey: ["king-profile-support", user?.id],
     enabled: !!user,
@@ -51,7 +51,7 @@ export function useKingProfile() {
     },
   });
 
-  // Breakthrough Moments — daily_check_ins with non-empty spirit_response
+  // Breakthrough Moments - daily_check_ins with non-empty spirit_response
   const { data: spiritBreakthroughs = 0 } = useQuery({
     queryKey: ["king-profile-breakthroughs-spirit", user?.id],
     enabled: !!user,
@@ -67,7 +67,7 @@ export function useKingProfile() {
     },
   });
 
-  // Crisis breakthroughs — daily_completions with category "crisis_breakthrough"
+  // Crisis breakthroughs - daily_completions with category "crisis_breakthrough"
   const { data: crisisBreakthroughs = 0 } = useQuery({
     queryKey: ["king-profile-breakthroughs-crisis", user?.id],
     enabled: !!user,

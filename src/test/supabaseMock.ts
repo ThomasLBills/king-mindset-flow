@@ -6,7 +6,7 @@
  * rpc, functions.invoke, and no-op realtime channels.
  *
  * Use: vi.mock("@/integrations/supabase/client", ...) returning
- * createSupabaseMock(seed) — see navigation.test.tsx.
+ * createSupabaseMock(seed) - see navigation.test.tsx.
  */
 
 type Row = Record<string, any>;

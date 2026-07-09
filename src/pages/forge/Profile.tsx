@@ -154,7 +154,7 @@ const Profile = () => {
       try {
         localStorage.setItem(PREFS_STORAGE_KEY, JSON.stringify(next));
       } catch {
-        // Storage unavailable (private mode) — keep the in-memory toggle.
+        // Storage unavailable (private mode) - keep the in-memory toggle.
       }
       return next;
     });

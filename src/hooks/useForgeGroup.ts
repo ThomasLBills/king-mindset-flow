@@ -1,5 +1,5 @@
 /**
- * Named groups + "raise the banner" prayer requests — NEW features from the
+ * Named groups + "raise the banner" prayer requests - NEW features from the
  * Forge redesign (see src/features.ts: groups, statusDots).
  *
  * Tables: groups / group_members / prayer_requests / prayer_request_strength
@@ -51,7 +51,7 @@ export const useGroup = () => {
   const { brothers: connections, isLoading: brothersLoading } = useBrothers();
 
   return useQuery({
-    // Keyed on user only — connections are queryFn inputs, not identity. Gating
+    // Keyed on user only - connections are queryFn inputs, not identity. Gating
     // on !brothersLoading stops the pipeline running once with [] then again
     // after brothers resolve.
     queryKey: memberIdsKey(user?.id),
@@ -83,7 +83,7 @@ export const useGroup = () => {
         groupId = "brotherhood";
       }
 
-      // Both depend only on memberIds — fetch in parallel.
+      // Both depend only on memberIds - fetch in parallel.
       // "Struggling" = raised the banner in the last 24h. ("Away" needs
       // presence data other members can't read; it simply never occurs.)
       const dayAgo = new Date(Date.now() - DAY_MS).toISOString();

@@ -154,7 +154,7 @@ const RenewedMindDialog = ({
   }, [open, form]);
 
   const declareTruth = (truth: string) => {
-    // The truth you wrote becomes yours to keep — it resurfaces
+    // The truth you wrote becomes yours to keep - it resurfaces
     // under "Stand on the Word" in Stand Firm.
     addDeclaration.mutate(truth, {
       onError: (error) =>

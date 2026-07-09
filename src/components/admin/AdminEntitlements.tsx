@@ -23,7 +23,7 @@ type Row = {
 };
 
 const formatDate = (iso: string | null) =>
-  iso ? new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }) : "—";
+  iso ? new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }) : "-";
 
 const daysBetween = (iso: string) => {
   const ms = new Date(iso).getTime() - Date.now();
@@ -167,7 +167,7 @@ const AdminEntitlements = () => {
 
   const renderSource = (r: Row) => {
     const s = (r.source || "").toLowerCase();
-    let label = "—";
+    let label = "-";
     if (s === "stripe") label = "Stripe";
     else if (s) label = "Manual"; // zapier_*, admin_grant, admin_extend, etc.
     return <Badge variant={label === "Stripe" ? "default" : "secondary"}>{label}</Badge>;
@@ -222,7 +222,7 @@ const AdminEntitlements = () => {
                   <TableRow key={r.user_id}>
                     <TableCell className="text-sm font-medium text-bone">{r.email}</TableCell>
                     <TableCell className="text-sm text-dim">
-                      {r.expires_at ? formatDate(r.expires_at) : "—"}
+                      {r.expires_at ? formatDate(r.expires_at) : "-"}
                     </TableCell>
                     <TableCell>{renderDays(r)}</TableCell>
                     <TableCell>{renderSub(r)}</TableCell>

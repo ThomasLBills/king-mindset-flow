@@ -23,7 +23,7 @@ const ChatView = ({ target }: ChatViewProps) => {
   const { target: impersonationTarget, stopImpersonation } = useImpersonation();
   const navigate = useNavigate();
 
-  // For DMs, no join needed — ready immediately
+  // For DMs, no join needed - ready immediately
   const isReady = target ? (target.type === "dm" ? true : channelReady) : false;
 
   const { messages, loading, sendMessage } = useMessages(target, isReady);
@@ -78,7 +78,7 @@ const ChatView = ({ target }: ChatViewProps) => {
           <div className="flex items-center gap-2 text-muted-foreground">
             <Eye className="w-4 h-4 shrink-0" />
             <span className="text-sm">
-              Read only — viewing as <strong className="text-foreground">{impersonationTarget?.display_name || impersonationTarget?.first_name || impersonationTarget?.email}</strong>
+              Read only - viewing as <strong className="text-foreground">{impersonationTarget?.display_name || impersonationTarget?.first_name || impersonationTarget?.email}</strong>
             </span>
           </div>
           <button

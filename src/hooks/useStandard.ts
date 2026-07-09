@@ -1,5 +1,5 @@
 /**
- * "The Standard" — NEW feature from the Forge redesign (features.theStandard).
+ * "The Standard" - NEW feature from the Forge redesign (features.theStandard).
  * Derived entirely from existing production data, no new tables:
  *   cycle start = user_enrollments.enrolled_at (fallback: profile created_at)
  *   fell days   = relapse_events (the same table the original R.E.T.U.R.N.
@@ -80,7 +80,7 @@ export const useStandard = () => {
 };
 
 /**
- * The return after a fall: today goes on the record as fell — and stays
+ * The return after a fall: today goes on the record as fell - and stays
  * there. The Standard never resets; grace keeps the whole story.
  */
 export const useRecordFall = () => {

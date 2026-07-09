@@ -95,7 +95,7 @@ const ChatThread = ({
   }, [messages.length]);
 
   // Private chat-files bucket: swap stored URLs for signed ones (same as MessageList).
-  // Only sign images not already signed — the messages array changes identity on
+  // Only sign images not already signed - the messages array changes identity on
   // every realtime insert, and re-signing all of them each time is wasted work.
   useEffect(() => {
     const withImages = messages.filter(
@@ -144,7 +144,7 @@ const ChatThread = ({
         </button>
         <span className="font-display text-sm font-bold uppercase tracking-[0.1em] text-bone">{title}</span>
       </div>
-      {/* role=log is an implicit polite live region — appended messages get announced. */}
+      {/* role=log is an implicit polite live region - appended messages get announced. */}
       <div role="log" aria-label="Messages" className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
         {loading && messages.length === 0 ? (
           <p className="py-8 text-center text-sm text-dim">Loading messages…</p>
@@ -242,7 +242,7 @@ const ChatThread = ({
         <div className="flex items-center justify-center gap-2 border-t border-line p-3 text-xs text-dim">
           <Eye className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
           <span>
-            Read only — viewing as{" "}
+            Read only - viewing as{" "}
             <strong className="font-semibold text-bone">
               {impersonationTarget?.display_name ||
                 impersonationTarget?.first_name ||

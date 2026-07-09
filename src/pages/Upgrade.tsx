@@ -63,7 +63,7 @@ const CheckoutButton = ({ plan, amountLabel }: { plan: PlanKey; amountLabel: str
           popup.location.href = data.url;
           redirected = true;
         } catch {
-          // ignore — fall through to other strategies
+          // ignore - fall through to other strategies
         }
       }
 

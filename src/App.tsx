@@ -19,7 +19,7 @@ import Landing from "./pages/forge/Landing";
 
 // Route-level code splitting: every page below ships as its own chunk,
 // fetched on first navigation, so the entry bundle stays small. Landing is
-// deliberately eager — it renders the "/" route and lazy-loading it would
+// deliberately eager - it renders the "/" route and lazy-loading it would
 // push LCP behind a second network round trip for first-time visitors.
 // Guards, providers, and AppShell stay eager because they wrap every route.
 const Login = lazy(() => import("./pages/forge/Login"));

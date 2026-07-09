@@ -51,7 +51,7 @@ const Login = () => {
         return;
       }
     } catch {
-      // Ignore — fall through to normal error
+      // Ignore - fall through to normal error
     }
     const message = /load failed|failed to fetch|network/i.test(error.message)
       ? "Connection failed. Please refresh and try again."

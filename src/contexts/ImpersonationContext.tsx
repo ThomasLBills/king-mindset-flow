@@ -156,7 +156,7 @@ export const ImpersonationProvider = ({ children }: { children: ReactNode }) => 
       try {
         const savedRaw = localStorage.getItem(ADMIN_SESSION_KEY);
         const currentMeta = readMeta();
-        // Fire audit log first — use the SAVED ADMIN token explicitly,
+        // Fire audit log first - use the SAVED ADMIN token explicitly,
         // because the live session is currently the impersonated (non-admin)
         // user and would be rejected as Forbidden by the edge function.
         try {

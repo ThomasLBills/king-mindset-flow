@@ -553,7 +553,7 @@ const StandFirm = () => {
                   className="mt-0.5 h-5 w-5 border-gold"
                   onCheckedChange={(v) => setCommitReach(v === true)}
                 />
-                I will reach out to a brother — now, not after I feel better.
+                I will reach out to a brother - now, not after I feel better.
               </label>
               <label className="flex cursor-pointer items-start gap-3 rounded-md border border-line bg-raised/80 px-4 py-3.5 text-sm text-bone">
                 <Checkbox

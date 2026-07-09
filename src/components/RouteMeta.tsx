@@ -6,7 +6,7 @@ const CANONICAL_ORIGIN = "https://app.liberatedkings.com";
 
 // Route → title, resolved by longest matching prefix so dynamic segments
 // ("/app/grow/lesson/:lessonId") never need their own entry. "/" is handled
-// as an exact match separately — treating it as a prefix would swallow every
+// as an exact match separately - treating it as a prefix would swallow every
 // unknown path that should read "Page not found".
 const ROUTE_TITLES: Array<[prefix: string, title: string]> = [
   ["/login", "Log in"],
@@ -51,7 +51,7 @@ const resolveTitle = (pathname: string): string => {
       bestLength = prefix.length;
     }
   }
-  return best ? `${best} — ${SITE_NAME}` : `Page not found — ${SITE_NAME}`;
+  return best ? `${best} - ${SITE_NAME}` : `Page not found - ${SITE_NAME}`;
 };
 
 /**
@@ -59,7 +59,7 @@ const resolveTitle = (pathname: string): string => {
  * BrowserRouter (next to ScrollToTop). Handles three things on navigation:
  * document.title, the canonical <link> for public routes, and moving focus
  * to the new page's h1 so screen readers announce the route change (the
- * standard WCAG SPA pattern — an SPA navigation fires no page-load event).
+ * standard WCAG SPA pattern - an SPA navigation fires no page-load event).
  */
 const RouteMeta = () => {
   const { pathname } = useLocation();

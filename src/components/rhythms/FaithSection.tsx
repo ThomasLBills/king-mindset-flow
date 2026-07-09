@@ -106,7 +106,7 @@ const FaithSection = ({ onProgressChange }: FaithSectionProps) => {
         </div>
 
         <p className="text-sm text-muted-foreground mb-4">
-          2–3 minutes to re-center and anchor in truth
+          2-3 minutes to re-center and anchor in truth
         </p>
 
         <div className="space-y-2">

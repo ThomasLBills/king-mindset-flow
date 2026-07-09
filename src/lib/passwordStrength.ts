@@ -91,7 +91,7 @@ export function evaluatePassword(pw: string): PasswordStrength {
   }
 
   const message = !notCommon && trimmed.length > 0
-    ? "That password is too common — pick something unique."
+    ? "That password is too common - pick something unique."
     : label;
 
   return { score: finalScore, level, label, checks, meetsRequirements, message };

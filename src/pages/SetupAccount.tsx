@@ -58,7 +58,7 @@ const SetupAccount = () => {
       return;
     }
 
-    // Password set successfully — sign in automatically
+    // Password set successfully - sign in automatically
     const { error: signInError } = await signInWithPassword(email.trim(), password);
     if (signInError) {
       toast({ title: "Password created!", description: "Please sign in with your new password." });
@@ -93,7 +93,7 @@ const SetupAccount = () => {
           Code expired
         </h1>
         <p className="mb-8 mt-2 text-sm text-bone-2">
-          That code timed out — they don't last long, on purpose. Send yourself a fresh one.
+          That code timed out - they don't last long, on purpose. Send yourself a fresh one.
         </p>
         <Button onClick={handleResendCode} className="w-full" size="lg" disabled={resending}>
           {resending ? "Sending…" : "Resend code"}

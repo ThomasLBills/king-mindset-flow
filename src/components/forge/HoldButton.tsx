@@ -1,10 +1,10 @@
 /**
- * Press-and-hold commit button — the original app's tactile ritual for
+ * Press-and-hold commit button - the original app's tactile ritual for
  * effortful actions (redirecting an urge, declaring truth, returning after
  * a fall). The hold is deliberate friction: an embodied choice, not a tap.
  *
  * Pointer users must hold for `duration` ms (a gold fill shows progress).
- * Keyboard and assistive-tech users activate normally with Enter/Space —
+ * Keyboard and assistive-tech users activate normally with Enter/Space -
  * the ritual is a pointer gesture, never an accessibility gate.
  */
 import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";

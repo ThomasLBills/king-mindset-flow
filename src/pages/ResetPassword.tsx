@@ -134,7 +134,7 @@ const ResetPassword = () => {
         <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-bone">
           Verifying your link
         </h1>
-        <p className="mt-2 text-sm text-bone-2">Hold on — confirming your reset link is valid.</p>
+        <p className="mt-2 text-sm text-bone-2">Hold on - confirming your reset link is valid.</p>
       </AuthLayout>
     );
   }

@@ -41,7 +41,7 @@ export const Hatch = ({ className }: { className?: string }) => {
   );
 };
 
-/** Light shafts through a dark room — real photo (public/pics/scene-shafts.png). */
+/** Light shafts through a dark room - real photo (public/pics/scene-shafts.png). */
 export const SceneShafts = ({ className }: { className?: string }) => (
   <img
     src="/pics/scene-shafts.png"
@@ -52,7 +52,7 @@ export const SceneShafts = ({ className }: { className?: string }) => (
 );
 
 /**
- * Dawn over ridgelines — real photo. `wide` (16:9) for landing/covenant
+ * Dawn over ridgelines - real photo. `wide` (16:9) for landing/covenant
  * backdrops, `tall` (3:4) for the auth side panel.
  */
 export const SceneRidge = ({
@@ -70,7 +70,7 @@ export const SceneRidge = ({
   />
 );
 
-/** A figure standing in light — real photo (public/pics/scene-figure.png). */
+/** A figure standing in light - real photo (public/pics/scene-figure.png). */
 export const SceneFigure = ({ className }: { className?: string }) => (
   <img
     src="/pics/scene-figure.png"

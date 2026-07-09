@@ -182,7 +182,7 @@ const AdminUsers = () => {
     const s = (source || "").toLowerCase();
     if (s === "stripe") return "Stripe";
     if (s === "zapier_eight-week-course" || s === "admin_grant" || s === "admin_extend") return "Manual";
-    return source ? source.replace("zapier_", "").replace(/_/g, " ") : "—";
+    return source ? source.replace("zapier_", "").replace(/_/g, " ") : "-";
   };
 
   const formatDaysRemaining = (expiresAt?: string | null) => {
@@ -261,7 +261,7 @@ const AdminUsers = () => {
                 <Label htmlFor="grant-access">Grant course access immediately</Label>
               </div>
               <p className="text-xs text-dim">
-                A temporary password will be generated. No email will be sent — you'll share the credentials manually.
+                A temporary password will be generated. No email will be sent - you'll share the credentials manually.
               </p>
               <Button className="w-full" onClick={() => createUser.mutate()} disabled={createUser.isPending || !newEmail}>
                 {createUser.isPending ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" /> : "Create user"}
@@ -339,7 +339,7 @@ const AdminUsers = () => {
                   return (
                     <TableRow key={p.user_id}>
                        <TableCell className="text-sm text-bone">{p.email}</TableCell>
-                       <TableCell className="text-sm text-bone-2">{p.display_name || p.name || "—"}</TableCell>
+                       <TableCell className="text-sm text-bone-2">{p.display_name || p.name || "-"}</TableCell>
                        <TableCell className="text-sm text-dim">
                          {formatCT(p.created_at)}
                        </TableCell>
@@ -363,7 +363,7 @@ const AdminUsers = () => {
                          <Badge variant={admin ? "default" : "secondary"}>{admin ? "Admin" : "User"}</Badge>
                        </TableCell>
                        <TableCell>{renderAccessSummary(ent)}</TableCell>
-                       <TableCell className="text-sm capitalize">{sub?.status || "—"}</TableCell>
+                       <TableCell className="text-sm capitalize">{sub?.status || "-"}</TableCell>
                       <TableCell>
                         <div className="flex gap-2 flex-wrap">
                           <Button
@@ -453,7 +453,7 @@ const AdminUsers = () => {
       {totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-dim">
-            Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length} users
+            Showing {(page - 1) * PAGE_SIZE + 1}-{Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length} users
           </p>
           <Pagination>
             <PaginationContent>

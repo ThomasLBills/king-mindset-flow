@@ -32,7 +32,7 @@ const checkInSchema = z.object({
   note: z.string().max(280, "Keep it under 280 characters").optional(),
 });
 
-/** Every emotional prompt gets a cited verse — house rule from the original app. */
+/** Every emotional prompt gets a cited verse - house rule from the original app. */
 const MOOD_VERSES: Record<z.infer<typeof checkInSchema>["mood"], { ref: string; text: string }> = {
   strong: {
     ref: "1 Corinthians 16:13",

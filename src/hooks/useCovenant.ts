@@ -1,5 +1,5 @@
 /**
- * Covenant + "your why" — NEW features from the Forge redesign (see
+ * Covenant + "your why" - NEW features from the Forge redesign (see
  * src/features.ts). One row per user in user_covenants:
  *   user_id (pk) · why text · signed_name text · signed_at timestamptz
  * Migration: supabase/migrations/*_user_covenants*. Table type not yet in the

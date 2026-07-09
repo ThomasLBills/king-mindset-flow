@@ -82,7 +82,7 @@ describe("paid-content bypass regression guards", () => {
         const all = findPolicyBlocks(table).filter((b) =>
           /FOR\s+SELECT/i.test(b.sql),
         );
-        // Only enforce on the most-recent block per file — old migrations
+        // Only enforce on the most-recent block per file - old migrations
         // that were later dropped are historical record, not live policy.
         const latest = all[all.length - 1];
         if (!latest) return;

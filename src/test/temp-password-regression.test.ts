@@ -12,7 +12,7 @@ import { join } from "node:path";
  *      the admin audit log payloads (before_json / after_json).
  *
  * The column itself has been dropped from the database, so a live insert
- * would fail — but we still fail fast at CI time to keep the pattern out
+ * would fail - but we still fail fast at CI time to keep the pattern out
  * of the codebase entirely.
  */
 
@@ -64,7 +64,7 @@ describe("temp_password regression guards", () => {
   });
 
   it("no source file references the `temp_password` column at all", () => {
-    // Even reads are forbidden — the column is dropped, and any lingering
+    // Even reads are forbidden - the column is dropped, and any lingering
     // .select("temp_password") / raw SQL reference is dead code we should catch.
     const anyPattern = /temp_password/;
     const offenders: string[] = [];

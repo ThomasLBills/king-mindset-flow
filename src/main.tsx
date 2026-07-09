@@ -9,7 +9,7 @@ import "./index.css";
 // reload, so a genuinely broken chunk can't spin the tab in a reload loop.
 window.addEventListener("vite:preloadError", (event) => {
   const reloadedKey = `chunk-reload:${window.location.href}`;
-  if (sessionStorage.getItem(reloadedKey)) return; // already retried — let the error boundary handle it
+  if (sessionStorage.getItem(reloadedKey)) return; // already retried - let the error boundary handle it
   sessionStorage.setItem(reloadedKey, "1");
   event.preventDefault(); // suppress Vite's re-throw; the reload is the recovery
   window.location.reload();

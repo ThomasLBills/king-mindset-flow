@@ -11,7 +11,7 @@
     max-width: 100vw;
   }
 
-  /* The Forge — single dark theme. All color routes through these tokens. */
+  /* The Forge - single dark theme. All color routes through these tokens. */
   :root {
     color-scheme: dark;
 
@@ -33,7 +33,7 @@
     --muted: 35 23% 10%;
     --muted-foreground: 39 16% 67%; /* bone-2 #B8AE9C */
 
-    --accent: 30 19% 13%; /* raised-2 #26201A — hover surface */
+    --accent: 30 19% 13%; /* raised-2 #26201A - hover surface */
     --accent-foreground: 39 41% 87%;
 
     /* Ember, never alarm-red: "fell" is spoken gently here. */

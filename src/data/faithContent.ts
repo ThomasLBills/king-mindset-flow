@@ -137,13 +137,13 @@ export const commonThoughts = [
 export const truthStatements: Record<string, string[]> = {
   failing: [
     "Failure is part of learning, not your identity. Every stumble is a chance to rise stronger.",
-    "You're not failing—you're fighting. The fact that you care proves you're not who you used to be.",
+    "You're not failing-you're fighting. The fact that you care proves you're not who you used to be.",
     "Progress isn't perfection. You're further along than you think.",
   ],
   escape: [
     "The urge to escape is a signal, not a command. True rest comes from presence, not avoidance.",
     "What you're really craving is peace, not pleasure. Only one of those lasts.",
-    "Escape promises relief but delivers regret. Face this moment—you can handle it.",
+    "Escape promises relief but delivers regret. Face this moment-you can handle it.",
   ],
   "never-change": [
     "Change is already happening. You're here, fighting. That's proof you're not who you were.",
@@ -156,7 +156,7 @@ export const truthStatements: Record<string, string[]> = {
     "The enemy wants you to believe you're beyond reach. But God's arm is not too short to save.",
   ],
   alone: [
-    "You are not alone. Brothers walk this path with you. Reach out—connection breaks isolation.",
+    "You are not alone. Brothers walk this path with you. Reach out-connection breaks isolation.",
     "Isolation is the enemy's playground. Step into the light with one trusted person.",
     "Millions of men fight this same battle. You're part of a brotherhood, even if you can't see them.",
   ],

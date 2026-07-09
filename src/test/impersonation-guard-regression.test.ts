@@ -16,7 +16,7 @@ import { join } from "node:path";
  *      - Never trust `SUPABASE_ANON_KEY` alone for admin verification
  *
  *   2. Client-side destructive surfaces must remain gated behind
- *      `useIsImpersonating()` — currently: chat message send, chat file
+ *      `useIsImpersonating()` - currently: chat message send, chat file
  *      upload, and Stripe billing portal open.
  */
 

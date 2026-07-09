@@ -26,7 +26,7 @@ const ForgotPassword = () => {
       });
 
       if (data?.eligible && data?.password_set === false) {
-        // User hasn't set a password — send them a verification code
+        // User hasn't set a password - send them a verification code
         // and redirect to the setup account page
         await supabase.functions.invoke("send-verification-code", {
           body: { email },

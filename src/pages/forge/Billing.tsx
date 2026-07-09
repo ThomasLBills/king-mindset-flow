@@ -38,7 +38,7 @@ const ERROR_COPY: Record<PortalErrorCode, { title: string; description: string }
   missing_portal_url: {
     title: "Missing portal link",
     description:
-      "Stripe responded without a portal URL. This is usually temporary — please retry.",
+      "Stripe responded without a portal URL. This is usually temporary - please retry.",
   },
   stripe_error: {
     title: "Stripe returned an error",

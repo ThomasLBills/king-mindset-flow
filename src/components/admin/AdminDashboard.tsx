@@ -50,7 +50,7 @@ const AdminDashboard = () => {
         <p className="mt-1 text-dim">Manage your curriculum, users, and settings.</p>
       </header>
 
-      {/* Stats — faint covenant seal engraved behind the row */}
+      {/* Stats - faint covenant seal engraved behind the row */}
       <div className="relative">
         <LkSeal className="pointer-events-none absolute left-1/2 top-1/2 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 text-gold opacity-5" />
         <div className="relative grid grid-cols-2 md:grid-cols-4 gap-4">

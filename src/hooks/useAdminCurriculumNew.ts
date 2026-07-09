@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 import { useToast } from "./use-toast";
 
-// Audit log helper — silently skips if no user
+// Audit log helper - silently skips if no user
 async function logAudit(
   adminUserId: string | undefined,
   action: string,
