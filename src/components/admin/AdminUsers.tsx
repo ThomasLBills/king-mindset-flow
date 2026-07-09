@@ -382,12 +382,13 @@ const AdminUsers = () => {
             </>
           }
           rowActions={(u) => (
-            <div className="flex flex-wrap justify-end gap-2">
+            <div className="ml-auto grid w-[18rem] grid-cols-2 gap-2">
               <Button
                 size="sm"
                 variant={u.entitlement?.active ? "destructive" : "default"}
                 onClick={() => toggleEntitlement.mutate({ userId: u.user_id, active: !u.entitlement?.active })}
                 disabled={toggleEntitlement.isPending}
+                className="w-full justify-center"
               >
                 {u.entitlement?.active ? "Revoke" : "Grant"}
               </Button>
@@ -396,7 +397,7 @@ const AdminUsers = () => {
                 variant="outline"
                 onClick={() => toggleRole.mutate({ userId: u.user_id, makeAdmin: !u.isAdmin })}
                 disabled={toggleRole.isPending}
-                className="gap-1"
+                className="w-full justify-center gap-1"
               >
                 {u.isAdmin ? <><ShieldOff className="h-3.5 w-3.5" aria-hidden="true" /> Remove admin</> : <><Shield className="h-3.5 w-3.5" aria-hidden="true" /> Make admin</>}
               </Button>
@@ -404,7 +405,7 @@ const AdminUsers = () => {
                 <Button
                   size="sm"
                   variant="secondary"
-                  className="gap-1"
+                  className="w-full justify-center gap-1"
                   onClick={() => setImpersonateTarget({ id: u.user_id, name: u.display_name || u.name || u.email, email: u.email })}
                   disabled={impersonatingId === u.user_id}
                 >
@@ -414,7 +415,7 @@ const AdminUsers = () => {
               )}
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button size="sm" variant="destructive" className="gap-1">
+                  <Button size="sm" variant="destructive" className="w-full justify-center gap-1">
                     <Trash2 className="h-3.5 w-3.5" aria-hidden="true" /> Delete
                   </Button>
                 </AlertDialogTrigger>
