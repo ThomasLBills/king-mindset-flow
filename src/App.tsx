@@ -1,10 +1,12 @@
-import { Component, Suspense, lazy, useEffect, type ErrorInfo, type ReactNode } from "react";
+import { Component, Suspense, lazy, useEffect, useRef, type ErrorInfo, type ReactNode } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { AuthProvider } from "@/hooks/useAuth";
+import { prefetchPublic } from "@/lib/prefetch";
 import { UnreadProvider } from "@/contexts/UnreadContext";
 import { ImpersonationProvider } from "@/contexts/ImpersonationContext";
 import ImpersonationBanner from "@/components/impersonation/ImpersonationBanner";
@@ -126,26 +128,76 @@ const ScrollToTop = () => {
   return null;
 };
 
-const App = () => (
-  <RootErrorBoundary>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <AuthProvider>
-          <UnreadProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <ImpersonationProvider>
-                <ImpersonationBanner />
-                <ScrollToTop />
-                <RouteMeta />
-                {/* One Suspense boundary for every lazy route: chunk loads
-                    swap the whole viewport for the fallback instead of
-                    leaving half-rendered shells behind. */}
-                <Suspense fallback={<RouteFallback />}>
-                  <Routes>
-                    {/* Public */}
-                    <Route path="/" element={<Landing />} />
+const EASE = [0.22, 1, 0.36, 1] as const;
+
+/**
+ * Routes + a sohub-style stacked page transition. Both pages share ONE grid
+ * cell, so it's a transform-only effect — normal document scroll / Lenis are
+ * untouched, and no `position: fixed` overlay is needed (which would also trap
+ * Landing's fixed header, since a transformed ancestor becomes its containing
+ * block; framer resets transform to `none` at rest, so that only holds mid-flight).
+ *
+ * Only moves that INVOLVE the landing page animate — leaving it or returning to
+ * it. Auth-to-auth hops (login ↔ signup ↔ setup-account) are near-identical
+ * screens, so they just swap with no motion. When it does animate, both pages
+ * slide up one viewport in lockstep: the outgoing page (z below) slides straight
+ * up and off the top — full-size + opaque (blur is fine; NO scale/fade, which
+ * would uncover the void behind) — while the incoming page (z above) rises from
+ * below. The seam where they meet travels up and the viewport stays fully covered
+ * the whole way. `custom` carries the decision to the *exiting* page too, so it's
+ * destination-aware (framer forwards the latest custom to exits).
+ */
+const AnimatedRoutes = () => {
+  const location = useLocation();
+  const reduce = useReducedMotion();
+  const areaKey = location.pathname.split("/")[1] || "home";
+
+  // Animate only when this move leaves or returns to the landing page.
+  const prevArea = useRef(areaKey);
+  const moves = !reduce && (areaKey === "home" || prevArea.current === "home");
+  useEffect(() => {
+    prevArea.current = areaKey;
+  }, [areaKey]);
+
+  // Rise/settle exactly one viewport (transform only — never affects layout).
+  const rise = typeof window !== "undefined" ? window.innerHeight : 800;
+  const variants = {
+    enter: (on: boolean) => ({ y: on ? rise : 0, opacity: 1, zIndex: 2 }),
+    center: { y: 0, opacity: 1, zIndex: 2 },
+    exit: (on: boolean) => ({
+      y: on ? -rise : 0,
+      opacity: 1,
+      filter: on ? "blur(6px)" : "blur(0px)",
+      zIndex: 1,
+    }),
+  };
+
+  // Warm the public funnel (auth + legal) on idle so the CTAs land on an
+  // already-downloaded page instead of the Suspense fallback.
+  useEffect(() => {
+    prefetchPublic();
+  }, []);
+
+  return (
+    <div className="grid">
+      <AnimatePresence initial={false} custom={moves}>
+        <motion.div
+          key={areaKey}
+          custom={moves}
+          variants={variants}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          style={{ gridArea: "1 / 1" }}
+          transition={{ duration: moves ? 0.6 : 0, ease: EASE }}
+        >
+          {/* One Suspense boundary for every lazy route: chunk loads swap the
+              whole viewport for the fallback instead of leaving half-rendered
+              shells behind. */}
+          <Suspense fallback={<RouteFallback />}>
+            <Routes location={location}>
+            {/* Public */}
+            <Route path="/" element={<Landing />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/signup" element={<Signup />} />
                     <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -217,8 +269,28 @@ const App = () => (
                     <Route path="/chat" element={<Navigate to="/app/brotherhood" replace />} />
 
                     <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </Suspense>
+            </Routes>
+          </Suspense>
+        </motion.div>
+      </AnimatePresence>
+    </div>
+  );
+};
+
+const App = () => (
+  <RootErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <AuthProvider>
+          <UnreadProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <ImpersonationProvider>
+                <ImpersonationBanner />
+                <ScrollToTop />
+                <RouteMeta />
+                <AnimatedRoutes />
               </ImpersonationProvider>
             </BrowserRouter>
           </UnreadProvider>

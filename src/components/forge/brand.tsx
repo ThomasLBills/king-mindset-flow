@@ -6,7 +6,7 @@ import logoHorizontal from "@/assets/lk-logo-horizontal.png";
  * public/lk-icon.png and src/assets/lk-logo-horizontal.png. The PNGs are
  * black, so a CSS filter tints them for the dark theme.
  */
-type Tone = "gold" | "bone" | "dim";
+type Tone = "gold" | "bone" | "dim" | "ink";
 
 const TONE_FILTER: Record<Tone, string> = {
   // black → approx gold #C9A961
@@ -15,6 +15,8 @@ const TONE_FILTER: Record<Tone, string> = {
   bone: "invert(94%) sepia(8%) saturate(180%) hue-rotate(5deg)",
   // black → approx dim #857C6C
   dim: "invert(52%) sepia(12%) saturate(320%) hue-rotate(4deg) brightness(0.9)",
+  // native near-black mark, for use on light surfaces
+  ink: "none",
 };
 
 /** The LK icon mark. */

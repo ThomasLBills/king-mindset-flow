@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Eyebrow } from "@/components/forge/atoms";
 import { LkMonogram } from "@/components/forge/brand";
+import { MountReveal } from "@/components/forge/reveal";
 
 const Section = ({ heading, children }: { heading: string; children: React.ReactNode }) => (
   <section className="mt-8">
@@ -12,15 +13,17 @@ const Section = ({ heading, children }: { heading: string; children: React.React
 );
 
 const Frame = ({ title, children }: { title: string; children: React.ReactNode }) => (
-  <div className="min-h-dvh bg-forge">
+  <div className="lk-cream min-h-dvh bg-background text-foreground">
     <div className="mx-auto max-w-2xl px-6 py-10">
-      <Link to="/" className="mb-8 inline-flex items-center gap-2 text-sm text-dim transition-colors hover:text-bone-2">
-        <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Home
-      </Link>
-      <LkMonogram className="mb-5 h-7 w-9 text-gold" />
-      <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-bone">{title}</h1>
-      <Eyebrow className="mt-2 block">Last updated: February 2026</Eyebrow>
-      {children}
+      <MountReveal>
+        <Link to="/" className="mb-8 inline-flex items-center gap-2 text-sm text-dim transition-colors hover:text-bone-2">
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Home
+        </Link>
+        <LkMonogram tone="ink" className="mb-5 h-7 w-9" />
+        <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-bone">{title}</h1>
+        <Eyebrow className="mt-2 block">Last updated: February 2026</Eyebrow>
+      </MountReveal>
+      <MountReveal delay={0.12}>{children}</MountReveal>
     </div>
   </div>
 );

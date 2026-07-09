@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Eyebrow, SectionCard } from "@/components/forge/atoms";
 import { LkMonogram } from "@/components/forge/brand";
+import { Grain } from "@/components/forge/scenes";
 
 const benefits = [
   "Daily check-ins to build evidence of your freedom",
@@ -121,10 +122,11 @@ const Upgrade = () => {
   const amountLabel = plan === "monthly" ? "$7.95/mo" : "$69.95/yr";
 
   return (
-    <div className="ember-bg min-h-dvh px-6 py-12">
-      <div className="mx-auto max-w-lg">
+    <div className="lk-cream relative min-h-dvh overflow-hidden bg-background px-6 py-12 text-foreground">
+      <Grain />
+      <div className="relative mx-auto max-w-lg">
         <div className="mb-8 text-center">
-          <LkMonogram className="mx-auto mb-4 h-11 w-14 text-gold" />
+          <LkMonogram tone="ink" className="mx-auto mb-4 h-11 w-14" />
           <Eyebrow tone="gold" className="mb-2 block">
             Keep your ground
           </Eyebrow>

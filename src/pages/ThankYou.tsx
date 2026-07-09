@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Eyebrow } from "@/components/forge/atoms";
 import { LkSeal, LkMonogram } from "@/components/forge/brand";
-import { SceneRidge, Grain } from "@/components/forge/scenes";
+import { Grain } from "@/components/forge/scenes";
 
 const ThankYou = () => {
   const [searchParams] = useSearchParams();
@@ -38,15 +38,8 @@ const ThankYou = () => {
   }, [sessionId]);
 
   return (
-    <div className="relative grid min-h-dvh place-items-center overflow-hidden bg-forge px-6 py-12">
-      {/* Dawn-over-ridgelines backdrop, faded low so it sets a mood without
-          fighting the confirmation copy. */}
-      <SceneRidge variant="wide" className="opacity-[0.28]" />
+    <div className="lk-cream relative grid min-h-dvh place-items-center overflow-hidden bg-background px-6 py-12 text-foreground">
       <Grain />
-      <div
-        className="pointer-events-none absolute inset-0 bg-gradient-to-t from-forge via-forge/70 to-forge/30"
-        aria-hidden="true"
-      />
 
       <div className="relative w-full max-w-md text-center">
         {verifying ? (
@@ -75,7 +68,7 @@ const ThankYou = () => {
           </>
         ) : (
           <>
-            <LkMonogram className="mx-auto mb-6 h-12 w-16 text-gold" />
+            <LkMonogram tone="ink" className="mx-auto mb-6 h-12 w-16" />
             <Eyebrow tone="gold" className="mb-2 block">
               Almost there
             </Eyebrow>

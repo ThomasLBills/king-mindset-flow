@@ -73,6 +73,40 @@
   }
 }
 
+/* Public auth funnel runs the landing's light "cream" look. Rather than
+   hand-inverting classes (which would miss shadcn form controls), scope a real
+   light theme: flipping the tokens makes Input/Label/FormMessage/Card/Alert/
+   Button all render correctly on cream, and the screens' existing alias classes
+   (text-bone -> --foreground, text-bone-2 -> --muted-foreground) re-colour for
+   free. Member app + admin keep the :root dark theme. Vars not listed here
+   inherit from :root — notably --primary stays gold, so filled buttons match
+   the landing's bright-gold CTAs. */
+.lk-cream {
+  color-scheme: light;
+  --background: 39 41% 87%; /* bone page */
+  --foreground: 34 21% 6%; /* forge ink */
+  --card: 39 30% 82%; /* raised cream surface */
+  --card-foreground: 34 21% 6%;
+  --popover: 39 41% 87%;
+  --popover-foreground: 34 21% 6%;
+  --secondary: 39 28% 80%;
+  --secondary-foreground: 34 21% 6%;
+  --muted: 39 30% 82%;
+  --muted-foreground: 34 15% 30%; /* forge-muted body copy */
+  --accent: 39 28% 78%; /* hover surface */
+  --accent-foreground: 34 21% 6%;
+  --border: 34 14% 68%; /* taupe line, visible on cream */
+  --input: 34 14% 68%;
+  --dim: 34 12% 40%; /* darker tertiary text for cream */
+  --ring: 42 47% 37%; /* gold-deep focus ring */
+}
+/* Light gold (--primary) is too low-contrast as text on cream; the landing uses
+   deep gold for on-cream accents. The descendant selector (0,2,0) beats the
+   .text-gold utility (0,1,0), so eyebrows/links/icons pick up deep gold. */
+.lk-cream .text-gold {
+  color: hsl(var(--gold-deep));
+}
+
 @layer base {
   * {
     @apply border-border;
@@ -137,5 +171,212 @@
       radial-gradient(115% 80% at 100% 0%, hsl(var(--ember) / 0.14) 0%, transparent 44%),
       radial-gradient(70% 55% at 96% 3%, hsl(var(--primary) / 0.08) 0%, transparent 40%),
       linear-gradient(165deg, hsl(var(--forge-2)) 0%, hsl(var(--background)) 72%);
+  }
+
+  /* ---- Landing (redesign/forge, sohub-inspired) ---- */
+
+  /* Warm-grade the bright cutout subjects into the dark scene + give depth. */
+  .subject-grade {
+    filter: drop-shadow(0 10px 18px rgb(0 0 0 / 0.1)) brightness(0.97) contrast(1.03)
+      saturate(0.92) sepia(0.08);
+  }
+
+  /* Dark headline text on the cream page with a lighter taupe/gold band that
+     the scroll scrubs across (sohub-style). Falls back to a solid dark fill
+     where scroll-timeline is unsupported. */
+  .shimmer-text {
+    background-image: linear-gradient(
+      100deg,
+      hsl(var(--background)) 0%,
+      hsl(var(--background)) 36%,
+      hsl(var(--dim)) 49%,
+      hsl(var(--gold-deep)) 56%,
+      hsl(var(--background)) 70%,
+      hsl(var(--background)) 100%
+    );
+    background-size: 220% 100%;
+    background-position-x: 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* One highlighted word: a self-running gradient shimmer, decoupled from
+     scroll (sohub's .h-word). Gold band sweeps on a 5s loop. */
+  .lk-shimmer-word {
+    background-image: linear-gradient(
+      90deg,
+      hsl(var(--gold-deep)),
+      hsl(var(--gold-bright)),
+      hsl(var(--gold-deep))
+    );
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .lk-shimmer-word {
+      animation: lk-gradmove 5s ease infinite;
+    }
+  }
+}
+
+@keyframes lk-gradmove {
+  0% {
+    background-position: 10% 0;
+  }
+  50% {
+    background-position: 91% 100%;
+  }
+  100% {
+    background-position: 10% 0;
+  }
+}
+
+/* Landing-scoped 8px pill scrollbar — only while Lenis is mounted (it toggles
+   html.lenis), so the member app keeps the default 10px bar. */
+html.lenis {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--dim)) transparent;
+}
+html.lenis::-webkit-scrollbar {
+  width: 8px;
+}
+html.lenis::-webkit-scrollbar-track {
+  background: transparent;
+}
+html.lenis::-webkit-scrollbar-thumb {
+  background: hsl(var(--dim));
+  border: none;
+  border-radius: 9999px;
+}
+
+@keyframes lk-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-1rem);
+  }
+}
+@keyframes lk-rise {
+  from {
+    opacity: 0;
+    transform: translateY(1.75rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes lk-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(2rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes lk-shimmer {
+  from {
+    background-position-x: 100%;
+  }
+  to {
+    background-position-x: -25%;
+  }
+}
+/* Fade + drift IN as it enters, hold, then OUT as it leaves (sohub-style). */
+@keyframes lk-io {
+  0% {
+    opacity: 0;
+    transform: translateY(2.5rem);
+  }
+  14%,
+  86% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-2.5rem);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .lk-float {
+    animation: lk-float 5s ease-in-out infinite;
+  }
+  .lk-rise {
+    animation: lk-rise 0.9s cubic-bezier(0.22, 0.68, 0, 1) both;
+  }
+
+  /* Scroll-driven reveals + shimmer sweep. Enhancement only: without
+     animation-timeline support, .lk-reveal stays visible and .shimmer-text
+     rests on its legible muted fill. */
+  @supports (animation-timeline: view()) {
+    .lk-reveal {
+      opacity: 0;
+      animation: lk-reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 5% cover 34%;
+    }
+    .shimmer-text {
+      animation: lk-shimmer linear both;
+      animation-timeline: view();
+      animation-range: entry 12% cover 58%;
+    }
+    /* Scroll-linked in-and-out (plays forward on the way in, reverses on the
+       way out) across the element's full pass through the viewport. */
+    .lk-reveal-io {
+      opacity: 0;
+      animation: lk-io linear both;
+      animation-timeline: view();
+      animation-range: cover 0% cover 100%;
+    }
+  }
+}
+
+/* Hero scroll cue fades out over the first stretch of scroll (sohub behaviour).
+   Not gated on reduced-motion — it's a scroll-position map, not flashing motion. */
+@keyframes lk-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+@supports (animation-timeline: scroll()) {
+  .lk-scroll-cue {
+    animation: lk-fade-out linear both;
+    animation-timeline: scroll(root);
+    animation-range: 0 22vh;
+  }
+}
+
+/* Pinned pillar deck (sohub-style). `.is-pinned` is toggled by GSAP matchMedia
+   only at lg AND only when motion is allowed; without it the cards stay in
+   normal flow — a plain stacked list for mobile / reduced-motion. */
+.pillar-deck.is-pinned {
+  display: block;
+  aspect-ratio: 16 / 7;
+}
+.pillar-deck.is-pinned .pillar-card {
+  position: absolute;
+  inset: 0;
+}
+
+/* Perpetual slow spin for the sparkle glyph (sohub's rotating icon). */
+@keyframes lk-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .lk-spin {
+    animation: lk-spin 4s linear infinite;
   }
 }
