@@ -147,7 +147,7 @@ const StandFirm = () => {
 
   const steady = () => {
     addUrge.mutate(undefined, {
-      onSuccess: () => toast.success("Logged as a win. Well fought."),
+      onSuccess: () => toast.success("That's who you are now. Well stood."),
     });
     navigate("/app");
   };

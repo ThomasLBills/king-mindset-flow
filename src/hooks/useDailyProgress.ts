@@ -138,53 +138,6 @@ export function useDailyCompletions(category: string, itemIds: string[]) {
   };
 }
 
-// ========== FREEDOM STREAK ==========
-export function useFreedomStreak() {
-  const { user } = useAuth();
-  const qc = useQueryClient();
-
-  const { data: streak, isLoading } = useQuery({
-    queryKey: ["freedom-streak", user?.id],
-    enabled: !!user,
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("freedom_streaks")
-        .select("*")
-        .eq("user_id", user!.id)
-        .maybeSingle();
-      return data;
-    },
-  });
-
-  const resetStreak = useMutation({
-    mutationFn: async () => {
-      const today = getLocalDate();
-      const { error } = await supabase.from("freedom_streaks").upsert({
-        user_id: user!.id,
-        start_date: today,
-        updated_at: new Date().toISOString(),
-      }, { onConflict: "user_id" });
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["freedom-streak"] });
-    },
-  });
-
-  const startDate = streak?.start_date ? new Date(streak.start_date + "T00:00:00") : new Date();
-  const today = new Date();
-  const diffTime = Math.abs(today.getTime() - startDate.getTime());
-  const daysFree = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-  return {
-    startDate,
-    daysFree,
-    isLoading,
-    resetStreak,
-    hasStreak: !!streak,
-  };
-}
-
 // ========== ALL COMPLETIONS FOR TODAY (cross-category) ==========
 export function useTodayAllCompletions() {
   const { user } = useAuth();

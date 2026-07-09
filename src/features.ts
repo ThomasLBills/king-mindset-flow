@@ -5,10 +5,12 @@
  * Everything not listed here is EXISTING and ships unconditionally.
  */
 export const FEATURES = {
-  /** "The Standard" win-rate metric (real data is a resetting streak) */
-  theStandard: true,
-  /** "Longest run" figure (no longest-streak field exists today) */
-  longestRun: true,
+  /**
+   * "Standing" identity hero on Today: the covenant "why" + a son-not-slave
+   * truth line. Replaces the retired abstinence scoreboard ("The Standard" /
+   * days-held / longest-run), which framed recovery as days-since-porn.
+   */
+  standing: true,
   /** "Readings finished" / "Brothers reached" dashboard stats */
   extraStats: true,
   /** Named small groups ("The Watchmen"); the app has 1:1 + channels only */

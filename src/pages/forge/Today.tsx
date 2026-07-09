@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { FEATURES } from "@/features";
 import { useForgeUser } from "@/hooks/useForgeProfile";
-import { useStandard, type StandardCycle } from "@/hooks/useStandard";
+import { useCovenant, type CovenantRow } from "@/hooks/useCovenant";
 import { usePathToday, type PathStep } from "@/hooks/usePathToday";
 import { useSideVerse, useVerseOfDay } from "@/hooks/useForgeVerses";
 import { useBanner, useGroup, useSendStrength, type ForgeBrother } from "@/hooks/useForgeGroup";
@@ -16,6 +16,7 @@ import { WEEKLY_CALL, isCallDay } from "@/data/weeklyCall";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Eyebrow, InitialsAvatar, SectionCard } from "@/components/forge/atoms";
+import { LkSeal } from "@/components/forge/brand";
 import { Grain, SceneShafts } from "@/components/forge/scenes";
 import { CheckInDialog, ReflectionDialog } from "@/components/today/dialogs";
 
@@ -44,59 +45,40 @@ const Reveal = ({ children, delay = 0 }: { children: ReactNode; delay?: number }
   );
 };
 
-const FELL_WORDS = ["None", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten"];
-
-const TheStandard = ({ cycle }: { cycle: StandardCycle }) => {
-  const held = cycle.days.filter((d) => d === "held").length;
-  const fell = cycle.days.length - held;
-  const pct = Math.round((held / cycle.days.length) * 100);
+/**
+ * The Today anchor. Deliberately NOT a scoreboard: no days-held, no streak,
+ * no "day N". It answers "who am I" (a freed son) and "what am I standing
+ * for" (his own covenant why) instead of "how many days since I last fell".
+ */
+const Standing = ({ covenant }: { covenant: CovenantRow | null | undefined }) => {
+  // The "why" lives on the covenant and is gated by its own feature flag.
+  const why = FEATURES.rememberWhy ? covenant?.why?.trim() : null;
   return (
     <SectionCard hatch className="p-5 sm:p-6">
-      <div className="mb-4 flex items-baseline justify-between">
-        <Eyebrow>The Standard · this cycle</Eyebrow>
-        <Eyebrow>Day {cycle.day}</Eyebrow>
-      </div>
-      <div className="mb-4 flex items-end gap-4">
-        <div className="font-display text-[56px] font-bold leading-[0.82] tracking-tight text-bone">
-          {held}
-          <span className="text-xl font-semibold text-dim">/{cycle.days.length}</span>
-        </div>
-        <div className="pb-1">
-          <div className="font-display text-xs uppercase tracking-[0.1em] text-gold">
-            Days held · {pct}%
-          </div>
-          {FEATURES.longestRun && (
-            <div className="text-[13px] text-bone-2">Your longest run yet was {cycle.longestRun} days.</div>
-          )}
-        </div>
-      </div>
-      <div className="mb-3 flex flex-wrap items-end gap-1 py-1" aria-hidden="true">
-        {cycle.days.map((outcome, i) => (
-          <span
-            key={i}
-            className={cn(
-              "w-[5px] rounded-[1px]",
-              outcome === "held"
-                ? "h-7 bg-gold shadow-[0_0_7px_-1px_hsl(var(--primary)/0.4)]"
-                : "h-3.5 bg-ember opacity-90",
-              i === cycle.day - 1 && "outline outline-1 outline-offset-2 outline-gold-bright"
-            )}
-          />
-        ))}
-      </div>
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-bone-2">
-        <span className="flex items-center gap-1.5">
-          <i className="inline-block h-2 w-2 rounded-[2px] bg-gold" aria-hidden="true" /> Held
-        </span>
-        <span className="flex items-center gap-1.5">
-          <i className="inline-block h-2 w-2 rounded-[2px] bg-ember" aria-hidden="true" /> Fell
-        </span>
-        <span className="font-serif italic text-dim">
-          {fell > 0
-            ? `${FELL_WORDS[fell] ?? fell} fell, and each one is still on the record. Grace, not reset.`
-            : "A clean cycle so far. Stay watchful, stay humble."}
-        </span>
-      </div>
+      <LkSeal className="pointer-events-none absolute -right-7 -top-7 h-32 w-32 text-gold opacity-[0.06]" />
+      <Eyebrow tone="gold" className="mb-3 block">
+        Free · a son
+      </Eyebrow>
+      {why ? (
+        <>
+          <p className="font-serif text-2xl italic leading-snug text-bone">“{why}”</p>
+          <p className="mt-3 text-sm text-bone-2">
+            This is what you're standing for. Not a streak to protect, but a life to live.
+          </p>
+        </>
+      ) : (
+        <>
+          <p className="font-serif text-2xl italic leading-snug text-bone">
+            You are not the sum of your worst days. Bought, free, and sent.
+          </p>
+          <Link
+            to="/app/profile"
+            className="mt-3 inline-block text-sm text-gold underline-offset-4 hover:underline"
+          >
+            Name what you're standing for →
+          </Link>
+        </>
+      )}
     </SectionCard>
   );
 };
@@ -194,7 +176,7 @@ const statusDot: Record<ForgeBrother["status"], { className: string; label: stri
 
 const Today = () => {
   const { user } = useForgeUser();
-  const { data: standard } = useStandard();
+  const { data: covenant } = useCovenant();
   const { data: path } = usePathToday();
   const { data: verse } = useVerseOfDay();
   const { data: sideVerse } = useSideVerse();
@@ -242,16 +224,16 @@ const Today = () => {
           </div>
 
           <div className="mx-auto flex w-full max-w-[760px] flex-col gap-4 px-5 pb-10 sm:px-8">
-            {!standard || !path ? (
+            {!path ? (
               <>
                 <Skeleton className="h-48 w-full" />
                 <Skeleton className="h-40 w-full" />
               </>
             ) : (
               <>
-                {FEATURES.theStandard && (
+                {FEATURES.standing && (
                   <Reveal>
-                    <TheStandard cycle={standard} />
+                    <Standing covenant={covenant} />
                   </Reveal>
                 )}
                 <Reveal delay={0.06}>
@@ -311,7 +293,7 @@ const Today = () => {
                         <Eyebrow className="mb-1 block">This week</Eyebrow>
                         <dl>
                           <div className="flex items-baseline justify-between py-2 text-sm text-bone-2">
-                            <dt>Urges redirected</dt>
+                            <dt>Urges you turned from</dt>
                             <dd className="font-display text-lg font-bold text-bone">
                               {stats.urgesRedirected}
                             </dd>
