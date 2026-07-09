@@ -56,7 +56,18 @@ const CurriculumOverview = lazy(() => import("@/components/admin/curriculum/Curr
 const WeekDetail = lazy(() => import("@/components/admin/curriculum/WeekDetail"));
 const CurriculumLessonEditor = lazy(() => import("@/components/admin/curriculum/CurriculumLessonEditor"));
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // Alt-tabbing back to the app was refetching every query on window focus
+      // (TanStack's default with staleTime 0), which reads as the page
+      // "refreshing" itself. Treat data as fresh for a minute and don't refetch
+      // just because the tab regained focus.
+      staleTime: 60_000,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 /**
  * Root error boundary. Without one, any uncaught render/effect error makes
