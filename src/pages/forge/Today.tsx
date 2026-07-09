@@ -8,8 +8,8 @@ import { FEATURES } from "@/features";
 import { useForgeUser } from "@/hooks/useForgeProfile";
 import { useCovenant, type CovenantRow } from "@/hooks/useCovenant";
 import { usePathToday, type PathStep } from "@/hooks/usePathToday";
-import { useSideVerse, useVerseOfDay } from "@/hooks/useForgeVerses";
-import { useBanner, useGroup, useSendStrength, type ForgeBrother } from "@/hooks/useForgeGroup";
+import { useVerseOfDay } from "@/hooks/useForgeVerses";
+import { useBanner, useGroup, useSendStrength } from "@/hooks/useForgeGroup";
 import { useWeekStats } from "@/hooks/useWeekStats";
 import { useForgeWeeks } from "@/hooks/useForgeCurriculum";
 import { WEEKLY_CALL, isCallDay } from "@/data/weeklyCall";
@@ -168,18 +168,11 @@ const PathToday = ({
   </SectionCard>
 );
 
-const statusDot: Record<ForgeBrother["status"], { className: string; label: string }> = {
-  steady: { className: "bg-gold", label: "steady" },
-  struggling: { className: "bg-ember", label: "in the fight" },
-  away: { className: "bg-line", label: "away" },
-};
-
 const Today = () => {
   const { user } = useForgeUser();
   const { data: covenant } = useCovenant();
   const { data: path } = usePathToday();
   const { data: verse } = useVerseOfDay();
-  const { data: sideVerse } = useSideVerse();
   const { data: group } = useGroup();
   const { data: banner } = useBanner();
   const { data: stats } = useWeekStats();
@@ -201,9 +194,8 @@ const Today = () => {
   return (
     <div className="relative">
       <PageBackdrop />
-      <div className="relative flex flex-col xl:flex-row">
-        <div className="min-w-0 flex-1">
-          {/* Greeting hero */}
+      <div className="relative">
+        {/* Greeting hero */}
           <div className="relative mx-auto max-w-3xl px-5 pb-6 pt-8 sm:px-8 lg:pt-10">
             <div className="relative">
               {currentWeek && (
@@ -318,71 +310,30 @@ const Today = () => {
                 </Reveal>
               </>
             )}
-          </div>
-        </div>
 
-        {/* Side rail: desktop column, stacked cards on smaller screens */}
-        <aside className="flex w-full flex-col gap-6 border-t border-line bg-forge-2 px-5 py-7 sm:px-8 xl:sticky xl:top-0 xl:h-dvh xl:w-[300px] xl:shrink-0 xl:self-start xl:overflow-y-auto xl:border-l xl:border-t-0 xl:px-5">
-          <div>
-            <h2 className="mb-3">
-              <Eyebrow>Next brotherhood call</Eyebrow>
-            </h2>
-            <SectionCard hatch className="p-4">
-              <p className="font-display text-lg font-bold tracking-tight text-bone">
-                {WEEKLY_CALL.label}
-              </p>
-              <p className="mt-0.5 text-xs text-gold">Every week · all brothers welcome</p>
-              <Button
-                variant="outline"
-                size="sm"
-                className="mt-3 w-full"
-                onClick={() =>
-                  isCallDay()
-                    ? window.open(WEEKLY_CALL.joinUrl, "_blank", "noopener,noreferrer")
-                    : toast.info(`The room opens ${WEEKLY_CALL.label}.`)
-                }
-              >
-                Join the call
-              </Button>
-            </SectionCard>
+            {/* Next brotherhood call - folded in from the old side rail */}
+            <div>
+              <Eyebrow className="mb-3 block">Next brotherhood call</Eyebrow>
+              <SectionCard hatch className="p-4">
+                <p className="font-display text-lg font-bold tracking-tight text-bone">
+                  {WEEKLY_CALL.label}
+                </p>
+                <p className="mt-0.5 text-xs text-gold">Every week · all brothers welcome</p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-3"
+                  onClick={() =>
+                    isCallDay()
+                      ? window.open(WEEKLY_CALL.joinUrl, "_blank", "noopener,noreferrer")
+                      : toast.info(`The room opens ${WEEKLY_CALL.label}.`)
+                  }
+                >
+                  Join the call
+                </Button>
+              </SectionCard>
+            </div>
           </div>
-          {FEATURES.groups && group && (
-            <div>
-              <h2 className="mb-3">
-                <Eyebrow>{group.name}</Eyebrow>
-              </h2>
-              <ul className="flex flex-col gap-2.5">
-                {group.members.map((m) => (
-                  <li key={m.id} className="flex items-center gap-2.5 text-[13.5px] text-bone-2">
-                    <InitialsAvatar initials={m.initials} tone="raised" className="h-[30px] w-[30px]" />
-                    {m.name}
-                    {FEATURES.statusDots && (
-                      <span
-                        className={cn("ml-auto h-2 w-2 rounded-full", statusDot[m.status].className)}
-                        title={statusDot[m.status].label}
-                      >
-                        <span className="sr-only">{statusDot[m.status].label}</span>
-                      </span>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-          {sideVerse && (
-            <div>
-              <h2 className="mb-3">
-                <Eyebrow>A word for the fight</Eyebrow>
-              </h2>
-              <p className="font-serif text-[15px] italic leading-relaxed text-bone-2">
-                “{sideVerse.text}”
-                <span className="mt-2 block font-display text-[11px] not-italic tracking-[0.14em] text-gold">
-                  {sideVerse.ref.toUpperCase()}
-                </span>
-              </p>
-            </div>
-          )}
-        </aside>
       </div>
 
       <CheckInDialog open={checkInOpen} onOpenChange={setCheckInOpen} />
