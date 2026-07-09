@@ -89,7 +89,20 @@ const AdminChannels = () => {
       if (error) throw error;
       await logAdminAudit({ action: "update", entityType: "chat_channel", entityId: id, after: { [field]: value } });
     },
-    onSuccess: invalidate,
+    // Optimistic: flip the switch immediately, roll back if the write fails.
+    onMutate: async ({ id, field, value }) => {
+      await queryClient.cancelQueries({ queryKey: ["admin-channels"] });
+      const prev = queryClient.getQueryData<Channel[]>(["admin-channels"]);
+      queryClient.setQueryData<Channel[]>(["admin-channels"], (old) =>
+        (old ?? []).map((c) => (c.id === id ? { ...c, [field]: value } : c))
+      );
+      return { prev };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.prev) queryClient.setQueryData(["admin-channels"], ctx.prev);
+      toast.error("Could not update channel");
+    },
+    onSettled: invalidate,
   });
 
   const deleteChannel = useMutation({
