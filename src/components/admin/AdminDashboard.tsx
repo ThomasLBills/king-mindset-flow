@@ -6,7 +6,6 @@ import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Eyebrow, SectionCard } from "@/components/forge/atoms";
-import { LkSeal } from "@/components/forge/brand";
 
 function useAdminCurriculumStats() {
   return useQuery({
@@ -50,24 +49,20 @@ const AdminDashboard = () => {
         <p className="mt-1 text-dim">Manage your curriculum, users, and settings.</p>
       </header>
 
-      {/* Stats - faint covenant seal engraved behind the row */}
-      <div className="relative">
-        <LkSeal className="pointer-events-none absolute left-1/2 top-1/2 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 text-gold opacity-5" />
-        <div className="relative grid grid-cols-2 md:grid-cols-4 gap-4">
-          {statCards.map((s) => (
-            <SectionCard key={s.label} className="p-5 text-center">
-              {isLoading ? (
-                <Loader2 className="h-6 w-6 mx-auto animate-spin text-dim" />
-              ) : (
-                <>
-                  <s.icon className={`h-6 w-6 mx-auto mb-2 ${s.color}`} />
-                  <p className="font-display text-2xl font-bold text-bone">{s.value ?? 0}</p>
-                  <p className="text-sm text-dim">{s.label}</p>
-                </>
-              )}
-            </SectionCard>
-          ))}
-        </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {statCards.map((s) => (
+          <SectionCard key={s.label} className="p-5 text-center">
+            {isLoading ? (
+              <Loader2 className="h-6 w-6 mx-auto animate-spin text-dim" />
+            ) : (
+              <>
+                <s.icon className={`h-6 w-6 mx-auto mb-2 ${s.color}`} />
+                <p className="font-display text-2xl font-bold text-bone">{s.value ?? 0}</p>
+                <p className="text-sm text-dim">{s.label}</p>
+              </>
+            )}
+          </SectionCard>
+        ))}
       </div>
 
       {/* Engagement Stats */}
