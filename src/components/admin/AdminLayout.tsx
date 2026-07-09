@@ -136,7 +136,8 @@ const AdminLayout = () => {
       {/* Main content */}
       <main className="flex-1 min-w-0 md:overflow-y-auto">
         <div className="md:hidden pt-[calc(3.5rem+env(safe-area-inset-top))]" />
-        <PageBackdrop className="p-4 md:p-6">
+        {/* pb-24 on mobile clears the fixed bottom nav; md resets it. */}
+        <PageBackdrop className="p-4 pb-24 md:p-6">
           <Outlet />
         </PageBackdrop>
       </main>

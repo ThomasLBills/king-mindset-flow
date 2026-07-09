@@ -3,7 +3,11 @@
  * Pair it with useAdminCollection (server-side search/sort/filter/paginate).
  * It owns nothing but presentation + row selection: search box, filter slot,
  * CSV export, sortable headers (aria-sort), skeleton/empty/error states,
- * bulk-action bar, per-row actions, and a responsive horizontal scroll.
+ * bulk-action bar, and per-row actions.
+ *
+ * Responsive: md+ renders the table; below md the SAME columns config renders
+ * as a stacked card per row (primary column = card title, the rest = label/value
+ * rows) so mobile never horizontally scrolls a table.
  */
 import { type ReactNode, useEffect, useId, useState } from "react";
 import { AlertTriangle, ArrowDown, ArrowUp, ChevronsUpDown, Download, Search } from "lucide-react";
@@ -38,6 +42,12 @@ export interface AdminColumn<Row> {
   truncate?: boolean;
   headClassName?: string;
   cellClassName?: string;
+  /** Card title column (mobile). Defaults to the first column. */
+  primary?: boolean;
+  /** Keep out of the mobile card body (still in the table + CSV). */
+  hideOnCard?: boolean;
+  /** Card body label when `header` is not a plain string. */
+  cardLabel?: string;
 }
 
 export interface AdminListProps<Row> {
@@ -173,6 +183,31 @@ export function AdminList<Row>({
   const colSpan = columns.length + (selectable ? 1 : 0) + (rowActions ? 1 : 0);
   const showEmpty = !isLoading && !isError && rows.length === 0;
 
+  // Mobile card composition, driven off the same columns config.
+  const primaryCol = columns.find((c) => c.primary) ?? columns[0];
+  const cardBodyCols = columns.filter((c) => c !== primaryCol && !c.hideOnCard);
+
+  // Error / empty bodies are shared between the table cell and the mobile card
+  // so both surfaces stay in lockstep.
+  const errorContent = (
+    <>
+      <AlertTriangle className="mx-auto mb-3 h-7 w-7 text-ember" aria-hidden="true" />
+      <p className="text-sm text-bone-2">Could not load this list.</p>
+      {onRetry && (
+        <Button variant="outline" size="sm" onClick={() => onRetry()} className="mt-3">
+          Retry
+        </Button>
+      )}
+    </>
+  );
+  const emptyContent = (
+    <>
+      <LkMonogram className="mx-auto mb-3 h-8 w-11 opacity-70" />
+      <p className="font-display text-sm font-semibold uppercase tracking-wide text-bone-2">{emptyTitle}</p>
+      {emptyHint && <p className="mx-auto mt-1 max-w-sm text-sm text-dim">{emptyHint}</p>}
+    </>
+  );
+
   const handleExport = () => {
     if (!csvFilename) return;
     const cols = columns.filter((c) => c.csv);
@@ -194,7 +229,7 @@ export function AdminList<Row>({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-1 flex-wrap items-center gap-2">
           {onSearchChange && (
-            <div className="relative w-full max-w-xs">
+            <div className="relative w-full sm:max-w-xs">
               <Label htmlFor={searchId} className="sr-only">
                 {searchPlaceholder}
               </Label>
@@ -214,7 +249,7 @@ export function AdminList<Row>({
           )}
           {filters}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {csvFilename && rows.length > 0 && (
             <Button variant="outline" size="sm" onClick={handleExport} className="gap-1.5">
               <Download className="h-4 w-4" aria-hidden="true" /> Export CSV
@@ -240,7 +275,67 @@ export function AdminList<Row>({
         {isLoading ? "Loading" : countLabel}
       </p>
 
-      <div className={cn("overflow-x-auto rounded-lg border border-line bg-raised", isFetching && "opacity-70")}>
+      {/* Mobile: one card per row, from the same columns config. */}
+      <div className="md:hidden">
+        {isLoading ? (
+          <ul className="space-y-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <li key={`skc-${i}`} className="rounded-lg border border-line bg-raised p-4">
+                <Skeleton className="h-5 w-2/3" />
+                <div className="mt-3 space-y-2 border-t border-line-soft pt-3">
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-1/2" />
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : isError ? (
+          <div className="rounded-lg border border-line bg-raised p-8 text-center">{errorContent}</div>
+        ) : showEmpty ? (
+          <div className="rounded-lg border border-line bg-raised p-10 text-center">{emptyContent}</div>
+        ) : (
+          <ul className={cn("space-y-3", isFetching && "opacity-70")}>
+            {rows.map((row) => {
+              const id = getRowId(row);
+              return (
+                <li
+                  key={id}
+                  className="rounded-lg border border-line bg-raised p-4"
+                  data-state={selected.has(id) ? "selected" : undefined}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex min-w-0 flex-1 items-start gap-3">
+                      {selectable && (
+                        <Checkbox
+                          className="mt-1"
+                          checked={selected.has(id)}
+                          onCheckedChange={() => toggleRow(id)}
+                          aria-label={`Select row ${id}`}
+                        />
+                      )}
+                      <div className="min-w-0 flex-1 break-words font-medium">{primaryCol?.cell(row)}</div>
+                    </div>
+                    {rowActions && <div className="-mr-1 -mt-1 shrink-0">{rowActions(row)}</div>}
+                  </div>
+                  {cardBodyCols.length > 0 && (
+                    <dl className="mt-3 space-y-2 border-t border-line-soft pt-3">
+                      {cardBodyCols.map((col) => (
+                        <div key={col.id} className="flex items-start justify-between gap-4">
+                          <dt className="shrink-0 text-xs font-medium text-dim">{col.cardLabel ?? col.header}</dt>
+                          <dd className="min-w-0 break-words text-right">{col.cell(row)}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
+
+      {/* Desktop: the table (unchanged behavior). */}
+      <div className={cn("hidden overflow-x-auto rounded-lg border border-line bg-raised md:block", isFetching && "opacity-70")}>
         <Table>
           <caption className="sr-only">{caption}</caption>
           <TableHeader>
@@ -290,25 +385,13 @@ export function AdminList<Row>({
 
             {isError && (
               <TableRow className="border-line hover:bg-transparent">
-                <TableCell colSpan={colSpan} className="py-12 text-center">
-                  <AlertTriangle className="mx-auto mb-3 h-7 w-7 text-ember" aria-hidden="true" />
-                  <p className="text-sm text-bone-2">Could not load this list.</p>
-                  {onRetry && (
-                    <Button variant="outline" size="sm" onClick={() => onRetry()} className="mt-3">
-                      Retry
-                    </Button>
-                  )}
-                </TableCell>
+                <TableCell colSpan={colSpan} className="py-12 text-center">{errorContent}</TableCell>
               </TableRow>
             )}
 
             {showEmpty && (
               <TableRow className="border-line hover:bg-transparent">
-                <TableCell colSpan={colSpan} className="py-14 text-center">
-                  <LkMonogram className="mx-auto mb-3 h-8 w-11 opacity-70" />
-                  <p className="font-display text-sm font-semibold uppercase tracking-wide text-bone-2">{emptyTitle}</p>
-                  {emptyHint && <p className="mx-auto mt-1 max-w-sm text-sm text-dim">{emptyHint}</p>}
-                </TableCell>
+                <TableCell colSpan={colSpan} className="py-14 text-center">{emptyContent}</TableCell>
               </TableRow>
             )}
 
@@ -359,7 +442,7 @@ export function AdminList<Row>({
             <Button
               variant="outline"
               size="sm"
-              className="min-h-[36px]"
+              className="min-h-[44px] sm:min-h-[36px]"
               onClick={() => onPageChange(Math.max(1, page - 1))}
               disabled={page <= 1}
             >
@@ -371,7 +454,7 @@ export function AdminList<Row>({
             <Button
               variant="outline"
               size="sm"
-              className="min-h-[36px]"
+              className="min-h-[44px] sm:min-h-[36px]"
               onClick={() => onPageChange(Math.min(pageCount, page + 1))}
               disabled={page >= pageCount}
             >
