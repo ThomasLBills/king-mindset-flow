@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Check, FileText, Link as LinkIcon, Music } from "lucide-react";
+import { ArrowLeft, FileText, Link as LinkIcon, Music } from "lucide-react";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,14 +8,19 @@ import { useCurriculumLessonProgress, useMarkLessonComplete } from "@/hooks/useC
 import { useEvidenceCounter } from "@/hooks/useEvidenceCounter";
 import { useForgeWeeks } from "@/hooks/useForgeCurriculum";
 import { SignedAsset } from "@/components/curriculum/SignedAsset";
+import { LessonComplete } from "@/components/grow/LessonComplete";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { Eyebrow, FoilRule, SectionCard } from "@/components/forge/atoms";
+import { celebrate, celebrateBig } from "@/lib/celebrate";
 
 type ContentBlock = {
   id?: string;
   type: string;
+  // Heterogeneous CMS block payload (text/level/items/url/storagePath/alt/…),
+  // shape varies per block type — intentionally loose.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: Record<string, any>;
 };
 
@@ -224,19 +229,40 @@ const Lesson = () => {
     .join(" · ");
 
   const blocks: ContentBlock[] = Array.isArray(lesson.content_json)
-    ? (lesson.content_json as any[])
+    ? (lesson.content_json as unknown as ContentBlock[])
     : [];
 
   const ordered = (weeks ?? []).filter((w) => !w.locked).flatMap((w) => w.lessons);
   const idx = ordered.findIndex((l) => l.id === lesson.id);
   const next = idx >= 0 ? ordered[idx + 1] : undefined;
 
+  // Live progress toward the week and the whole path (reflects the completion
+  // once the progress query re-fetches, so the honor panel stays accurate).
+  const weekLessons = week?.lessons ?? [];
+  const overallLessons = (weeks ?? []).flatMap((w) => w.lessons);
+  const weekDone = weekLessons.filter((l) => l.done).length;
+  const weekTotal = weekLessons.length;
+  const overallDone = overallLessons.filter((l) => l.done).length;
+  const overallTotal = overallLessons.length;
+  const nextUnlocksAt = next ? undefined : (weeks ?? []).find((w) => w.locked)?.unlocksAt;
+
   const markDone = async () => {
     try {
       const wasAlreadyComplete = progressMap?.get(lesson.id)?.status === "completed";
+      // Decide the size of the moment before the write lands (progress is still
+      // pre-completion here): finishing a week or the whole path earns the big burst.
+      const willCompleteWeek =
+        weekTotal > 0 && weekLessons.filter((l) => l.id !== lesson.id).every((l) => l.done);
+      const willCompleteJourney =
+        overallTotal > 0 && overallLessons.filter((l) => l.id !== lesson.id).every((l) => l.done);
       await markComplete.mutateAsync(lesson.id);
       if (!wasAlreadyComplete) {
         addEvidence.mutate("lesson_complete");
+        if (willCompleteJourney || willCompleteWeek) {
+          celebrateBig();
+        } else {
+          celebrate();
+        }
       }
       toast.success("Reading finished. Carry it with you.");
     } catch {
@@ -272,36 +298,32 @@ const Lesson = () => {
         </div>
       )}
 
-      <div className="space-y-6">
+      <div className="space-y-6 break-words [overflow-wrap:anywhere]">
         {blocks.map((block, i) => (
           <BlockRenderer key={block.id ?? i} block={block} lessonId={lessonId} />
         ))}
       </div>
 
-      <SectionCard hatch className="mt-10 p-6">
-        <Eyebrow tone="gold" className="mb-3 block">
-          Carry it
-        </Eyebrow>
-        {!isComplete && (
-          <>
-            <label htmlFor="lesson-notes" className="sr-only">
-              Your reflection (optional)
-            </label>
-            <Textarea id="lesson-notes" rows={3} placeholder="Your words, kept private…" className="mb-4" />
-          </>
-        )}
-        {isComplete ? (
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <p className="flex items-center gap-2 text-sm text-gold">
-              <Check className="h-4 w-4" aria-hidden="true" /> Finished
-            </p>
-            {next && (
-              <Button asChild variant="outline" className="sm:ml-auto">
-                <Link to={`/app/grow/lesson/${next.id}`}>Next: {next.title}</Link>
-              </Button>
-            )}
-          </div>
-        ) : (
+      {isComplete ? (
+        <LessonComplete
+          weekNumber={week?.number}
+          weekTitle={week?.title}
+          weekDone={weekDone}
+          weekTotal={weekTotal}
+          overallDone={overallDone}
+          overallTotal={overallTotal}
+          next={next ? { id: next.id, title: next.title } : undefined}
+          nextUnlocksAt={nextUnlocksAt}
+        />
+      ) : (
+        <SectionCard hatch className="mt-10 p-6">
+          <Eyebrow tone="gold" className="mb-3 block">
+            Carry it
+          </Eyebrow>
+          <label htmlFor="lesson-notes" className="sr-only">
+            Your reflection (optional)
+          </label>
+          <Textarea id="lesson-notes" rows={3} placeholder="Your words, kept private…" className="mb-4" />
           <div className="flex flex-col gap-2.5 sm:flex-row">
             <Button onClick={markDone} disabled={markComplete.isPending} className="flex-1">
               {markComplete.isPending ? "Marking…" : "Mark reading finished"}
@@ -310,8 +332,8 @@ const Lesson = () => {
               Finish later
             </Button>
           </div>
-        )}
-      </SectionCard>
+        </SectionCard>
+      )}
     </article>
   );
 };

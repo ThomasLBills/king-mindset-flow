@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { format, formatDistanceToNow } from "date-fns";
-import { ArrowLeft, Eye, Hash, SendHorizonal, SmilePlus } from "lucide-react";
+import { ArrowLeft, Eye, Hash, ImagePlus, Loader2, SendHorizonal, SmilePlus } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { FEATURES } from "@/features";
@@ -27,6 +27,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Eyebrow, InitialsAvatar, SectionCard } from "@/components/forge/atoms";
 import { PageBackdrop } from "@/components/forge/scenes";
+import { ReachOut } from "@/components/brotherhood/ReachOut";
 
 /** Fixed product copy from production (BrotherhoodPage ground rules). */
 const GROUND_RULES = [
@@ -83,8 +84,10 @@ const ChatThread = ({
   const { reactions, toggleReaction } = useChatReactions(messages.map((m) => m.id));
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
   const endRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     markAsRead(target.id, target.type);
@@ -136,6 +139,31 @@ const ChatThread = ({
     }
   };
 
+  // Attachment upload: same user-scoped path + private chat-files bucket as the
+  // original MessageComposer (ADR 0006). Store the URL on the message; the
+  // signing effect above swaps it for a short-lived signed URL when rendering.
+  const handleUpload = async (file: File) => {
+    if (uploading || sending) return;
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("That file is too large. Max 10MB.");
+      return;
+    }
+    setUploading(true);
+    try {
+      if (!user) throw new Error("You must be signed in to attach a file.");
+      const ext = file.name.split(".").pop() || "bin";
+      const path = `${user.id}/${Date.now()}-${crypto.randomUUID()}.${ext}`;
+      const { error: uploadError } = await supabase.storage.from("chat-files").upload(path, file);
+      if (uploadError) throw uploadError;
+      const { data: urlData } = supabase.storage.from("chat-files").getPublicUrl(path);
+      await sendMessage("", urlData.publicUrl);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't upload that file.");
+    } finally {
+      setUploading(false);
+    }
+  };
+
   return (
     <div className="flex h-full min-h-0 flex-col">
       <div className="flex items-center gap-2.5 border-b border-line px-4 py-3">
@@ -162,14 +190,14 @@ const ChatThread = ({
                     tone={own ? "gold" : "raised"}
                     className="h-7 w-7 text-[11px]"
                   />
-                  <div className={cn("max-w-[80%]", own && "text-right")}>
+                  <div className={cn("min-w-0 max-w-[80%]", own && "text-right")}>
                     <p className="mb-0.5 text-[11px] text-dim">
                       {own ? "You" : authorName} · {when(m.created_at)}
                     </p>
                     {m.content && (
                       <p
                         className={cn(
-                          "inline-block rounded-lg border px-3.5 py-2.5 text-left text-sm leading-relaxed",
+                          "inline-block max-w-full whitespace-pre-wrap break-words rounded-lg border px-3.5 py-2.5 text-left text-sm leading-relaxed [overflow-wrap:anywhere]",
                           own ? "border-gold-deep/60 bg-raised-2 text-bone" : "border-line bg-raised text-bone-2"
                         )}
                       >
@@ -256,18 +284,51 @@ const ChatThread = ({
           This channel is view only.
         </p>
       ) : (
-        <form onSubmit={submit} className="flex gap-2 border-t border-line p-3">
+        <form onSubmit={submit} className="flex items-center gap-2 border-t border-line p-3">
           <label htmlFor="composer" className="sr-only">
             Message {title}
           </label>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) handleUpload(file);
+              e.target.value = "";
+            }}
+          />
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="shrink-0 text-dim hover:text-bone"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading || sending}
+            aria-label="Attach image"
+          >
+            {uploading ? (
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+            ) : (
+              <ImagePlus className="h-4 w-4" aria-hidden="true" />
+            )}
+          </Button>
           <Input
             id="composer"
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             placeholder="Speak plainly, brother…"
             autoComplete="off"
+            disabled={uploading}
           />
-          <Button type="submit" size="icon" disabled={!draft.trim() || sending} aria-label="Send">
+          <Button
+            type="submit"
+            size="icon"
+            className="shrink-0"
+            disabled={!draft.trim() || sending || uploading}
+            aria-label="Send"
+          >
             <SendHorizonal className="h-4 w-4" aria-hidden="true" />
           </Button>
         </form>
@@ -279,9 +340,29 @@ const ChatThread = ({
 const GroupTab = ({ openDm }: { openDm: (brotherId: string, name: string) => void }) => {
   const { user } = useAuth();
   const { data: group } = useGroup();
+  const isImpersonating = useIsImpersonating();
   const members = group?.members ?? [];
   return (
     <div className="flex flex-col gap-4">
+      <SectionCard className="p-5">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0">
+            <Eyebrow className="mb-1 block">Carry it together</Eyebrow>
+            <p className="font-display text-lg font-bold text-bone">Reach out to a brother</p>
+            <p className="mt-1 text-sm text-bone-2">
+              A check-in, a hard moment, a win, or a prayer — send it in two taps.
+            </p>
+          </div>
+          <ReachOut
+            trigger={
+              <Button className="shrink-0" disabled={isImpersonating}>
+                Reach out
+              </Button>
+            }
+          />
+        </div>
+      </SectionCard>
+
       <SectionCard className="p-5">
         <Eyebrow className="mb-3 block">Ground rules</Eyebrow>
         <ul className="flex flex-col gap-2">
@@ -296,25 +377,22 @@ const GroupTab = ({ openDm }: { openDm: (brotherId: string, name: string) => voi
         </ul>
       </SectionCard>
 
-      <SectionCard hatch className="p-5">
-        <Eyebrow className="mb-1 block">Next brotherhood call</Eyebrow>
-        <p className="font-display text-2xl font-bold tracking-tight text-bone">{WEEKLY_CALL.label}</p>
-        <p className="mt-1 text-sm text-bone-2">
-          Cameras on, guards down. One hour that holds the whole week together.
-        </p>
-        <Button
-          className="mt-4"
-          onClick={() => {
-            if (isCallDay()) {
-              window.open(WEEKLY_CALL.joinUrl, "_blank", "noopener,noreferrer");
-            } else {
-              toast.info(`The room opens ${WEEKLY_CALL.label}.`);
-            }
-          }}
-        >
-          Join the call
-        </Button>
-      </SectionCard>
+      {/* Tuesdays only — same device-local gate as Today; no dead off-day button. */}
+      {isCallDay() && (
+        <SectionCard hatch className="p-5">
+          <Eyebrow className="mb-1 block">Tonight's brotherhood call</Eyebrow>
+          <p className="font-display text-2xl font-bold tracking-tight text-bone">{WEEKLY_CALL.label}</p>
+          <p className="mt-1 text-sm text-bone-2">
+            Cameras on, guards down. One hour that holds the whole week together.
+          </p>
+          <Button
+            className="mt-4"
+            onClick={() => window.open(WEEKLY_CALL.joinUrl, "_blank", "noopener,noreferrer")}
+          >
+            Join the call
+          </Button>
+        </SectionCard>
+      )}
 
       {FEATURES.groups && group && (
         <SectionCard className="p-5">

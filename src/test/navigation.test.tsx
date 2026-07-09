@@ -179,10 +179,11 @@ describe("app navigation", () => {
     await screen.findByRole("heading", { name: /the man in the fight/i });
 
     fireEvent.click(screen.getAllByRole("link", { name: /stand firm/i })[0]);
-    await screen.findByRole("heading", { name: /you're here\. good\./i });
+    await screen.findByRole("heading", { name: /put on the full armor/i });
 
-    fireEvent.click(screen.getByRole("button", { name: /i'm being tempted/i }));
-    await screen.findByRole("heading", { name: /this will pass/i });
+    // Open a tool from the "Your Armor" menu, then leave back to Today.
+    fireEvent.click(screen.getByRole("button", { name: /i am being tempted/i }));
+    await screen.findByRole("heading", { name: /^notice$/i });
 
     fireEvent.click(screen.getByRole("link", { name: /leave, back to today/i }));
     await screen.findByText(/good (morning|afternoon|evening), ethan/i);
@@ -192,24 +193,35 @@ describe("app navigation", () => {
     startAt("/stand-firm");
     render(<App />);
 
-    fireEvent.click(await screen.findByRole("button", { name: /i already fell/i }));
-    await screen.findByRole("heading", { name: /no condemnation/i });
+    // "Your Armor" menu → I Need to Return → the R.E.T.U.R.N. 6-step flow.
+    fireEvent.click(await screen.findByRole("button", { name: /i need to return/i }));
+
+    await screen.findByRole("heading", { name: /recognize the truth/i });
     fireEvent.click(screen.getByRole("button", { name: /^continue$/i }));
 
-    await screen.findByRole("heading", { name: /data, not condemnation/i });
+    await screen.findByRole("heading", { name: /engage the father/i });
     fireEvent.click(screen.getByRole("button", { name: /^continue$/i }));
 
-    await screen.findByRole("heading", { name: /return, not self-punishment/i });
-    const commitments = screen.getAllByRole("checkbox");
-    fireEvent.click(commitments[0]);
-    fireEvent.click(commitments[1]);
+    await screen.findByRole("heading", { name: /trace what happened/i });
+    fireEvent.click(screen.getByRole("button", { name: /^continue$/i }));
 
+    // Uproot: mandatory commitment checkbox gates Continue.
+    await screen.findByRole("heading", { name: /uproot isolation/i });
+    fireEvent.click(screen.getByRole("checkbox"));
+    fireEvent.click(screen.getByRole("button", { name: /^continue$/i }));
+
+    // Resume: second mandatory commitment checkbox.
+    await screen.findByRole("heading", { name: /resume normal rhythms/i });
+    fireEvent.click(screen.getByRole("checkbox"));
+    fireEvent.click(screen.getByRole("button", { name: /^continue$/i }));
+
+    await screen.findByRole("heading", { name: /navigate forward/i });
     // Keyboard users activate the hold button directly with Enter
     const hold = screen.getByRole("button", { name: /hold to return/i });
     await waitFor(() => expect(hold).toBeEnabled());
     fireEvent.keyDown(hold, { key: "Enter" });
 
-    await screen.findByRole("heading", { name: /welcome back, brother/i });
+    await screen.findByRole("heading", { name: /you returned/i });
 
     // The fall is on the record: a real relapse_events row was written.
     await waitFor(() =>
@@ -217,6 +229,17 @@ describe("app navigation", () => {
         mockRef.current.__tables.relapse_events.filter((r: any) => r.user_id === USER_ID)
       ).toHaveLength(1)
     );
+    // R.E.T.U.R.N. also resets the freedom streak and logs grace evidence.
+    await waitFor(() => {
+      expect(
+        mockRef.current.__tables.freedom_streaks.filter((r: any) => r.user_id === USER_ID)
+      ).toHaveLength(1);
+      expect(
+        mockRef.current.__tables.evidence_events.some(
+          (e: any) => e.user_id === USER_ID && e.event_type === "grace_protocol_complete"
+        )
+      ).toBe(true);
+    });
   });
 
   it("check-in persists and unlocks the reading, which opens the lesson", async () => {
@@ -224,19 +247,19 @@ describe("app navigation", () => {
     render(<App />);
     await screen.findByText(/your path today/i, undefined, { timeout: 4000 });
 
-    // Reading is locked until the morning check-in is done
+    // Reading is locked until the morning check-in is done.
+    // Pick one of the 16 feelings; its cited verse surfaces; then log it.
     fireEvent.click(await screen.findByRole("button", { name: /begin/i }));
-    fireEvent.click(await screen.findByText("Steady"));
-    await screen.findByText(/psalm 16:8/i); // every emotional prompt gets a cited verse
-    fireEvent.click(screen.getByText("Slept well"));
+    fireEvent.click(await screen.findByRole("button", { name: /^anxious$/i }));
+    await screen.findByText(/philippians 4:6-7/i); // the feeling surfaces its cited verse
     fireEvent.click(screen.getByRole("button", { name: /log check-in/i }));
 
     // Persisted to daily_check_ins with the production shape
     await waitFor(() => {
       const rows = mockRef.current.__tables.daily_check_ins;
       expect(rows).toHaveLength(1);
-      expect(rows[0].feelings).toContain("steady");
-      expect(rows[0].feelings).toContain("rested");
+      expect(rows[0].feelings).toContain("anxious");
+      expect(rows[0].needs_support).toBe(true);
     });
 
     const continueLink = await screen.findByRole("link", { name: /continue/i }, { timeout: 4000 });
@@ -307,7 +330,7 @@ describe("app navigation", () => {
   it("landing CTA reaches the app when signed in", async () => {
     startAt("/");
     render(<App />);
-    fireEvent.click(await screen.findByRole("link", { name: /^enter$/i }));
+    fireEvent.click((await screen.findAllByRole("link", { name: /take your place/i }))[0]);
     await waitFor(() => expect(window.location.pathname).toBe("/app"));
     await screen.findByText(/good (morning|afternoon|evening), ethan/i, undefined, {
       timeout: 4000,

@@ -6,7 +6,6 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { FEATURES } from "@/features";
 import { useForgeUser } from "@/hooks/useForgeProfile";
-import { useCovenant, type CovenantRow } from "@/hooks/useCovenant";
 import { usePathToday, type PathStep } from "@/hooks/usePathToday";
 import { useVerseOfDay } from "@/hooks/useForgeVerses";
 import { useBanner, useGroup, useSendStrength } from "@/hooks/useForgeGroup";
@@ -16,9 +15,10 @@ import { WEEKLY_CALL, isCallDay } from "@/data/weeklyCall";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Eyebrow, InitialsAvatar, SectionCard } from "@/components/forge/atoms";
-import { LkSeal } from "@/components/forge/brand";
 import { PageBackdrop } from "@/components/forge/scenes";
+import { CheckInCard } from "@/components/today/CheckInCard";
 import { CheckInDialog, ReflectionDialog } from "@/components/today/dialogs";
+import { ArmorActivatedCard, LiberatedCard, UrgesRedirectedCard } from "@/components/today/stats";
 
 const timeOfDay = () => {
   const h = new Date().getHours();
@@ -42,44 +42,6 @@ const Reveal = ({ children, delay = 0 }: { children: ReactNode; delay?: number }
     >
       {children}
     </motion.div>
-  );
-};
-
-/**
- * The Today anchor. Deliberately NOT a scoreboard: no days-held, no streak,
- * no "day N". It answers "who am I" (a freed son) and "what am I standing
- * for" (his own covenant why) instead of "how many days since I last fell".
- */
-const Standing = ({ covenant }: { covenant: CovenantRow | null | undefined }) => {
-  // The "why" lives on the covenant and is gated by its own feature flag.
-  const why = FEATURES.rememberWhy ? covenant?.why?.trim() : null;
-  return (
-    <SectionCard hatch className="p-5 sm:p-6">
-      <LkSeal className="pointer-events-none absolute -right-7 -top-7 h-32 w-32 text-gold opacity-[0.06]" />
-      <Eyebrow tone="gold" className="mb-3 block">
-        Free · a son
-      </Eyebrow>
-      {why ? (
-        <>
-          <p className="font-serif text-2xl italic leading-snug text-bone">“{why}”</p>
-          <p className="mt-3 text-sm text-bone-2">
-            This is what you're standing for. Live it today.
-          </p>
-        </>
-      ) : (
-        <>
-          <p className="font-serif text-2xl italic leading-snug text-bone">
-            You are not the sum of your worst days. Bought, free, and sent.
-          </p>
-          <Link
-            to="/app/profile"
-            className="mt-3 inline-block text-sm text-gold underline-offset-4 hover:underline"
-          >
-            Name what you're standing for →
-          </Link>
-        </>
-      )}
-    </SectionCard>
   );
 };
 
@@ -170,7 +132,6 @@ const PathToday = ({
 
 const Today = () => {
   const { user } = useForgeUser();
-  const { data: covenant } = useCovenant();
   const { data: path } = usePathToday();
   const { data: verse } = useVerseOfDay();
   const { data: group } = useGroup();
@@ -193,6 +154,8 @@ const Today = () => {
 
   return (
     <div className="relative">
+      {/* Darkening scrim now lives in the shared PageBackdrop (applies to every
+          backdrop screen), so Today no longer needs its own. */}
       <PageBackdrop />
       <div className="relative">
         {/* Greeting hero */}
@@ -213,126 +176,142 @@ const Today = () => {
           </div>
 
           <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-5 pb-10 sm:px-8">
-            {!path ? (
-              <>
-                <Skeleton className="h-48 w-full" />
-                <Skeleton className="h-40 w-full" />
-              </>
-            ) : (
-              <>
-                {FEATURES.standing && (
-                  <Reveal>
-                    <Standing covenant={covenant} />
-                  </Reveal>
-                )}
-                <Reveal delay={0.06}>
-                  <PathToday
-                    steps={path}
-                    onCheckIn={() => setCheckInOpen(true)}
-                    onReflect={() => setReflectOpen(true)}
-                  />
-                </Reveal>
-                {verse && (
-                  <Reveal delay={0.12}>
-                    <SectionCard className="bg-gradient-to-br from-raised to-[hsl(35_23%_8%)] p-6">
-                      <Eyebrow tone="gold">{verse.ref}</Eyebrow>
-                      <p className="mt-2 font-serif text-xl italic leading-relaxed text-bone">
-                        “{verse.text}”
-                      </p>
-                    </SectionCard>
-                  </Reveal>
-                )}
-                <Reveal delay={0.18}>
-                  <div className="flex flex-col gap-4 sm:flex-row">
-                    {FEATURES.groups && banner && (
-                      <SectionCard className="flex-1 p-5">
-                        <Eyebrow className="mb-3 block">{group?.name ?? "Your brothers"}</Eyebrow>
-                        <div className="mb-3 flex items-center gap-2.5">
-                          <InitialsAvatar initials={banner.initials} />
-                          <span className="text-sm font-semibold text-bone">
-                            {banner.name}
-                            <span className="block font-serif text-xs font-normal italic text-ember">
-                              Raised the banner · {banner.when}
-                            </span>
-                          </span>
-                        </div>
-                        {banner.strengthened ? (
-                          <p className="flex items-center gap-2 text-sm text-gold">
-                            <ShieldCheck className="h-4 w-4" aria-hidden="true" /> Strength sent. He knows
-                            you're with him.
-                          </p>
-                        ) : (
-                          <Button
-                            className="w-full"
-                            disabled={sendStrength.isPending}
-                            onClick={() =>
-                              sendStrength.mutate(banner, {
-                                onSuccess: () =>
-                                  toast.success(`${banner.name} will see you standing with him.`),
-                              })
-                            }
-                          >
-                            {sendStrength.isPending ? "Sending…" : "Send strength"}
-                          </Button>
-                        )}
-                      </SectionCard>
-                    )}
-                    {stats && (
-                      <SectionCard className="flex-1 p-5">
-                        <Eyebrow className="mb-1 block">This week</Eyebrow>
-                        <dl>
-                          <div className="flex items-baseline justify-between py-2 text-sm text-bone-2">
-                            <dt>Urges you turned from</dt>
-                            <dd className="font-display text-lg font-bold text-bone">
-                              {stats.urgesRedirected}
-                            </dd>
-                          </div>
-                          {FEATURES.extraStats && (
-                            <>
-                              <div className="flex items-baseline justify-between border-t border-line-soft py-2 text-sm text-bone-2">
-                                <dt>Readings finished</dt>
-                                <dd className="font-display text-lg font-bold text-bone">
-                                  {stats.readingsFinished}
-                                </dd>
-                              </div>
-                              <div className="flex items-baseline justify-between border-t border-line-soft py-2 text-sm text-bone-2">
-                                <dt>Brothers reached</dt>
-                                <dd className="font-display text-lg font-bold text-bone">
-                                  {stats.brothersReached}
-                                </dd>
-                              </div>
-                            </>
-                          )}
-                        </dl>
-                      </SectionCard>
-                    )}
-                  </div>
-                </Reveal>
-              </>
+            {/* 1. Daily Check-In — the primary card, in place of the old Standing hero */}
+            <Reveal>
+              <CheckInCard />
+            </Reveal>
+
+            {/* 2. Urges Redirected — the Hold-to-Redirect ritual */}
+            <Reveal delay={0.06}>
+              <UrgesRedirectedCard />
+            </Reveal>
+
+            {/* 3. Weekly Brotherhood Call — Tuesdays only (device-local, isCallDay) */}
+            {isCallDay() && (
+              <Reveal delay={0.09}>
+                <div>
+                  <Eyebrow className="mb-3 block">Next brotherhood call</Eyebrow>
+                  <SectionCard hatch className="p-4">
+                    <p className="font-display text-lg font-bold tracking-tight text-bone">
+                      {WEEKLY_CALL.label}
+                    </p>
+                    <p className="mt-0.5 text-xs text-gold">Tonight · all brothers welcome</p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="mt-3"
+                      onClick={() =>
+                        window.open(WEEKLY_CALL.joinUrl, "_blank", "noopener,noreferrer")
+                      }
+                    >
+                      Join the call
+                    </Button>
+                  </SectionCard>
+                </div>
+              </Reveal>
             )}
 
-            {/* Next brotherhood call - folded in from the old side rail */}
-            <div>
-              <Eyebrow className="mb-3 block">Next brotherhood call</Eyebrow>
-              <SectionCard hatch className="p-4">
-                <p className="font-display text-lg font-bold tracking-tight text-bone">
-                  {WEEKLY_CALL.label}
-                </p>
-                <p className="mt-0.5 text-xs text-gold">Every week · all brothers welcome</p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="mt-3"
-                  onClick={() =>
-                    isCallDay()
-                      ? window.open(WEEKLY_CALL.joinUrl, "_blank", "noopener,noreferrer")
-                      : toast.info(`The room opens ${WEEKLY_CALL.label}.`)
-                  }
-                >
-                  Join the call
-                </Button>
-              </SectionCard>
-            </div>
+            {/* 4. This week's evidence — the two KPIs (community + personal) */}
+            <Reveal delay={0.12}>
+              <div>
+                <Eyebrow className="mb-3 block">This week's evidence</Eyebrow>
+                <div className="grid grid-cols-2 items-stretch gap-4">
+                  <ArmorActivatedCard />
+                  <LiberatedCard />
+                </div>
+              </div>
+            </Reveal>
+
+            {/* 5. The rest — verse, brothers/send-strength + weekly stats, then the path */}
+            {verse && (
+              <Reveal delay={0.15}>
+                <SectionCard className="bg-gradient-to-br from-raised to-[hsl(35_23%_8%)] p-6">
+                  <Eyebrow tone="gold">{verse.ref}</Eyebrow>
+                  <p className="mt-2 font-serif text-xl italic leading-relaxed text-bone">
+                    “{verse.text}”
+                  </p>
+                </SectionCard>
+              </Reveal>
+            )}
+
+            <Reveal delay={0.18}>
+              <div className="flex flex-col gap-4 sm:flex-row">
+                {FEATURES.groups && banner && (
+                  <SectionCard className="flex-1 p-5">
+                    <Eyebrow className="mb-3 block">{group?.name ?? "Your brothers"}</Eyebrow>
+                    <div className="mb-3 flex items-center gap-2.5">
+                      <InitialsAvatar initials={banner.initials} />
+                      <span className="text-sm font-semibold text-bone">
+                        {banner.name}
+                        <span className="block font-serif text-xs font-normal italic text-ember">
+                          Raised the banner · {banner.when}
+                        </span>
+                      </span>
+                    </div>
+                    {banner.strengthened ? (
+                      <p className="flex items-center gap-2 text-sm text-gold">
+                        <ShieldCheck className="h-4 w-4" aria-hidden="true" /> Strength sent. He knows
+                        you're with him.
+                      </p>
+                    ) : (
+                      <Button
+                        className="w-full"
+                        disabled={sendStrength.isPending}
+                        onClick={() =>
+                          sendStrength.mutate(banner, {
+                            onSuccess: () =>
+                              toast.success(`${banner.name} will see you standing with him.`),
+                          })
+                        }
+                      >
+                        {sendStrength.isPending ? "Sending…" : "Send strength"}
+                      </Button>
+                    )}
+                  </SectionCard>
+                )}
+                {stats && (
+                  <SectionCard className="flex-1 p-5">
+                    <Eyebrow className="mb-1 block">This week</Eyebrow>
+                    <dl>
+                      <div className="flex items-baseline justify-between py-2 text-sm text-bone-2">
+                        <dt>Urges you turned from</dt>
+                        <dd className="font-display text-lg font-bold text-bone">
+                          {stats.urgesRedirected}
+                        </dd>
+                      </div>
+                      {FEATURES.extraStats && (
+                        <>
+                          <div className="flex items-baseline justify-between border-t border-line-soft py-2 text-sm text-bone-2">
+                            <dt>Readings finished</dt>
+                            <dd className="font-display text-lg font-bold text-bone">
+                              {stats.readingsFinished}
+                            </dd>
+                          </div>
+                          <div className="flex items-baseline justify-between border-t border-line-soft py-2 text-sm text-bone-2">
+                            <dt>Brothers reached</dt>
+                            <dd className="font-display text-lg font-bold text-bone">
+                              {stats.brothersReached}
+                            </dd>
+                          </div>
+                        </>
+                      )}
+                    </dl>
+                  </SectionCard>
+                )}
+              </div>
+            </Reveal>
+
+            {!path ? (
+              <Skeleton className="h-48 w-full" />
+            ) : (
+              <Reveal delay={0.21}>
+                <PathToday
+                  steps={path}
+                  onCheckIn={() => setCheckInOpen(true)}
+                  onReflect={() => setReflectOpen(true)}
+                />
+              </Reveal>
+            )}
           </div>
       </div>
 

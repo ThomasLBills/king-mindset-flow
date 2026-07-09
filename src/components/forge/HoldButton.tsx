@@ -6,11 +6,16 @@
  * Pointer users must hold for `duration` ms (a gold fill shows progress).
  * Keyboard and assistive-tech users activate normally with Enter/Space -
  * the ritual is a pointer gesture, never an accessibility gate.
+ *
+ * Smoothness: the fill is a single GPU-composited `transform: scaleX`
+ * transition, so the browser interpolates it off the main thread (no
+ * per-tick React state / re-renders). Completion is gated by one
+ * `setTimeout(duration)` rather than the CSS transition finishing, so the
+ * hold contract (full hold fires once, early release never fires) stays
+ * correct even where motion/transitions are reduced or disabled.
  */
 import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
-
-const TICK_MS = 40;
 
 interface HoldButtonProps {
   onComplete: () => void;
@@ -27,36 +32,39 @@ export const HoldButton = ({
   disabled = false,
   className,
 }: HoldButtonProps) => {
-  const [progress, setProgress] = useState(0);
-  const timer = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [pressed, setPressed] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const done = useRef(false);
   const descriptionId = useId();
 
-  const stop = useCallback(() => {
-    if (timer.current) clearInterval(timer.current);
-    timer.current = null;
-    if (!done.current) setProgress(0);
+  const clearTimer = useCallback(() => {
+    if (timer.current) {
+      clearTimeout(timer.current);
+      timer.current = null;
+    }
   }, []);
 
-  useEffect(() => stop, [stop]);
+  // Cancel an in-progress hold (early release / pointer leave / unmount).
+  const stop = useCallback(() => {
+    clearTimer();
+    setPressed(false);
+  }, [clearTimer]);
+
+  useEffect(() => clearTimer, [clearTimer]);
 
   const start = () => {
     if (disabled || done.current || timer.current) return;
-    const startedAt = Date.now();
-    timer.current = setInterval(() => {
-      const p = Math.min(1, (Date.now() - startedAt) / duration);
-      setProgress(p);
-      if (p >= 1) {
-        done.current = true;
-        stop();
-        onComplete();
-        // allow re-use after completion (e.g. dialog stays open)
-        setTimeout(() => {
-          done.current = false;
-          setProgress(0);
-        }, 400);
-      }
-    }, TICK_MS);
+    setPressed(true);
+    timer.current = setTimeout(() => {
+      timer.current = null;
+      done.current = true;
+      setPressed(false);
+      onComplete();
+      // Allow re-use after completion (dialog / screen may stay mounted).
+      setTimeout(() => {
+        done.current = false;
+      }, 400);
+    }, duration);
   };
 
   const keyActivate = (e: React.KeyboardEvent) => {
@@ -92,8 +100,13 @@ export const HoldButton = ({
       >
         <span
           aria-hidden="true"
-          className="absolute inset-y-0 left-0 bg-black/25 transition-none"
-          style={{ width: `${progress * 100}%` }}
+          className="absolute inset-y-0 left-0 w-full origin-left bg-black/25 will-change-transform"
+          style={{
+            transform: pressed ? "scaleX(1)" : "scaleX(0)",
+            transitionProperty: "transform",
+            transitionTimingFunction: "linear",
+            transitionDuration: pressed ? `${duration}ms` : "0ms",
+          }}
         />
         <span className="relative">{children}</span>
       </button>

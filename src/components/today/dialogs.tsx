@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -15,48 +15,34 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useDailyCheckIn } from "@/hooks/useDailyProgress";
 import { useEvidenceCounter } from "@/hooks/useEvidenceCounter";
 import { useCompleteReflection } from "@/hooks/usePathToday";
+import {
+  ALL_FEELINGS,
+  CORE_FEELINGS,
+  feelingChipClass,
+  needsSupportFor,
+  scriptureFor,
+} from "./checkInEngine";
 
-const checkInSchema = z.object({
-  mood: z.enum(["strong", "steady", "shaky"], { required_error: "How are you arriving?" }),
-  sleep: z.enum(["well", "poorly"], { required_error: "How did you sleep?" }),
-  note: z.string().max(280, "Keep it under 280 characters").optional(),
-});
-
-/** Every emotional prompt gets a cited verse - house rule from the original app. */
-const MOOD_VERSES: Record<z.infer<typeof checkInSchema>["mood"], { ref: string; text: string }> = {
-  strong: {
-    ref: "1 Corinthians 16:13",
-    text: "Be watchful, stand firm in the faith, act like men, be strong.",
-  },
-  steady: {
-    ref: "Psalm 16:8",
-    text: "I have set the LORD always before me; because he is at my right hand, I shall not be shaken.",
-  },
-  shaky: {
-    ref: "Psalm 34:18",
-    text: "The LORD is near to the brokenhearted and saves the crushed in spirit.",
-  },
-};
-
-type CheckInValues = z.infer<typeof checkInSchema>;
-
-const optionCard = (checked: boolean) =>
-  cn(
-    "flex-1 cursor-pointer rounded-md border px-3 py-2.5 text-center text-sm font-medium transition-colors",
-    checked
-      ? "border-gold-deep bg-raised-2 text-gold-bright"
-      : "border-line bg-raised text-bone-2 hover:border-gold-deep/50"
-  );
+/**
+ * Daily check-in modal — the original mechanic, restyled for the Forge. Pick
+ * ONE of 16 feelings; the matching Scripture surfaces immediately; an optional
+ * "what is the Spirit saying" note can be added. The feeling/Scripture data and
+ * derivation rules live in ./checkInEngine (shared with the inline CheckInCard).
+ * Submitting writes to daily_check_ins via useDailyCheckIn with:
+ *   - feelings: [the one selected id]
+ *   - needsSupport: auto-derived from the feeling (never a manual input)
+ *   - spiritResponse: the trimmed note or undefined
+ * Idempotent per local day (the hook upserts on user_id+check_in_date); only
+ * the FIRST check-in of the day logs an evidence_events "check_in" row.
+ */
 
 export const CheckInDialog = ({
   open,
@@ -67,32 +53,37 @@ export const CheckInDialog = ({
 }) => {
   const { isCheckedIn, submitCheckIn } = useDailyCheckIn();
   const { addEvidence } = useEvidenceCounter();
-  const form = useForm<CheckInValues>({
-    resolver: zodResolver(checkInSchema),
-    defaultValues: { note: "" },
-  });
+  const [feeling, setFeeling] = useState<string | null>(null);
+  const [showMore, setShowMore] = useState(false);
+  const [note, setNote] = useState("");
 
-  // A reopened dialog must not carry stale input or old validation errors.
+  // A reopened dialog must not carry stale input.
   useEffect(() => {
-    if (open) form.reset({ note: "" });
-  }, [open, form]);
+    if (open) {
+      setFeeling(null);
+      setShowMore(false);
+      setNote("");
+    }
+  }, [open]);
 
-  const onSubmit = (values: CheckInValues) => {
-    // Idempotency: only the first check-in of the day logs an evidence event
-    // (same rule as the original DailyCheckIn card). Capture before submit.
+  const scripture = scriptureFor(feeling);
+  const options = showMore ? ALL_FEELINGS : CORE_FEELINGS;
+
+  const onSubmit = () => {
+    if (!feeling) return;
+    // Capture BEFORE submit: only the first check-in of the day logs evidence.
     const wasFirstCheckInToday = !isCheckedIn;
     submitCheckIn.mutate(
       {
-        feelings: [values.mood, values.sleep === "well" ? "rested" : "tired"],
-        needsSupport: values.mood === "shaky",
-        spiritResponse: values.note || undefined,
+        feelings: [feeling],
+        needsSupport: needsSupportFor(feeling),
+        spiritResponse: note.trim() || undefined,
       },
       {
         onSuccess: () => {
           if (wasFirstCheckInToday) addEvidence.mutate("check_in");
           toast.success("Checked in. Good to see you, brother.");
           onOpenChange(false);
-          form.reset({ note: "" });
         },
       }
     );
@@ -103,99 +94,66 @@ export const CheckInDialog = ({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="font-display text-xl font-bold uppercase tracking-wide">
-            Morning check-in
+            Daily check-in
           </DialogTitle>
-          <DialogDescription>
-            Thirty honest seconds. That's the whole discipline.
-          </DialogDescription>
+          <DialogDescription>What is present in you right now?</DialogDescription>
         </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-            <FormField
-              control={form.control}
-              name="mood"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>How are you arriving today?</FormLabel>
-                  <FormControl>
-                    <RadioGroup
-                      onValueChange={field.onChange}
-                      value={field.value ?? ""}
-                      className="flex gap-2"
-                    >
-                      {(["strong", "steady", "shaky"] as const).map((mood) => (
-                        <FormItem key={mood} className="flex-1 space-y-0">
-                          <FormControl>
-                            <RadioGroupItem value={mood} className="sr-only" />
-                          </FormControl>
-                          <FormLabel className={optionCard(field.value === mood)}>
-                            {mood.charAt(0).toUpperCase() + mood.slice(1)}
-                          </FormLabel>
-                        </FormItem>
-                      ))}
-                    </RadioGroup>
-                  </FormControl>
-                  <FormMessage />
-                  {field.value && (
-                    <p className="rounded-md border border-line bg-raised px-4 py-3 font-serif text-sm italic leading-relaxed text-bone">
-                      “{MOOD_VERSES[field.value].text}”
-                      <span className="mt-1.5 block font-display text-[10px] not-italic tracking-[0.14em] text-gold">
-                        {MOOD_VERSES[field.value].ref.toUpperCase()}
-                      </span>
-                    </p>
-                  )}
-                </FormItem>
-              )}
+
+        <div className="space-y-5">
+          <div>
+            <div className="grid grid-cols-2 gap-2">
+              {options.map((o) => (
+                <button
+                  key={o.id}
+                  type="button"
+                  onClick={() => setFeeling((prev) => (prev === o.id ? null : o.id))}
+                  className={cn(feelingChipClass(feeling === o.id))}
+                >
+                  {o.label}
+                </button>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowMore((v) => !v)}
+              className="mx-auto mt-3 block text-xs font-medium text-gold underline-offset-4 hover:underline"
+            >
+              {showMore ? "Show less" : "Show more"}
+            </button>
+          </div>
+
+          {scripture && (
+            <p className="rounded-md border border-line bg-raised px-4 py-3 font-serif text-sm italic leading-relaxed text-bone">
+              “{scripture.text}”
+              <span className="mt-1.5 block font-display text-[10px] not-italic tracking-[0.14em] text-gold">
+                {scripture.ref.toUpperCase()}
+              </span>
+            </p>
+          )}
+
+          <div className="space-y-1.5">
+            <label htmlFor="checkin-spirit" className="text-sm font-medium text-bone-2">
+              What do you sense the Spirit saying about what you're feeling? (optional)
+            </label>
+            <Textarea
+              id="checkin-spirit"
+              rows={2}
+              maxLength={280}
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="Name it and it loses weight…"
             />
-            <FormField
-              control={form.control}
-              name="sleep"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Sleep?</FormLabel>
-                  <FormControl>
-                    <RadioGroup
-                      onValueChange={field.onChange}
-                      value={field.value ?? ""}
-                      className="flex gap-2"
-                    >
-                      {(
-                        [
-                          { value: "well", label: "Slept well" },
-                          { value: "poorly", label: "Rough night" },
-                        ] as const
-                      ).map(({ value, label }) => (
-                        <FormItem key={value} className="flex-1 space-y-0">
-                          <FormControl>
-                            <RadioGroupItem value={value} className="sr-only" />
-                          </FormControl>
-                          <FormLabel className={optionCard(field.value === value)}>{label}</FormLabel>
-                        </FormItem>
-                      ))}
-                    </RadioGroup>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="note"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>What do you sense the Spirit saying about what you're feeling? (optional)</FormLabel>
-                  <FormControl>
-                    <Textarea rows={2} placeholder="Name it and it loses weight…" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type="submit" className="w-full" disabled={submitCheckIn.isPending}>
-              {submitCheckIn.isPending ? "Logging…" : "Log check-in"}
-            </Button>
-          </form>
-        </Form>
+          </div>
+
+          <Button
+            type="button"
+            className="w-full"
+            disabled={!feeling || submitCheckIn.isPending}
+            onClick={onSubmit}
+          >
+            {submitCheckIn.isPending ? "Logging…" : "Log check-in"}
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );

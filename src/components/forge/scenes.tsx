@@ -90,6 +90,20 @@ const BackdropLayers = () => (
     <div className="ember-bg pointer-events-none absolute inset-0" aria-hidden="true" />
     <Grain />
     <SceneShafts className="h-[440px] opacity-90 [mask-image:linear-gradient(to_bottom,black_25%,transparent_100%)] lg:h-[500px]" />
+    {/*
+      Darkening scrim over the light-shafts photo so bone/gold text stays
+      readable on EVERY screen that uses this backdrop (Today, Brotherhood,
+      Grow, Profile, Admin). Fades to transparent so content below keeps the
+      warm ember wash untouched.
+    */}
+    <div
+      className="pointer-events-none absolute inset-x-0 top-0 h-[560px] lg:h-[620px]"
+      style={{
+        background:
+          "linear-gradient(to bottom, hsl(var(--background) / 0.88) 0%, hsl(var(--background) / 0.6) 42%, hsl(var(--background) / 0) 100%)",
+      }}
+      aria-hidden="true"
+    />
   </>
 );
 
