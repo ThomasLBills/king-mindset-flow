@@ -161,7 +161,7 @@ const StandFirm = () => {
 
   return (
     <div className="relative flex min-h-dvh flex-col items-center justify-center overflow-hidden bg-forge px-6 py-12 text-center">
-      <SceneFigure className="opacity-50" />
+      <SceneFigure className="opacity-90" />
       <div
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(90%_70%_at_50%_42%,hsl(34_21%_6%/0.35),hsl(30_33%_4%/0.92))]"
         aria-hidden="true"
