@@ -136,7 +136,7 @@ const AdminLayout = () => {
       {/* Main content */}
       <main className="flex-1 min-w-0 md:overflow-y-auto">
         <div className="md:hidden pt-[calc(3.5rem+env(safe-area-inset-top))]" />
-        <PageBackdrop className="p-4 md:p-8 max-w-7xl mx-auto">
+        <PageBackdrop className="p-4 md:p-6">
           <Outlet />
         </PageBackdrop>
       </main>

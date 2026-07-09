@@ -7,7 +7,8 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Loader2, Shield, ShieldCheck, ShieldOff, UserPlus, Trash2, LogIn, Trophy, Copy, Check, UserRoundCog } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Loader2, Shield, ShieldCheck, ShieldOff, UserPlus, Trash2, LogIn, Trophy, Copy, Check, UserRoundCog, MoreHorizontal } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -46,6 +47,7 @@ const AdminUsers = () => {
   const { startImpersonation } = useImpersonation();
   const [impersonatingId, setImpersonatingId] = useState<string | null>(null);
   const [impersonateTarget, setImpersonateTarget] = useState<{ id: string; name: string; email: string } | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<EnrichedUser | null>(null);
   const [addOpen, setAddOpen] = useState(false);
   const [newEmail, setNewEmail] = useState("");
   const [newName, setNewName] = useState("");
@@ -381,60 +383,53 @@ const AdminUsers = () => {
               </Dialog>
             </>
           }
+          rowActionsHeader={<span className="sr-only">Actions</span>}
           rowActions={(u) => (
-            <div className="ml-auto grid w-[18rem] grid-cols-2 gap-2">
-              <Button
-                size="sm"
-                variant={u.entitlement?.active ? "destructive" : "default"}
-                onClick={() => toggleEntitlement.mutate({ userId: u.user_id, active: !u.entitlement?.active })}
-                disabled={toggleEntitlement.isPending}
-                className="w-full justify-center"
-              >
-                {u.entitlement?.active ? "Revoke" : "Grant"}
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => toggleRole.mutate({ userId: u.user_id, makeAdmin: !u.isAdmin })}
-                disabled={toggleRole.isPending}
-                className="w-full justify-center gap-1"
-              >
-                {u.isAdmin ? <><ShieldOff className="h-3.5 w-3.5" aria-hidden="true" /> Remove admin</> : <><Shield className="h-3.5 w-3.5" aria-hidden="true" /> Make admin</>}
-              </Button>
-              {!u.isAdmin && (
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  className="w-full justify-center gap-1"
-                  onClick={() => setImpersonateTarget({ id: u.user_id, name: u.display_name || u.name || u.email, email: u.email })}
-                  disabled={impersonatingId === u.user_id}
-                >
-                  {impersonatingId === u.user_id ? <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" /> : <UserRoundCog className="h-3.5 w-3.5" aria-hidden="true" />}
-                  Impersonate
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8" aria-label={`Actions for ${u.email}`}>
+                  {impersonatingId === u.user_id ? (
+                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                  ) : (
+                    <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
+                  )}
                 </Button>
-              )}
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button size="sm" variant="destructive" className="w-full justify-center gap-1">
-                    <Trash2 className="h-3.5 w-3.5" aria-hidden="true" /> Delete
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle className="font-display text-lg font-bold uppercase tracking-wide text-bone">Delete user</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This will permanently delete <strong>{u.email}</strong> and all their data. This action cannot be undone.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => deleteUser.mutate(u.user_id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                      {deleteUser.isPending ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : "Delete permanently"}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem
+                  onSelect={() => toggleEntitlement.mutate({ userId: u.user_id, active: !u.entitlement?.active })}
+                  disabled={toggleEntitlement.isPending}
+                >
+                  {u.entitlement?.active ? (
+                    <><ShieldOff className="mr-2 h-4 w-4" aria-hidden="true" /> Revoke access</>
+                  ) : (
+                    <><ShieldCheck className="mr-2 h-4 w-4" aria-hidden="true" /> Grant access</>
+                  )}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onSelect={() => toggleRole.mutate({ userId: u.user_id, makeAdmin: !u.isAdmin })}
+                  disabled={toggleRole.isPending}
+                >
+                  {u.isAdmin ? (
+                    <><ShieldOff className="mr-2 h-4 w-4" aria-hidden="true" /> Remove admin</>
+                  ) : (
+                    <><Shield className="mr-2 h-4 w-4" aria-hidden="true" /> Make admin</>
+                  )}
+                </DropdownMenuItem>
+                {!u.isAdmin && (
+                  <DropdownMenuItem
+                    onSelect={() => setImpersonateTarget({ id: u.user_id, name: u.display_name || u.name || u.email, email: u.email })}
+                    disabled={impersonatingId === u.user_id}
+                  >
+                    <UserRoundCog className="mr-2 h-4 w-4" aria-hidden="true" /> Impersonate
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="text-ember focus:text-ember" onSelect={() => setDeleteTarget(u)}>
+                  <Trash2 className="mr-2 h-4 w-4" aria-hidden="true" /> Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
         />
       </div>
@@ -468,6 +463,29 @@ const AdminUsers = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-display text-lg font-bold uppercase tracking-wide text-bone">Delete user</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete <strong>{deleteTarget?.email}</strong> and all their data. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (deleteTarget) deleteUser.mutate(deleteTarget.user_id);
+                setDeleteTarget(null);
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete permanently
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <AlertDialog open={!!impersonateTarget} onOpenChange={(open) => { if (!open) setImpersonateTarget(null); }}>
         <AlertDialogContent>

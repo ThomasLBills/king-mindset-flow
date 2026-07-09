@@ -246,7 +246,7 @@ export function AdminList<Row>({
           <TableHeader>
             <TableRow className="border-line hover:bg-transparent">
               {selectable && (
-                <TableHead className="w-10">
+                <TableHead className="w-10 px-3">
                   <Checkbox
                     checked={allOnPageSelected ? true : someOnPageSelected ? "indeterminate" : false}
                     onCheckedChange={toggleAll}
@@ -260,7 +260,7 @@ export function AdminList<Row>({
                 return (
                   <TableHead
                     key={col.id}
-                    className={cn("text-dim", col.headClassName)}
+                    className={cn("px-3 text-dim", col.headClassName)}
                     aria-sort={active ? (sort!.dir === "asc" ? "ascending" : "descending") : col.sortKey ? "none" : undefined}
                   >
                     {col.sortKey && onToggleSort ? (
@@ -273,7 +273,7 @@ export function AdminList<Row>({
                   </TableHead>
                 );
               })}
-              {rowActions && <TableHead className="text-right text-dim">{rowActionsHeader ?? "Actions"}</TableHead>}
+              {rowActions && <TableHead className="w-14 px-3 text-right text-dim">{rowActionsHeader ?? "Actions"}</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -319,7 +319,7 @@ export function AdminList<Row>({
                 return (
                   <TableRow key={id} className="border-line" data-state={selected.has(id) ? "selected" : undefined}>
                     {selectable && (
-                      <TableCell>
+                      <TableCell className="px-3">
                         <Checkbox
                           checked={selected.has(id)}
                           onCheckedChange={() => toggleRow(id)}
@@ -330,9 +330,9 @@ export function AdminList<Row>({
                     {columns.map((col) => {
                       const title = col.truncate && col.csv ? String(col.csv(row) ?? "") : undefined;
                       return (
-                        <TableCell key={col.id} className={cn("align-middle", col.cellClassName)}>
+                        <TableCell key={col.id} className={cn("px-3 align-middle", col.cellClassName)}>
                           {col.truncate ? (
-                            <span className="block max-w-[22ch] truncate" title={title}>
+                            <span className="block max-w-[18ch] truncate" title={title}>
                               {col.cell(row)}
                             </span>
                           ) : (
@@ -341,7 +341,7 @@ export function AdminList<Row>({
                         </TableCell>
                       );
                     })}
-                    {rowActions && <TableCell className="text-right">{rowActions(row)}</TableCell>}
+                    {rowActions && <TableCell className="px-3 text-right">{rowActions(row)}</TableCell>}
                   </TableRow>
                 );
               })}
