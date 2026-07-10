@@ -1,4 +1,6 @@
 import type { HTMLAttributes, ReactNode } from "react";
+import { Link } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Hatch } from "./scenes";
 
@@ -89,4 +91,31 @@ export const SceneBanner = ({
     />
     {children && <div className="relative">{children}</div>}
   </div>
+);
+
+/**
+ * Deterministic back control for PWA screens that aren't a primary nav
+ * destination. Always points at an explicit parent `to` — never navigate(-1),
+ * which dead-ends when the app is opened cold from the home-screen icon, a
+ * deep link, or a push notification (empty history stack).
+ */
+export const BackLink = ({
+  to,
+  label,
+  className,
+}: {
+  to: string;
+  label: string;
+  className?: string;
+}) => (
+  <Link
+    to={to}
+    className={cn(
+      "inline-flex items-center gap-1.5 text-sm text-dim transition-colors hover:text-bone",
+      className
+    )}
+  >
+    <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+    {label}
+  </Link>
 );
