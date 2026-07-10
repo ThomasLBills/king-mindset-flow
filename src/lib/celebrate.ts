@@ -2,7 +2,7 @@
  * Shared celebration burst for completion moments (path lessons, armor
  * redirects/returns/declarations). Thin wrapper over canvas-confetti in the
  * forge gold/bone palette. No-ops under prefers-reduced-motion so it never
- * fights accessibility. Import this — do NOT call canvas-confetti directly, so
+ * fights accessibility. Import this; do NOT call canvas-confetti directly, so
  * the palette and reduced-motion guard stay in one place.
  */
 import confetti from "canvas-confetti";

@@ -19,7 +19,7 @@ type ContentBlock = {
   id?: string;
   type: string;
   // Heterogeneous CMS block payload (text/level/items/url/storagePath/alt/…),
-  // shape varies per block type — intentionally loose.
+  // shape varies per block type, intentionally loose.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: Record<string, any>;
 };
@@ -287,7 +287,7 @@ const Lesson = () => {
       return;
     }
     // Success confirms itself: the page flips to the honor panel once progress
-    // re-fetches, and the confetti fires — so no success toast (P4).
+    // re-fetches, and the confetti fires, so no success toast (P4).
     if (!wasAlreadyComplete) {
       addEvidence.mutate("lesson_complete");
       if (willCompleteJourney || willCompleteWeek) {

@@ -1,5 +1,5 @@
 /**
- * "Help Me Right Now" — a light triage. Pick what's going on; a short
+ * "Help Me Right Now": a light triage. Pick what's going on; a short
  * encouragement comes back from the help-me-now edge function (with a canned
  * fallback if it's unavailable), then a CTA routes into the matching tool.
  * Logs no evidence itself.

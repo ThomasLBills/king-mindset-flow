@@ -200,7 +200,7 @@ Deno.serve(async (req) => {
     console.log("Provisioned user via Zapier, plan:", plan_key, "isNewUser:", isNewUser);
 
     // Build response with clear new vs existing user distinction.
-    // The plaintext password is only ever sent back in THIS response — never
+    // The plaintext password is only ever sent back in THIS response, never
     // persisted in the database.
     return new Response(JSON.stringify({
       success: true,

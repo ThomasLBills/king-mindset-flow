@@ -17,7 +17,7 @@ import { PageBackdrop } from "@/components/forge/scenes";
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
-/** Workbook / reading items have no video runtime — show "Lesson" not "0 min". */
+/** Workbook / reading items have no video runtime: show "Lesson" not "0 min". */
 const durationLabel = (minutes?: number | null) =>
   minutes && minutes > 0 ? `${minutes} min` : "Lesson";
 
@@ -108,7 +108,7 @@ const Grow = () => {
         <EmptyState
           icon={Compass}
           title="The path isn't open yet"
-          description="No weeks have been published for you yet. Check back soon — the ground is being prepared."
+          description="No weeks have been published for you yet. Check back soon. The ground is being prepared."
         />
       </PageBackdrop>
     );

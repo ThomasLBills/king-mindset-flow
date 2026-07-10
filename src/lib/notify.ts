@@ -5,7 +5,7 @@ type NotifyOpts = { description?: string; duration?: number };
 
 // sonner's Toaster renders an aria-live="polite" region by default, so call-sites
 // don't set live-region props. Per 2026 a11y guidance: success may auto-dismiss,
-// but ERROR toasts persist until the user dismisses them so they aren't missed —
+// but ERROR toasts persist until the user dismisses them so they aren't missed,
 // and critical/actionable errors must also appear inline/banner, never toast-only.
 export const notify = {
   success: (message: string, opts?: NotifyOpts) => toast.success(message, { ...opts }),

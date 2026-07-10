@@ -175,17 +175,17 @@ const Today = () => {
           </div>
 
           <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-5 pb-10 sm:px-8">
-            {/* 1. Daily Check-In — the primary card, in place of the old Standing hero */}
+            {/* 1. Daily Check-In: the primary card, in place of the old Standing hero */}
             <Reveal>
               <CheckInCard />
             </Reveal>
 
-            {/* 2. Urges Redirected — the Hold-to-Redirect ritual */}
+            {/* 2. Urges Redirected: the Hold-to-Redirect ritual */}
             <Reveal delay={0.06}>
               <UrgesRedirectedCard />
             </Reveal>
 
-            {/* 3. Weekly Brotherhood Call — Tuesdays only (device-local, isCallDay) */}
+            {/* 3. Weekly Brotherhood Call: Tuesdays only (device-local, isCallDay) */}
             {isCallDay() && (
               <Reveal delay={0.09}>
                 <div>
@@ -210,7 +210,7 @@ const Today = () => {
               </Reveal>
             )}
 
-            {/* 4. This week's evidence — the two KPIs (community + personal) */}
+            {/* 4. This week's evidence: the two KPIs (community + personal) */}
             <Reveal delay={0.12}>
               <div>
                 <Eyebrow className="mb-3 block">This week's evidence</Eyebrow>
@@ -221,7 +221,7 @@ const Today = () => {
               </div>
             </Reveal>
 
-            {/* 5. The rest — verse, brothers/send-strength + weekly stats, then the path */}
+            {/* 5. The rest: verse, brothers/send-strength + weekly stats, then the path */}
             {verse && (
               <Reveal delay={0.15}>
                 <SectionCard className="bg-gradient-to-br from-raised to-[hsl(35_23%_8%)] p-6">

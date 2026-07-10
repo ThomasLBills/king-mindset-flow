@@ -19,7 +19,7 @@ import {
 } from "./checkInEngine";
 
 /**
- * Daily Check-In — the primary card on Today (replaces the old "Standing"
+ * Daily Check-In: the primary card on Today (replaces the old "Standing"
  * hero). It is the ORIGINAL mechanic rendered inline: pick ONE of 16 feelings
  * (4 core + "show more" for 12 extra), the matching priority Scripture surfaces
  * on select, an optional "what is the Spirit saying" note, then submit.
@@ -84,7 +84,7 @@ export const CheckInCard = () => {
   const showCompact = isCheckedIn && !editing;
 
   // In the compact state, surface the verse for the first stored feeling that
-  // maps to Scripture (older rows may hold unmapped values — that's fine).
+  // maps to Scripture (older rows may hold unmapped values, that's fine).
   const storedFeelings: string[] = Array.isArray(todayCheckIn?.feelings)
     ? todayCheckIn!.feelings
     : [];

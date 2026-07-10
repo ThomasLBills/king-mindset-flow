@@ -220,7 +220,7 @@ serve(async (req) => {
       params.append("subscription_data[metadata][plan]", planKey);
     }
     if (stripeCustomerId) {
-      // Reuse existing Stripe customer — prevents Stripe from treating user as new
+      // Reuse existing Stripe customer: prevents Stripe from treating user as new
       params.append("customer", stripeCustomerId);
       params.append("customer_update[address]", "auto");
       params.append("customer_update[name]", "auto");

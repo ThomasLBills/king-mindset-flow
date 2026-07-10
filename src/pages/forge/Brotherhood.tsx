@@ -207,7 +207,7 @@ const ChatThread = ({
           <EmptyState
             icon={MessageCircle}
             title="No messages yet"
-            description="Speak first — two honest lines can turn a whole day."
+            description="Speak first. Two honest lines can turn a whole day."
           />
         ) : (
           <ul className="flex flex-col gap-4">
@@ -384,7 +384,7 @@ const GroupTab = ({ openDm }: { openDm: (brotherId: string, name: string) => voi
             <Eyebrow className="mb-1 block">Carry it together</Eyebrow>
             <p className="font-display text-lg font-bold text-bone">Reach out to a brother</p>
             <p className="mt-1 text-sm text-bone-2">
-              A check-in, a hard moment, a win, or a prayer — send it in two taps.
+              A check-in, a hard moment, a win, or a prayer. Send it in two taps.
             </p>
           </div>
           <ReachOut
@@ -411,7 +411,7 @@ const GroupTab = ({ openDm }: { openDm: (brotherId: string, name: string) => voi
         </ul>
       </SectionCard>
 
-      {/* Tuesdays only — same device-local gate as Today; no dead off-day button. */}
+      {/* Tuesdays only: same device-local gate as Today; no dead off-day button. */}
       {isCallDay() && (
         <SectionCard hatch className="p-5">
           <Eyebrow className="mb-1 block">Tonight's brotherhood call</Eyebrow>
@@ -688,7 +688,7 @@ const Brotherhood = () => {
         // Fill the viewport minus chrome so the composer is always in view and
         // only the message list scrolls. Two chrome budgets: mobile/tablet have
         // the top bar + bottom tab bar (up to lg); lg+ has the desktop rail only.
-        // ponytail: the rem constants are tuned to the current header/nav heights —
+        // ponytail: the rem constants are tuned to the current header/nav heights:
         // adjust them if that chrome changes.
         <div className="flex h-[calc(100dvh-17rem)] min-h-[420px] gap-4 lg:h-[calc(100dvh-12rem)]">
           <div

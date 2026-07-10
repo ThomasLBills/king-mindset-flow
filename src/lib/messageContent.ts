@@ -6,7 +6,7 @@
  * Video URLs are pulled OUT of the text (so a pasted link renders as a player,
  * not a raw string) while every other URL stays inline as a link. Safe by
  * construction: callers render tokens as React children and build embed URLs
- * only from the extracted video id — never from raw user input via innerHTML.
+ * only from the extracted video id, never from raw user input via innerHTML.
  */
 
 export type MessageEmbed =
@@ -22,7 +22,7 @@ export interface ParsedMessage {
   embeds: MessageEmbed[];
 }
 
-// vimeo.com/<id>[/<hash>][?query]  — hash is the unlisted-video token
+// vimeo.com/<id>[/<hash>][?query]  (hash is the unlisted-video token)
 const VIMEO_RE = /(?:https?:\/\/)?(?:www\.)?vimeo\.com\/(\d+)(?:\/([0-9a-zA-Z]+))?(?:\?\S*)?/gi;
 // youtube.com/watch?v=<id> | youtu.be/<id> | /embed/<id> | /shorts/<id>  (ids are 11 chars)
 const YOUTUBE_RE =
@@ -52,7 +52,7 @@ export function parseMessage(content: string): ParsedMessage {
   }
   videos.sort((a, b) => a.start - b.start);
 
-  // Drop any overlapping match (defensive — vimeo/youtube can't overlap in practice).
+  // Drop any overlapping match (defensive: vimeo/youtube can't overlap in practice).
   const kept: typeof videos = [];
   let lastEnd = -1;
   for (const v of videos) {

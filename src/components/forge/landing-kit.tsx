@@ -147,7 +147,7 @@ export const RevealInOut = ({
 );
 
 /** sohub's 8-path sparkle glyph (verbatim). Spins forever via the `.lk-spin`
- *  CSS class — no JS timeline needed. Decorative. */
+ *  CSS class, no JS timeline needed. Decorative. */
 const SPARK_PATHS = [
   "M19.6094 43.9991V22.582",
   "M4.75391 35.8655L19.8966 20.7207",
@@ -167,7 +167,7 @@ const SparkIcon = ({ className }: { className?: string }) => (
 );
 
 /** A "magnetic" pill: translates toward the cursor by 20% of its offset from
- *  center (0.2s), springs back on leave (0.7s) — sohub's MagneticWrapper.
+ *  center (0.2s), springs back on leave (0.7s), sohub's MagneticWrapper.
  *  Inert under reduced-motion. */
 export const MagneticPill = ({ children, className }: { children: ReactNode; className?: string }) => {
   const ref = useRef<HTMLSpanElement>(null);
@@ -287,7 +287,7 @@ export const PillarDeck = ({ pillars }: { pillars: Pillar[] }) => {
     <div ref={wrap} className="pillar-deck relative flex flex-col gap-8">
       {pillars.map((p, i) => {
         // Main word fills the card. ponytail: bucket by line count + longest
-        // line — a short single word goes huge, a 2-line word (Brother/Hood)
+        // line: a short single word goes huge, a 2-line word (Brother/Hood)
         // steps down so both lines fit, a long single word steps down for
         // width. Retune caps if a title outgrows these.
         const lines = p.titleBottom.split("\n");
@@ -310,7 +310,7 @@ export const PillarDeck = ({ pillars }: { pillars: Pillar[] }) => {
             {/* Reference (img2) layout: large subject, vertically centred on the
                 right; the wrapper holds the position so the img can idle-float
                 (lk-float) like the page's other cutouts. imgClass (per-pillar)
-                overrides size/position — else bigImg vs the smaller bible box.
+                overrides size/position, else bigImg vs the smaller bible box.
                 Left-fade mask keeps the title legible where they meet. */}
             <div
               className={cn(

@@ -35,7 +35,7 @@ import {
   useLenis,
 } from "@/components/forge/landing-kit";
 
-// The landing runs a light "cream" theme (bone bg, forge ink) — scoped to this
+// The landing runs a light "cream" theme (bone bg, forge ink), scoped to this
 // page via classes, so the member app / admin keep the dark forge tokens.
 const MUTED = "text-[hsl(var(--background)/0.72)]"; // forge ink, softened for body copy
 // Footer nav pill (sohub-style). Colour is set per-instance so the same shape
@@ -121,7 +121,7 @@ const Landing = () => {
   const heroRef = useRef<HTMLElement>(null);
   const [introReady, setIntroReady] = useState(false);
   useHeroIntro(heroRef, introReady);
-  // Scroll progress across the footer wordmark's slice of the page — drives the
+  // Scroll progress across the footer wordmark's slice of the page, drives the
   // scrubbed per-letter rise (KingLetter).
   const kingRef = useRef<HTMLSpanElement>(null);
   const { scrollYProgress: kingProgress } = useScroll({
@@ -134,7 +134,7 @@ const Landing = () => {
       <LandingLoader onDone={() => setIntroReady(true)} />
       <Grain />
 
-      {/* 1 — Persistent header + hinged menu (dark marks over the cream page) */}
+      {/* 1. Persistent header + hinged menu (dark marks over the cream page) */}
       <header className="fixed inset-x-0 top-0 z-50">
         <div className="mx-auto flex max-w-[1800px] items-center justify-between px-6 py-5 lg:px-10">
           <Link to="/" aria-label="Liberated Kings">
@@ -152,7 +152,7 @@ const Landing = () => {
         </div>
       </header>
 
-      {/* 2 — Hero: giant solid wordmark, dark eagle pops over it. Wordmark +
+      {/* 2. Hero: giant solid wordmark, dark eagle pops over it. Wordmark +
           tagline/buttons share one shrink-to-fit column so the row aligns to the
           wordmark's edges; the eagle layers between (over the buttons, which stay
           clickable since it's pointer-events-none). */}
@@ -200,12 +200,12 @@ const Landing = () => {
         </span>
       </section>
 
-      {/* 3 — Manifesto: full-width shimmer headline + big statement, with the
+      {/* 3. Manifesto: full-width shimmer headline + big statement, with the
           sword as a foreground overlay. Everything fades/drifts in on scroll-in
           and out on scroll-out (lk-reveal-io). */}
       <section className="relative overflow-hidden py-32 sm:py-44">
         <div className="relative mx-auto max-w-[1800px] px-6">
-          {/* z-20 overlay drifting with scroll — pulled in over the text for a
+          {/* z-20 overlay drifting with scroll, pulled in over the text for a
               partial overlap (pointer-events-none, so it never blocks). */}
           <ParallaxSubject
             src="/pics/hero-sword.png"
@@ -225,13 +225,13 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* 4 — Pillars as a sohub-style pinned deck (desktop) / stacked list (mobile) */}
+      {/* 4. Pillars as a sohub-style pinned deck (desktop) / stacked list (mobile) */}
       <section className="relative mx-auto max-w-[1600px] px-6 pb-24">
         <Eyebrow className="mb-10 block text-center text-gold-deep">How men get free here</Eyebrow>
         <PillarDeck pillars={PILLARS} />
       </section>
 
-      {/* 5 — Scripture band (breather) */}
+      {/* 5. Scripture band (breather) */}
       <section>
         <div className="mx-auto max-w-3xl px-6 py-24 text-center">
           <LinesReveal className="font-serif text-2xl italic leading-relaxed text-forge sm:text-3xl">
@@ -245,8 +245,8 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* 6 — CTA: God's hand reaching for you. Hand is an overlay (z-20, above the
-          copy) that bleeds off the right edge — page overflow-x-clip eats the bleed. */}
+      {/* 6. CTA: God's hand reaching for you. Hand is an overlay (z-20, above the
+          copy) that bleeds off the right edge: page overflow-x-clip eats the bleed. */}
       <section className="relative">
         {/* Hand shows on every size now. Mobile: faded, behind the copy (z-0),
             bleeding from the right so only the reaching hand reads. lg: the
@@ -281,13 +281,13 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* 8 — Footer (sohub-style): giant KINGS wordmark, crown cresting the seam,
+      {/* 8. Footer (sohub-style): giant KINGS wordmark, crown cresting the seam,
           dark card with the © lockup, and a nav-pill bar tucked under it. The
-          "rising" feel is Lenis inertia + the crown's idle bob — no scroll JS.
+          "rising" feel is Lenis inertia + the crown's idle bob. No scroll JS.
           overflow-x-clip eats the wordmark's horizontal bleed while letting the
           crown overflow upward. */}
       <footer className="relative overflow-x-clip pt-24 sm:pt-28">
-        {/* Giant wordmark — the per-letter rise is SCRUBBED by scroll (see
+        {/* Giant wordmark: the per-letter rise is SCRUBBED by scroll (see
             KingLetter): scroll down and letters climb, stop and they hold, scroll
             back up and they sink. clip-path hides the below-start travel while
             leaving the cap tops uncropped (leading-0.7 is too tight for plain
@@ -320,7 +320,7 @@ const Landing = () => {
             delay="80ms"
           />
 
-          {/* Dark card — the inverse of the cream page (bg-forge / text-bone).
+          {/* Dark card: the inverse of the cream page (bg-forge / text-bone).
               Content sits toward the bottom (justify-end), sohub-style. */}
           <div className="relative z-10 flex min-h-[clamp(360px,40vw,600px)] flex-col items-center justify-end overflow-hidden rounded-[28px] bg-forge px-6 pb-14 text-center sm:px-10 sm:pb-16">
             <h2 className="font-sans text-[clamp(2.25rem,7.5vw,7rem)] font-bold leading-none tracking-tight text-bone">
@@ -334,7 +334,7 @@ const Landing = () => {
           {/* Nav-pill bar tucked behind the card's rounded bottom (z-0, narrower,
               flat top) so the two read as one seamless block. The negative margin
               holds its resting slot; on first scroll-in it slides down once from
-              translateY(-100%) (tucked behind the card) — sohub's exact reveal. */}
+              translateY(-100%) (tucked behind the card), sohub's exact reveal. */}
           <motion.div
             initial={reduce ? false : { y: "-100%" }}
             whileInView={{ y: 0 }}

@@ -1,5 +1,5 @@
 /**
- * "Gratitude — What Are You Grateful For Today?". Three required entries,
+ * "Gratitude: What Are You Grateful For Today?". Three required entries,
  * once per local day (gratitude_entries), then evidence "gratitude" via the
  * useGratitude hook. Independent of the check-in write.
  */
@@ -76,7 +76,7 @@ export const Gratitude = ({ onBack }: { onBack: () => void }) => {
       {
         // Success confirms in place: confetti + the recorded entries render
         // below (P4), so no toast. Failure surfaces via the global mutation
-        // net (this was the origin silent-failure bug — now covered centrally).
+        // net (this was the origin silent-failure bug, now covered centrally).
         onSuccess: () => {
           celebrate();
           setDone(true);

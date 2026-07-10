@@ -24,14 +24,14 @@ if (!canRunE2E) {
     !SERVICE_KEY && "SUPABASE_SERVICE_ROLE_KEY",
   ].filter(Boolean).join(", ");
   console.warn(
-    `[get-lesson-asset-url authenticated E2E] Skipping — missing env: ${missing}. ` +
+    `[get-lesson-asset-url authenticated E2E] Skipping, missing env: ${missing}. ` +
       `Run in an environment with SUPABASE_SERVICE_ROLE_KEY to enable the ` +
       `authorized-download / draft-403 / rate-limit-429 tests.`,
   );
 }
 
 // ---------------------------------------------------------------------------
-// Unauthenticated contract tests — always run. These verify the function
+// Unauthenticated contract tests, always run. These verify the function
 // enforces auth and method/body validation before any privileged path.
 // ---------------------------------------------------------------------------
 
@@ -95,7 +95,7 @@ async function setup(): Promise<Ctx> {
   if (createErr || !created?.user) throw new Error(`createUser: ${createErr?.message}`);
   const userId = created.user.id;
 
-  // Grant active entitlement (upsert — handle_new_user trigger may have seeded a trial row already)
+  // Grant active entitlement (upsert: handle_new_user trigger may have seeded a trial row already)
   const { error: entErr } = await admin
     .from("entitlements")
     .upsert(

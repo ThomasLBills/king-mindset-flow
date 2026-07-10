@@ -1,5 +1,5 @@
 /**
- * "I Am Being Tempted" — N.A.N.: Notice → Name → Navigate. Navigate ends in a
+ * "I Am Being Tempted". N.A.N.: Notice → Name → Navigate. Navigate ends in a
  * 2s Hold to Redirect that logs evidence "urge_redirected" (useUrgeCounter)
  * and returns to Today. The redesign's breathing pacer and "raise the banner"
  * prayer request are preserved as options inside Navigate, so nothing is lost.
@@ -117,7 +117,7 @@ export const Tempted = ({ onBack }: { onBack: () => void }) => {
           Urge redirected. New pathway built.
         </h1>
         <p className="mt-3 font-serif italic leading-relaxed text-bone-2">
-          You didn't just resist — you practiced a different pathway. Every rep makes it stronger.
+          You didn't just resist. You practiced a different pathway. Every rep makes it stronger.
         </p>
       </>
     );
@@ -317,7 +317,7 @@ export const Tempted = ({ onBack }: { onBack: () => void }) => {
         They're being told right now.
       </h1>
       <p className="mb-2 mt-3 text-[15px] leading-relaxed text-bone-2">
-        You did the strong thing. You didn't hide. Keep breathing — answers usually come within
+        You did the strong thing. You didn't hide. Keep breathing. Answers usually come within
         minutes.
       </p>
       <BreathingPacer />

@@ -79,7 +79,7 @@
    Button all render correctly on cream, and the screens' existing alias classes
    (text-bone -> --foreground, text-bone-2 -> --muted-foreground) re-colour for
    free. Member app + admin keep the :root dark theme. Vars not listed here
-   inherit from :root — notably --primary stays gold, so filled buttons match
+   inherit from :root; notably --primary stays gold, so filled buttons match
    the landing's bright-gold CTAs. */
 .lk-cream {
   color-scheme: light;
@@ -236,7 +236,7 @@
   }
 }
 
-/* Landing-scoped 8px pill scrollbar — only while Lenis is mounted (it toggles
+/* Landing-scoped 8px pill scrollbar, only while Lenis is mounted (it toggles
    html.lenis), so the member app keeps the default 10px bar. */
 html.lenis {
   scrollbar-width: thin;
@@ -343,7 +343,7 @@ html.lenis::-webkit-scrollbar-thumb {
 }
 
 /* Hero scroll cue fades out over the first stretch of scroll (sohub behaviour).
-   Not gated on reduced-motion — it's a scroll-position map, not flashing motion. */
+   Not gated on reduced-motion: it's a scroll-position map, not flashing motion. */
 @keyframes lk-fade-out {
   to {
     opacity: 0;
@@ -359,7 +359,7 @@ html.lenis::-webkit-scrollbar-thumb {
 
 /* Pinned pillar deck (sohub-style). `.is-pinned` is toggled by GSAP matchMedia
    only at lg AND only when motion is allowed; without it the cards stay in
-   normal flow — a plain stacked list for mobile / reduced-motion. */
+   normal flow, a plain stacked list for mobile / reduced-motion. */
 .pillar-deck.is-pinned {
   display: block;
   aspect-ratio: 16 / 7;

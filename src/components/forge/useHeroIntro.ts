@@ -1,6 +1,6 @@
 /**
  * Hero entrance (sohub-style), landing-only. The GSAP timeline is built + set to
- * its hidden "from" state on mount, held PAUSED until `play` flips true — so it
+ * its hidden "from" state on mount, held PAUSED until `play` flips true, so it
  * fires when the loader splash finishes, not behind it. Sequence: eagle fades
  * in, wordmark letters pop left→right (scale + fade, back overshoot), tagline
  * mask-reveals up, CTA row + scroll cue rise in last. Skipped under
@@ -16,7 +16,7 @@ import { SplitText } from "gsap/SplitText";
 
 gsap.registerPlugin(SplitText);
 
-// Set at module eval — before the browser restores scroll on refresh — so a
+// Set at module eval (before the browser restores scroll on refresh) so a
 // reload always starts at the hero (not a restored position). Doing this in an
 // effect was too late: the restore had already happened.
 if (typeof history !== "undefined" && "scrollRestoration" in history) {

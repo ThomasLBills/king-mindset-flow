@@ -1,16 +1,16 @@
 /**
  * Home "This week's evidence" cards, restored to original function in the
  * Forge visual language:
- *  - ArmorActivatedCard — community-wide "Armor Activated / All Kings"
+ *  - ArmorActivatedCard: community-wide "Armor Activated / All Kings"
  *    (get_community_armor_stats RPC), This week + Lifetime.
- *  - LiberatedCard — personal "Liberated / My Evidence" (all of the user's
+ *  - LiberatedCard: personal "Liberated / My Evidence" (all of the user's
  *    evidence_events, no event_type filter), This week + Lifetime.
- *  - UrgesRedirectedCard — the "Hold to Redirect" ritual: a 2s press-and-hold
+ *  - UrgesRedirectedCard: the "Hold to Redirect" ritual, a 2s press-and-hold
  *    that logs one evidence_events row (event_type "urge_redirected") and shows
  *    an inline success flash. Never navigates. Shows Today + Lifetime counts.
  *
  * The two KPIs read two DIFFERENT scopes (community vs personal) and must not
- * be conflated — see the behavior contract. All three reuse intact hooks
+ * be conflated. See the behavior contract. All three reuse intact hooks
  * (useCommunityArmor / useEvidenceCounter / useUrgeCounter).
  */
 import { useState } from "react";
@@ -81,7 +81,7 @@ export const ArmorActivatedCard = () => {
   );
 };
 
-/** Personal "Liberated / My Evidence" — counts all of the user's evidence. */
+/** Personal "Liberated / My Evidence": counts all of the user's evidence. */
 export const LiberatedCard = () => {
   const { count, thisWeekCount, isLoading } = useEvidenceCounter();
   return (
@@ -95,7 +95,7 @@ export const LiberatedCard = () => {
   );
 };
 
-/** "Urges redirected" — the Hold to Redirect ritual (no navigation). */
+/** "Urges redirected": the Hold to Redirect ritual (no navigation). */
 export const UrgesRedirectedCard = () => {
   const { dailyCount, lifetimeCount, addUrge } = useUrgeCounter();
   const [flash, setFlash] = useState(false);

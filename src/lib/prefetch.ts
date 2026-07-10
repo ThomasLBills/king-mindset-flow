@@ -1,7 +1,7 @@
 /**
  * Warm lazy route chunks before navigation so Suspense doesn't flash a
  * fallback the first time you visit a public page. The specifiers match
- * App.tsx's lazy() calls — Vite resolves both to the same chunk, so calling
+ * App.tsx's lazy() calls; Vite resolves both to the same chunk, so calling
  * here just primes the module cache; lazy() then resolves instantly.
  */
 const loaders: Record<string, () => Promise<unknown>> = {

@@ -34,7 +34,7 @@ import {
 } from "./checkInEngine";
 
 /**
- * Daily check-in modal — the original mechanic, restyled for the Forge. Pick
+ * Daily check-in modal: the original mechanic, restyled for the Forge. Pick
  * ONE of 16 feelings; the matching Scripture surfaces immediately; an optional
  * "what is the Spirit saying" note can be added. The feeling/Scripture data and
  * derivation rules live in ./checkInEngine (shared with the inline CheckInCard).

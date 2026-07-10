@@ -95,7 +95,7 @@ export const SceneBanner = ({
 
 /**
  * Deterministic back control for PWA screens that aren't a primary nav
- * destination. Always points at an explicit parent `to` — never navigate(-1),
+ * destination. Always points at an explicit parent `to`, never navigate(-1),
  * which dead-ends when the app is opened cold from the home-screen icon, a
  * deep link, or a push notification (empty history stack).
  */

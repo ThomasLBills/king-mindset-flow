@@ -45,7 +45,7 @@ const ChatView = ({ target }: ChatViewProps) => {
       destructive: true,
     });
     if (!ok) return;
-    // On success the realtime DELETE subscription drops it from the list — that's
+    // On success the realtime DELETE subscription drops it from the list: that's
     // the confirmation, so no success toast.
     const { error } = await supabase.from("chat_messages").delete().eq("id", messageId);
     if (error) notify.fromError(error);

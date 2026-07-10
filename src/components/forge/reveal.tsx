@@ -1,6 +1,6 @@
 /**
- * On-mount reveal (sohub's route feel): navigating to a page doesn't wipe —
- * each piece fades + slides up as it mounts. Shared by the public pages
+ * On-mount reveal (sohub's route feel): navigating to a page doesn't wipe.
+ * Each piece fades + slides up as it mounts. Shared by the public pages
  * (auth, legal). Framer's initial/animate fire on mount by definition, so this
  * is just a thin wrapper that centralises the easing + reduced-motion escape.
  */

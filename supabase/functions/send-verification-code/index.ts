@@ -34,7 +34,7 @@ function buildVerificationEmailHtml(code: string): string {
 async function sendEmailViaResend(to: string, code: string): Promise<boolean> {
   const resendApiKey = Deno.env.get("RESEND_API_KEY");
   if (!resendApiKey) {
-    console.error("RESEND_API_KEY not configured — cannot send verification email");
+    console.error("RESEND_API_KEY not configured, cannot send verification email");
     return false;
   }
 
@@ -101,7 +101,7 @@ Deno.serve(async (req) => {
     }
 
     if (profile.password_set) {
-      // Uniform response — do not reveal that this email has completed setup
+      // Uniform response: do not reveal that this email has completed setup
       return new Response(JSON.stringify({ sent: true }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -141,7 +141,7 @@ Deno.serve(async (req) => {
 
     console.log("Generated verification code for", normalizedEmail);
 
-    // Send email directly via Resend — bypass auth hook entirely
+    // Send email directly via Resend, bypass auth hook entirely
     const emailSent = await sendEmailViaResend(normalizedEmail, code);
     if (!emailSent) {
       console.error("Failed to send verification email to", normalizedEmail);

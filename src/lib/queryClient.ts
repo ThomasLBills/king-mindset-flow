@@ -9,7 +9,7 @@ declare module "@tanstack/react-query" {
   }
 }
 
-/** Default mutation error handler — toasts unless the mutation opts out via `meta.handled`. */
+/** Default mutation error handler: toasts unless the mutation opts out via `meta.handled`. */
 export function mutationErrorHandler(
   error: unknown,
   _vars: unknown,
@@ -30,7 +30,7 @@ export function makeQueryClient(): QueryClient {
     // No mutation is ever silent: an unhandled mutation error still toasts.
     mutationCache: new MutationCache({ onError: mutationErrorHandler }),
     // Query load failures surface via <ErrorState> in-region, so the global handler
-    // only logs — a global toast would double-signal.
+    // only logs; a global toast would double-signal.
     queryCache: new QueryCache({ onError: (error) => console.error("[query error]", error) }),
   });
 }

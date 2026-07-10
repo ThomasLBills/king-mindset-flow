@@ -276,7 +276,7 @@ const Profile = () => {
             <form
               onSubmit={infoForm.handleSubmit((values) => {
                 // A saved form keeps the values you typed, so nothing on screen
-                // changes to confirm the write — surface an explicit success (P4).
+                // changes to confirm the write: surface an explicit success (P4).
                 // Failures fall through to the global mutation net.
                 updateProfile.mutate(values, {
                   onSuccess: () => notify.success("Saved."),
@@ -445,7 +445,7 @@ const Profile = () => {
             <form
               onSubmit={whyForm.handleSubmit(({ why: next }) => {
                 // On success the dialog closes and the new "why" shows in the card
-                // behind it — that in-place update is the confirmation (P4). A
+                // behind it. That in-place update is the confirmation (P4). A
                 // failure keeps the dialog open and the global net toasts it.
                 setWhy.mutate(next, { onSuccess: () => setWhyOpen(false) });
               })}

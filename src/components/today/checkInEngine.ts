@@ -1,9 +1,9 @@
 /**
- * Daily check-in engine — the ORIGINAL mechanic's data + derivation rules,
+ * Daily check-in engine: the ORIGINAL mechanic's data + derivation rules,
  * extracted so the inline Today card (`CheckInCard`) and the modal
  * (`CheckInDialog`) share one source of truth.
  *
- * Contract (must not drift — see REDESIGN-PARITY-MAP.local.md §1):
+ * Contract (must not drift, see REDESIGN-PARITY-MAP.local.md §1):
  *  - Pick ONE feeling from 16 (4 core + 12 extra behind "show more").
  *  - Selecting a feeling surfaces its matching priority Scripture.
  *  - `needs_support` is AUTO-DERIVED from the feeling, never a manual input.
@@ -39,10 +39,10 @@ export const ALL_FEELINGS: readonly Feeling[] = [...CORE_FEELINGS, ...EXTRA_FEEL
 /** Feelings that flag the check-in as needing support (auto-derived). */
 export const NEEDS_SUPPORT = ["anxious", "tempted", "isolated", "discouraged", "ashamed"];
 
-/** Auto-derive `needs_support` from the selected feeling — never manual. */
+/** Auto-derive `needs_support` from the selected feeling, never manual. */
 export const needsSupportFor = (feelingId: string): boolean => NEEDS_SUPPORT.includes(feelingId);
 
-/** One cited verse per feeling — the original check-in Scripture engine. */
+/** One cited verse per feeling: the original check-in Scripture engine. */
 export const FEELING_SCRIPTURE: Record<string, Scripture> = {
   anxious: {
     text: "Do not be anxious about anything, but in every situation, by prayer and petition, with thanksgiving, present your requests to God. And the peace of God, which transcends all understanding, will guard your hearts and your minds in Christ Jesus.",

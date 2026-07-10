@@ -1,5 +1,5 @@
 /**
- * "Your Armor" — the Armor page (route /stand-firm, formerly /tools). A menu
+ * "Your Armor": the Armor page (route /stand-firm, formerly /tools). A menu
  * of the six original tools, each rendered inside the shared crisis ArmorFrame.
  * "Put on the full armor of God. Choose what your moment requires."
  *
@@ -58,7 +58,7 @@ const StandFirm = () => {
             <ActionRow
               icon={Undo2}
               title="I Need to Return"
-              sub="R.E.T.U.R.N. — come back without hiding"
+              sub="R.E.T.U.R.N. Come back without hiding"
               onClick={() => setTool("return")}
             />
             <ActionRow

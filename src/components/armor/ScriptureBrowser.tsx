@@ -1,5 +1,5 @@
 /**
- * "Scripture — The Sword of the Spirit". Category list → verse carousel.
+ * "Scripture: The Sword of the Spirit". Category list → verse carousel.
  * Read-only content browser; logs no evidence (matches the original tool).
  * Data comes from the shared scriptureLibrary (extracted verbatim from the
  * original ScriptureTool).

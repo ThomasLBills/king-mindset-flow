@@ -1,8 +1,8 @@
 /**
  * Landing-only splash (sohub-style). Fixed dark overlay with the LK logo that
  * eases in (back overshoot), zooms hard into frame (power4.in), then hard-cuts
- * to reveal the page. Scoped to the landing by being rendered only in Landing.tsx
- * — the member app (/app) keeps its own route loader. Skipped under
+ * to reveal the page. Scoped to the landing by being rendered only in Landing.tsx.
+ * The member app (/app) keeps its own route loader. Skipped under
  * reduced-motion. Kept snappy on purpose (the real app needs a fast loader).
  */
 import { useLayoutEffect, useRef, useState } from "react";
@@ -12,7 +12,7 @@ const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 // Cold-load only: the splash should play on a real page load, not every time
 // an SPA navigation remounts Landing (returning to "/"). A module-level flag
-// resets on hard refresh — which is exactly a cold load — so that plays again.
+// resets on hard refresh (which is exactly a cold load) so that plays again.
 let ranThisLoad = false;
 
 export const LandingLoader = ({ onDone }: { onDone?: () => void }) => {
@@ -52,7 +52,7 @@ export const LandingLoader = ({ onDone }: { onDone?: () => void }) => {
     tl.to(mark, { opacity: 1, scale: 1, rotation: 0, duration: 0.8, ease: "back.out(1.6)" })
       .to(mark, { scale: 22, duration: 0.5, ease: "power4.in" }, "+=0.08")
       .to(box, { width: "320vw", duration: 0.5, ease: "power4.in" }, "<")
-      .set(ov, { autoAlpha: 0 }); // hard cut — the zoom disguises the swap
+      .set(ov, { autoAlpha: 0 }); // hard cut, the zoom disguises the swap
 
     // Play once fonts are ready (so the revealed wordmark is correct), capped so
     // it never stalls on a slow connection.
@@ -77,7 +77,7 @@ export const LandingLoader = ({ onDone }: { onDone?: () => void }) => {
     >
       <div ref={logo} className="w-20 lg:w-36">
         {/* LK mark filled with the exact landing bg colour (bg-bone token) via a
-            mask, so the splash logo matches the page 1:1 — not a filter approx. */}
+            mask, so the splash logo matches the page 1:1, not a filter approx. */}
         <div
           className="aspect-square w-full bg-bone"
           style={{

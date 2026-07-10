@@ -153,7 +153,7 @@ const AdminUsers = () => {
       if (data?.error) throw new Error(data.error);
       return data as { tempPassword: string; email: string };
     },
-    // Success is confirmed by the credential modal that opens (P4 — no toast).
+    // Success is confirmed by the credential modal that opens (P4: no toast).
     onSuccess: (data) => {
       invalidate();
       setAddOpen(false);

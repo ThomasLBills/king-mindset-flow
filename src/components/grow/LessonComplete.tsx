@@ -45,7 +45,7 @@ export const LessonComplete = ({
     eyebrow = "The path, walked";
     headline = "Every reading, finished.";
     subline =
-      "You've taken all the ground on the Liberated Path. This isn't the end of the work — it's proof you can hold the line.";
+      "You've taken all the ground on the Liberated Path. This isn't the end of the work. It's proof you can hold the line.";
   } else if (weekComplete) {
     eyebrow = weekNumber ? `Week ${weekNumber} complete` : "Week complete";
     headline = "The week is finished.";

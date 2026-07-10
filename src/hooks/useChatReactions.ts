@@ -54,7 +54,7 @@ export function useChatReactions(messageIds: string[]) {
   const toggleReaction = useCallback(async (messageId: string, emoji: string) => {
     if (!user) return;
     // Not optimistic: the pill only changes once the realtime subscription
-    // refetches, so there's no local state to roll back — but the write can
+    // refetches, so there's no local state to roll back, but the write can
     // still fail silently, so surface it (this hook isn't a useMutation, so the
     // global mutation net doesn't cover it).
     try {

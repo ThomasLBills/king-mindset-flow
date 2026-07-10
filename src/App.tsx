@@ -24,7 +24,7 @@ import { OfflineBanner } from "@/components/OfflineBanner";
 // Route-level code splitting: every page below ships as its own chunk,
 // fetched on first navigation, so the entry bundle stays small.
 // Guards, providers, and AppShell stay eager because they wrap every route.
-// NOTE: the marketing Landing page is intentionally not imported — it's
+// NOTE: the marketing Landing page is intentionally not imported; it's
 // disabled (client request). The file is kept in the tree; "/" redirects
 // instead (see RootRedirect). Re-add the import + route to re-enable it.
 const Login = lazy(() => import("./pages/forge/Login"));
@@ -88,7 +88,7 @@ const rootErrorFallback = (error: Error) => (
 );
 
 // Compact fallback for a single area (outlet) so one panel's crash doesn't blank
-// the whole app — it recovers in place via the boundary's reset.
+// the whole app; it recovers in place via the boundary's reset.
 const areaErrorFallback = (error: Error, reset: () => void) => (
   <div className="p-6">
     <ErrorState title="This section hit an error" message={error.message} onRetry={reset} />
@@ -124,17 +124,17 @@ const EASE = [0.22, 1, 0.36, 1] as const;
 
 /**
  * Routes + a sohub-style stacked page transition. Both pages share ONE grid
- * cell, so it's a transform-only effect — normal document scroll / Lenis are
+ * cell, so it's a transform-only effect; normal document scroll / Lenis are
  * untouched, and no `position: fixed` overlay is needed (which would also trap
  * Landing's fixed header, since a transformed ancestor becomes its containing
  * block; framer resets transform to `none` at rest, so that only holds mid-flight).
  *
- * Only moves that INVOLVE the landing page animate — leaving it or returning to
+ * Only moves that INVOLVE the landing page animate: leaving it or returning to
  * it. Auth-to-auth hops (login ↔ signup ↔ setup-account) are near-identical
  * screens, so they just swap with no motion. When it does animate, both pages
  * slide up one viewport in lockstep: the outgoing page (z below) slides straight
- * up and off the top — full-size + opaque (blur is fine; NO scale/fade, which
- * would uncover the void behind) — while the incoming page (z above) rises from
+ * up and off the top, full-size + opaque (blur is fine; NO scale/fade, which
+ * would uncover the void behind), while the incoming page (z above) rises from
  * below. The seam where they meet travels up and the viewport stays fully covered
  * the whole way. `custom` carries the decision to the *exiting* page too, so it's
  * destination-aware (framer forwards the latest custom to exits).
@@ -151,7 +151,7 @@ const AnimatedRoutes = () => {
     prevArea.current = areaKey;
   }, [areaKey]);
 
-  // Rise/settle exactly one viewport (transform only — never affects layout).
+  // Rise/settle exactly one viewport (transform only, never affects layout).
   const rise = typeof window !== "undefined" ? window.innerHeight : 800;
   const variants = {
     enter: (on: boolean) => ({ y: on ? rise : 0, opacity: 1, zIndex: 2 }),
@@ -183,7 +183,7 @@ const AnimatedRoutes = () => {
           // min-w-0: this is a grid item (gridArea 1/1). Grid items default to
           // min-width:auto, so a page whose min-content is wider than the
           // viewport (e.g. a long unbroken email in a table cell) stretches the
-          // whole column past the screen — and body's overflow-x:clip cuts it
+          // whole column past the screen, and body's overflow-x:clip cuts it
           // off instead of scrolling. min-w-0 lets the track clamp to the
           // viewport so wide content wraps/scrolls within its own container.
           className="min-w-0"

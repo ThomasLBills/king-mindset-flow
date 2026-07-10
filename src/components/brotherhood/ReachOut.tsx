@@ -112,8 +112,8 @@ export const ReachOut = ({ trigger }: { trigger: ReactNode }) => {
         brothers.find((b) => b.userId === id)?.displayName ?? "a brother";
 
       if (failedIds.length === 0) {
-        // Nothing else confirms this — the DMs land in threads the sender isn't
-        // viewing — so a success toast is the right channel (P4).
+        // Nothing else confirms this (the DMs land in threads the sender isn't
+        // viewing), so a success toast is the right channel (P4).
         notify.success(sent === 1 ? "Message sent." : `Sent to ${sent} brothers.`, {
           description: "They'll see it in their messages.",
         });
@@ -151,12 +151,12 @@ export const ReachOut = ({ trigger }: { trigger: ReactNode }) => {
             Reach Out
           </DialogTitle>
           <DialogDescription className="text-sm text-dim">
-            Safe sharing — you don't need to share explicit details.
+            Safe sharing. You don't need to share explicit details.
           </DialogDescription>
         </DialogHeader>
 
         <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">
-          {/* Brothers — multi-select */}
+          {/* Brothers: multi-select */}
           <Eyebrow className="mb-3 block">
             Who do you want to reach?{" "}
             <span className="font-normal normal-case tracking-normal text-dim">(select one or more)</span>

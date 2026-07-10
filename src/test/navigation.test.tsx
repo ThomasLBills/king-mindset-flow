@@ -216,7 +216,7 @@ describe("app navigation", () => {
     startAt("/app/rhythms");
     render(<App />);
 
-    // Scope to the page header — "Today" nav links also exist in the shell rail
+    // Scope to the page header: "Today" nav links also exist in the shell rail
     // and tab bar, so the accessible name alone is ambiguous.
     const heading = await screen.findByRole("heading", { name: /the ordinary days/i }, { timeout: 4000 });
     const back = within(heading.closest("header")!).getByRole("link", { name: /today/i });
@@ -274,7 +274,7 @@ describe("app navigation", () => {
     await waitFor(() => expect(hold).toBeEnabled());
     fireEvent.keyDown(hold, { key: "Enter" });
 
-    // R.E.T.U.R.N. resets the freedom streak — a destructive ConfirmDialog gates
+    // R.E.T.U.R.N. resets the freedom streak; a destructive ConfirmDialog gates
     // the three writes. Confirm it so the fall/streak/evidence rows are written.
     fireEvent.click(await screen.findByRole("button", { name: /complete the return/i }));
 
@@ -367,12 +367,12 @@ describe("app navigation", () => {
     fireEvent.change(general, { target: { value: "test123" } });
     expect(general).toHaveValue("test123");
 
-    // Switch to Recordings — its own composer starts empty.
+    // Switch to Recordings: its own composer starts empty.
     fireEvent.click(screen.getByRole("button", { name: /recordings/i }));
     await screen.findByText(/no messages yet/i);
     expect(screen.getByPlaceholderText(/only admins can post/i)).toHaveValue("");
 
-    // Back to General — the draft is restored.
+    // Back to General: the draft is restored.
     fireEvent.click(screen.getByRole("button", { name: /general/i }));
     await screen.findByText(/week 3 reading hit hard/i);
     expect(screen.getByPlaceholderText(/speak plainly/i)).toHaveValue("test123");
@@ -410,7 +410,7 @@ describe("app navigation", () => {
     startAt("/signup");
     render(<App />);
 
-    // No signup form — it lands on the login page instead.
+    // No signup form: it lands on the login page instead.
     await screen.findByLabelText(/email/i);
     expect(window.location.pathname).toBe("/login");
     expect(screen.queryByRole("button", { name: /create account/i })).toBeNull();

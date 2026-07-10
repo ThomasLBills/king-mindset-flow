@@ -1,5 +1,5 @@
 /**
- * "I Need to Return" — the R.E.T.U.R.N. post-fall protocol. Exact 6-step
+ * "I Need to Return": the R.E.T.U.R.N. post-fall protocol. Exact 6-step
  * order and copy from the original tool: Recognize, Engage, Trace, Uproot,
  * Resume, Navigate. Trace's note is optional; Uproot and Resume are each
  * gated by a mandatory checkbox. The final "Hold to Return" fires the three
@@ -159,7 +159,7 @@ export const ReturnFlow = ({ onBack }: { onBack: () => void }) => {
     if (!ok) return;
     ret.mutate(undefined, {
       onSuccess: () => {
-        // The heaviest milestone — honor the return with the big burst.
+        // The heaviest milestone: honor the return with the big burst.
         celebrateBig();
         setDone(true);
         setTimeout(() => navigate("/app"), 1500);

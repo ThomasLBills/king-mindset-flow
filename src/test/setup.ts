@@ -2,7 +2,7 @@ import "@testing-library/jest-dom";
 import { vi } from "vitest";
 
 // canvas-confetti calls HTMLCanvasElement.getContext + requestAnimationFrame,
-// neither implemented in jsdom — completion celebrations would throw in a
+// neither implemented in jsdom; completion celebrations would throw in a
 // deferred timer and surface as an unhandled error. Stub it to a no-op.
 vi.mock("canvas-confetti", () => ({ default: () => undefined }));
 
