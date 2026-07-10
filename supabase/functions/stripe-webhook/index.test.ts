@@ -258,7 +258,7 @@ Deno.test("end-to-end: annual checkout sets +365d, source=stripe", async () => {
   assertAlmostEquals(delta, 365 * DAY, 5_000);
 });
 
-Deno.test("end-to-end: webhook idempotency — duplicate event_id is skipped", async () => {
+Deno.test("end-to-end: webhook idempotency, duplicate event_id is skipped", async () => {
   const supabase = makeMockSupabase();
   const event = {
     id: "evt_dup_1",

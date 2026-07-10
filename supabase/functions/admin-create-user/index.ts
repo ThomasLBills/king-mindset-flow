@@ -118,7 +118,7 @@ Deno.serve(async (req) => {
     }
 
     // Set must_change_password. Plaintext temp password is returned in the
-    // response body only — never persisted to the database.
+    // response body only, never persisted to the database.
     await supabase
       .from("profiles")
       .update({ must_change_password: true, password_set: false })

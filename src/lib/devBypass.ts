@@ -14,11 +14,11 @@ export function isDevBypassEnabled(): boolean {
   // Belt: production Vite mode can never bypass, regardless of __DEV_BYPASS__.
   if (import.meta.env.MODE === "production" || import.meta.env.PROD) return false;
 
-  // Build-time gate — production bundles compile this to `if (false) { ... }`
+  // Build-time gate - production bundles compile this to `if (false) { ... }`
   // and the entire body is stripped by the bundler.
   if (!__DEV_BYPASS__) return false;
 
-  // Runtime gate — belt-and-suspenders in case a dev build is served from
+  // Runtime gate - belt-and-suspenders in case a dev build is served from
   // anywhere other than localhost.
   if (typeof window === "undefined") return false;
   const hostname = window.location.hostname;

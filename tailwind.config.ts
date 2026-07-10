@@ -16,7 +16,8 @@ export default {
       fontFamily: {
         serif: ['Crimson Pro', 'Georgia', 'serif'],
         sans: ['Inter', 'system-ui', 'sans-serif'],
-        display: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'Segoe UI', 'sans-serif'],
+        display: ['Oswald', 'Arial Narrow', 'system-ui', 'sans-serif'],
+        script: ['Caveat', 'Segoe Script', 'cursive'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -65,6 +66,30 @@ export default {
           temptation: "hsl(var(--tool-temptation))",
           grace: "hsl(var(--tool-grace))",
         },
+        /* Forge brand aliases — same tokens, readable names */
+        forge: {
+          DEFAULT: "hsl(var(--background))",
+          2: "hsl(var(--forge-2))",
+        },
+        raised: {
+          DEFAULT: "hsl(var(--card))",
+          2: "hsl(var(--raised-2))",
+        },
+        line: {
+          DEFAULT: "hsl(var(--border))",
+          soft: "hsl(var(--line-soft))",
+        },
+        bone: {
+          DEFAULT: "hsl(var(--foreground))",
+          2: "hsl(var(--muted-foreground))",
+        },
+        dim: "hsl(var(--dim))",
+        gold: {
+          DEFAULT: "hsl(var(--primary))",
+          bright: "hsl(var(--gold-bright))",
+          deep: "hsl(var(--gold-deep))",
+        },
+        ember: "hsl(var(--ember))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",

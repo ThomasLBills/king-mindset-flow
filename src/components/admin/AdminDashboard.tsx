@@ -1,118 +1,212 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
-import { Users, CheckCircle, BookOpen, FileText, Plus, Loader2, TrendingUp, GraduationCap, BarChart3, Calendar, ShieldCheck } from "lucide-react";
-import { useAdminEngagementStats } from "@/hooks/useAdminEngagement";
-import { useWeeks, useCurriculumSettings } from "@/hooks/useAdminCurriculumNew";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  ArrowDownRight,
+  ArrowUpRight,
+  BookOpen,
+  Plus,
+  ShieldCheck,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
+import { Eyebrow, SectionCard } from "@/components/forge/atoms";
+import { useAdminEngagementStats } from "@/hooks/useAdminEngagement";
+import { useAdminKpis, type RangeDays } from "@/hooks/useAdminKpis";
 
-function useAdminCurriculumStats() {
-  return useQuery({
-    queryKey: ["admin-curriculum-stats"],
-    queryFn: async () => {
-      const [profiles, entitlements, weeks, lessons] = await Promise.all([
-        supabase.from("profiles").select("*", { count: "exact", head: true }),
-        supabase.from("entitlements").select("*", { count: "exact", head: true }).eq("active", true),
-        supabase.from("weeks").select("*", { count: "exact", head: true }),
-        supabase.from("curriculum_lessons").select("*", { count: "exact", head: true }).eq("status", "published"),
-      ]);
-      return {
-        totalUsers: profiles.count || 0,
-        activeEntitlements: entitlements.count || 0,
-        totalWeeks: weeks.count || 0,
-        publishedLessons: lessons.count || 0,
-      };
-    },
-  });
+const RANGES: RangeDays[] = [7, 30, 90];
+
+/** Minimal inline sparkline; single line, colorblind-safe, theme via currentColor. */
+function Sparkline({ data }: { data: number[] }) {
+  if (data.length < 2) return null;
+  const w = 100;
+  const h = 28;
+  const max = Math.max(...data, 1);
+  const pts = data
+    .map((v, i) => `${(i / (data.length - 1)) * w},${h - (v / max) * (h - 2) - 1}`)
+    .join(" ");
+  return (
+    <svg
+      viewBox={`0 0 ${w} ${h}`}
+      preserveAspectRatio="none"
+      className="h-7 w-full text-gold"
+      role="img"
+      aria-label={`Trend over the period, ${data.reduce((a, b) => a + b, 0)} total`}
+    >
+      <polyline points={pts} fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+    </svg>
+  );
+}
+
+function Delta({ current, prior, upGood = true }: { current: number; prior: number; upGood?: boolean }) {
+  if (prior === 0 && current === 0) return <span className="text-xs text-dim">no change</span>;
+  const pct = prior === 0 ? 100 : Math.round(((current - prior) / prior) * 100);
+  const up = current >= prior;
+  const good = up === upGood;
+  const Icon = up ? ArrowUpRight : ArrowDownRight;
+  return (
+    <span className={cn("inline-flex items-center gap-0.5 text-xs font-medium tabular-nums", good ? "text-gold-bright" : "text-ember")}>
+      <Icon className="h-3 w-3" aria-hidden="true" />
+      {up ? "+" : ""}
+      {pct}%<span className="sr-only"> versus the previous {"period"}</span>
+    </span>
+  );
+}
+
+function KpiCard({
+  label,
+  value,
+  delta,
+  sublabel,
+  sparkline,
+  loading,
+}: {
+  label: string;
+  value: ReactNode;
+  delta?: ReactNode;
+  sublabel?: ReactNode;
+  sparkline?: ReactNode;
+  loading?: boolean;
+}) {
+  return (
+    <SectionCard className="flex flex-col p-4">
+      <div className="flex items-start justify-between gap-2">
+        <p className="font-display text-[11px] font-semibold uppercase tracking-[0.14em] text-dim">{label}</p>
+        {!loading && delta}
+      </div>
+      {loading ? (
+        <Skeleton className="mt-2 h-8 w-16" />
+      ) : (
+        <p className="mt-1 font-display text-3xl font-bold tabular-nums text-bone">{value}</p>
+      )}
+      {sublabel && !loading && <p className="mt-0.5 text-xs text-dim">{sublabel}</p>}
+      {sparkline && !loading && <div className="mt-auto pt-3">{sparkline}</div>}
+    </SectionCard>
+  );
 }
 
 const AdminDashboard = () => {
-  const { data: stats, isLoading } = useAdminCurriculumStats();
-  const { data: engagement, isLoading: engLoading } = useAdminEngagementStats();
+  const [range, setRange] = useState<RangeDays>(30);
+  const { data: k, isLoading } = useAdminKpis(range);
+  const { data: eng, isLoading: engLoading } = useAdminEngagementStats();
   const navigate = useNavigate();
 
-  const statCards = [
-    { label: "Total Users", value: stats?.totalUsers, icon: Users, color: "text-primary" },
-    { label: "Active Subs", value: stats?.activeEntitlements, icon: CheckCircle, color: "text-success" },
-    { label: "Weeks", value: stats?.totalWeeks, icon: Calendar, color: "text-accent" },
-    { label: "Published Lessons", value: stats?.publishedLessons, icon: FileText, color: "text-primary" },
-  ];
-
   return (
-    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
+    <div className="space-y-8">
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <Eyebrow className="mb-1 block">Overview</Eyebrow>
+          <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-bone">Admin Dashboard</h1>
+          <p className="mt-1 text-sm text-dim">Community health at a glance. Aggregate only, never a per-user scoreboard.</p>
+        </div>
+        <div role="group" aria-label="Time range" className="inline-flex shrink-0 rounded-md border border-line bg-forge-2 p-0.5">
+          {RANGES.map((d) => (
+            <button
+              key={d}
+              type="button"
+              onClick={() => setRange(d)}
+              aria-pressed={range === d}
+              className={cn(
+                "min-h-[32px] rounded px-3 text-sm font-medium tabular-nums transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold",
+                range === d ? "bg-raised-2 text-gold" : "text-dim hover:text-bone"
+              )}
+            >
+              {d}d
+            </button>
+          ))}
+        </div>
+      </header>
+
+      {/* Acquisition + engagement */}
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <KpiCard
+          label="New signups"
+          loading={isLoading}
+          value={k?.signups.current ?? 0}
+          delta={k && <Delta current={k.signups.current} prior={k.signups.prior} />}
+          sublabel={`last ${range} days`}
+          sparkline={k && <Sparkline data={k.signups.series} />}
+        />
+        <KpiCard
+          label="Active members"
+          loading={isLoading}
+          value={k?.wau ?? 0}
+          sublabel={k ? `7-day active · ${k.mau} in 30d` : undefined}
+        />
+        <KpiCard
+          label="Brotherhood"
+          loading={isLoading}
+          value={k?.brotherhood.current ?? 0}
+          delta={k && <Delta current={k.brotherhood.current} prior={k.brotherhood.prior} />}
+          sublabel={`messages, last ${range} days`}
+        />
+        <KpiCard
+          label="Curriculum completion"
+          loading={engLoading}
+          value={eng ? `${eng.completionRate}%` : "0%"}
+          sublabel={eng ? `${eng.lessonsCompleted} lessons completed` : undefined}
+        />
+      </div>
+
+      {/* Access + health */}
       <div>
-        <h1 className="font-serif text-3xl font-bold">Admin Dashboard</h1>
-        <p className="text-muted-foreground mt-1">Manage your curriculum, users, and settings.</p>
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {statCards.map((s) => (
-          <Card key={s.label} className="card-elevated">
-            <CardContent className="pt-6 text-center">
-              {isLoading ? (
-                <Loader2 className="h-6 w-6 mx-auto animate-spin text-muted-foreground" />
-              ) : (
-                <>
-                  <s.icon className={`h-6 w-6 mx-auto mb-2 ${s.color}`} />
-                  <p className="text-2xl font-bold">{s.value ?? 0}</p>
-                  <p className="text-sm text-muted-foreground">{s.label}</p>
-                </>
-              )}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {/* Engagement Stats */}
-      <div className="grid grid-cols-3 gap-4">
-        {[
-          { label: "Enrollments", value: engagement?.totalEnrollments, icon: GraduationCap, color: "text-accent" },
-          { label: "Lessons Done", value: engagement?.lessonsCompleted, icon: TrendingUp, color: "text-success" },
-          { label: "Completion Rate", value: engagement?.completionRate !== undefined ? `${engagement.completionRate}%` : undefined, icon: BarChart3, color: "text-primary", sublabel: "among active learners" },
-        ].map((s) => (
-          <Card key={s.label} className="card-elevated">
-            <CardContent className="pt-6 text-center">
-              {engLoading ? (
-                <Loader2 className="h-6 w-6 mx-auto animate-spin text-muted-foreground" />
-              ) : (
-                <>
-                  <s.icon className={`h-6 w-6 mx-auto mb-2 ${s.color}`} />
-                  <p className="text-2xl font-bold">{s.value ?? 0}</p>
-                  <p className="text-sm text-muted-foreground">{s.label}</p>
-                  {"sublabel" in s && s.sublabel && (
-                    <p className="text-xs text-muted-foreground/70 mt-0.5">{s.sublabel}</p>
-                  )}
-                </>
-              )}
-            </CardContent>
-          </Card>
-        ))}
+        <Eyebrow className="mb-3 block">Access &amp; health</Eyebrow>
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          <KpiCard
+            label="Active access"
+            loading={isLoading}
+            value={k?.activeEntitlements ?? 0}
+            sublabel={k ? `${k.newGrants} new in range` : undefined}
+          />
+          <KpiCard
+            label="Cancelling"
+            loading={isLoading}
+            value={k?.cancelling ?? 0}
+            sublabel="subscriptions ending"
+          />
+          <KpiCard
+            label="At risk"
+            loading={isLoading}
+            value={k?.atRisk ?? 0}
+            sublabel="no activity in 14+ days"
+          />
+          {k?.standFirm ? (
+            <KpiCard
+              label="Stand Firm"
+              loading={isLoading}
+              value={k.standFirm.total}
+              sublabel={`taps, last ${range} days`}
+              sparkline={<Sparkline data={k.standFirm.series.map((d) => Number(d.count))} />}
+            />
+          ) : (
+            <SectionCard className="flex flex-col justify-center p-4">
+              <p className="font-display text-[11px] font-semibold uppercase tracking-[0.14em] text-dim">Stand Firm</p>
+              <p className="mt-1 text-sm text-bone-2">Unavailable</p>
+              <p className="mt-0.5 text-xs text-dim">Enable the aggregate trend RPC (ADMIN_RUNBOOK.md section 2).</p>
+            </SectionCard>
+          )}
+        </div>
       </div>
 
       {/* Quick Actions */}
-      <Card className="card-elevated">
-        <CardContent className="pt-6">
-          <h3 className="font-serif text-lg font-semibold mb-4">Quick Actions</h3>
-          <div className="flex flex-wrap gap-3">
-            <Button onClick={() => navigate("/admin/curriculum")} className="gap-2">
-              <BookOpen className="h-4 w-4" /> Manage Curriculum
-            </Button>
-            <Button variant="outline" onClick={() => navigate("/admin/announcements")} className="gap-2">
-              <Plus className="h-4 w-4" /> New Announcement
-            </Button>
-            <Button variant="outline" onClick={() => navigate("/admin/users")}>
-              View Users
-            </Button>
-            <Button variant="outline" onClick={() => navigate("/admin/entitlements")} className="gap-2">
-              <ShieldCheck className="h-4 w-4" /> Entitlements
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </motion.div>
+      <SectionCard className="p-6">
+        <h2 className="mb-4 font-display text-lg font-bold tracking-tight text-bone">Quick Actions</h2>
+        <div className="flex flex-wrap gap-3">
+          <Button onClick={() => navigate("/admin/curriculum")} className="gap-2">
+            <BookOpen className="h-4 w-4" aria-hidden="true" /> Manage Curriculum
+          </Button>
+          <Button variant="outline" onClick={() => navigate("/admin/announcements")} className="gap-2">
+            <Plus className="h-4 w-4" aria-hidden="true" /> New Announcement
+          </Button>
+          <Button variant="outline" onClick={() => navigate("/admin/users")}>
+            View Users
+          </Button>
+          <Button variant="outline" onClick={() => navigate("/admin/entitlements")} className="gap-2">
+            <ShieldCheck className="h-4 w-4" aria-hidden="true" /> Entitlements
+          </Button>
+        </div>
+      </SectionCard>
+    </div>
   );
 };
 

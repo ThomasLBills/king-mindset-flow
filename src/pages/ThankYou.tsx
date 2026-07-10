@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { CheckCircle, Loader2, ArrowRight, MailOpen } from "lucide-react";
-import lkIcon from "@/assets/lk-icon.png";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { Eyebrow } from "@/components/forge/atoms";
+import { LkSeal, LkMonogram } from "@/components/forge/brand";
+import { Grain } from "@/components/forge/scenes";
 
 const ThankYou = () => {
   const [searchParams] = useSearchParams();
@@ -38,43 +38,60 @@ const ThankYou = () => {
   }, [sessionId]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 gradient-peace">
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
-        <Card className="card-elevated">
-          <CardContent className="pt-8 pb-8 text-center space-y-6">
-            {verifying ? (
-              <>
-                <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto" />
-                <p className="font-medium">Processing your payment…</p>
-                <p className="text-sm text-muted-foreground">This may take a moment</p>
-              </>
-            ) : verified && user ? (
-              <>
-                <CheckCircle className="w-16 h-16 text-success mx-auto" />
-                <h1 className="font-serif text-2xl font-bold">Welcome to the Brotherhood</h1>
-                <p className="text-muted-foreground">Your access is ready.</p>
-                <Button onClick={() => navigate("/app")} size="lg" className="w-full">
-                  Go to Dashboard <ArrowRight className="w-4 h-4" />
-                </Button>
-              </>
-            ) : (
-              <>
-                <MailOpen className="w-16 h-16 text-primary mx-auto" />
-                <h1 className="font-serif text-2xl font-bold">Welcome to The Liberated Kings</h1>
-                <p className="text-muted-foreground">
-                  Check your email for a link to create your password and access the app.
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Don't see it? Check your spam folder. The email will come from a noreply address.
-                </p>
-                <Button variant="outline" onClick={() => navigate("/login")} size="lg" className="w-full">
-                  Already set your password? Sign In <ArrowRight className="w-4 h-4" />
-                </Button>
-              </>
-            )}
-          </CardContent>
-        </Card>
-      </motion.div>
+    <div className="lk-cream relative grid min-h-dvh place-items-center overflow-hidden bg-background px-6 py-12 text-foreground">
+      <Grain />
+
+      <div className="relative w-full max-w-md text-center">
+        {verifying ? (
+          <>
+            <Loader2 className="mx-auto mb-6 h-9 w-9 animate-spin text-gold motion-reduce:animate-none" aria-hidden="true" />
+            <h1 className="font-display text-2xl font-bold uppercase tracking-wide text-bone">
+              Processing your payment
+            </h1>
+            <p className="mt-2 text-sm text-bone-2">This takes just a moment.</p>
+          </>
+        ) : verified && user ? (
+          <>
+            <LkSeal className="mx-auto mb-6 h-20 w-20 text-gold opacity-90" />
+            <Eyebrow tone="gold" className="mb-2 block">
+              You're in
+            </Eyebrow>
+            <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-bone">
+              Welcome to the brotherhood
+            </h1>
+            <p className="mt-3 font-serif text-lg italic text-bone-2">
+              Your place is ready. You don't fight alone anymore.
+            </p>
+            <Button onClick={() => navigate("/app")} size="lg" className="mt-8 w-full">
+              Enter the app
+            </Button>
+          </>
+        ) : (
+          <>
+            <LkMonogram tone="ink" className="mx-auto mb-6 h-12 w-16" />
+            <Eyebrow tone="gold" className="mb-2 block">
+              Almost there
+            </Eyebrow>
+            <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-bone">
+              Welcome to Liberated Kings
+            </h1>
+            <p className="mt-3 text-sm text-bone-2">
+              Check your email for a link to create your password and open the app.
+            </p>
+            <p className="mt-2 text-xs text-dim">
+              Don't see it? Check your spam folder. It comes from a noreply address.
+            </p>
+            <Button
+              variant="outline"
+              onClick={() => navigate("/login")}
+              size="lg"
+              className="mt-8 w-full"
+            >
+              Already set your password? Sign in
+            </Button>
+          </>
+        )}
+      </div>
     </div>
   );
 };

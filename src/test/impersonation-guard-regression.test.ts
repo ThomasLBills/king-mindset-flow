@@ -16,7 +16,7 @@ import { join } from "node:path";
  *      - Never trust `SUPABASE_ANON_KEY` alone for admin verification
  *
  *   2. Client-side destructive surfaces must remain gated behind
- *      `useIsImpersonating()` — currently: chat message send, chat file
+ *      `useIsImpersonating()` - currently: chat message send, chat file
  *      upload, and Stripe billing portal open.
  */
 
@@ -25,7 +25,7 @@ const EDGE = join(ROOT, "supabase", "functions", "admin-impersonate", "index.ts"
 
 const GUARDED_CLIENT_FILES = [
   "src/components/chat/MessageComposer.tsx",
-  "src/pages/Billing.tsx",
+  "src/pages/forge/Billing.tsx",
 ];
 
 describe("admin-impersonate edge function guards", () => {

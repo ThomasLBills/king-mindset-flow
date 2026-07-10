@@ -1,32 +1,37 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
-import { Hash, Plus, Trash2, Pin, Lock, Loader2 } from "lucide-react";
-import { toast } from "sonner";
+import { Hash, Plus, Trash2 } from "lucide-react";
+import { notify } from "@/lib/notify";
+import { useConfirm } from "@/components/feedback";
+import { SectionCard } from "@/components/forge/atoms";
+import { AdminList, type AdminColumn } from "@/components/admin/AdminList";
+import { logAdminAudit } from "@/lib/adminAudit";
 
 const AdminChannels = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const confirm = useConfirm();
   const [newName, setNewName] = useState("");
   const [newDesc, setNewDesc] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const { data: channels = [], isLoading } = useQuery({
+  const { data: channels = [], isLoading, isError, refetch } = useQuery({
     queryKey: ["admin-channels"],
     queryFn: async () => {
-      const { data } = await supabase.from("chat_channels").select("*").order("sort_order");
+      const { data, error } = await supabase.from("chat_channels").select("*").order("sort_order");
+      if (error) throw error;
       return data ?? [];
     },
   });
+
+  type Channel = (typeof channels)[number];
 
   const { data: settings } = useQuery({
     queryKey: ["admin-settings"],
@@ -43,8 +48,9 @@ const AdminChannels = () => {
   const createChannel = useMutation({
     mutationFn: async () => {
       if (!newName.trim() || !user) return;
+      const name = newName.trim().toLowerCase().replace(/\s+/g, "-");
       const { data: ch, error } = await supabase.from("chat_channels").insert({
-        name: newName.trim().toLowerCase().replace(/\s+/g, "-"),
+        name,
         description: newDesc || null,
         created_by: user.id,
         sort_order: channels.length + 1,
@@ -56,6 +62,7 @@ const AdminChannels = () => {
           { channel_id: ch.id, user_id: user.id },
           { onConflict: "channel_id,user_id", ignoreDuplicates: true }
         );
+        await logAdminAudit({ action: "create", entityType: "chat_channel", entityId: ch.id, after: { name } });
       }
     },
     onSuccess: () => {
@@ -63,139 +70,179 @@ const AdminChannels = () => {
       setNewName("");
       setNewDesc("");
       setDialogOpen(false);
-      toast.success("Channel created");
+      notify.success("Channel created");
     },
-    onError: () => toast.error("Failed to create channel"),
+    // Failure surfaces via the global mutation-error net (mapSupabaseError toast).
   });
 
   const toggleField = useMutation({
     mutationFn: async ({ id, field, value }: { id: string; field: string; value: boolean }) => {
       const { error } = await supabase.from("chat_channels").update({ [field]: value }).eq("id", id);
       if (error) throw error;
+      await logAdminAudit({ action: "update", entityType: "chat_channel", entityId: id, after: { [field]: value } });
     },
-    onSuccess: invalidate,
+    // Optimistic: flip the switch immediately, roll back if the write fails.
+    onMutate: async ({ id, field, value }) => {
+      await queryClient.cancelQueries({ queryKey: ["admin-channels"] });
+      const prev = queryClient.getQueryData<Channel[]>(["admin-channels"]);
+      queryClient.setQueryData<Channel[]>(["admin-channels"], (old) =>
+        (old ?? []).map((c) => (c.id === id ? { ...c, [field]: value } : c))
+      );
+      return { prev };
+    },
+    // Roll back the optimistic switch; the failure toast comes from the global net.
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.prev) queryClient.setQueryData(["admin-channels"], ctx.prev);
+    },
+    onSettled: invalidate,
   });
 
   const deleteChannel = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase.from("chat_channels").delete().eq("id", id);
       if (error) throw error;
+      await logAdminAudit({ action: "delete", entityType: "chat_channel", entityId: id });
     },
-    onSuccess: () => { invalidate(); toast.success("Channel deleted"); },
+    onSuccess: () => { invalidate(); notify.success("Channel deleted"); },
   });
+
+  const handleDeleteChannel = async (ch: Channel) => {
+    const ok = await confirm({
+      title: `Delete #${ch.name}?`,
+      consequence: "This permanently removes the channel and its messages, and cannot be undone.",
+      confirmLabel: "Delete",
+      destructive: true,
+    });
+    if (!ok) return;
+    deleteChannel.mutate(ch.id);
+  };
 
   const updateMaxBrothers = useMutation({
     mutationFn: async (value: number) => {
       const { error } = await supabase.from("app_settings").update({ value: value as any }).eq("key", "max_brothers");
       if (error) throw error;
+      await logAdminAudit({ action: "update", entityType: "app_settings", entityId: "max_brothers", after: { value } });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-settings"] });
-      toast.success("Max brothers updated");
+      notify.success("Max brothers updated");
     },
   });
 
+  const columns: AdminColumn<Channel>[] = [
+    {
+      id: "name",
+      header: "Channel",
+      primary: true,
+      truncate: true,
+      csv: (ch) => ch.name,
+      cell: (ch) => (
+        <span className="flex items-center gap-2.5">
+          <Hash className="h-4 w-4 shrink-0 text-dim" aria-hidden="true" />
+          <span className="font-display text-base font-bold tracking-tight text-bone">{ch.name}</span>
+        </span>
+      ),
+    },
+    {
+      id: "default",
+      header: "Default",
+      cell: (ch) => (
+        <Switch
+          checked={(ch as any).is_default}
+          onCheckedChange={(v) => toggleField.mutate({ id: ch.id, field: "is_default", value: v })}
+          aria-label={`Default channel: ${ch.name}`}
+        />
+      ),
+    },
+    {
+      id: "pinned",
+      header: "Pinned",
+      cell: (ch) => (
+        <Switch
+          checked={(ch as any).is_pinned}
+          onCheckedChange={(v) => toggleField.mutate({ id: ch.id, field: "is_pinned", value: v })}
+          aria-label={`Pin channel: ${ch.name}`}
+        />
+      ),
+    },
+    {
+      id: "locked",
+      header: "Locked",
+      cell: (ch) => (
+        <Switch
+          checked={(ch as any).is_locked}
+          onCheckedChange={(v) => toggleField.mutate({ id: ch.id, field: "is_locked", value: v })}
+          aria-label={`Lock channel: ${ch.name}`}
+        />
+      ),
+    },
+  ];
+
+  const newChannelDialog = (
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm"><Plus className="h-4 w-4" aria-hidden="true" /> New channel</Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader><DialogTitle className="font-display">Create channel</DialogTitle></DialogHeader>
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="channel-name">Name</Label>
+            <Input id="channel-name" value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="channel-name" />
+          </div>
+          <div>
+            <Label htmlFor="channel-desc">Description (optional)</Label>
+            <Input id="channel-desc" value={newDesc} onChange={(e) => setNewDesc(e.target.value)} placeholder="What's this channel for?" />
+          </div>
+          <Button onClick={() => createChannel.mutate()} disabled={!newName.trim() || createChannel.isPending} className="w-full">
+            Create
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+
   return (
     <div className="space-y-6">
-      <Card className="card-elevated">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <Hash className="w-5 h-5" />
-            Channels
-          </CardTitle>
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogTrigger asChild>
-              <Button size="sm"><Plus className="w-4 h-4" /> New Channel</Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader><DialogTitle>Create Channel</DialogTitle></DialogHeader>
-              <div className="space-y-4">
-                <div>
-                  <Label>Name</Label>
-                  <Input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="channel-name" />
-                </div>
-                <div>
-                  <Label>Description (optional)</Label>
-                  <Input value={newDesc} onChange={(e) => setNewDesc(e.target.value)} placeholder="What's this channel for?" />
-                </div>
-                <Button onClick={() => createChannel.mutate()} disabled={!newName.trim() || createChannel.isPending} className="w-full">
-                  Create
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin" /></div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Channel</TableHead>
-                  <TableHead className="text-center">Default</TableHead>
-                  <TableHead className="text-center">Pinned</TableHead>
-                  <TableHead className="text-center">Locked</TableHead>
-                  <TableHead className="text-center">Delete</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {channels.map((ch) => (
-                  <TableRow key={ch.id}>
-                    <TableCell className="font-medium">#{ch.name}</TableCell>
-                    <TableCell className="text-center">
-                      <Switch
-                        checked={(ch as any).is_default}
-                        onCheckedChange={(v) => toggleField.mutate({ id: ch.id, field: "is_default", value: v })}
-                      />
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Switch
-                        checked={(ch as any).is_pinned}
-                        onCheckedChange={(v) => toggleField.mutate({ id: ch.id, field: "is_pinned", value: v })}
-                      />
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Switch
-                        checked={(ch as any).is_locked}
-                        onCheckedChange={(v) => toggleField.mutate({ id: ch.id, field: "is_locked", value: v })}
-                      />
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => deleteChannel.mutate(ch.id)}
-                      >
-                        <Trash2 className="w-4 h-4 text-destructive" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
+      <AdminList<Channel>
+        caption="Community channels"
+        noun="channels"
+        columns={columns}
+        rows={channels}
+        getRowId={(ch) => ch.id}
+        isLoading={isLoading}
+        isError={isError}
+        onRetry={refetch}
+        emptyTitle="No channels yet"
+        toolbarActions={newChannelDialog}
+        rowActions={(ch) => (
+          <Button
+            size="icon"
+            variant="ghost"
+            aria-label={`Delete channel: ${ch.name}`}
+            onClick={() => handleDeleteChannel(ch)}
+            disabled={deleteChannel.isPending}
+          >
+            <Trash2 className="h-4 w-4 text-ember" aria-hidden="true" />
+          </Button>
+        )}
+      />
 
-      <Card className="card-elevated">
-        <CardHeader>
-          <CardTitle>Brotherhood Settings</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center gap-4">
-            <Label>Max Brothers per User</Label>
-            <Input
-              type="number"
-              min={1}
-              max={20}
-              value={maxBrothers as number}
-              onChange={(e) => updateMaxBrothers.mutate(Number(e.target.value))}
-              className="w-20"
-            />
-          </div>
-        </CardContent>
-      </Card>
+      <SectionCard className="p-5 sm:p-6">
+        <h2 className="mb-4 font-display text-lg font-bold tracking-tight text-bone">Brotherhood settings</h2>
+        <div className="flex flex-wrap items-center gap-4">
+          <Label htmlFor="max-brothers">Max brothers per user</Label>
+          <Input
+            id="max-brothers"
+            type="number"
+            min={1}
+            max={20}
+            value={maxBrothers as number}
+            onChange={(e) => updateMaxBrothers.mutate(Number(e.target.value))}
+            className="w-20"
+          />
+        </div>
+      </SectionCard>
     </div>
   );
 };

@@ -12,3 +12,7 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /app
+Disallow: /admin
+
+Sitemap: https://app.liberatedkings.com/sitemap.xml

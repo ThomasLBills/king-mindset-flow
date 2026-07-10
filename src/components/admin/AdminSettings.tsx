@@ -1,23 +1,24 @@
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Save } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { motion } from "framer-motion";
+import { notify } from "@/lib/notify";
+import { ErrorState } from "@/components/feedback";
+import { logAdminAudit } from "@/lib/adminAudit";
+import { Eyebrow, SectionCard } from "@/components/forge/atoms";
 
 const AdminSettings = () => {
-  const { toast } = useToast();
   const qc = useQueryClient();
   const [maxBrothers, setMaxBrothers] = useState("5");
 
-  const { data: settings, isLoading } = useQuery({
+  const { data: settings, isLoading, isError, refetch } = useQuery({
     queryKey: ["app-settings"],
     queryFn: async () => {
-      const { data } = await supabase.from("app_settings").select("*");
+      const { data, error } = await supabase.from("app_settings").select("*");
+      if (error) throw error;
       return data || [];
     },
   });
@@ -33,38 +34,65 @@ const AdminSettings = () => {
     mutationFn: async ({ key, value }: { key: string; value: any }) => {
       const { error } = await supabase.from("app_settings").upsert({ key, value }, { onConflict: "key" });
       if (error) throw error;
+      await logAdminAudit({ action: "update", entityType: "app_settings", entityId: key, after: { value } });
     },
+    // Failure surfaces via the global mutation-error net (mapSupabaseError toast).
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["app-settings"] });
-      toast({ title: "Setting saved" });
+      notify.success("Setting saved");
     },
-    onError: (e: any) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 
-  if (isLoading) return <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin" /></div>;
+  if (isLoading)
+    return (
+      <div className="space-y-6">
+        <Skeleton className="h-9 w-48" />
+        <Skeleton className="h-40 w-full" />
+      </div>
+    );
+
+  if (isError)
+    return (
+      <ErrorState
+        title="Couldn't load settings"
+        message="Something went wrong fetching the app settings."
+        onRetry={() => refetch()}
+      />
+    );
 
   return (
-    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-      <div>
-        <h1 className="font-serif text-2xl font-bold">Settings</h1>
-        <p className="text-sm text-muted-foreground">Configure application settings</p>
-      </div>
+    <div className="space-y-6">
+      <header>
+        <Eyebrow className="mb-1 block">Admin</Eyebrow>
+        <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-bone">
+          Settings
+        </h1>
+        <p className="mt-1 text-sm text-dim">Configure how the app runs.</p>
+      </header>
 
-      <Card className="card-elevated">
-        <CardHeader><CardTitle className="font-serif text-lg">Brotherhood</CardTitle></CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <Label>Max brothers per user</Label>
-            <div className="flex gap-2 mt-1">
-              <Input type="number" value={maxBrothers} onChange={(e) => setMaxBrothers(e.target.value)} className="w-24" />
-              <Button size="sm" onClick={() => saveSetting.mutate({ key: "max_brothers", value: parseInt(maxBrothers) || 5 })} disabled={saveSetting.isPending} className="gap-1.5">
-                {saveSetting.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />} Save
-              </Button>
-            </div>
+      <SectionCard className="p-5">
+        <Eyebrow className="mb-4 block">Brotherhood</Eyebrow>
+        <div className="space-y-2">
+          <Label htmlFor="max-brothers">Max brothers per user</Label>
+          <div className="flex gap-2">
+            <Input
+              id="max-brothers"
+              type="number"
+              value={maxBrothers}
+              onChange={(e) => setMaxBrothers(e.target.value)}
+              className="w-24"
+            />
+            <Button
+              size="sm"
+              onClick={() => saveSetting.mutate({ key: "max_brothers", value: parseInt(maxBrothers) || 5 })}
+              disabled={saveSetting.isPending}
+            >
+              {saveSetting.isPending ? "Saving…" : "Save changes"}
+            </Button>
           </div>
-        </CardContent>
-      </Card>
-    </motion.div>
+        </div>
+      </SectionCard>
+    </div>
   );
 };
 

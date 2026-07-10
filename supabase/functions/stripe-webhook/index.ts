@@ -262,7 +262,7 @@ async function resolveUserId(
     //    can render the code template instead of the invite link template
     await storeVerificationCode(normalizedEmail, supabase);
 
-    // 5. Invite user via admin API — this triggers the auth-email-hook
+    // 5. Invite user via admin API. This triggers the auth-email-hook
     //    which will find the verification code and send the code email
     const { data: inviteData, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(normalizedEmail, {
       data: { name: "" },
@@ -383,8 +383,8 @@ async function processSubscription(subscription: any, userId: string, supabase: 
     }
   }
 
-  // Upsert entitlement — set active flag and expires_at based on plan duration
-  // NEVER overwrite admin grants that are STILL ACTIVE — those are permanent
+  // Upsert entitlement: set active flag and expires_at based on plan duration
+  // NEVER overwrite admin grants that are STILL ACTIVE. Those are permanent
   // paywall-exempt entitlements. If an admin_grant has lapsed (inactive or
   // expired), a paid Stripe subscription MUST be allowed to take over,
   // otherwise paying users stay locked out of the app.
@@ -401,7 +401,7 @@ async function processSubscription(subscription: any, userId: string, supabase: 
     (existing?.expires_at == null || new Date(existing.expires_at) > new Date());
 
   if (adminGrantStillValid) {
-    console.log("Skipping entitlement update — active admin_grant is permanent for user:", userId);
+    console.log("Skipping entitlement update, active admin_grant is permanent for user:", userId);
   } else {
     await supabase.from("entitlements").upsert(
       {

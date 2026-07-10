@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll } from "vitest";
+import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { execSync, spawnSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
@@ -9,7 +9,7 @@ import { join } from "node:path";
  * These tests guarantee two invariants of the production build:
  *
  *   1. It is IMPOSSIBLE to produce a production build with the bypass flag
- *      enabled — `vite.config.ts` throws before any asset is emitted.
+ *      enabled - `vite.config.ts` throws before any asset is emitted.
  *   2. A clean production build contains no reference to the bypass code:
  *      no `__DEV_BYPASS__` literal, no `VITE_DEV_BYPASS_AUTH` env-var name,
  *      no `isDevBypassEnabled` symbol, and no localhost hostname check that
@@ -25,9 +25,12 @@ const DIST = join(ROOT, "dist-devbypass-regression");
 const BUILD_TIMEOUT_MS = 240_000;
 
 function runVite(args: string[], env: NodeJS.ProcessEnv = {}) {
+  // Invoke vite's JS entry with the current node binary directly: no shell,
+  // no bunx dependency, and immune to spaces in the repo path on Windows.
+  const viteBin = join(ROOT, "node_modules", "vite", "bin", "vite.js");
   return spawnSync(
-    "bunx",
-    ["vite", "build", "--mode", "production", "--outDir", DIST, ...args],
+    process.execPath,
+    [viteBin, "build", "--mode", "production", "--outDir", DIST, ...args],
     {
       cwd: ROOT,
       env: { ...process.env, ...env },
@@ -52,6 +55,15 @@ function collectBundleFiles(dir: string): string[] {
 }
 
 describe("__DEV_BYPASS__ regression", () => {
+  // A prior run's clean-build leaves DIST behind; the abort test asserts on
+  // its absence, so both ends of the file must clean it.
+  beforeAll(() => {
+    rmSync(DIST, { recursive: true, force: true });
+  });
+  afterAll(() => {
+    rmSync(DIST, { recursive: true, force: true });
+  });
+
   it(
     "production build ABORTS when VITE_DEV_BYPASS_AUTH=true is set",
     () => {

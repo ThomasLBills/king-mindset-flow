@@ -4,9 +4,10 @@ import { useAuth } from "@/hooks/useAuth";
 import type { ChatMessage } from "@/hooks/useChat";
 import { format } from "date-fns";
 import { useChatReactions } from "@/hooks/useChatReactions";
-import { SmilePlus, Trash2 } from "lucide-react";
+import { MessageCircle, SmilePlus, Trash2 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { supabase } from "@/integrations/supabase/client";
+import { EmptyState, LoadingState } from "@/components/feedback";
 
 const QUICK_EMOJIS = ["❤️", "👍", "🙏", "🔥", "💪", "😂", "👏", "💯"];
 
@@ -139,16 +140,16 @@ const MessageList = ({ messages, loading, isAdmin, onDeleteMessage, channelName 
 
   if (loading) {
     return (
-      <div className="flex-1 flex items-center justify-center text-muted-foreground">
-        Loading messages…
+      <div className="flex-1 flex items-center justify-center px-6">
+        <LoadingState lines={5} className="w-full max-w-md" />
       </div>
     );
   }
 
   if (messages.length === 0) {
     return (
-      <div className="flex-1 flex items-center justify-center text-muted-foreground text-sm">
-        No messages yet. Start the conversation!
+      <div className="flex-1 flex items-center justify-center px-6">
+        <EmptyState icon={MessageCircle} title="No messages yet" description="Start the conversation!" />
       </div>
     );
   }

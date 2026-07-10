@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { notify } from "@/lib/notify";
 
 export interface Reaction {
   emoji: string;
@@ -52,16 +53,29 @@ export function useChatReactions(messageIds: string[]) {
 
   const toggleReaction = useCallback(async (messageId: string, emoji: string) => {
     if (!user) return;
-    // Check directly from DB to avoid stale closure
-    const { data: existing } = await supabase
-      .from("chat_reactions")
-      .select("id")
-      .match({ message_id: messageId, user_id: user.id, emoji })
-      .maybeSingle();
-    if (existing) {
-      await supabase.from("chat_reactions").delete().eq("id", existing.id);
-    } else {
-      await supabase.from("chat_reactions").insert({ message_id: messageId, user_id: user.id, emoji });
+    // Not optimistic: the pill only changes once the realtime subscription
+    // refetches, so there's no local state to roll back, but the write can
+    // still fail silently, so surface it (this hook isn't a useMutation, so the
+    // global mutation net doesn't cover it).
+    try {
+      // Check directly from DB to avoid stale closure
+      const { data: existing, error: selectError } = await supabase
+        .from("chat_reactions")
+        .select("id")
+        .match({ message_id: messageId, user_id: user.id, emoji })
+        .maybeSingle();
+      if (selectError) throw selectError;
+      if (existing) {
+        const { error } = await supabase.from("chat_reactions").delete().eq("id", existing.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("chat_reactions")
+          .insert({ message_id: messageId, user_id: user.id, emoji });
+        if (error) throw error;
+      }
+    } catch (err) {
+      notify.fromError(err);
     }
   }, [user]);
 

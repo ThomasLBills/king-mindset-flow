@@ -1,135 +1,116 @@
-@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  html, body {
-    overflow-x: hidden;
+  html,
+  body {
+    /* clip, not hidden: overflow-x hidden creates a scroll container and
+       silently kills position: sticky for the nav rails */
+    overflow-x: clip;
     max-width: 100vw;
   }
+
+  /* The Forge - single dark theme. All color routes through these tokens. */
   :root {
-    /* Core palette - Warm cream bg, gold accents, dark text */
-    --background: 28 27% 94%;
-    --foreground: 0 0% 7%;
+    color-scheme: dark;
 
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 7%;
+    /* Dark "forge" theme, lifted for legibility (2026-07): the old ramp packed
+       background/cards/borders into 6-16% L, so surfaces and outlined controls
+       read as one flat colour. The ramp is now spread - ground 9 -> cards 14 ->
+       hover/selected 21 -> borders 28 - and tertiary text raised, so cards,
+       buttons, and choices stand apart. Gold is unchanged; it pops once the
+       ground sits further from it. */
+    --background: 34 20% 9%; /* forge ground, lifted from near-black */
+    --foreground: 39 41% 88%; /* bone #ECE3D2 */
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 7%;
+    --card: 34 22% 14%; /* raised - a clear step above the ground */
+    --card-foreground: 39 41% 88%;
 
-    /* Flat gold - #C6A75E */
-    --primary: 40 44% 57%;
-    --primary-foreground: 0 0% 100%;
+    --popover: 34 22% 14%;
+    --popover-foreground: 39 41% 88%;
 
-    /* Light secondary surface */
-    --secondary: 40 10% 95%;
-    --secondary-foreground: 0 0% 15%;
+    --primary: 42 49% 58%; /* gold #C9A961 */
+    --primary-foreground: 38 48% 9%; /* #221A0C */
 
-    --muted: 0 0% 95%;
-    --muted-foreground: 0 0% 29%;
+    --secondary: 33 20% 11%; /* forge-2, lifted */
+    --secondary-foreground: 39 20% 76%;
 
-    /* Gold accent */
-    --accent: 40 44% 57%;
-    --accent-foreground: 0 0% 100%;
+    --muted: 34 22% 14%;
+    --muted-foreground: 39 20% 76%; /* bone-2, brighter for readable body copy */
 
-    /* Sage green */
-    --success: 150 35% 42%;
-    --success-foreground: 0 0% 100%;
+    --accent: 30 20% 21%; /* raised-2 - hover / selected surface, clearly lighter */
+    --accent-foreground: 39 41% 88%;
 
-    /* Soft coral */
-    --warning: 20 70% 55%;
-    --warning-foreground: 0 0% 100%;
+    /* Ember, never alarm-red: "fell" is spoken gently here. */
+    --destructive: 19 49% 47%; /* #B4633E */
+    --destructive-foreground: 39 41% 92%;
 
-    --destructive: 0 60% 50%;
-    --destructive-foreground: 0 0% 100%;
+    --success: 42 49% 58%;
+    --success-foreground: 38 48% 9%;
+    --warning: 19 49% 47%;
+    --warning-foreground: 39 41% 92%;
 
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
-    --ring: 40 44% 57%;
+    --border: 34 18% 28%; /* line - now clearly visible against surfaces */
+    --input: 34 18% 30%;
+    --ring: 42 49% 58%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
 
-    /* Tool tokens */
-    --tool-pressure: 40 44% 57%;
-    --tool-temptation: 0 0% 15%;
-    --tool-grace: 40 44% 57%;
-    
-    --card-elevated: 0 0% 100%;
-    --card-shadow: 0 0% 0% / 0.04;
-    
-    /* Gradients */
-    --gradient-calm: linear-gradient(135deg, hsl(0 0% 10%) 0%, hsl(0 0% 18%) 100%);
-    --gradient-hope: linear-gradient(135deg, hsl(40 44% 52%) 0%, hsl(40 50% 60%) 100%);
-    --gradient-peace: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(0 0% 96%) 100%);
+    /* Brand extras */
+    --forge-2: 33 20% 11%;
+    --raised-2: 30 20% 21%;
+    --line-soft: 35 20% 22%;
+    --dim: 38 15% 62%; /* tertiary text, lifted for legibility */
+    --gold-bright: 44 62% 72%; /* #E4CD8C */
+    --gold-deep: 42 47% 37%; /* #8C7132 */
+    --ember: 19 49% 47%; /* #B4633E */
 
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 0 0% 7%;
-    --sidebar-primary: 40 44% 57%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 40 10% 95%;
-    --sidebar-accent-foreground: 0 0% 15%;
-    --sidebar-border: 0 0% 90%;
-    --sidebar-ring: 40 44% 57%;
-  }
-
-  .dark {
-    --background: 0 0% 5%;
-    --foreground: 40 20% 95%;
-
-    --card: 0 0% 8%;
-    --card-foreground: 40 20% 95%;
-
-    --popover: 0 0% 8%;
-    --popover-foreground: 40 20% 95%;
-
-    --primary: 40 55% 58%;
-    --primary-foreground: 0 0% 5%;
-
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 40 20% 90%;
-
-    --muted: 0 0% 14%;
-    --muted-foreground: 40 10% 50%;
-
-    --accent: 40 55% 58%;
-    --accent-foreground: 0 0% 5%;
-
-    --success: 150 35% 50%;
-    --success-foreground: 0 0% 5%;
-
-    --warning: 20 70% 55%;
-    --warning-foreground: 20 80% 15%;
-
-    --destructive: 0 55% 45%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 0 0% 16%;
-    --input: 0 0% 16%;
-    --ring: 40 55% 58%;
-
-    --tool-pressure: 0 0% 18%;
-    --tool-temptation: 25 55% 55%;
-    --tool-grace: 150 30% 50%;
-    
-    --card-elevated: 0 0% 10%;
     --card-shadow: 0 0% 0% / 0.5;
 
-    --gradient-calm: linear-gradient(135deg, hsl(0 0% 6%) 0%, hsl(0 0% 12%) 100%);
-    --gradient-hope: linear-gradient(135deg, hsl(40 55% 48%) 0%, hsl(40 60% 55%) 100%);
-    --gradient-peace: linear-gradient(180deg, hsl(0 0% 5%) 0%, hsl(0 0% 8%) 100%);
-
-    --sidebar-background: 0 0% 6%;
-    --sidebar-foreground: 40 20% 95%;
-    --sidebar-primary: 40 55% 58%;
-    --sidebar-primary-foreground: 0 0% 5%;
-    --sidebar-accent: 0 0% 12%;
-    --sidebar-accent-foreground: 40 20% 90%;
-    --sidebar-border: 0 0% 16%;
-    --sidebar-ring: 40 55% 58%;
+    --sidebar-background: 33 22% 8%;
+    --sidebar-foreground: 39 41% 87%;
+    --sidebar-primary: 42 49% 58%;
+    --sidebar-primary-foreground: 38 48% 9%;
+    --sidebar-accent: 30 19% 13%;
+    --sidebar-accent-foreground: 39 41% 87%;
+    --sidebar-border: 33 22% 16%;
+    --sidebar-ring: 42 49% 58%;
   }
+}
+
+/* Public auth funnel runs the landing's light "cream" look. Rather than
+   hand-inverting classes (which would miss shadcn form controls), scope a real
+   light theme: flipping the tokens makes Input/Label/FormMessage/Card/Alert/
+   Button all render correctly on cream, and the screens' existing alias classes
+   (text-bone -> --foreground, text-bone-2 -> --muted-foreground) re-colour for
+   free. Member app + admin keep the :root dark theme. Vars not listed here
+   inherit from :root; notably --primary stays gold, so filled buttons match
+   the landing's bright-gold CTAs. */
+.lk-cream {
+  color-scheme: light;
+  --background: 39 41% 87%; /* bone page */
+  --foreground: 34 21% 6%; /* forge ink */
+  --card: 39 30% 82%; /* raised cream surface */
+  --card-foreground: 34 21% 6%;
+  --popover: 39 41% 87%;
+  --popover-foreground: 34 21% 6%;
+  --secondary: 39 28% 80%;
+  --secondary-foreground: 34 21% 6%;
+  --muted: 39 30% 82%;
+  --muted-foreground: 34 15% 30%; /* forge-muted body copy */
+  --accent: 39 28% 78%; /* hover surface */
+  --accent-foreground: 34 21% 6%;
+  --border: 34 14% 68%; /* taupe line, visible on cream */
+  --input: 34 14% 68%;
+  --dim: 34 12% 40%; /* darker tertiary text for cream */
+  --ring: 42 47% 37%; /* gold-deep focus ring */
+}
+/* Light gold (--primary) is too low-contrast as text on cream; the landing uses
+   deep gold for on-cream accents. The descendant selector (0,2,0) beats the
+   .text-gold utility (0,1,0), so eyebrows/links/icons pick up deep gold. */
+.lk-cream .text-gold {
+  color: hsl(var(--gold-deep));
 }
 
 @layer base {
@@ -137,426 +118,271 @@
     @apply border-border;
   }
 
-  /* Remove default focus rings for mouse/touch users only — keep them for keyboard navigation (a11y). */
-  *:focus:not(:focus-visible) {
-    outline: none;
-    box-shadow: none;
-  }
-
-  *:focus-visible {
-    outline: 2px solid hsl(var(--primary) / 0.6);
-    outline-offset: 2px;
-    border-radius: 4px;
-  }
-
   body {
-    @apply bg-background text-foreground antialiased;
-    font-family: 'Inter', system-ui, sans-serif;
+    @apply bg-background text-foreground font-sans antialiased;
+    font-variant-numeric: tabular-nums;
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Crimson Pro', Georgia, serif;
-    @apply font-semibold tracking-tight leading-tight;
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
   }
 
-  .greeting-sans,
-  .greeting-sans h1,
-  .greeting-sans h2,
-  .greeting-sans h3,
-  .greeting-sans h4 {
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif !important;
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
   }
 
-  .armor-page-title {
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif !important;
-    font-weight: 600 !important;
-    letter-spacing: -0.02em !important;
-  }
-}
-
-@layer components {
-  .armor-action-card {
-    position: relative;
-    display: flex;
-    width: 100%;
-    align-items: center;
-    gap: 1rem;
-    overflow: hidden;
-    border: none !important;
-    outline: none !important;
-    /* Inner top highlight for premium depth (matches .dark-card-gradient). */
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
-    border-radius: 16px;
-    padding: 22px;
-    background: linear-gradient(180deg, #1C1C1C 0%, #161616 100%);
-    text-align: left;
-    cursor: pointer;
-    appearance: none;
-    -webkit-tap-highlight-color: transparent;
-    transition: transform 120ms cubic-bezier(0.32, 0.72, 0, 1);
+  ::selection {
+    background: hsl(var(--gold-deep));
+    color: hsl(var(--foreground));
   }
 
-  .armor-action-card:active {
-    transform: scale(0.98);
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
   }
-
-  .armor-action-card--urgent {
-    border-radius: 0 16px 16px 0;
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.04),
-      0 0 0 1px hsl(var(--primary) / 0.18),
-      0 6px 20px -10px hsl(var(--primary) / 0.45) !important;
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--background));
   }
-
-  .armor-action-card--urgent::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    width: 3px;
-    background: hsl(var(--primary));
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 5px;
+    border: 2px solid hsl(var(--background));
   }
-
-  .armor-action-card__icon {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    width: 44px;
-    height: 44px;
-    flex-shrink: 0;
-    align-items: center;
-    justify-content: center;
-    border-radius: 12px;
-    background: hsl(var(--background) / 0.06);
-    color: hsl(var(--background) / 0.5);
-  }
-
-  .armor-action-card--urgent .armor-action-card__icon {
-    background: hsl(var(--primary) / 0.12);
-    color: hsl(var(--primary));
-  }
-
-  .armor-action-card__content {
-    position: relative;
-    z-index: 1;
-    min-width: 0;
-  }
-
-  .armor-action-card__title {
-    display: block;
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif !important;
-    font-size: 17px !important;
-    font-weight: 600 !important;
-    line-height: 1.2;
-    color: hsl(var(--background)) !important;
-  }
-
-  .armor-action-card__subtitle {
-    display: block;
-    margin-top: 2px;
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif !important;
-    font-size: 13px !important;
-    font-weight: 400 !important;
-    line-height: 1.3;
-    color: hsl(var(--primary)) !important;
-  }
-
-  .armor-action-card--gold {
-    background: hsl(var(--primary)) !important;
-    border: none !important;
-    border-radius: 16px;
-    padding: 18px 20px;
-  }
-
-  .armor-action-card__icon--gold {
-    background: rgba(26, 26, 26, 0.12) !important;
-    color: #1A1A1A !important;
-  }
-
-  .armor-action-card__title--gold {
-    color: #1A1A1A !important;
-  }
-
-  .armor-action-card__subtitle--gold {
-    color: #F5F3EE !important;
-  }
-
-  .card-elevated {
-    @apply bg-card rounded-2xl;
-    box-shadow: 0 2px 8px -2px hsl(var(--card-shadow));
-    border: 1px solid hsl(var(--border) / 0.3);
-  }
-
-  .card-glass {
-    @apply bg-card/80 backdrop-blur-md rounded-2xl border border-border/30;
-    box-shadow: 0 8px 32px -8px hsl(var(--card-shadow));
-  }
-
-  .gradient-calm {
-    background: var(--gradient-calm);
-  }
-
-  .gradient-hope {
-    background: var(--gradient-hope);
-  }
-
-  .gradient-peace {
-    background: var(--gradient-peace);
-  }
-
-  .gradient-scripture {
-    background: linear-gradient(135deg, hsl(0 0% 10%) 0%, hsl(0 0% 14%) 50%, hsl(40 30% 18%) 100%);
-  }
-
-  .tool-card {
-    @apply relative overflow-hidden rounded-2xl p-5 transition-all duration-300;
-    @apply hover:shadow-xl hover:-translate-y-0.5;
-  }
-
-  .tool-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(180deg, transparent 0%, hsl(0 0% 0% / 0.1) 100%);
-    pointer-events: none;
-  }
-
-  .scripture-text {
-    font-family: 'Crimson Pro', Georgia, serif;
-    @apply italic text-muted-foreground leading-relaxed;
-  }
-
-  .scripture-card {
-    @apply relative overflow-hidden rounded-2xl p-6;
-    background: linear-gradient(135deg, hsl(0 0% 10%) 0%, hsl(0 0% 15%) 100%);
-    border: 1px solid hsl(40 55% 55% / 0.2);
-  }
-
-  .scripture-card::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -50%;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle, hsl(40 55% 55% / 0.12) 0%, transparent 70%);
-    pointer-events: none;
-  }
-
-  .safe-zone {
-    @apply bg-success/5 border border-success/20 rounded-xl p-4;
-  }
-
-  .pillar-card {
-    @apply relative flex flex-col items-center gap-2 p-4 rounded-xl transition-all duration-200;
-    @apply border-2 border-transparent;
-  }
-
-  .pillar-card.active {
-    @apply bg-primary text-primary-foreground border-primary shadow-lg;
-    transform: translateY(-2px);
-  }
-
-  .pillar-card:not(.active) {
-    @apply bg-card border-border hover:border-primary/30 hover:shadow-md;
-  }
-
-  .checklist-item {
-    @apply w-full flex items-center gap-4 p-4 rounded-xl border-2 transition-all text-left;
-  }
-
-  .checklist-item.completed {
-    @apply border-success/40 bg-success/10;
-  }
-
-  .checklist-item:not(.completed) {
-    @apply border-border hover:border-primary/40 hover:bg-secondary/30;
-  }
-
-  .week-card {
-    @apply w-full p-4 rounded-xl border-2 text-left transition-all duration-200;
-  }
-
-  .week-card.current {
-    @apply border-primary bg-primary/10 shadow-md;
-  }
-
-  .week-card.completed {
-    @apply border-success/40 bg-success/5;
-  }
-
-  .week-card.locked {
-    @apply border-border opacity-60;
-  }
-
-  .week-card.unlocked {
-    @apply border-border hover:border-primary/40 hover:shadow-sm;
-  }
-
-  /* Fullscreen modal / tool overlay — scrollable, safe on short screens */
-  .modal-fullscreen {
-    @apply fixed inset-0 z-[60] flex flex-col;
-  }
-
-  .modal-fullscreen-body {
-    @apply flex-1 flex flex-col items-center overflow-y-auto;
-    justify-content: center;
-    padding: 0 24px 40px;
-  }
-
-  /* On shorter screens, shrink icons & spacing */
-  @media (max-height: 699px) {
-    .modal-fullscreen-body .modal-icon {
-      width: 40px;
-      height: 40px;
-      margin-bottom: 0.75rem;
-    }
-    .modal-fullscreen-body h2 {
-      font-size: 1.25rem;
-      margin-bottom: 0.5rem;
-    }
-    .modal-fullscreen-body .mb-6 {
-      margin-bottom: 0.75rem;
-    }
-    .modal-fullscreen-body .mb-4 {
-      margin-bottom: 0.5rem;
-    }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--dim));
   }
 }
 
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
+  /* Engraved gold foil for rules and text fills */
+  .foil {
+    background-image: linear-gradient(
+      100deg,
+      hsl(var(--gold-deep)) 0%,
+      hsl(var(--primary)) 22%,
+      hsl(var(--gold-bright)) 40%,
+      hsl(var(--primary)) 55%,
+      hsl(var(--gold-deep)) 72%,
+      hsl(var(--gold-bright)) 88%,
+      hsl(var(--primary)) 100%
+    );
   }
 
-  /* Apply tabular numerals globally so digits don't shift width */
-  body, input, textarea, button, select {
-    font-variant-numeric: tabular-nums;
-    font-feature-settings: "tnum";
+  /* Warm ember wash for screen backdrops */
+  .ember-bg {
+    background:
+      radial-gradient(115% 80% at 100% 0%, hsl(var(--ember) / 0.14) 0%, transparent 44%),
+      radial-gradient(70% 55% at 96% 3%, hsl(var(--primary) / 0.08) 0%, transparent 40%),
+      linear-gradient(165deg, hsl(var(--forge-2)) 0%, hsl(var(--background)) 72%);
   }
 
-  .tabular-nums {
-    font-variant-numeric: tabular-nums;
-    font-feature-settings: "tnum";
+  /* ---- Landing (redesign/forge, sohub-inspired) ---- */
+
+  /* Warm-grade the bright cutout subjects into the dark scene + give depth. */
+  .subject-grade {
+    filter: drop-shadow(0 10px 18px rgb(0 0 0 / 0.1)) brightness(0.97) contrast(1.03)
+      saturate(0.92) sepia(0.08);
   }
 
-  /* Subtle vertical gradient applied to all dark card surfaces.
-     Replaces solid #1A1A1A backgrounds for premium depth. */
-  .dark-card-gradient {
-    background: linear-gradient(180deg, #1C1C1C 0%, #161616 100%);
-    /* 1px inner top highlight — simulates light hitting the top edge.
-       Single biggest "premium product" detail; near-invisible but felt. */
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  /* Dark headline text on the cream page with a lighter taupe/gold band that
+     the scroll scrubs across (sohub-style). Falls back to a solid dark fill
+     where scroll-timeline is unsupported. */
+  .shimmer-text {
+    background-image: linear-gradient(
+      100deg,
+      hsl(var(--background)) 0%,
+      hsl(var(--background)) 36%,
+      hsl(var(--dim)) 49%,
+      hsl(var(--gold-deep)) 56%,
+      hsl(var(--background)) 70%,
+      hsl(var(--background)) 100%
+    );
+    background-size: 220% 100%;
+    background-position-x: 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
   }
 
-  /* Tactile press feedback — apply to any tappable surface.
-     Subtle scale-down on active for native-app feel. */
-  .tap-press {
-    transition: transform 120ms cubic-bezier(0.32, 0.72, 0, 1);
+  /* One highlighted word: a self-running gradient shimmer, decoupled from
+     scroll (sohub's .h-word). Gold band sweeps on a 5s loop. */
+  .lk-shimmer-word {
+    background-image: linear-gradient(
+      90deg,
+      hsl(var(--gold-deep)),
+      hsl(var(--gold-bright)),
+      hsl(var(--gold-deep))
+    );
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
   }
-
-  .tap-press:active {
-    transform: scale(0.98);
-  }
-
-  .animate-breathe {
-    animation: breathe 4s ease-in-out infinite;
-  }
-
-  @keyframes breathe {
-    0%, 100% { transform: scale(1); opacity: 0.8; }
-    50% { transform: scale(1.02); opacity: 1; }
-  }
-
-  .animate-fade-in {
-    animation: fadeIn 0.5s ease-out forwards;
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .animate-slide-up {
-    animation: slideUp 0.4s ease-out forwards;
-  }
-
-  @keyframes slideUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .animate-scale-in {
-    animation: scaleIn 0.3s ease-out forwards;
-  }
-
-  @keyframes scaleIn {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
-  }
-
-  .animate-shimmer {
-    animation: shimmer 2s ease-in-out infinite;
-  }
-
-  @keyframes shimmer {
-    0%, 100% { opacity: 0.6; }
-    50% { opacity: 1; }
-  }
-
-  .stagger-1 { animation-delay: 0.05s; }
-  .stagger-2 { animation-delay: 0.1s; }
-  .stagger-3 { animation-delay: 0.15s; }
-  .stagger-4 { animation-delay: 0.2s; }
-}
-
-/* Login page polish */
-.login-field:focus,
-.login-field:focus-visible {
-  outline: none !important;
-  border: 1.5px solid #C9A96A !important;
-  box-shadow: 0 0 0 3px rgba(201, 169, 106, 0.20) !important;
-}
-
-.login-submit:hover:not(:disabled) {
-  background: linear-gradient(180deg, #BD9C5E 0%, #A98843 100%) !important;
-  box-shadow: 0 6px 20px rgba(201, 169, 106, 0.35);
-}
-
-.login-submit:active:not(:disabled) {
-  transform: scale(0.98);
-}
-
-.login-submit:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-@media (min-width: 1024px) {
-  .login-logo {
-    height: 40px !important;
-  }
-  .login-card {
-    padding: 40px !important;
+  @media (prefers-reduced-motion: no-preference) {
+    .lk-shimmer-word {
+      animation: lk-gradmove 5s ease infinite;
+    }
   }
 }
 
-/* Login logo crest treatment */
-.login-logo {
-  height: 88px;
+@keyframes lk-gradmove {
+  0% {
+    background-position: 10% 0;
+  }
+  50% {
+    background-position: 91% 100%;
+  }
+  100% {
+    background-position: 10% 0;
+  }
 }
-@media (min-width: 1024px) {
-  .login-logo {
-    height: 112px !important;
+
+/* Landing-scoped 8px pill scrollbar, only while Lenis is mounted (it toggles
+   html.lenis), so the member app keeps the default 10px bar. */
+html.lenis {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--dim)) transparent;
+}
+html.lenis::-webkit-scrollbar {
+  width: 8px;
+}
+html.lenis::-webkit-scrollbar-track {
+  background: transparent;
+}
+html.lenis::-webkit-scrollbar-thumb {
+  background: hsl(var(--dim));
+  border: none;
+  border-radius: 9999px;
+}
+
+@keyframes lk-float {
+  0%,
+  100% {
+    transform: translateY(0);
   }
-  .login-logo-wrap {
-    margin-top: 40px !important;
+  50% {
+    transform: translateY(-1rem);
   }
-  .login-verse {
-    padding-bottom: 48px !important;
+}
+@keyframes lk-rise {
+  from {
+    opacity: 0;
+    transform: translateY(1.75rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes lk-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(2rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes lk-shimmer {
+  from {
+    background-position-x: 100%;
+  }
+  to {
+    background-position-x: -25%;
+  }
+}
+/* Fade + drift IN as it enters, hold, then OUT as it leaves (sohub-style). */
+@keyframes lk-io {
+  0% {
+    opacity: 0;
+    transform: translateY(2.5rem);
+  }
+  14%,
+  86% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-2.5rem);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .lk-float {
+    animation: lk-float 5s ease-in-out infinite;
+  }
+  .lk-rise {
+    animation: lk-rise 0.9s cubic-bezier(0.22, 0.68, 0, 1) both;
+  }
+
+  /* Scroll-driven reveals + shimmer sweep. Enhancement only: without
+     animation-timeline support, .lk-reveal stays visible and .shimmer-text
+     rests on its legible muted fill. */
+  @supports (animation-timeline: view()) {
+    .lk-reveal {
+      opacity: 0;
+      animation: lk-reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 5% cover 34%;
+    }
+    .shimmer-text {
+      animation: lk-shimmer linear both;
+      animation-timeline: view();
+      animation-range: entry 12% cover 58%;
+    }
+    /* Scroll-linked in-and-out (plays forward on the way in, reverses on the
+       way out) across the element's full pass through the viewport. */
+    .lk-reveal-io {
+      opacity: 0;
+      animation: lk-io linear both;
+      animation-timeline: view();
+      animation-range: cover 0% cover 100%;
+    }
+  }
+}
+
+/* Hero scroll cue fades out over the first stretch of scroll (sohub behaviour).
+   Not gated on reduced-motion: it's a scroll-position map, not flashing motion. */
+@keyframes lk-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+@supports (animation-timeline: scroll()) {
+  .lk-scroll-cue {
+    animation: lk-fade-out linear both;
+    animation-timeline: scroll(root);
+    animation-range: 0 22vh;
+  }
+}
+
+/* Pinned pillar deck (sohub-style). `.is-pinned` is toggled by GSAP matchMedia
+   only at lg AND only when motion is allowed; without it the cards stay in
+   normal flow, a plain stacked list for mobile / reduced-motion. */
+.pillar-deck.is-pinned {
+  display: block;
+  aspect-ratio: 16 / 7;
+}
+.pillar-deck.is-pinned .pillar-card {
+  position: absolute;
+  inset: 0;
+}
+
+/* Perpetual slow spin for the sparkle glyph (sohub's rotating icon). */
+@keyframes lk-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .lk-spin {
+    animation: lk-spin 4s linear infinite;
   }
 }

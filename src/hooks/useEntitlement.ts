@@ -10,15 +10,15 @@ export const useEntitlement = () => {
     queryFn: async () => {
       if (!user) return { entitled: false, expired: false };
 
-      // Verify we have a valid session before querying — if the JWT expired
+      // Verify we have a valid session before querying - if the JWT expired
       // the RLS-protected query returns empty results and we'd wrongly
       // redirect the user to the paywall.
       const { data: sessionData } = await supabase.auth.getSession();
       if (!sessionData.session) {
-        // Session lost/expired — try to refresh it
+        // Session lost/expired - try to refresh it
         const { data: refreshed } = await supabase.auth.refreshSession();
         if (!refreshed.session) {
-          // Truly no session — can't trust any query result
+          // Truly no session - can't trust any query result
           throw new Error("Session expired");
         }
       }
@@ -33,7 +33,7 @@ export const useEntitlement = () => {
         .maybeSingle();
 
       if (error) {
-        // Query failed (possibly auth issue) — don't assume "not entitled"
+        // Query failed (possibly auth issue) - don't assume "not entitled"
         throw new Error(error.message);
       }
 
@@ -46,7 +46,7 @@ export const useEntitlement = () => {
 
       if (!isExpired) return { entitled: true, expired: false };
 
-      // Expired — check if user has an active subscription
+      // Expired - check if user has an active subscription
       const { data: subscription } = await supabase
         .from("subscriptions")
         .select("status, current_period_end")

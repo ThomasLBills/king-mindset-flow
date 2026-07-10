@@ -31,7 +31,7 @@ function toStack(err: unknown): string | null {
 }
 
 /**
- * Log a structured error to public.system_errors. Never throws — logging
+ * Log a structured error to public.system_errors. Never throws: logging
  * failures fall back to console.error so they can't take down the caller.
  */
 export async function logSystemError(opts: LogErrorOptions): Promise<void> {

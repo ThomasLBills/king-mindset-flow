@@ -9,7 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { notify } from "@/lib/notify";
 
 const ADMIN_SESSION_KEY = "lk_admin_pre_impersonation";
 const IMPERSONATION_META_KEY = "lk_impersonation_meta";
@@ -156,7 +156,7 @@ export const ImpersonationProvider = ({ children }: { children: ReactNode }) => 
       try {
         const savedRaw = localStorage.getItem(ADMIN_SESSION_KEY);
         const currentMeta = readMeta();
-        // Fire audit log first — use the SAVED ADMIN token explicitly,
+        // Fire audit log first - use the SAVED ADMIN token explicitly,
         // because the live session is currently the impersonated (non-admin)
         // user and would be rejected as Forbidden by the edge function.
         try {
@@ -186,7 +186,7 @@ export const ImpersonationProvider = ({ children }: { children: ReactNode }) => 
             const { error } = await supabase.auth.setSession(saved);
             if (error) {
               await supabase.auth.signOut();
-              if (!silent) toast.error("Session restore failed. Please sign in again.");
+              if (!silent) notify.error("Session restore failed. Please sign in again.");
               window.location.href = "/login";
               return;
             }
@@ -202,7 +202,7 @@ export const ImpersonationProvider = ({ children }: { children: ReactNode }) => 
         }
 
         if (!silent && currentMeta) {
-          toast.success(
+          notify.success(
             `Exited impersonation of ${currentMeta.target.display_name ?? currentMeta.target.email}`,
           );
         }

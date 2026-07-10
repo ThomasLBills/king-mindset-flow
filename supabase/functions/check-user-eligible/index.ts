@@ -40,7 +40,7 @@ Deno.serve(async (req) => {
       .maybeSingle();
 
     if (!profile) {
-      // Uniform response — do not leak account existence
+      // Uniform response: do not leak account existence
       return new Response(JSON.stringify({ eligible: false }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -56,7 +56,7 @@ Deno.serve(async (req) => {
       .maybeSingle();
 
     if (!entitlement) {
-      // Uniform response — do not leak entitlement status
+      // Uniform response: do not leak entitlement status
       return new Response(JSON.stringify({ eligible: false }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });

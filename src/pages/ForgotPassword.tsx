@@ -1,38 +1,53 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
+import { Link, useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { FormErrorSummary } from "@/components/form/FormErrorSummary";
+import { SubmitButton } from "@/components/form/SubmitButton";
 import { supabase } from "@/integrations/supabase/client";
-import { Mail, ArrowLeft, Loader2, CheckCircle } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import lkLogo from "@/assets/lk-logo-horizontal.png";
+import { notify } from "@/lib/notify";
+import AuthLayout from "@/components/forge/AuthLayout";
+import { Eyebrow } from "@/components/forge/atoms";
+
+const schema = z.object({
+  email: z.string().email("Enter a valid email"),
+});
 
 const ForgotPassword = () => {
-  const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [sent, setSent] = useState(false);
+  const [sentTo, setSentTo] = useState<string | null>(null);
   const navigate = useNavigate();
-  const { toast } = useToast();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+  const form = useForm<z.infer<typeof schema>>({
+    resolver: zodResolver(schema),
+    defaultValues: { email: "" },
+  });
+
+  const onValid = async ({ email }: z.infer<typeof schema>) => {
+    const normalized = email.trim().toLowerCase();
 
     try {
       // Check if user exists and whether they've set a password
       const { data } = await supabase.functions.invoke("check-user-eligible", {
-        body: { email },
+        body: { email: normalized },
       });
 
       if (data?.eligible && data?.password_set === false) {
-        // User hasn't set a password — send them a verification code
-        // and redirect to the setup account page
+        // User hasn't set a password - send them a verification code
+        // and redirect to the setup account page (the redirect is the confirmation)
         await supabase.functions.invoke("send-verification-code", {
-          body: { email },
+          body: { email: normalized },
         });
-        setLoading(false);
         navigate("/setup-account");
         return;
       }
@@ -41,63 +56,80 @@ const ForgotPassword = () => {
     }
 
     // Normal reset flow for users who have a password (or unknown users)
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    const { error } = await supabase.auth.resetPasswordForEmail(normalized, {
       redirectTo: `${window.location.origin}/reset-password`,
     });
     if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else {
-      setSent(true);
+      // Not field-specific (delivery/rate limit/unexpected) → toast.
+      notify.fromError(error);
+      return;
     }
-
-    setLoading(false);
+    setSentTo(normalized);
   };
 
+  if (sentTo) {
+    return (
+      <AuthLayout>
+        <Eyebrow tone="gold" className="mb-2 block">
+          Check your email
+        </Eyebrow>
+        <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-bone">
+          A way back in
+        </h1>
+        <p className="mb-8 mt-2 text-sm text-bone-2">
+          We sent a reset link to <strong className="text-bone">{sentTo}</strong>. Open it on
+          this device and you'll be back in the fight.
+        </p>
+        <Button variant="outline" className="w-full" size="lg" onClick={() => navigate("/login")}>
+          Back to sign in
+        </Button>
+      </AuthLayout>
+    );
+  }
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-white">
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
-        <div className="flex justify-center mb-8">
-          <img src={lkLogo} alt="Liberated Kings" className="h-16 object-contain" />
-        </div>
-        <Card className="card-elevated border border-primary/40">
-          <CardHeader className="text-center">
-            <CardTitle className="font-serif text-2xl">Reset Password</CardTitle>
-            <CardDescription>We'll send you a link to reset your password</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {sent ? (
-              <div className="text-center py-6 space-y-4">
-                <CheckCircle className="w-12 h-12 text-success mx-auto" />
-                <p className="font-medium">Check your email</p>
-                <p className="text-sm text-muted-foreground">
-                  We sent a link to <strong>{email}</strong> to help you access your account.
-                </p>
-                <Button variant="ghost" onClick={() => navigate("/login")}>
-                  <ArrowLeft className="w-4 h-4 mr-2" /> Back to login
-                </Button>
-              </div>
-            ) : (
-              <>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                    <Input type="email" placeholder="your@email.com" value={email} onChange={(e) => setEmail(e.target.value)} className="pl-10" required />
-                  </div>
-                  <Button type="submit" className="w-full" size="lg" disabled={loading}>
-                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Send Reset Link"}
-                  </Button>
-                </form>
-                <div className="mt-4 text-center">
-                  <button type="button" onClick={() => navigate("/login")} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                    <ArrowLeft className="w-3 h-3 inline mr-1" /> Back to login
-                  </button>
-                </div>
-              </>
+    <AuthLayout>
+      <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-bone">
+        Reset your password
+      </h1>
+      <p className="mb-8 mt-2 text-sm text-bone-2">
+        It happens. Enter your email and we'll send a link to set a new one.
+      </p>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onValid)} className="space-y-5" noValidate>
+          <FormErrorSummary errors={form.formState.errors} submitCount={form.formState.submitCount} />
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input type="email" autoComplete="email" placeholder="you@example.com" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
-          </CardContent>
-        </Card>
-      </motion.div>
-    </div>
+          />
+          <SubmitButton
+            className="w-full"
+            size="lg"
+            pending={form.formState.isSubmitting}
+            pendingLabel="Sending…"
+          >
+            Send reset link
+          </SubmitButton>
+        </form>
+      </Form>
+      <p className="mt-6 text-sm">
+        <Link
+          to="/login"
+          className="text-dim underline-offset-4 transition-colors hover:text-bone-2 hover:underline"
+        >
+          Back to sign in
+        </Link>
+      </p>
+    </AuthLayout>
   );
 };
 
