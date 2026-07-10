@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { ChevronRight, LogOut, ScrollText } from "lucide-react";
-import { toast } from "sonner";
+import { notify } from "@/lib/notify";
 import { FEATURES } from "@/features";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -39,6 +39,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { FormErrorSummary } from "@/components/form/FormErrorSummary";
+import { SubmitButton } from "@/components/form/SubmitButton";
 import { Eyebrow, InitialsAvatar, SectionCard } from "@/components/forge/atoms";
 import { LkSeal } from "@/components/forge/brand";
 import { PageBackdrop } from "@/components/forge/scenes";
@@ -167,7 +169,7 @@ const Profile = () => {
       await signOut();
       navigate("/");
     } catch {
-      toast.error("Couldn't sign out. Try again.");
+      notify.error("Couldn't sign out. Try again.");
       setSigningOut(false);
     }
   };
@@ -260,10 +262,8 @@ const Profile = () => {
                 <Switch
                   id={`pref-${p.key}`}
                   checked={prefs[p.key]}
-                  onCheckedChange={(v) => {
-                    setPref(p.key, v);
-                    toast.success(`${p.label} ${v ? "on" : "off"}.`);
-                  }}
+                  aria-label={p.label}
+                  onCheckedChange={(v) => setPref(p.key, v)}
                 />
               </div>
             ))}
@@ -275,14 +275,19 @@ const Profile = () => {
           <Form {...infoForm}>
             <form
               onSubmit={infoForm.handleSubmit((values) => {
+                // A saved form keeps the values you typed, so nothing on screen
+                // changes to confirm the write — surface an explicit success (P4).
+                // Failures fall through to the global mutation net.
                 updateProfile.mutate(values, {
-                  onSuccess: () => toast.success("Saved."),
-                  onError: (err) =>
-                    toast.error(err instanceof Error ? err.message : "Couldn't save. Try again."),
+                  onSuccess: () => notify.success("Saved."),
                 });
               })}
               className="space-y-4"
             >
+              <FormErrorSummary
+                errors={infoForm.formState.errors}
+                submitCount={infoForm.formState.submitCount}
+              />
               <div className="space-y-2">
                 <Label htmlFor="profile-email">Email</Label>
                 <Input id="profile-email" value={user?.email ?? ""} disabled readOnly />
@@ -339,9 +344,13 @@ const Profile = () => {
                   )}
                 />
               </div>
-              <Button type="submit" variant="outline" disabled={updateProfile.isPending}>
-                {updateProfile.isPending ? "Saving…" : "Save changes"}
-              </Button>
+              <SubmitButton
+                variant="outline"
+                pending={updateProfile.isPending}
+                pendingLabel="Saving…"
+              >
+                Save changes
+              </SubmitButton>
             </form>
           </Form>
         </SectionCard>
@@ -353,14 +362,20 @@ const Profile = () => {
               onSubmit={passwordForm.handleSubmit(async ({ password }) => {
                 const { error } = await supabase.auth.updateUser({ password });
                 if (error) {
-                  toast.error(error.message);
+                  // Password-rule failures belong on the field, not a toast (P2);
+                  // the summary picks it up too.
+                  passwordForm.setError("password", { message: error.message });
                   return;
                 }
                 passwordForm.reset();
-                toast.success("Password updated.");
+                notify.success("Password updated.");
               })}
               className="space-y-4"
             >
+              <FormErrorSummary
+                errors={passwordForm.formState.errors}
+                submitCount={passwordForm.formState.submitCount}
+              />
               <div className="flex flex-col gap-4 sm:flex-row">
                 <FormField
                   control={passwordForm.control}
@@ -389,9 +404,13 @@ const Profile = () => {
                   )}
                 />
               </div>
-              <Button type="submit" variant="outline" disabled={passwordForm.formState.isSubmitting}>
-                {passwordForm.formState.isSubmitting ? "Updating…" : "Update password"}
-              </Button>
+              <SubmitButton
+                variant="outline"
+                pending={passwordForm.formState.isSubmitting}
+                pendingLabel="Updating…"
+              >
+                Update password
+              </SubmitButton>
             </form>
           </Form>
         </SectionCard>
@@ -425,16 +444,17 @@ const Profile = () => {
           <Form {...whyForm}>
             <form
               onSubmit={whyForm.handleSubmit(({ why: next }) => {
-                setWhy.mutate(next, {
-                  onSuccess: () => {
-                    setWhyOpen(false);
-                    toast.success("Kept. It'll be there when you need it.");
-                  },
-                  onError: () => toast.error("Couldn't save it. Check your connection and try again."),
-                });
+                // On success the dialog closes and the new "why" shows in the card
+                // behind it — that in-place update is the confirmation (P4). A
+                // failure keeps the dialog open and the global net toasts it.
+                setWhy.mutate(next, { onSuccess: () => setWhyOpen(false) });
               })}
               className="space-y-4"
             >
+              <FormErrorSummary
+                errors={whyForm.formState.errors}
+                submitCount={whyForm.formState.submitCount}
+              />
               <FormField
                 control={whyForm.control}
                 name="why"
@@ -447,9 +467,9 @@ const Profile = () => {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full" disabled={setWhy.isPending}>
-                {setWhy.isPending ? "Keeping…" : "Keep it"}
-              </Button>
+              <SubmitButton className="w-full" pending={setWhy.isPending} pendingLabel="Keeping…">
+                Keep it
+              </SubmitButton>
             </form>
           </Form>
         </DialogContent>

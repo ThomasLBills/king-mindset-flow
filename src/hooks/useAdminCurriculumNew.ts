@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
-import { useToast } from "./use-toast";
+import { notify } from "@/lib/notify";
 
 // Audit log helper - silently skips if no user
 async function logAudit(
@@ -42,7 +42,6 @@ export function useCurriculumSettings() {
 export function useSaveCurriculumSettings() {
   const qc = useQueryClient();
   const { user } = useAuth();
-  const { toast } = useToast();
 
   return useMutation({
     mutationFn: async (settings: any) => {
@@ -61,11 +60,11 @@ export function useSaveCurriculumSettings() {
       await logAudit(user?.id, "update", "curriculum_settings", data.id, before, data);
       return data;
     },
+    // Failure surfaces via the global mutation-error net (mapSupabaseError toast).
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-curriculum-settings"] });
-      toast({ title: "Curriculum settings saved" });
+      notify.success("Curriculum settings saved");
     },
-    onError: (e: any) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 }
 
@@ -100,7 +99,6 @@ export function useWeek(id: string | undefined) {
 export function useSaveWeek() {
   const qc = useQueryClient();
   const { user } = useAuth();
-  const { toast } = useToast();
 
   return useMutation({
     mutationFn: async (week: any) => {
@@ -121,16 +119,14 @@ export function useSaveWeek() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-weeks"] });
-      toast({ title: "Week saved" });
+      notify.success("Week saved");
     },
-    onError: (e: any) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 }
 
 export function usePublishWeek() {
   const qc = useQueryClient();
   const { user } = useAuth();
-  const { toast } = useToast();
 
   return useMutation({
     mutationFn: async ({ id, publish }: { id: string; publish: boolean }) => {
@@ -147,9 +143,8 @@ export function usePublishWeek() {
     },
     onSuccess: (_, { publish }) => {
       qc.invalidateQueries({ queryKey: ["admin-weeks"] });
-      toast({ title: publish ? "Week published" : "Week unpublished" });
+      notify.success(publish ? "Week published" : "Week unpublished");
     },
-    onError: (e: any) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 }
 
@@ -187,7 +182,6 @@ export function useCurriculumLesson(id: string | undefined) {
 export function useSaveCurriculumLesson() {
   const qc = useQueryClient();
   const { user } = useAuth();
-  const { toast } = useToast();
 
   return useMutation({
     mutationFn: async (lesson: any) => {
@@ -209,16 +203,14 @@ export function useSaveCurriculumLesson() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-curriculum-lessons"] });
       qc.invalidateQueries({ queryKey: ["admin-curriculum-lesson"] });
-      toast({ title: "Lesson saved" });
+      notify.success("Lesson saved");
     },
-    onError: (e: any) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 }
 
 export function usePublishCurriculumLesson() {
   const qc = useQueryClient();
   const { user } = useAuth();
-  const { toast } = useToast();
 
   return useMutation({
     mutationFn: async ({ id, publish }: { id: string; publish: boolean }) => {
@@ -233,16 +225,14 @@ export function usePublishCurriculumLesson() {
     onSuccess: (_, { publish }) => {
       qc.invalidateQueries({ queryKey: ["admin-curriculum-lessons"] });
       qc.invalidateQueries({ queryKey: ["admin-curriculum-lesson"] });
-      toast({ title: publish ? "Lesson published" : "Lesson unpublished" });
+      notify.success(publish ? "Lesson published" : "Lesson unpublished");
     },
-    onError: (e: any) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 }
 
 export function useDeleteCurriculumLesson() {
   const qc = useQueryClient();
   const { user } = useAuth();
-  const { toast } = useToast();
 
   return useMutation({
     mutationFn: async (id: string) => {
@@ -253,16 +243,14 @@ export function useDeleteCurriculumLesson() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-curriculum-lessons"] });
-      toast({ title: "Lesson deleted" });
+      notify.success("Lesson deleted");
     },
-    onError: (e: any) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 }
 
 export function useDuplicateCurriculumLesson() {
   const qc = useQueryClient();
   const { user } = useAuth();
-  const { toast } = useToast();
 
   return useMutation({
     mutationFn: async (id: string) => {
@@ -280,9 +268,8 @@ export function useDuplicateCurriculumLesson() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-curriculum-lessons"] });
-      toast({ title: "Lesson duplicated" });
+      notify.success("Lesson duplicated");
     },
-    onError: (e: any) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 }
 

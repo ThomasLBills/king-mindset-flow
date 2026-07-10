@@ -5,7 +5,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { CalendarPlus } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { notify } from "@/lib/notify";
+import { useConfirm } from "@/components/feedback";
 import { useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Eyebrow } from "@/components/forge/atoms";
@@ -46,8 +47,8 @@ const sourceLabel = (source: string | null) => {
 };
 
 const AdminEntitlements = () => {
-  const { toast } = useToast();
   const qc = useQueryClient();
+  const confirm = useConfirm();
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState<string | undefined>();
@@ -137,13 +138,25 @@ const AdminEntitlements = () => {
       });
       if (error) throw error;
     },
+    // Failure surfaces via the global mutation-error net (mapSupabaseError toast).
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-entitlements-overview"] });
-      toast({ title: "Access extended by 30 days" });
+      notify.success("Access extended by 30 days");
     },
-    onError: (err: any) =>
-      toast({ title: "Error", description: err.message, variant: "destructive" }),
   });
+
+  const handleExtend = async (r: Row) => {
+    const ok = await confirm({
+      title: `Extend access for ${r.email}?`,
+      consequence:
+        r.daysRemaining === null
+          ? "This user already has permanent access; extending adds 30 days from now."
+          : "Adds 30 days of course access to this user's entitlement.",
+      confirmLabel: "Extend 30 days",
+    });
+    if (!ok) return;
+    extend.mutate(r.user_id);
+  };
 
   const filtered = useMemo(() => {
     if (!data) return [];
@@ -315,7 +328,7 @@ const AdminEntitlements = () => {
             size="sm"
             variant="outline"
             className="gap-1.5"
-            onClick={() => extend.mutate(r.user_id)}
+            onClick={() => handleExtend(r)}
             disabled={extend.isPending}
           >
             <CalendarPlus className="w-3.5 h-3.5" aria-hidden="true" />

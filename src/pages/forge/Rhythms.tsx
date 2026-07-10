@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { BookOpen, Check, HandHeart, RefreshCcw, Sun } from "lucide-react";
-import { toast } from "sonner";
+import { notify } from "@/lib/notify";
 import { cn } from "@/lib/utils";
 import { useDailyCompletions } from "@/hooks/useDailyProgress";
 import { useDeclarations } from "@/hooks/useDeclarations";
@@ -27,6 +27,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { FormErrorSummary } from "@/components/form/FormErrorSummary";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Eyebrow, SectionCard } from "@/components/forge/atoms";
@@ -142,7 +143,7 @@ const RenewedMindDialog = ({
   onOpenChange: (o: boolean) => void;
   onDone: () => void;
 }) => {
-  const { addDeclaration } = useDeclarations();
+  const { declarations, addDeclaration } = useDeclarations();
   const form = useForm<z.infer<typeof reframeSchema>>({
     resolver: zodResolver(reframeSchema),
     defaultValues: { lie: "", truth: "" },
@@ -155,15 +156,15 @@ const RenewedMindDialog = ({
 
   const declareTruth = (truth: string) => {
     // The truth you wrote becomes yours to keep - it resurfaces
-    // under "Stand on the Word" in Stand Firm.
-    addDeclaration.mutate(truth, {
-      onError: (error) =>
-        toast.error(
-          error instanceof Error && error.message === "Maximum 5 declarations"
-            ? "Your five declarations are full. Retire one in Stand Firm to keep this truth."
-            : "Couldn't save that truth as a declaration."
-        ),
-    });
+    // under "Stand on the Word" in Stand Firm. The declaration slot is capped at
+    // five, so check that up front and tell the user plainly instead of letting
+    // the mutation throw a generic error (the rhythm itself still completes).
+    if (declarations.length >= 5) {
+      notify.error("Your five declarations are full. Retire one in Stand Firm to keep this truth.");
+    } else {
+      // Real DB failures surface through the global mutation net.
+      addDeclaration.mutate(truth);
+    }
     onDone();
     form.reset();
   };
@@ -181,6 +182,7 @@ const RenewedMindDialog = ({
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(({ truth }) => declareTruth(truth))} className="space-y-4">
+            <FormErrorSummary errors={form.formState.errors} submitCount={form.formState.submitCount} />
             <FormField
               control={form.control}
               name="lie"
@@ -266,6 +268,7 @@ const GratitudeDialog = ({
             })}
             className="space-y-4"
           >
+            <FormErrorSummary errors={form.formState.errors} submitCount={form.formState.submitCount} />
             {(["first", "second", "third"] as const).map((name) => (
               <FormField
                 key={name}
@@ -337,16 +340,15 @@ const Rhythms = () => {
   const { alreadySubmittedToday, submitGratitude, isLoading: gratitudeLoading } = useGratitude();
   const [openKind, setOpenKind] = useState<RhythmKind | null>(null);
 
-  const done = (kind: FaithKind, message: string) => {
-    markCompleted.mutate(FAITH_ITEM_BY_KIND[kind], { onSuccess: () => toast.success(message) });
+  // Success confirms itself: the card flips to a gold "Kept" state once the
+  // completion query re-fetches (P4). Failures surface via the global net.
+  const done = (kind: FaithKind) => {
+    markCompleted.mutate(FAITH_ITEM_BY_KIND[kind]);
     setOpenKind(null);
   };
 
   const doneGratitude = (entries: GratitudeEntries) => {
-    submitGratitude.mutate(entries, {
-      onSuccess: () => toast.success("Gratitude recorded. Eyes trained on grace."),
-      onError: () => toast.error("Couldn't save today's gratitude. Try again."),
-    });
+    submitGratitude.mutate(entries);
     setOpenKind(null);
   };
 
@@ -417,17 +419,17 @@ const Rhythms = () => {
       <PrayerDialog
         open={openKind === "prayer"}
         onOpenChange={(o) => !o && setOpenKind(null)}
-        onDone={() => done("prayer", "Prayer kept. Walk in it.")}
+        onDone={() => done("prayer")}
       />
       <ScriptureDialog
         open={openKind === "scripture"}
         onOpenChange={(o) => !o && setOpenKind(null)}
-        onDone={() => done("scripture", "Word received. Hold it all day.")}
+        onDone={() => done("scripture")}
       />
       <RenewedMindDialog
         open={openKind === "renewedMind"}
         onOpenChange={(o) => !o && setOpenKind(null)}
-        onDone={() => done("renewedMind", "Lie answered and kept. It'll fight for you in Stand Firm.")}
+        onDone={() => done("renewedMind")}
       />
       <GratitudeDialog
         open={openKind === "gratitude"}

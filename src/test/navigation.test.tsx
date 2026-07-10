@@ -221,6 +221,10 @@ describe("app navigation", () => {
     await waitFor(() => expect(hold).toBeEnabled());
     fireEvent.keyDown(hold, { key: "Enter" });
 
+    // R.E.T.U.R.N. resets the freedom streak — a destructive ConfirmDialog gates
+    // the three writes. Confirm it so the fall/streak/evidence rows are written.
+    fireEvent.click(await screen.findByRole("button", { name: /complete the return/i }));
+
     await screen.findByRole("heading", { name: /you returned/i });
 
     // The fall is on the record: a real relapse_events row was written.
@@ -290,7 +294,9 @@ describe("app navigation", () => {
     fireEvent.change(await screen.findByLabelText(/email/i), { target: { value: "asd" } });
     fireEvent.change(screen.getByLabelText(/password/i), { target: { value: "asd" } });
     fireEvent.click(screen.getByRole("button", { name: /sign in/i }));
-    await screen.findByText(/enter a valid email/i);
+    // The error now shows in BOTH the FormErrorSummary and the inline FormMessage
+    // (WCAG summary + at-field pattern), so allow more than one match.
+    expect((await screen.findAllByText(/enter a valid email/i)).length).toBeGreaterThan(0);
     expect(window.location.pathname).toBe("/login");
 
     fireEvent.change(screen.getByLabelText(/email/i), {

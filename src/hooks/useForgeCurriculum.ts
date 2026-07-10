@@ -34,14 +34,40 @@ export interface ForgeWeek {
 }
 
 export const useForgeWeeks = () => {
-  const { data: settings, isLoading: settingsLoading } = useCurriculumSettings();
-  const { data: weeks, isLoading: weeksLoading } = usePublishedWeeks();
-  const { data: allLessons, isLoading: lessonsLoading } = useAllPublishedCurriculumLessons();
-  const { data: progressMap, isLoading: progressLoading } = useCurriculumLessonProgress();
-  const { data: enrollment, isLoading: enrollmentLoading } = useUserEnrollment();
+  const settingsQ = useCurriculumSettings();
+  const weeksQ = usePublishedWeeks();
+  const lessonsQ = useAllPublishedCurriculumLessons();
+  const progressQ = useCurriculumLessonProgress();
+  const enrollmentQ = useUserEnrollment();
+
+  const { data: settings } = settingsQ;
+  const { data: weeks } = weeksQ;
+  const { data: allLessons } = lessonsQ;
+  const { data: progressMap } = progressQ;
+  const { data: enrollment } = enrollmentQ;
 
   const isLoading =
-    settingsLoading || weeksLoading || lessonsLoading || progressLoading || enrollmentLoading;
+    settingsQ.isLoading ||
+    weeksQ.isLoading ||
+    lessonsQ.isLoading ||
+    progressQ.isLoading ||
+    enrollmentQ.isLoading;
+
+  // Surface a load failure so Grow/Lesson can render <ErrorState onRetry>.
+  const isError =
+    settingsQ.isError ||
+    weeksQ.isError ||
+    lessonsQ.isError ||
+    progressQ.isError ||
+    enrollmentQ.isError;
+
+  const refetch = () => {
+    void settingsQ.refetch();
+    void weeksQ.refetch();
+    void lessonsQ.refetch();
+    void progressQ.refetch();
+    void enrollmentQ.refetch();
+  };
 
   const daysSinceEnrollment = enrollment
     ? differenceInCalendarDays(new Date(), new Date(enrollment.enrolled_at))
@@ -78,7 +104,7 @@ export const useForgeWeeks = () => {
         })
       : undefined;
 
-  return { data, isLoading };
+  return { data, isLoading, isError, refetch };
 };
 
 /** First incomplete lesson in an unlocked week, in curriculum order. */

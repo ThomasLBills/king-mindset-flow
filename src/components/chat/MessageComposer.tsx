@@ -5,7 +5,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { notify } from "@/lib/notify";
 import { useImpersonation, useIsImpersonating } from "@/contexts/ImpersonationContext";
 
 const EMOJI_LIST = ["😀", "😂", "😍", "🤔", "👍", "👏", "🔥", "💪", "🙏", "❤️", "💯", "🎉", "😎", "🤝", "✅", "⭐"];
@@ -25,7 +25,6 @@ const MessageComposer = ({ onSend, placeholder = "Type a message…" }: MessageC
   const [uploading, setUploading] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { toast } = useToast();
 
   if (isImpersonating) {
     const name =
@@ -65,14 +64,14 @@ const MessageComposer = ({ onSend, placeholder = "Type a message…" }: MessageC
     setSending(true);
     try {
       await onSend(trimmed);
+      // No success toast: the message appearing in the thread is the confirmation.
       setValue("");
       if (textareaRef.current) {
         textareaRef.current.style.height = "44px";
         textareaRef.current.focus();
       }
-    } catch (err: any) {
-      console.error("Failed to send message:", err);
-      toast({ title: "Send failed", description: err?.message || "Could not send message", variant: "destructive" });
+    } catch (err) {
+      notify.fromError(err);
     } finally {
       setSending(false);
     }
@@ -88,14 +87,19 @@ const MessageComposer = ({ onSend, placeholder = "Type a message…" }: MessageC
   };
 
   const handleImageUpload = async (file: File) => {
+    // Validate type + size inline BEFORE uploading.
+    if (!file.type.startsWith("image/")) {
+      notify.error("That file isn't an image. Please choose an image.");
+      return;
+    }
     if (file.size > 10 * 1024 * 1024) {
-      toast({ title: "File too large", description: "Max 10MB", variant: "destructive" });
+      notify.error("That file is too large. Max 10MB.");
       return;
     }
     setUploading(true);
     const { data: userData, error: userErr } = await supabase.auth.getUser();
     if (userErr || !userData?.user) {
-      toast({ title: "Upload failed", description: "You must be signed in", variant: "destructive" });
+      notify.error("You must be signed in to attach a file.");
       setUploading(false);
       return;
     }
@@ -103,16 +107,16 @@ const MessageComposer = ({ onSend, placeholder = "Type a message…" }: MessageC
     const path = `${userData.user.id}/${Date.now()}-${crypto.randomUUID()}.${ext}`;
     const { error } = await supabase.storage.from("chat-files").upload(path, file);
     if (error) {
-      toast({ title: "Upload failed", description: error.message, variant: "destructive" });
+      notify.fromError(error);
       setUploading(false);
       return;
     }
     const { data: urlData } = supabase.storage.from("chat-files").getPublicUrl(path);
     try {
+      // No success toast: the image appearing in the thread is the confirmation.
       await onSend("", urlData.publicUrl);
-    } catch (err: any) {
-      console.error("Failed to send image:", err);
-      toast({ title: "Send failed", description: err?.message || "Could not send image", variant: "destructive" });
+    } catch (err) {
+      notify.fromError(err);
     }
     setUploading(false);
   };

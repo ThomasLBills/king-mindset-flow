@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { format, formatDistanceToNow } from "date-fns";
-import { ArrowLeft, Eye, Hash, ImagePlus, Loader2, SendHorizonal, SmilePlus } from "lucide-react";
-import { toast } from "sonner";
+import { ArrowLeft, Eye, Hash, ImagePlus, Loader2, MessageCircle, MessagesSquare, SendHorizonal, SmilePlus, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { notify } from "@/lib/notify";
+import { ErrorState, EmptyState, LoadingState } from "@/components/feedback";
 import { FEATURES } from "@/features";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -80,7 +81,7 @@ const ChatThread = ({
   }, [target.id, target.type, joinChannel]);
   const ready = target.type === "dm" ? true : channelReady;
 
-  const { messages, loading, sendMessage } = useMessages(target, ready);
+  const { messages, loading, error, sendMessage, refetch } = useMessages(target, ready);
   const { reactions, toggleReaction } = useChatReactions(messages.map((m) => m.id));
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
@@ -131,9 +132,11 @@ const ChatThread = ({
     setSending(true);
     try {
       await sendMessage(body);
+      // No success toast: the message appearing in the thread is the confirmation.
       setDraft("");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Couldn't send that message.");
+      // sendMessage isn't a useMutation, so the global net doesn't cover it.
+      notify.fromError(err);
     } finally {
       setSending(false);
     }
@@ -144,8 +147,14 @@ const ChatThread = ({
   // signing effect above swaps it for a short-lived signed URL when rendering.
   const handleUpload = async (file: File) => {
     if (uploading || sending) return;
+    // Validate type + size inline BEFORE uploading, so we never round-trip a
+    // file we already know we'll reject.
+    if (!file.type.startsWith("image/")) {
+      notify.error("That file isn't an image. Please choose an image.");
+      return;
+    }
     if (file.size > 10 * 1024 * 1024) {
-      toast.error("That file is too large. Max 10MB.");
+      notify.error("That file is too large. Max 10MB.");
       return;
     }
     setUploading(true);
@@ -156,9 +165,10 @@ const ChatThread = ({
       const { error: uploadError } = await supabase.storage.from("chat-files").upload(path, file);
       if (uploadError) throw uploadError;
       const { data: urlData } = supabase.storage.from("chat-files").getPublicUrl(path);
+      // No success toast: the image appearing in the thread is the confirmation.
       await sendMessage("", urlData.publicUrl);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Couldn't upload that file.");
+      notify.fromError(err);
     } finally {
       setUploading(false);
     }
@@ -176,7 +186,18 @@ const ChatThread = ({
       {/* role=log is an implicit polite live region - appended messages get announced. */}
       <div role="log" aria-label="Messages" className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
         {loading && messages.length === 0 ? (
-          <p className="py-8 text-center text-sm text-dim">Loading messages…</p>
+          <LoadingState lines={4} className="px-2" />
+        ) : error ? (
+          <ErrorState
+            message="We couldn't load these messages."
+            onRetry={() => refetch()}
+          />
+        ) : messages.length === 0 ? (
+          <EmptyState
+            icon={MessageCircle}
+            title="No messages yet"
+            description="Speak first — two honest lines can turn a whole day."
+          />
         ) : (
           <ul className="flex flex-col gap-4">
             {messages.map((m) => {
@@ -339,7 +360,7 @@ const ChatThread = ({
 
 const GroupTab = ({ openDm }: { openDm: (brotherId: string, name: string) => void }) => {
   const { user } = useAuth();
-  const { data: group } = useGroup();
+  const { data: group, isLoading: groupLoading, isError: groupError, refetch: refetchGroup } = useGroup();
   const isImpersonating = useIsImpersonating();
   const members = group?.members ?? [];
   return (
@@ -394,6 +415,31 @@ const GroupTab = ({ openDm }: { openDm: (brotherId: string, name: string) => voi
         </SectionCard>
       )}
 
+      {FEATURES.groups && groupLoading && (
+        <SectionCard className="p-5">
+          <LoadingState lines={4} />
+        </SectionCard>
+      )}
+
+      {FEATURES.groups && !groupLoading && groupError && (
+        <SectionCard className="p-5">
+          <ErrorState
+            message="We couldn't load your group."
+            onRetry={() => refetchGroup()}
+          />
+        </SectionCard>
+      )}
+
+      {FEATURES.groups && !groupLoading && !groupError && !group && (
+        <SectionCard className="p-5">
+          <EmptyState
+            icon={Users}
+            title="No brothers yet"
+            description="Once you're connected with brothers, your group shows up here."
+          />
+        </SectionCard>
+      )}
+
       {FEATURES.groups && group && (
         <SectionCard className="p-5">
           <div className="mb-4 flex items-baseline justify-between">
@@ -441,8 +487,13 @@ const Brotherhood = () => {
   const tab = params.get("tab") ?? "group";
   const thread = params.get("thread");
   const { user } = useAuth();
-  const { channels } = useChannels();
-  const { dms } = useDMs();
+  const {
+    channels,
+    loading: channelsLoading,
+    error: channelsError,
+    refetch: refetchChannels,
+  } = useChannels();
+  const { dms, loading: dmsLoading, error: dmsError, refetch: refetchDms } = useDMs();
   const { counts } = useUnread();
   // DMs opened from the group card that aren't in the fetched list yet.
   const [openedDms, setOpenedDms] = useState<Record<string, string>>({});
@@ -481,7 +532,7 @@ const Brotherhood = () => {
         .select("id")
         .single();
       if (error || !created) {
-        toast.error("Couldn't open that conversation. Try again in a moment.");
+        notify.fromError(error, "Couldn't open that conversation. Try again in a moment.");
         return;
       }
       dmId = created.id;
@@ -501,63 +552,91 @@ const Brotherhood = () => {
         : null;
   const activeTitle = target ? (target.type === "channel" ? `# ${target.name}` : target.name) : "";
 
-  const list =
-    tab === "channels" ? (
-      <ul className="flex flex-col gap-1.5">
-        {channels.map((c) => {
-          const unread = counts.byConversation[c.id] ?? 0;
-          return (
-            <li key={c.id}>
-              <button
-                onClick={() => setThread(c.id)}
-                className={cn(
-                  "flex w-full items-center gap-3 rounded-md border px-3.5 py-3 text-left transition-colors",
-                  thread === c.id
-                    ? "border-gold-deep bg-raised-2"
-                    : "border-line bg-raised hover:border-gold-deep/50"
+  const channelsBody = channelsLoading ? (
+    <LoadingState lines={5} />
+  ) : channelsError ? (
+    <ErrorState message="We couldn't load the channels." onRetry={() => refetchChannels()} />
+  ) : channels.length === 0 ? (
+    <EmptyState
+      icon={Hash}
+      title="No channels yet"
+      description="Channels appear here once your brotherhood sets them up."
+    />
+  ) : (
+    <ul className="flex flex-col gap-1.5">
+      {channels.map((c) => {
+        const unread = counts.byConversation[c.id] ?? 0;
+        return (
+          <li key={c.id}>
+            <button
+              onClick={() => setThread(c.id)}
+              className={cn(
+                "flex w-full items-center gap-3 rounded-md border px-3.5 py-3 text-left transition-colors",
+                thread === c.id
+                  ? "border-gold-deep bg-raised-2"
+                  : "border-line bg-raised hover:border-gold-deep/50"
+              )}
+            >
+              <Hash className="h-4 w-4 shrink-0 text-dim" aria-hidden="true" />
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-semibold text-bone">{c.name}</span>
+                {c.description && (
+                  <span className="block truncate text-xs text-dim">{c.description}</span>
                 )}
-              >
-                <Hash className="h-4 w-4 shrink-0 text-dim" aria-hidden="true" />
-                <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-semibold text-bone">{c.name}</span>
-                  {c.description && (
-                    <span className="block truncate text-xs text-dim">{c.description}</span>
-                  )}
-                </span>
-                {unread > 0 && (
-                  <Badge className="bg-gold text-primary-foreground hover:bg-gold">{unread}</Badge>
-                )}
-              </button>
-            </li>
-          );
-        })}
-      </ul>
-    ) : (
-      <ul className="flex flex-col gap-1.5">
-        {dms.map((d) => {
-          const unread = counts.byConversation[d.id] ?? 0;
-          return (
-            <li key={d.id}>
-              <button
-                onClick={() => setThread(d.id)}
-                className={cn(
-                  "flex w-full items-center gap-3 rounded-md border px-3.5 py-3 text-left transition-colors",
-                  thread === d.id
-                    ? "border-gold-deep bg-raised-2"
-                    : "border-line bg-raised hover:border-gold-deep/50"
-                )}
-              >
-                <InitialsAvatar initials={initialsOf(d.otherName)} tone="raised" />
-                <span className="min-w-0 flex-1 text-sm font-semibold text-bone">{d.otherName}</span>
-                {unread > 0 && (
-                  <Badge className="bg-gold text-primary-foreground hover:bg-gold">{unread}</Badge>
-                )}
-              </button>
-            </li>
-          );
-        })}
-      </ul>
-    );
+              </span>
+              {unread > 0 && (
+                <Badge className="bg-gold text-primary-foreground hover:bg-gold">{unread}</Badge>
+              )}
+            </button>
+          </li>
+        );
+      })}
+    </ul>
+  );
+
+  const dmsBody = dmsLoading ? (
+    <LoadingState lines={5} />
+  ) : dmsError ? (
+    <ErrorState message="We couldn't load your messages." onRetry={() => refetchDms()} />
+  ) : dms.length === 0 ? (
+    <EmptyState
+      icon={MessagesSquare}
+      title="No conversations yet"
+      description="Reach a brother from My group to start a conversation."
+      action={
+        <Button variant="outline" size="sm" onClick={() => setTab("group")}>
+          Go to My group
+        </Button>
+      }
+    />
+  ) : (
+    <ul className="flex flex-col gap-1.5">
+      {dms.map((d) => {
+        const unread = counts.byConversation[d.id] ?? 0;
+        return (
+          <li key={d.id}>
+            <button
+              onClick={() => setThread(d.id)}
+              className={cn(
+                "flex w-full items-center gap-3 rounded-md border px-3.5 py-3 text-left transition-colors",
+                thread === d.id
+                  ? "border-gold-deep bg-raised-2"
+                  : "border-line bg-raised hover:border-gold-deep/50"
+              )}
+            >
+              <InitialsAvatar initials={initialsOf(d.otherName)} tone="raised" />
+              <span className="min-w-0 flex-1 text-sm font-semibold text-bone">{d.otherName}</span>
+              {unread > 0 && (
+                <Badge className="bg-gold text-primary-foreground hover:bg-gold">{unread}</Badge>
+              )}
+            </button>
+          </li>
+        );
+      })}
+    </ul>
+  );
+
+  const list = tab === "channels" ? channelsBody : dmsBody;
 
   return (
     <PageBackdrop className="mx-auto max-w-3xl px-5 py-7 sm:px-8">

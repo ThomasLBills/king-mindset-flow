@@ -1,11 +1,23 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { FormErrorSummary } from "@/components/form/FormErrorSummary";
+import { SubmitButton } from "@/components/form/SubmitButton";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { notify } from "@/lib/notify";
 import AuthLayout from "@/components/forge/AuthLayout";
 import { Eyebrow } from "@/components/forge/atoms";
 import PasswordStrengthMeter from "@/components/auth/PasswordStrengthMeter";
@@ -13,14 +25,30 @@ import { evaluatePassword } from "@/lib/passwordStrength";
 
 type PageState = "loading" | "no-token" | "error" | "ready" | "done";
 
+const schema = z
+  .object({
+    password: z
+      .string()
+      .refine((v) => evaluatePassword(v).meetsRequirements, {
+        message: "Use 10+ characters with an uppercase letter, a number, and a symbol (like #).",
+      }),
+    confirm: z.string(),
+  })
+  .refine((d) => d.password === d.confirm, {
+    message: "Passwords don't match.",
+    path: ["confirm"],
+  });
+
 const ResetPassword = () => {
   const [pageState, setPageState] = useState<PageState>("loading");
-  const [password, setPassword] = useState("");
-  const [confirm, setConfirm] = useState("");
-  const [saving, setSaving] = useState(false);
   const [copied, setCopied] = useState(false);
   const navigate = useNavigate();
-  const { toast } = useToast();
+
+  const form = useForm<z.infer<typeof schema>>({
+    resolver: zodResolver(schema),
+    defaultValues: { password: "", confirm: "" },
+  });
+  const password = form.watch("password");
 
   const exchangeToken = useCallback(async () => {
     const hash = window.location.hash.replace(/^#/, "");
@@ -93,37 +121,20 @@ const ResetPassword = () => {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (password !== confirm) {
-      toast({ title: "Passwords don't match", variant: "destructive" });
-      return;
-    }
-    const strength = evaluatePassword(password);
-    if (!strength.meetsRequirements) {
-      toast({
-        title: "Password not strong enough",
-        description:
-          "Use 10+ characters with an uppercase letter, a number, and a symbol (like #).",
-        variant: "destructive",
-      });
-      return;
-    }
-    setSaving(true);
-    const { error } = await supabase.auth.updateUser({ password });
+  const onValid = async ({ password: newPassword }: z.infer<typeof schema>) => {
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
     if (error) {
-      setSaving(false);
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else {
-      // Mark password as set in profile
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        await supabase.from("profiles").update({ password_set: true }).eq("user_id", user.id);
-      }
-      setSaving(false);
-      await supabase.auth.signOut();
-      setPageState("done");
+      // Not field-specific → toast.
+      notify.fromError(error);
+      return;
     }
+    // Mark password as set in profile
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase.from("profiles").update({ password_set: true }).eq("user_id", user.id);
+    }
+    await supabase.auth.signOut();
+    setPageState("done");
   };
 
   // --- Loading ---
@@ -211,43 +222,56 @@ const ResetPassword = () => {
         Reset your password
       </h1>
       <p className="mb-8 mt-2 text-sm text-bone-2">Enter your new password below.</p>
-      <form onSubmit={handleSubmit} className="space-y-5" noValidate>
-        <div className="space-y-2">
-          <Label htmlFor="reset-password">New password</Label>
-          <Input
-            id="reset-password"
-            type="password"
-            autoComplete="new-password"
-            placeholder="••••••••"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            minLength={10}
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onValid)} className="space-y-5" noValidate>
+          <FormErrorSummary errors={form.formState.errors} submitCount={form.formState.submitCount} />
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>New password</FormLabel>
+                <FormControl>
+                  <Input
+                    type="password"
+                    autoComplete="new-password"
+                    placeholder="••••••••"
+                    {...field}
+                  />
+                </FormControl>
+                <PasswordStrengthMeter password={password} />
+                <FormMessage />
+              </FormItem>
+            )}
           />
-          <PasswordStrengthMeter password={password} />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="reset-confirm">Confirm password</Label>
-          <Input
-            id="reset-confirm"
-            type="password"
-            autoComplete="new-password"
-            placeholder="••••••••"
-            value={confirm}
-            onChange={(e) => setConfirm(e.target.value)}
-            required
-            minLength={10}
+          <FormField
+            control={form.control}
+            name="confirm"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Confirm password</FormLabel>
+                <FormControl>
+                  <Input
+                    type="password"
+                    autoComplete="new-password"
+                    placeholder="••••••••"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-        </div>
-        <Button
-          type="submit"
-          className="w-full"
-          size="lg"
-          disabled={saving || !evaluatePassword(password).meetsRequirements || password !== confirm}
-        >
-          {saving ? "Updating…" : "Update password"}
-        </Button>
-      </form>
+          <SubmitButton
+            className="w-full"
+            size="lg"
+            pending={form.formState.isSubmitting}
+            pendingLabel="Updating…"
+          >
+            Update password
+          </SubmitButton>
+        </form>
+      </Form>
     </AuthLayout>
   );
 };

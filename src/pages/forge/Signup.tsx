@@ -3,10 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { toast } from "sonner";
+import { notify } from "@/lib/notify";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Form,
@@ -17,6 +16,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { FormErrorSummary } from "@/components/form/FormErrorSummary";
+import { SubmitButton } from "@/components/form/SubmitButton";
 import AuthLayout from "@/components/forge/AuthLayout";
 
 const schema = z.object({
@@ -36,13 +37,22 @@ const Signup = () => {
   });
 
   const onValid = async (values: z.infer<typeof schema>) => {
+    form.clearErrors("email");
     const { error } = await signUp(
       values.email.trim().toLowerCase(),
       values.password,
       values.name.trim()
     );
     if (error) {
-      toast.error(error.message);
+      // "Email already registered" is field-level → show it inline on the email field.
+      if (/already registered|already in use|already exists|user already/i.test(error.message)) {
+        form.setError("email", {
+          message: "That email is already registered. Try signing in instead.",
+        });
+        return;
+      }
+      // Non-field failures (network, rate limit, unexpected) → toast.
+      notify.error(error.message);
       return;
     }
     // Depending on email-confirmation settings, signUp may or may not
@@ -86,6 +96,7 @@ const Signup = () => {
       </p>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onValid)} className="space-y-5" noValidate>
+          <FormErrorSummary errors={form.formState.errors} submitCount={form.formState.submitCount} />
           <FormField
             control={form.control}
             name="name"
@@ -126,9 +137,9 @@ const Signup = () => {
               </FormItem>
             )}
           />
-          <Button type="submit" className="w-full" size="lg" disabled={submitting}>
-            {submitting ? "Creating account…" : "Create account"}
-          </Button>
+          <SubmitButton className="w-full" size="lg" pending={submitting} pendingLabel="Creating account…">
+            Create account
+          </SubmitButton>
         </form>
       </Form>
       <p className="mt-6 text-sm text-dim">

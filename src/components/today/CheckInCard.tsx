@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Check } from "lucide-react";
-import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useDailyCheckIn } from "@/hooks/useDailyProgress";
 import { useEvidenceCounter } from "@/hooks/useEvidenceCounter";
@@ -73,7 +72,9 @@ export const CheckInCard = () => {
       {
         onSuccess: () => {
           if (wasFirstCheckInToday) addEvidence.mutate("check_in");
-          toast.success("Checked in. Good to see you, brother.");
+          // No success toast: the card flips to the compact "Checked in today"
+          // state showing the saved feelings + Scripture in place (P4). Failure
+          // surfaces via the global mutation net.
           setEditing(false);
         },
       }

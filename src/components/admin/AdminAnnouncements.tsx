@@ -35,8 +35,12 @@ const AdminAnnouncements = () => {
     if (!editDialog.title || !editDialog.body) return;
     const toSave = { ...editDialog };
     if (toSave.status === "published" && !toSave.published_at) toSave.published_at = new Date().toISOString();
-    await saveAnnouncement.mutateAsync(toSave);
-    setEditDialog(null);
+    try {
+      await saveAnnouncement.mutateAsync(toSave);
+      setEditDialog(null);
+    } catch {
+      // Failure surfaces via the global mutation-error net; keep the dialog open to retry.
+    }
   };
 
   // Announcements are few, so filter/search client-side over the created_at-desc
@@ -147,7 +151,9 @@ const AdminAnnouncements = () => {
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditDialog(null)}>Cancel</Button>
-            <Button onClick={handleSave} disabled={saveAnnouncement.isPending}>Save</Button>
+            <Button onClick={handleSave} disabled={saveAnnouncement.isPending}>
+              {saveAnnouncement.isPending ? "Saving…" : "Save"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

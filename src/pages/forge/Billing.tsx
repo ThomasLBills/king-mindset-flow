@@ -2,11 +2,12 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import { AlertTriangle, ArrowLeft, ExternalLink, Loader2, RefreshCw } from "lucide-react";
-import { toast } from "sonner";
+import { notify } from "@/lib/notify";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsImpersonating } from "@/contexts/ImpersonationContext";
+import { ErrorState } from "@/components/feedback";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -73,16 +74,22 @@ const Billing = () => {
   const [portalLoading, setPortalLoading] = useState(false);
   const [portalError, setPortalError] = useState<PortalError | null>(null);
 
-  const { data: subscription, isLoading: subLoading } = useQuery({
+  const {
+    data: subscription,
+    isLoading: subLoading,
+    isError: subError,
+    refetch: refetchSub,
+  } = useQuery({
     queryKey: ["subscription", user?.id],
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("subscriptions")
         .select("*")
         .eq("user_id", user!.id)
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle();
+      if (error) throw error;
       return data;
     },
     enabled: !!user,
@@ -105,7 +112,7 @@ const Billing = () => {
 
   const openBillingPortal = async () => {
     if (isImpersonating) {
-      toast.error("Disabled during impersonation", {
+      notify.error("Disabled during impersonation", {
         description: "Exit impersonation to open the billing portal.",
       });
       return;
@@ -144,10 +151,9 @@ const Billing = () => {
         err?.name === "TypeError" || err?.message?.includes("fetch")
           ? "network_error"
           : "server_error";
+      // Blocking + actionable → the inline <Alert> below is the single channel
+      // (persistent, with a Retry). No toast, to avoid double-signalling (§2).
       setPortalError({ code, message: err?.message ?? "Unexpected error" });
-      toast.error(ERROR_COPY[code].title, {
-        description: err?.message ?? ERROR_COPY[code].description,
-      });
     } finally {
       setPortalLoading(false);
     }
@@ -193,6 +199,12 @@ const Billing = () => {
             <Skeleton className="h-10 w-full" />
           </div>
         </div>
+      ) : subError ? (
+        <ErrorState
+          title="We couldn't load your membership"
+          message="Something interrupted the connection. Try again."
+          onRetry={() => refetchSub()}
+        />
       ) : !subscription ? (
         <div className="flex flex-col gap-4">
           <SectionCard hatch className="p-5">

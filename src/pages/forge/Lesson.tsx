@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, FileText, Link as LinkIcon, Music } from "lucide-react";
-import { toast } from "sonner";
+import { ArrowLeft, FileQuestion, FileText, Link as LinkIcon, Music } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurriculumLessonProgress, useMarkLessonComplete } from "@/hooks/useCurriculum";
@@ -9,6 +8,7 @@ import { useEvidenceCounter } from "@/hooks/useEvidenceCounter";
 import { useForgeWeeks } from "@/hooks/useForgeCurriculum";
 import { SignedAsset } from "@/components/curriculum/SignedAsset";
 import { LessonComplete } from "@/components/grow/LessonComplete";
+import { ErrorState, EmptyState } from "@/components/feedback";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
@@ -181,7 +181,12 @@ const Lesson = () => {
   const markComplete = useMarkLessonComplete();
   const { addEvidence } = useEvidenceCounter();
 
-  const { data: lesson, isLoading } = useQuery({
+  const {
+    data: lesson,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
     queryKey: ["public-curriculum-lesson", lessonId],
     enabled: !!lessonId,
     queryFn: async () => {
@@ -190,7 +195,7 @@ const Lesson = () => {
         .select("*")
         .eq("id", lessonId!)
         .eq("status", "published")
-        .single();
+        .maybeSingle();
       if (error) throw error;
       return data;
     },
@@ -205,16 +210,37 @@ const Lesson = () => {
     );
   }
 
+  if (isError) {
+    return (
+      <div className="mx-auto max-w-[660px] px-5 py-16 sm:px-8">
+        <Link
+          to="/app/grow"
+          className="mb-8 inline-flex items-center gap-1.5 text-sm text-dim transition-colors hover:text-bone-2"
+        >
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" /> The Liberated Path
+        </Link>
+        <ErrorState
+          title="We couldn't load this reading"
+          message="Something interrupted the connection. Try again."
+          onRetry={() => refetch()}
+        />
+      </div>
+    );
+  }
+
   if (!lesson) {
     return (
-      <div className="mx-auto max-w-[660px] px-5 py-16 text-center sm:px-8">
-        <h1 className="font-display text-2xl font-bold uppercase tracking-wide text-bone">
-          Reading not found
-        </h1>
-        <p className="mt-2 text-sm text-bone-2">It may have moved as the path was updated.</p>
-        <Button asChild variant="outline" className="mt-6">
-          <Link to="/app/grow">Back to the path</Link>
-        </Button>
+      <div className="mx-auto max-w-[660px] px-5 py-16 sm:px-8">
+        <EmptyState
+          icon={FileQuestion}
+          title="Reading not found"
+          description="It may have moved as the path was updated."
+          action={
+            <Button asChild variant="outline">
+              <Link to="/app/grow">Back to the path</Link>
+            </Button>
+          }
+        />
       </div>
     );
   }
@@ -247,26 +273,28 @@ const Lesson = () => {
   const nextUnlocksAt = next ? undefined : (weeks ?? []).find((w) => w.locked)?.unlocksAt;
 
   const markDone = async () => {
+    const wasAlreadyComplete = progressMap?.get(lesson.id)?.status === "completed";
+    // Decide the size of the moment before the write lands (progress is still
+    // pre-completion here): finishing a week or the whole path earns the big burst.
+    const willCompleteWeek =
+      weekTotal > 0 && weekLessons.filter((l) => l.id !== lesson.id).every((l) => l.done);
+    const willCompleteJourney =
+      overallTotal > 0 && overallLessons.filter((l) => l.id !== lesson.id).every((l) => l.done);
     try {
-      const wasAlreadyComplete = progressMap?.get(lesson.id)?.status === "completed";
-      // Decide the size of the moment before the write lands (progress is still
-      // pre-completion here): finishing a week or the whole path earns the big burst.
-      const willCompleteWeek =
-        weekTotal > 0 && weekLessons.filter((l) => l.id !== lesson.id).every((l) => l.done);
-      const willCompleteJourney =
-        overallTotal > 0 && overallLessons.filter((l) => l.id !== lesson.id).every((l) => l.done);
       await markComplete.mutateAsync(lesson.id);
-      if (!wasAlreadyComplete) {
-        addEvidence.mutate("lesson_complete");
-        if (willCompleteJourney || willCompleteWeek) {
-          celebrateBig();
-        } else {
-          celebrate();
-        }
-      }
-      toast.success("Reading finished. Carry it with you.");
     } catch {
-      toast.error("Couldn't mark the reading finished. Try again.");
+      // The global mutation net toasts the mapped error; nothing more to do here.
+      return;
+    }
+    // Success confirms itself: the page flips to the honor panel once progress
+    // re-fetches, and the confetti fires — so no success toast (P4).
+    if (!wasAlreadyComplete) {
+      addEvidence.mutate("lesson_complete");
+      if (willCompleteJourney || willCompleteWeek) {
+        celebrateBig();
+      } else {
+        celebrate();
+      }
     }
   };
 

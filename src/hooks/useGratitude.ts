@@ -15,7 +15,7 @@ export function useGratitude() {
 
   const todayStr = getLocalDateString();
 
-  const { data: todayEntry, isLoading } = useQuery({
+  const { data: todayEntry, isLoading, isError, refetch } = useQuery({
     queryKey: ["gratitude-today", user?.id, todayStr],
     enabled: !!user,
     queryFn: async () => {
@@ -51,6 +51,8 @@ export function useGratitude() {
   return {
     todayEntry,
     isLoading,
+    isError,
+    refetch,
     alreadySubmittedToday: !!todayEntry,
     submitGratitude,
   };

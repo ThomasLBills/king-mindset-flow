@@ -14,6 +14,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { Eyebrow } from "@/components/forge/atoms";
 import { HoldButton } from "@/components/forge/HoldButton";
+import { useConfirm } from "@/components/feedback";
 import { BackTo } from "./frame";
 import { useReturn } from "@/hooks/useStandard";
 import { useCrisisEventLogger } from "@/hooks/useTriggerPatterns";
@@ -118,6 +119,7 @@ const Teaching = ({ plain, gold }: { plain: string; gold: string }) => (
 export const ReturnFlow = ({ onBack }: { onBack: () => void }) => {
   const navigate = useNavigate();
   const ret = useReturn();
+  const confirm = useConfirm();
   const { logCrisisEvent } = useCrisisEventLogger();
 
   // Same trigger-pattern signal the forge triage logged for "already fell".
@@ -142,6 +144,28 @@ export const ReturnFlow = ({ onBack }: { onBack: () => void }) => {
   );
 
   const back = () => (step > 0 ? setStep((s) => s - 1) : onBack());
+
+  // Resetting the freedom streak is irreversible, so confirm before the three
+  // writes fire (P5). Failure of the writes surfaces via the global net.
+  const completeReturn = async () => {
+    const ok = await confirm({
+      title: "Log the fall and restart your streak?",
+      consequence:
+        "This records the fall and resets your freedom streak to today. Your return is on the record too. This can't be undone.",
+      confirmLabel: "Complete the return",
+      cancelLabel: "Not yet",
+      destructive: true,
+    });
+    if (!ok) return;
+    ret.mutate(undefined, {
+      onSuccess: () => {
+        // The heaviest milestone — honor the return with the big burst.
+        celebrateBig();
+        setDone(true);
+        setTimeout(() => navigate("/app"), 1500);
+      },
+    });
+  };
 
   if (done) {
     return (
@@ -277,20 +301,7 @@ export const ReturnFlow = ({ onBack }: { onBack: () => void }) => {
             <Bullets items={NAVIGATE_ITEMS} />
           </div>
           <Teaching plain="Failure is feedback." gold="Use it." />
-          <HoldButton
-            className="mt-6"
-            disabled={ret.isPending}
-            onComplete={() =>
-              ret.mutate(undefined, {
-                onSuccess: () => {
-                  // The heaviest milestone — honor the return with the big burst.
-                  celebrateBig();
-                  setDone(true);
-                  setTimeout(() => navigate("/app"), 1500);
-                },
-              })
-            }
-          >
+          <HoldButton className="mt-6" disabled={ret.isPending} onComplete={completeReturn}>
             {ret.isPending ? "Returning…" : "Hold to Return"}
           </HoldButton>
         </>

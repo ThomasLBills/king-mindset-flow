@@ -5,14 +5,15 @@
  *    with add / edit / delete.
  * Either tab's "Hold to Declare" logs evidence_events "declaration".
  */
-import { useMemo, useState } from "react";
-import { toast } from "sonner";
-import { Check, Pencil, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { Check, Pencil, ScrollText, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Eyebrow } from "@/components/forge/atoms";
 import { HoldButton } from "@/components/forge/HoldButton";
+import { EmptyState, ErrorState, LoadingState, useConfirm } from "@/components/feedback";
+import { notify } from "@/lib/notify";
 import { BackTo } from "./frame";
 import { useDeclarations } from "@/hooks/useDeclarations";
 import { useEvidenceCounter } from "@/hooks/useEvidenceCounter";
@@ -31,14 +32,15 @@ type Tab = "gods-word" | "mine";
 
 export const Declarations = ({ onBack }: { onBack: () => void }) => {
   const [tab, setTab] = useState<Tab>("gods-word");
-  const { declarations, addDeclaration, updateDeclaration, deleteDeclaration } = useDeclarations();
+  const { declarations, isLoading, isError, refetch, addDeclaration, updateDeclaration, deleteDeclaration } =
+    useDeclarations();
   const { addEvidence } = useEvidenceCounter();
+  const confirm = useConfirm();
 
   const [wordIndex, setWordIndex] = useState(() => Math.floor(Math.random() * GODS_WORD.length));
   const [composing, setComposing] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
-  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [declared, setDeclared] = useState(false);
 
   const word = GODS_WORD[wordIndex];
@@ -47,6 +49,8 @@ export const Declarations = ({ onBack }: { onBack: () => void }) => {
   // Preserve the exact data write (evidence_events "declaration"). On a
   // confirmed write, celebrate and flash a brief "Declared" state so the
   // declaration lands as earned evidence; the button re-arms after.
+  // Success confirms in place: confetti + a brief "Declared" state (P4), so no
+  // toast. Failure surfaces via the global mutation net.
   const declare = () => {
     addEvidence.mutate("declaration", {
       onSuccess: () => {
@@ -55,7 +59,6 @@ export const Declarations = ({ onBack }: { onBack: () => void }) => {
         setTimeout(() => setDeclared(false), 1600);
       },
     });
-    toast.success("Truth declared. You are building evidence.");
   };
 
   const declareLabel = declared ? (
@@ -75,15 +78,41 @@ export const Declarations = ({ onBack }: { onBack: () => void }) => {
   const saveDraft = () => {
     const text = draft.trim();
     if (!text) return;
-    const opts = {
-      onSuccess: () => {
-        setComposing(false);
-        setEditId(null);
-        setDraft("");
-      },
+    const reset = () => {
+      setComposing(false);
+      setEditId(null);
+      setDraft("");
     };
-    if (editId) updateDeclaration.mutate({ id: editId, text }, opts);
-    else addDeclaration.mutate(text, opts);
+    // Add/edit has no confetti and the list change can be subtle, so confirm it
+    // explicitly (P4). Failure surfaces via the global mutation net.
+    if (editId) {
+      updateDeclaration.mutate(
+        { id: editId, text },
+        {
+          onSuccess: () => {
+            reset();
+            notify.success("Declaration updated.");
+          },
+        }
+      );
+    } else {
+      addDeclaration.mutate(text, {
+        onSuccess: () => {
+          reset();
+          notify.success("Declaration saved.");
+        },
+      });
+    }
+  };
+
+  const requestDelete = async (id: string) => {
+    const ok = await confirm({
+      title: "Remove this declaration?",
+      consequence: "This permanently removes it from your declarations.",
+      confirmLabel: "Remove",
+      destructive: true,
+    });
+    if (ok) deleteDeclaration.mutate(id);
   };
 
   const tabButton = (key: Tab, label: string) => (
@@ -175,18 +204,32 @@ export const Declarations = ({ onBack }: { onBack: () => void }) => {
                   disabled={!draft.trim() || addDeclaration.isPending || updateDeclaration.isPending}
                   onClick={saveDraft}
                 >
-                  {editId ? "Update Declaration" : "Save Declaration"}
+                  {editId
+                    ? updateDeclaration.isPending
+                      ? "Updating…"
+                      : "Update Declaration"
+                    : addDeclaration.isPending
+                      ? "Saving…"
+                      : "Save Declaration"}
                 </Button>
               </div>
             </>
+          ) : isLoading ? (
+            <LoadingState lines={3} />
+          ) : isError ? (
+            <ErrorState
+              message="We couldn't load your declarations."
+              onRetry={() => refetch()}
+            />
           ) : declarations.length === 0 ? (
-            <>
-              <p className="text-bone-2">You haven't written any declarations yet.</p>
-              <p className="mt-1 text-sm text-dim">Write what God has spoken over you. Declare it daily.</p>
-              <Button className="mt-5 w-full" onClick={() => setComposing(true)}>
-                + Write your first declaration
-              </Button>
-            </>
+            <EmptyState
+              icon={ScrollText}
+              title="No declarations yet"
+              description="Write what God has spoken over you. Declare it daily."
+              action={
+                <Button onClick={() => setComposing(true)}>+ Write your first declaration</Button>
+              }
+            />
           ) : (
             <>
               <ul className="flex flex-col gap-2 text-left">
@@ -198,40 +241,20 @@ export const Declarations = ({ onBack }: { onBack: () => void }) => {
                     <span className="block break-words [overflow-wrap:anywhere]">
                       “{d.declaration_text}”
                     </span>
-                    {confirmDelete === d.id ? (
-                      <span className="mt-2 flex items-center gap-2 not-italic">
-                        <span className="text-xs text-bone-2">Remove this declaration?</span>
-                        <button
-                          className="text-xs text-dim hover:text-bone-2"
-                          onClick={() => setConfirmDelete(null)}
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          className="text-xs font-semibold text-ember"
-                          onClick={() =>
-                            deleteDeclaration.mutate(d.id, { onSuccess: () => setConfirmDelete(null) })
-                          }
-                        >
-                          Remove
-                        </button>
-                      </span>
-                    ) : (
-                      <span className="mt-2 flex items-center gap-3 not-italic">
-                        <button
-                          className="flex items-center gap-1 text-xs text-dim hover:text-gold"
-                          onClick={() => startEdit(d.id, d.declaration_text)}
-                        >
-                          <Pencil className="h-3 w-3" /> Edit
-                        </button>
-                        <button
-                          className="flex items-center gap-1 text-xs text-dim hover:text-ember"
-                          onClick={() => setConfirmDelete(d.id)}
-                        >
-                          <Trash2 className="h-3 w-3" /> Delete
-                        </button>
-                      </span>
-                    )}
+                    <span className="mt-2 flex items-center gap-3 not-italic">
+                      <button
+                        className="flex items-center gap-1 text-xs text-dim hover:text-gold"
+                        onClick={() => startEdit(d.id, d.declaration_text)}
+                      >
+                        <Pencil className="h-3 w-3" /> Edit
+                      </button>
+                      <button
+                        className="flex items-center gap-1 text-xs text-dim hover:text-ember"
+                        onClick={() => requestDelete(d.id)}
+                      >
+                        <Trash2 className="h-3 w-3" /> Delete
+                      </button>
+                    </span>
                   </li>
                 ))}
               </ul>

@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
-import { Check, Lock } from "lucide-react";
+import { Check, Compass, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useForgeWeeks, type ForgeWeek } from "@/hooks/useForgeCurriculum";
+import { ErrorState, EmptyState } from "@/components/feedback";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -78,14 +79,38 @@ const LessonRow = ({
 );
 
 const Grow = () => {
-  const { data: weeks } = useForgeWeeks();
+  const { data: weeks, isLoading, isError, refetch } = useForgeWeeks();
 
-  if (!weeks) {
+  if (isLoading) {
     return (
       <div className="mx-auto max-w-3xl px-5 py-7 sm:px-8">
         <Skeleton className="mb-4 h-24 w-full" />
         <Skeleton className="h-72 w-full" />
       </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <PageBackdrop className="mx-auto max-w-3xl px-5 py-7 sm:px-8">
+        <ErrorState
+          title="We couldn't load the path"
+          message="Something interrupted the connection. Try again."
+          onRetry={() => refetch()}
+        />
+      </PageBackdrop>
+    );
+  }
+
+  if (!weeks || weeks.length === 0) {
+    return (
+      <PageBackdrop className="mx-auto max-w-3xl px-5 py-7 sm:px-8">
+        <EmptyState
+          icon={Compass}
+          title="The path isn't open yet"
+          description="No weeks have been published for you yet. Check back soon — the ground is being prepared."
+        />
+      </PageBackdrop>
     );
   }
 

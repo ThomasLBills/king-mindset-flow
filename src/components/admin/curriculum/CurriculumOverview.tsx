@@ -11,20 +11,22 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
 import {
-  Loader2, Settings2, Calendar, ChevronRight, Pencil, Eye, EyeOff,
+  Loader2, Settings2, Calendar, ChevronRight, Pencil, Eye, EyeOff, CalendarRange,
 } from "lucide-react";
 import {
   useCurriculumSettings, useSaveCurriculumSettings,
   useWeeks, useSaveWeek, usePublishWeek,
 } from "@/hooks/useAdminCurriculumNew";
 import { Eyebrow, SectionCard } from "@/components/forge/atoms";
+import { ErrorState, EmptyState, useConfirm } from "@/components/feedback";
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
 const CurriculumOverview = () => {
   const navigate = useNavigate();
-  const { data: settings, isLoading: settingsLoading } = useCurriculumSettings();
-  const { data: weeks, isLoading: weeksLoading } = useWeeks();
+  const confirm = useConfirm();
+  const { data: settings, isLoading: settingsLoading, isError: settingsError, refetch: refetchSettings } = useCurriculumSettings();
+  const { data: weeks, isLoading: weeksLoading, isError: weeksError, refetch: refetchWeeks } = useWeeks();
   const saveSettings = useSaveCurriculumSettings();
   const saveWeek = useSaveWeek();
   const publishWeek = usePublishWeek();
@@ -42,14 +44,35 @@ const CurriculumOverview = () => {
 
   const handleSaveSettings = async () => {
     const { id, created_at, updated_at, ...rest } = settingsForm;
-    await saveSettings.mutateAsync(rest);
-    setSettingsOpen(false);
+    try {
+      await saveSettings.mutateAsync(rest);
+      setSettingsOpen(false);
+    } catch {
+      // Failure surfaces via the global mutation-error net; keep the dialog open to retry.
+    }
   };
 
   const handleSaveWeek = async () => {
     if (!weekDialog?.title) return;
-    await saveWeek.mutateAsync(weekDialog);
-    setWeekDialog(null);
+    try {
+      await saveWeek.mutateAsync(weekDialog);
+      setWeekDialog(null);
+    } catch {
+      // Failure surfaces via the global mutation-error net; keep the dialog open to retry.
+    }
+  };
+
+  const handleTogglePublishWeek = async (week: { id: string; week_number: number; status: string }) => {
+    const publish = week.status !== "published";
+    const ok = await confirm({
+      title: publish ? `Publish week ${week.week_number}?` : `Unpublish week ${week.week_number}?`,
+      consequence: publish
+        ? "Every lesson in this week becomes available to members according to the drip rules."
+        : "This week and its lessons will be hidden from members.",
+      confirmLabel: publish ? "Publish" : "Unpublish",
+    });
+    if (!ok) return;
+    publishWeek.mutate({ id: week.id, publish });
   };
 
   if (settingsLoading || weeksLoading) {
@@ -59,6 +82,19 @@ const CurriculumOverview = () => {
         <Skeleton className="h-24 w-full" />
         <Skeleton className="h-64 w-full" />
       </div>
+    );
+  }
+
+  if (settingsError || weeksError) {
+    return (
+      <ErrorState
+        title="Couldn't load the curriculum"
+        message="Something went wrong fetching the curriculum settings and weeks."
+        onRetry={() => {
+          refetchSettings();
+          refetchWeeks();
+        }}
+      />
     );
   }
 
@@ -122,6 +158,11 @@ const CurriculumOverview = () => {
       {/* Weeks List */}
       <div>
         <Eyebrow className="mb-3 block">Weeks</Eyebrow>
+        {(weeks || []).length === 0 ? (
+          <SectionCard className="p-6">
+            <EmptyState icon={CalendarRange} title="No weeks yet" description="Weeks will appear here once they're added to the curriculum." />
+          </SectionCard>
+        ) : (
         <div className="flex flex-col gap-2">
           {(weeks || []).map((week) => (
             <SectionCard
@@ -149,7 +190,8 @@ const CurriculumOverview = () => {
                     variant="ghost"
                     size="icon"
                     aria-label={week.status === "published" ? "Unpublish week" : "Publish week"}
-                    onClick={() => publishWeek.mutate({ id: week.id, publish: week.status !== "published" })}
+                    onClick={() => handleTogglePublishWeek(week)}
+                    disabled={publishWeek.isPending}
                   >
                     {week.status === "published" ? <EyeOff className="h-4 w-4" aria-hidden="true" /> : <Eye className="h-4 w-4" aria-hidden="true" />}
                   </Button>
@@ -159,6 +201,7 @@ const CurriculumOverview = () => {
             </SectionCard>
           ))}
         </div>
+        )}
       </div>
 
       {/* Settings Dialog */}

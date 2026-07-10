@@ -1,37 +1,53 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { FormErrorSummary } from "@/components/form/FormErrorSummary";
+import { SubmitButton } from "@/components/form/SubmitButton";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { notify } from "@/lib/notify";
 import AuthLayout from "@/components/forge/AuthLayout";
 import { Eyebrow } from "@/components/forge/atoms";
 
-const ForgotPassword = () => {
-  const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [sent, setSent] = useState(false);
-  const navigate = useNavigate();
-  const { toast } = useToast();
+const schema = z.object({
+  email: z.string().email("Enter a valid email"),
+});
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+const ForgotPassword = () => {
+  const [sentTo, setSentTo] = useState<string | null>(null);
+  const navigate = useNavigate();
+
+  const form = useForm<z.infer<typeof schema>>({
+    resolver: zodResolver(schema),
+    defaultValues: { email: "" },
+  });
+
+  const onValid = async ({ email }: z.infer<typeof schema>) => {
+    const normalized = email.trim().toLowerCase();
 
     try {
       // Check if user exists and whether they've set a password
       const { data } = await supabase.functions.invoke("check-user-eligible", {
-        body: { email },
+        body: { email: normalized },
       });
 
       if (data?.eligible && data?.password_set === false) {
         // User hasn't set a password - send them a verification code
-        // and redirect to the setup account page
+        // and redirect to the setup account page (the redirect is the confirmation)
         await supabase.functions.invoke("send-verification-code", {
-          body: { email },
+          body: { email: normalized },
         });
-        setLoading(false);
         navigate("/setup-account");
         return;
       }
@@ -40,19 +56,18 @@ const ForgotPassword = () => {
     }
 
     // Normal reset flow for users who have a password (or unknown users)
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    const { error } = await supabase.auth.resetPasswordForEmail(normalized, {
       redirectTo: `${window.location.origin}/reset-password`,
     });
     if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else {
-      setSent(true);
+      // Not field-specific (delivery/rate limit/unexpected) → toast.
+      notify.fromError(error);
+      return;
     }
-
-    setLoading(false);
+    setSentTo(normalized);
   };
 
-  if (sent) {
+  if (sentTo) {
     return (
       <AuthLayout>
         <Eyebrow tone="gold" className="mb-2 block">
@@ -62,7 +77,7 @@ const ForgotPassword = () => {
           A way back in
         </h1>
         <p className="mb-8 mt-2 text-sm text-bone-2">
-          We sent a reset link to <strong className="text-bone">{email}</strong>. Open it on
+          We sent a reset link to <strong className="text-bone">{sentTo}</strong>. Open it on
           this device and you'll be back in the fight.
         </p>
         <Button variant="outline" className="w-full" size="lg" onClick={() => navigate("/login")}>
@@ -80,23 +95,32 @@ const ForgotPassword = () => {
       <p className="mb-8 mt-2 text-sm text-bone-2">
         It happens. Enter your email and we'll send a link to set a new one.
       </p>
-      <form onSubmit={handleSubmit} className="space-y-5" noValidate>
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            type="email"
-            autoComplete="email"
-            placeholder="you@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onValid)} className="space-y-5" noValidate>
+          <FormErrorSummary errors={form.formState.errors} submitCount={form.formState.submitCount} />
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input type="email" autoComplete="email" placeholder="you@example.com" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-        </div>
-        <Button type="submit" className="w-full" size="lg" disabled={loading}>
-          {loading ? "Sending…" : "Send reset link"}
-        </Button>
-      </form>
+          <SubmitButton
+            className="w-full"
+            size="lg"
+            pending={form.formState.isSubmitting}
+            pendingLabel="Sending…"
+          >
+            Send reset link
+          </SubmitButton>
+        </form>
+      </Form>
       <p className="mt-6 text-sm">
         <Link
           to="/login"

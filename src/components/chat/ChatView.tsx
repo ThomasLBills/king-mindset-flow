@@ -4,7 +4,8 @@ import { useAdminRole } from "@/hooks/useAdminRole";
 import { useIsImpersonating, useImpersonation } from "@/contexts/ImpersonationContext";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { notify } from "@/lib/notify";
+import { ErrorState, useConfirm } from "@/components/feedback";
 import MessageList from "./MessageList";
 import MessageComposer from "./MessageComposer";
 import { useEffect, useCallback, useMemo, useState } from "react";
@@ -18,7 +19,7 @@ const ChatView = ({ target }: ChatViewProps) => {
   const joinChannel = useJoinChannel();
   const { channels } = useChannels();
   const { isAdmin } = useAdminRole();
-  const { toast } = useToast();
+  const confirm = useConfirm();
   const isImpersonating = useIsImpersonating();
   const { target: impersonationTarget, stopImpersonation } = useImpersonation();
   const navigate = useNavigate();
@@ -26,7 +27,7 @@ const ChatView = ({ target }: ChatViewProps) => {
   // For DMs, no join needed - ready immediately
   const isReady = target ? (target.type === "dm" ? true : channelReady) : false;
 
-  const { messages, loading, sendMessage } = useMessages(target, isReady);
+  const { messages, loading, error, sendMessage, refetch } = useMessages(target, isReady);
 
   const isLockedChannel = useMemo(() => {
     if (!target || target.type !== "channel") return false;
@@ -37,11 +38,18 @@ const ChatView = ({ target }: ChatViewProps) => {
   const canPost = !isLockedChannel || isAdmin;
 
   const handleDeleteMessage = useCallback(async (messageId: string) => {
+    const ok = await confirm({
+      title: "Delete this message?",
+      consequence: "It will be removed for everyone. This can't be undone.",
+      confirmLabel: "Delete",
+      destructive: true,
+    });
+    if (!ok) return;
+    // On success the realtime DELETE subscription drops it from the list — that's
+    // the confirmation, so no success toast.
     const { error } = await supabase.from("chat_messages").delete().eq("id", messageId);
-    if (error) {
-      toast({ title: "Error", description: "Failed to delete message", variant: "destructive" });
-    }
-  }, [toast]);
+    if (error) notify.fromError(error);
+  }, [confirm]);
 
   // Join channel first, then mark ready
   useEffect(() => {
@@ -72,7 +80,13 @@ const ChatView = ({ target }: ChatViewProps) => {
         <h3 className="font-serif text-lg font-semibold">{target.name}</h3>
       </div>
 
-      <MessageList messages={messages} loading={loading} isAdmin={isAdmin} onDeleteMessage={handleDeleteMessage} channelName={target.type === "channel" ? target.name : undefined} />
+      {error && !loading ? (
+        <div className="flex-1 min-h-0 flex items-center justify-center p-6">
+          <ErrorState message="We couldn't load these messages." onRetry={() => refetch()} />
+        </div>
+      ) : (
+        <MessageList messages={messages} loading={loading} isAdmin={isAdmin} onDeleteMessage={handleDeleteMessage} channelName={target.type === "channel" ? target.name : undefined} />
+      )}
       {isImpersonating ? (
         <div className="border-t border-border p-4 flex items-center justify-between gap-3 bg-card shrink-0">
           <div className="flex items-center gap-2 text-muted-foreground">

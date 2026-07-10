@@ -11,36 +11,61 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
 import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
-  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import {
-  ChevronLeft, Plus, Pencil, Trash2, Loader2, Copy, Eye, EyeOff, Clock,
+  ChevronLeft, Plus, Pencil, Trash2, Loader2, Copy, Eye, EyeOff, Clock, BookOpen,
 } from "lucide-react";
 import {
   useWeek, useCurriculumLessons, useSaveCurriculumLesson,
   useDeleteCurriculumLesson, usePublishCurriculumLesson, useDuplicateCurriculumLesson,
 } from "@/hooks/useAdminCurriculumNew";
 import { Eyebrow, SectionCard } from "@/components/forge/atoms";
-import { LkMonogram } from "@/components/forge/brand";
+import { ErrorState, EmptyState, useConfirm } from "@/components/feedback";
 
 const WeekDetail = () => {
   const { weekId } = useParams();
   const navigate = useNavigate();
-  const { data: week, isLoading: weekLoading } = useWeek(weekId);
-  const { data: lessons, isLoading: lessonsLoading } = useCurriculumLessons(weekId);
+  const confirm = useConfirm();
+  const { data: week, isLoading: weekLoading, isError: weekError, refetch: refetchWeek } = useWeek(weekId);
+  const { data: lessons, isLoading: lessonsLoading, isError: lessonsError, refetch: refetchLessons } = useCurriculumLessons(weekId);
   const saveLesson = useSaveCurriculumLesson();
   const deleteLesson = useDeleteCurriculumLesson();
   const publishLesson = usePublishCurriculumLesson();
   const duplicateLesson = useDuplicateCurriculumLesson();
 
   const [editDialog, setEditDialog] = useState<any>(null);
-  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const handleSave = async () => {
     if (!editDialog?.title || !editDialog?.slug) return;
-    await saveLesson.mutateAsync({ ...editDialog, week_id: weekId });
-    setEditDialog(null);
+    try {
+      await saveLesson.mutateAsync({ ...editDialog, week_id: weekId });
+      setEditDialog(null);
+    } catch {
+      // Failure surfaces via the global mutation-error net; keep the dialog
+      // open so the admin can retry without re-entering everything.
+    }
+  };
+
+  const handleTogglePublish = async (lesson: { id: string; title: string; status: string }) => {
+    const publish = lesson.status !== "published";
+    const ok = await confirm({
+      title: publish ? `Publish "${lesson.title}"?` : `Unpublish "${lesson.title}"?`,
+      consequence: publish
+        ? "The lesson becomes visible to members immediately."
+        : "Members will no longer be able to see this lesson.",
+      confirmLabel: publish ? "Publish" : "Unpublish",
+    });
+    if (!ok) return;
+    publishLesson.mutate({ id: lesson.id, publish });
+  };
+
+  const handleDelete = async (lesson: { id: string; title: string }) => {
+    const ok = await confirm({
+      title: "Delete lesson?",
+      consequence: `"${lesson.title}" and its content will be permanently removed. This can't be undone.`,
+      confirmLabel: "Delete",
+      destructive: true,
+    });
+    if (!ok) return;
+    deleteLesson.mutate(lesson.id);
   };
 
   const openNewLesson = () => {
@@ -61,6 +86,14 @@ const WeekDetail = () => {
       <Skeleton className="h-16 w-full" />
       <Skeleton className="h-40 w-full" />
     </div>
+  );
+
+  if (weekError) return (
+    <ErrorState
+      title="Couldn't load this week"
+      message="Something went wrong fetching the week."
+      onRetry={() => refetchWeek()}
+    />
   );
 
   return (
@@ -92,10 +125,17 @@ const WeekDetail = () => {
           <Skeleton className="h-16 w-full" />
           <Skeleton className="h-16 w-full" />
         </div>
+      ) : lessonsError ? (
+        <SectionCard className="p-6">
+          <ErrorState
+            title="Couldn't load lessons"
+            message="Something went wrong fetching the lessons for this week."
+            onRetry={() => refetchLessons()}
+          />
+        </SectionCard>
       ) : (lessons || []).length === 0 ? (
-        <SectionCard className="p-10 text-center">
-          <LkMonogram className="mx-auto mb-3 h-10 w-14 opacity-70" />
-          <p className="text-sm text-dim">No lessons yet. Add the first one.</p>
+        <SectionCard className="p-6">
+          <EmptyState icon={BookOpen} title="No lessons yet" description="Add the first lesson to build out this week." />
         </SectionCard>
       ) : (
         <SectionCard className="px-4">
@@ -130,14 +170,15 @@ const WeekDetail = () => {
                     <Button
                       variant="ghost" size="icon" className="h-8 w-8"
                       aria-label={lesson.status === "published" ? "Unpublish lesson" : "Publish lesson"}
-                      onClick={() => publishLesson.mutate({ id: lesson.id, publish: lesson.status !== "published" })}
+                      onClick={() => handleTogglePublish(lesson)}
+                      disabled={publishLesson.isPending}
                     >
                       {lesson.status === "published" ? <EyeOff className="h-3.5 w-3.5" aria-hidden="true" /> : <Eye className="h-3.5 w-3.5" aria-hidden="true" />}
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Duplicate lesson" onClick={() => duplicateLesson.mutate(lesson.id)}>
+                    <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Duplicate lesson" onClick={() => duplicateLesson.mutate(lesson.id)} disabled={duplicateLesson.isPending}>
                       <Copy className="h-3.5 w-3.5" aria-hidden="true" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Delete lesson" onClick={() => setDeleteId(lesson.id)}>
+                    <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Delete lesson" onClick={() => handleDelete(lesson)} disabled={deleteLesson.isPending}>
                       <Trash2 className="h-3.5 w-3.5 text-destructive" aria-hidden="true" />
                     </Button>
                   </div>
@@ -213,25 +254,6 @@ const WeekDetail = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {/* Delete Confirmation */}
-      <AlertDialog open={!!deleteId} onOpenChange={(o) => !o && setDeleteId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="font-display font-bold tracking-tight">Delete lesson?</AlertDialogTitle>
-            <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              onClick={() => { if (deleteId) deleteLesson.mutate(deleteId); setDeleteId(null); }}
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 };

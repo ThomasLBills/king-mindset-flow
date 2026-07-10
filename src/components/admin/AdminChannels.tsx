@@ -4,22 +4,12 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { Hash, Plus, Trash2 } from "lucide-react";
-import { toast } from "sonner";
+import { notify } from "@/lib/notify";
+import { useConfirm } from "@/components/feedback";
 import { SectionCard } from "@/components/forge/atoms";
 import { AdminList, type AdminColumn } from "@/components/admin/AdminList";
 import { logAdminAudit } from "@/lib/adminAudit";
@@ -27,14 +17,16 @@ import { logAdminAudit } from "@/lib/adminAudit";
 const AdminChannels = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const confirm = useConfirm();
   const [newName, setNewName] = useState("");
   const [newDesc, setNewDesc] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const { data: channels = [], isLoading } = useQuery({
+  const { data: channels = [], isLoading, isError, refetch } = useQuery({
     queryKey: ["admin-channels"],
     queryFn: async () => {
-      const { data } = await supabase.from("chat_channels").select("*").order("sort_order");
+      const { data, error } = await supabase.from("chat_channels").select("*").order("sort_order");
+      if (error) throw error;
       return data ?? [];
     },
   });
@@ -78,9 +70,9 @@ const AdminChannels = () => {
       setNewName("");
       setNewDesc("");
       setDialogOpen(false);
-      toast.success("Channel created");
+      notify.success("Channel created");
     },
-    onError: () => toast.error("Failed to create channel"),
+    // Failure surfaces via the global mutation-error net (mapSupabaseError toast).
   });
 
   const toggleField = useMutation({
@@ -98,9 +90,9 @@ const AdminChannels = () => {
       );
       return { prev };
     },
+    // Roll back the optimistic switch; the failure toast comes from the global net.
     onError: (_err, _vars, ctx) => {
       if (ctx?.prev) queryClient.setQueryData(["admin-channels"], ctx.prev);
-      toast.error("Could not update channel");
     },
     onSettled: invalidate,
   });
@@ -111,8 +103,19 @@ const AdminChannels = () => {
       if (error) throw error;
       await logAdminAudit({ action: "delete", entityType: "chat_channel", entityId: id });
     },
-    onSuccess: () => { invalidate(); toast.success("Channel deleted"); },
+    onSuccess: () => { invalidate(); notify.success("Channel deleted"); },
   });
+
+  const handleDeleteChannel = async (ch: Channel) => {
+    const ok = await confirm({
+      title: `Delete #${ch.name}?`,
+      consequence: "This permanently removes the channel and its messages, and cannot be undone.",
+      confirmLabel: "Delete",
+      destructive: true,
+    });
+    if (!ok) return;
+    deleteChannel.mutate(ch.id);
+  };
 
   const updateMaxBrothers = useMutation({
     mutationFn: async (value: number) => {
@@ -122,7 +125,7 @@ const AdminChannels = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-settings"] });
-      toast.success("Max brothers updated");
+      notify.success("Max brothers updated");
     },
   });
 
@@ -208,33 +211,20 @@ const AdminChannels = () => {
         rows={channels}
         getRowId={(ch) => ch.id}
         isLoading={isLoading}
+        isError={isError}
+        onRetry={refetch}
         emptyTitle="No channels yet"
         toolbarActions={newChannelDialog}
         rowActions={(ch) => (
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button size="icon" variant="ghost" aria-label={`Delete channel: ${ch.name}`}>
-                <Trash2 className="h-4 w-4 text-ember" aria-hidden="true" />
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle className="font-display">Delete channel</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Delete #{ch.name}? This permanently removes the channel and its messages, and cannot be undone.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                  onClick={() => deleteChannel.mutate(ch.id)}
-                >
-                  Delete
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+          <Button
+            size="icon"
+            variant="ghost"
+            aria-label={`Delete channel: ${ch.name}`}
+            onClick={() => handleDeleteChannel(ch)}
+            disabled={deleteChannel.isPending}
+          >
+            <Trash2 className="h-4 w-4 text-ember" aria-hidden="true" />
+          </Button>
         )}
       />
 

@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -19,6 +18,9 @@ import {
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { FormErrorSummary } from "@/components/form/FormErrorSummary";
+import { SubmitButton } from "@/components/form/SubmitButton";
+import { notify } from "@/lib/notify";
 import { cn } from "@/lib/utils";
 import { useDailyCheckIn } from "@/hooks/useDailyProgress";
 import { useEvidenceCounter } from "@/hooks/useEvidenceCounter";
@@ -82,7 +84,9 @@ export const CheckInDialog = ({
       {
         onSuccess: () => {
           if (wasFirstCheckInToday) addEvidence.mutate("check_in");
-          toast.success("Checked in. Good to see you, brother.");
+          // No success toast: closing the dialog reveals the Today card flipped
+          // to its "Checked in today" state with the saved content (P4). Failure
+          // surfaces via the global mutation net.
           onOpenChange(false);
         },
       }
@@ -185,7 +189,9 @@ export const ReflectionDialog = ({
   const onSubmit = () => {
     mutation.mutate(undefined, {
       onSuccess: () => {
-        toast.success("Reflection kept. Rest well.");
+        // The only in-place signal is a subtle path-step flip behind the closed
+        // dialog, so confirm the save explicitly (P4). Failure → global net.
+        notify.success("Reflection kept. Rest well.");
         onOpenChange(false);
         form.reset();
       },
@@ -203,6 +209,10 @@ export const ReflectionDialog = ({
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+            <FormErrorSummary
+              errors={form.formState.errors}
+              submitCount={form.formState.submitCount}
+            />
             <FormField
               control={form.control}
               name="reflection"
@@ -215,9 +225,9 @@ export const ReflectionDialog = ({
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full" disabled={mutation.isPending}>
-              {mutation.isPending ? "Keeping…" : "Keep this reflection"}
-            </Button>
+            <SubmitButton className="w-full" pending={mutation.isPending} pendingLabel="Keeping…">
+              Keep this reflection
+            </SubmitButton>
           </form>
         </Form>
       </DialogContent>

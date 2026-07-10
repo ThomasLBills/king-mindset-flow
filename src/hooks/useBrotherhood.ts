@@ -17,7 +17,7 @@ export function useBrothers() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  const { data: brothers = [], isLoading } = useQuery({
+  const { data: brothers = [], isLoading, isError, refetch } = useQuery({
     queryKey: ["brothers", user?.id],
     enabled: !!user,
     queryFn: async () => {
@@ -180,6 +180,8 @@ export function useBrothers() {
     declinedIds,
     maxBrothers,
     isLoading,
+    isError,
+    refetch,
     atCapacity: brothers.length >= maxBrothers,
     sendRequest,
     acceptRequest,

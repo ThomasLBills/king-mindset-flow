@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { format } from "date-fns";
-import { toast } from "sonner";
+import { notify } from "@/lib/notify";
 import { cn } from "@/lib/utils";
 import { FEATURES } from "@/features";
 import { useForgeUser, useCompleteOnboarding } from "@/hooks/useForgeProfile";
@@ -21,6 +21,7 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
+import { FormErrorSummary } from "@/components/form/FormErrorSummary";
 import { Eyebrow, FoilRule, InitialsAvatar } from "@/components/forge/atoms";
 import { LkMonogram, LkSeal } from "@/components/forge/brand";
 import { Grain, SceneRidge } from "@/components/forge/scenes";
@@ -187,10 +188,11 @@ const Onboarding = () => {
     try {
       await completeOnboarding.mutateAsync();
     } catch {
-      toast.error("Couldn't finish onboarding. Check your connection and try again.");
+      // The global mutation-error net surfaces the failure toast; just don't advance.
       return;
     }
-    toast.success(signedName ? "The covenant is sealed. Welcome, king." : "Welcome, brother.");
+    // No other signal marks onboarding as done, so confirm the milestone.
+    notify.success(signedName ? "The covenant is sealed. Welcome, king." : "Welcome, brother.");
     navigate("/app", { replace: true });
   };
 
@@ -300,6 +302,10 @@ const Onboarding = () => {
                 })}
                 className="mt-6 space-y-5"
               >
+                <FormErrorSummary
+                  errors={whyForm.formState.errors}
+                  submitCount={whyForm.formState.submitCount}
+                />
                 <FormField
                   control={whyForm.control}
                   name="why"

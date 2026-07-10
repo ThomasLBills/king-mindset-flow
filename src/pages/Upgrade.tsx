@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { notify } from "@/lib/notify";
 import { Eyebrow, SectionCard } from "@/components/forge/atoms";
 import { LkMonogram } from "@/components/forge/brand";
 import { Grain } from "@/components/forge/scenes";
@@ -21,7 +21,6 @@ const benefits = [
 type PlanKey = "monthly" | "annual";
 
 const CheckoutButton = ({ plan, amountLabel }: { plan: PlanKey; amountLabel: string }) => {
-  const { toast } = useToast();
   const { user } = useAuth();
   const [submitting, setSubmitting] = useState(false);
   const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
@@ -85,12 +84,12 @@ const CheckoutButton = ({ plan, amountLabel }: { plan: PlanKey; amountLabel: str
 
       if (!redirected) {
         setCheckoutUrl(data.url);
-        toast({ title: "Checkout ready", description: "Tap the checkout link below to continue." });
+        notify.info("Checkout ready", { description: "Tap the checkout link below to continue." });
       }
       setSubmitting(false);
     } catch (err: any) {
       if (popup && !popup.closed) popup.close();
-      toast({ title: "Error", description: err.message, variant: "destructive" });
+      notify.error(err?.message ?? "Couldn't open checkout. Please try again.");
       setSubmitting(false);
     }
   };

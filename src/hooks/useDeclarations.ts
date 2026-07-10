@@ -16,7 +16,7 @@ export const useDeclarations = () => {
   const queryClient = useQueryClient();
   const queryKey = ["user-declarations", user?.id];
 
-  const { data: declarations = [], isLoading } = useQuery({
+  const { data: declarations = [], isLoading, isError, refetch } = useQuery({
     queryKey,
     queryFn: async () => {
       if (!user) return [];
@@ -74,5 +74,13 @@ export const useDeclarations = () => {
     onSuccess: () => queryClient.invalidateQueries({ queryKey }),
   });
 
-  return { declarations, isLoading, addDeclaration, updateDeclaration, deleteDeclaration };
+  return {
+    declarations,
+    isLoading,
+    isError,
+    refetch,
+    addDeclaration,
+    updateDeclaration,
+    deleteDeclaration,
+  };
 };

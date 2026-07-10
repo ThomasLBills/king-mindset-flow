@@ -4,23 +4,36 @@
  * useGratitude hook. Independent of the check-in write.
  */
 import { useState } from "react";
-import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Eyebrow } from "@/components/forge/atoms";
+import { ErrorState, LoadingState } from "@/components/feedback";
 import { BackTo } from "./frame";
 import { useGratitude } from "@/hooks/useGratitude";
 import { celebrate } from "@/lib/celebrate";
 
 export const Gratitude = ({ onBack }: { onBack: () => void }) => {
-  const { todayEntry, isLoading, alreadySubmittedToday, submitGratitude } = useGratitude();
+  const { todayEntry, isLoading, isError, refetch, alreadySubmittedToday, submitGratitude } =
+    useGratitude();
   const [e1, setE1] = useState("");
   const [e2, setE2] = useState("");
   const [e3, setE3] = useState("");
   const [done, setDone] = useState(false);
 
   if (isLoading) {
-    return <p className="text-sm text-bone-2">Loading…</p>;
+    return <LoadingState lines={4} />;
+  }
+
+  if (isError) {
+    return (
+      <>
+        <ErrorState
+          message="We couldn't load your gratitude for today."
+          onRetry={() => refetch()}
+        />
+        <BackTo onClick={onBack} label="Back to Your Armor" />
+      </>
+    );
   }
 
   if (done || alreadySubmittedToday) {
@@ -61,17 +74,12 @@ export const Gratitude = ({ onBack }: { onBack: () => void }) => {
     submitGratitude.mutate(
       { entry_1: e1.trim(), entry_2: e2.trim(), entry_3: e3.trim() },
       {
+        // Success confirms in place: confetti + the recorded entries render
+        // below (P4), so no toast. Failure surfaces via the global mutation
+        // net (this was the origin silent-failure bug — now covered centrally).
         onSuccess: () => {
           celebrate();
-          toast.success("Gratitude recorded. Eyes trained on grace.");
           setDone(true);
-        },
-        // Without this the write failed silently — surface the real reason so a
-        // rejected insert (e.g. missing table/RLS on the backend) is visible.
-        onError: (err) => {
-          toast.error(
-            err instanceof Error ? err.message : "Couldn't save your gratitude. Please try again."
-          );
         },
       }
     );

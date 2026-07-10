@@ -2,10 +2,9 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { toast } from "sonner";
+import { notify } from "@/lib/notify";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Form,
@@ -15,6 +14,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { FormErrorSummary } from "@/components/form/FormErrorSummary";
+import { SubmitButton } from "@/components/form/SubmitButton";
 import AuthLayout from "@/components/forge/AuthLayout";
 
 const schema = z.object({
@@ -34,6 +35,7 @@ const Login = () => {
   });
 
   const onValid = async (values: z.infer<typeof schema>) => {
+    form.clearErrors("root");
     const email = values.email.trim().toLowerCase();
     const { error } = await signInWithPassword(email, values.password);
     if (!error) {
@@ -46,17 +48,26 @@ const Login = () => {
         body: { email },
       });
       if (data?.eligible && data?.password_set === false) {
-        // check-user-eligible already sent a code
+        // check-user-eligible already sent a code; the redirect is the confirmation
         navigate("/setup-account");
         return;
       }
     } catch {
       // Ignore - fall through to normal error
     }
-    const message = /load failed|failed to fetch|network/i.test(error.message)
-      ? "Connection failed. Please refresh and try again."
-      : error.message;
-    toast.error(message);
+    // Credential mismatch is field-level → show it inline (form-level), not as a toast.
+    if (/invalid login credentials|invalid credentials|email or password/i.test(error.message)) {
+      form.setError("root", {
+        message: "That email and password don't match. Check them and try again.",
+      });
+      return;
+    }
+    // Non-field failures (network, rate limit, unexpected) → toast.
+    if (/load failed|failed to fetch|network/i.test(error.message)) {
+      notify.error("Connection failed. Please refresh and try again.");
+      return;
+    }
+    notify.error(error.message);
   };
 
   const submitting = form.formState.isSubmitting;
@@ -69,6 +80,7 @@ const Login = () => {
       <p className="mb-8 mt-2 text-sm text-bone-2">Pick up where you left off, brother.</p>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onValid)} className="space-y-5" noValidate>
+          <FormErrorSummary errors={form.formState.errors} submitCount={form.formState.submitCount} />
           <FormField
             control={form.control}
             name="email"
@@ -95,9 +107,9 @@ const Login = () => {
               </FormItem>
             )}
           />
-          <Button type="submit" className="w-full" size="lg" disabled={submitting}>
-            {submitting ? "Signing in…" : "Sign in"}
-          </Button>
+          <SubmitButton className="w-full" size="lg" pending={submitting} pendingLabel="Signing in…">
+            Sign in
+          </SubmitButton>
         </form>
       </Form>
       <div className="mt-6 flex items-center justify-between text-sm">

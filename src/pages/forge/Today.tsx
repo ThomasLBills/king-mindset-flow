@@ -2,7 +2,6 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 import { Check, Lock, ShieldCheck } from "lucide-react";
-import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { FEATURES } from "@/features";
 import { useForgeUser } from "@/hooks/useForgeProfile";
@@ -257,12 +256,10 @@ const Today = () => {
                       <Button
                         className="w-full"
                         disabled={sendStrength.isPending}
-                        onClick={() =>
-                          sendStrength.mutate(banner, {
-                            onSuccess: () =>
-                              toast.success(`${banner.name} will see you standing with him.`),
-                          })
-                        }
+                        // Success confirms in place: the card flips to the
+                        // "Strength sent" state once forge-banner refetches, so
+                        // no toast (P4). Failure surfaces via the global net.
+                        onClick={() => sendStrength.mutate(banner)}
                       >
                         {sendStrength.isPending ? "Sending…" : "Send strength"}
                       </Button>

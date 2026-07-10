@@ -5,19 +5,20 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useToast } from "@/hooks/use-toast";
+import { notify } from "@/lib/notify";
+import { ErrorState } from "@/components/feedback";
 import { logAdminAudit } from "@/lib/adminAudit";
 import { Eyebrow, SectionCard } from "@/components/forge/atoms";
 
 const AdminSettings = () => {
-  const { toast } = useToast();
   const qc = useQueryClient();
   const [maxBrothers, setMaxBrothers] = useState("5");
 
-  const { data: settings, isLoading } = useQuery({
+  const { data: settings, isLoading, isError, refetch } = useQuery({
     queryKey: ["app-settings"],
     queryFn: async () => {
-      const { data } = await supabase.from("app_settings").select("*");
+      const { data, error } = await supabase.from("app_settings").select("*");
+      if (error) throw error;
       return data || [];
     },
   });
@@ -35,11 +36,11 @@ const AdminSettings = () => {
       if (error) throw error;
       await logAdminAudit({ action: "update", entityType: "app_settings", entityId: key, after: { value } });
     },
+    // Failure surfaces via the global mutation-error net (mapSupabaseError toast).
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["app-settings"] });
-      toast({ title: "Setting saved" });
+      notify.success("Setting saved");
     },
-    onError: (e: any) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 
   if (isLoading)
@@ -48,6 +49,15 @@ const AdminSettings = () => {
         <Skeleton className="h-9 w-48" />
         <Skeleton className="h-40 w-full" />
       </div>
+    );
+
+  if (isError)
+    return (
+      <ErrorState
+        title="Couldn't load settings"
+        message="Something went wrong fetching the app settings."
+        onRetry={() => refetch()}
+      />
     );
 
   return (

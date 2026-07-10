@@ -33,11 +33,13 @@ export const HelpMeNow = ({
   const [loading, setLoading] = useState(false);
   const [reply, setReply] = useState<string | null>(null);
   const [chosen, setChosen] = useState<Option | null>(null);
+  const [failed, setFailed] = useState(false);
 
   const pick = async (opt: Option) => {
     setChosen(opt);
     setLoading(true);
     setReply(null);
+    setFailed(false);
     try {
       const { data, error } = await supabase.functions.invoke("help-me-now", {
         body: { message: opt.label },
@@ -47,8 +49,13 @@ export const HelpMeNow = ({
         (data as { reply?: string } | null)?.reply ||
           "You are not alone here. Let's take the next step together."
       );
-    } catch {
+    } catch (err) {
+      // Crisis-safe: still show a grounding message + the tool CTA so the man is
+      // never left with nothing, but surface that guidance is offline with a
+      // retry (the edge function is a raw invoke, so no global-net coverage).
+      console.error("[help-me-now] edge function failed:", err);
       setReply("I'm here. Let's take a breath and step into truth together.");
+      setFailed(true);
     } finally {
       setLoading(false);
     }
@@ -75,6 +82,20 @@ export const HelpMeNow = ({
               <p className="rounded-md border border-line bg-raised/80 px-4 py-3 text-left text-[15px] leading-relaxed text-bone">
                 {reply}
               </p>
+              {failed && (
+                <p
+                  role="status"
+                  className="mt-3 flex flex-wrap items-center justify-center gap-1.5 text-xs text-dim"
+                >
+                  We couldn't reach live guidance just now.
+                  <button
+                    onClick={() => chosen && pick(chosen)}
+                    className="font-medium text-gold underline-offset-4 hover:underline"
+                  >
+                    Try again
+                  </button>
+                </p>
+              )}
               {chosen && (
                 <Button className="mt-5 w-full" size="lg" onClick={() => onOpenTool(chosen.tool)}>
                   {chosen.toolLabel}

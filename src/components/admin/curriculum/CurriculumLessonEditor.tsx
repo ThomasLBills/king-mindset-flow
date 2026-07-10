@@ -19,7 +19,8 @@ import {
   useCurriculumLesson, useSaveCurriculumLesson, usePublishCurriculumLesson,
 } from "@/hooks/useAdminCurriculumNew";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { notify } from "@/lib/notify";
+import { ErrorState, useConfirm } from "@/components/feedback";
 import { Eyebrow, FoilRule, SectionCard } from "@/components/forge/atoms";
 
 type ContentBlock = {
@@ -48,8 +49,8 @@ const genId = () => crypto.randomUUID();
 const CurriculumLessonEditor = () => {
   const { weekId, lessonId } = useParams();
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const { data: lesson, isLoading } = useCurriculumLesson(lessonId);
+  const confirm = useConfirm();
+  const { data: lesson, isLoading, isError, refetch } = useCurriculumLesson(lessonId);
   const saveLesson = useSaveCurriculumLesson();
   const publishLesson = usePublishCurriculumLesson();
 
@@ -102,7 +103,7 @@ const CurriculumLessonEditor = () => {
   const handleFileUpload = async (blockId: string, file: File, type: "video" | "audio" | "file" | "image") => {
     const maxSize = type === "video" ? 500 * 1024 * 1024 : 50 * 1024 * 1024;
     if (file.size > maxSize) {
-      toast({ title: "File too large", description: `Max ${type === "video" ? "500MB" : "50MB"}`, variant: "destructive" });
+      notify.error("File too large", { description: `Max ${type === "video" ? "500MB" : "50MB"}` });
       return;
     }
 
@@ -112,7 +113,7 @@ const CurriculumLessonEditor = () => {
 
     const { error } = await supabase.storage.from("curriculum-files").upload(path, file, { upsert: true });
     if (error) {
-      toast({ title: "Upload failed", description: error.message, variant: "destructive" });
+      notify.fromError(error);
       setUploading(null);
       return;
     }
@@ -120,19 +121,37 @@ const CurriculumLessonEditor = () => {
     // Bucket is private; store the storage path and resolve to a signed URL at render time.
     updateBlock(blockId, { storagePath: path, url: null, filename: file.name, size: file.size });
     setUploading(null);
-    toast({ title: "File uploaded" });
+    notify.success("File uploaded");
   };
 
   const handleSave = async () => {
-    await saveLesson.mutateAsync({
-      id: lessonId,
-      title,
-      summary: summary || null,
-      video_url: videoUrl || null,
-      audio_url: audioUrl || null,
-      content_json: blocks,
+    try {
+      await saveLesson.mutateAsync({
+        id: lessonId,
+        title,
+        summary: summary || null,
+        video_url: videoUrl || null,
+        audio_url: audioUrl || null,
+        content_json: blocks,
+      });
+      setDirty(false);
+    } catch {
+      // Failure surfaces via the global mutation-error net; keep the editor
+      // dirty so the admin can retry without losing their changes.
+    }
+  };
+
+  const handleTogglePublish = async () => {
+    const publish = lesson?.status !== "published";
+    const ok = await confirm({
+      title: publish ? "Publish this lesson?" : "Unpublish this lesson?",
+      consequence: publish
+        ? "The lesson becomes visible to members immediately."
+        : "Members will no longer be able to see this lesson.",
+      confirmLabel: publish ? "Publish" : "Unpublish",
     });
-    setDirty(false);
+    if (!ok) return;
+    publishLesson.mutate({ id: lessonId!, publish });
   };
 
   if (isLoading) return (
@@ -140,6 +159,14 @@ const CurriculumLessonEditor = () => {
       <Skeleton className="h-16 w-full" />
       <Skeleton className="h-40 w-full" />
     </div>
+  );
+
+  if (isError) return (
+    <ErrorState
+      title="Couldn't load this lesson"
+      message="Something went wrong fetching the lesson."
+      onRetry={() => refetch()}
+    />
   );
 
   return (
@@ -160,7 +187,7 @@ const CurriculumLessonEditor = () => {
           {dirty && <Badge variant="outline" className="border-warning text-warning">Unsaved</Badge>}
           <Button
             variant="outline" size="sm"
-            onClick={() => publishLesson.mutate({ id: lessonId!, publish: lesson?.status !== "published" })}
+            onClick={handleTogglePublish}
             disabled={publishLesson.isPending}
           >
             {lesson?.status === "published" ? <><EyeOff className="mr-1 h-4 w-4" aria-hidden="true" /> Unpublish</> : <><Eye className="mr-1 h-4 w-4" aria-hidden="true" /> Publish</>}

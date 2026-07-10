@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, RefreshCw } from "lucide-react";
 import { extractCurriculumStoragePath, useSignedAssetUrl } from "@/hooks/useSignedAssetUrl";
+import { Button } from "@/components/ui/button";
 
 type Props = {
   rawValue: string | null | undefined;
@@ -29,7 +30,10 @@ function SignedAssetInner({
   lessonId: string;
   children: (url: string) => ReactNode;
 }) {
-  const { data: url, isLoading, isError } = useSignedAssetUrl(storagePath, lessonId);
+  const { data: url, isLoading, isError, isFetching, refetch } = useSignedAssetUrl(
+    storagePath,
+    lessonId,
+  );
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-6">
@@ -38,7 +42,25 @@ function SignedAssetInner({
     );
   }
   if (isError || !url) {
-    return <div className="text-sm text-muted-foreground">Asset unavailable.</div>;
+    return (
+      <div
+        role="alert"
+        className="flex items-center gap-3 rounded-lg border border-line bg-raised p-3 text-sm text-muted-foreground"
+      >
+        <span>This file couldn't be loaded.</span>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="ml-auto"
+          disabled={isFetching}
+          onClick={() => refetch()}
+        >
+          <RefreshCw className={`h-3.5 w-3.5 ${isFetching ? "animate-spin" : ""}`} aria-hidden="true" />
+          Retry
+        </Button>
+      </div>
+    );
   }
   return <>{children(url)}</>;
 }

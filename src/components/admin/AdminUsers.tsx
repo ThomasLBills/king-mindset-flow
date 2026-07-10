@@ -6,10 +6,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Loader2, Shield, ShieldCheck, ShieldOff, UserPlus, Trash2, LogIn, Trophy, Copy, Check, UserRoundCog, MoreHorizontal } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { notify } from "@/lib/notify";
+import { useConfirm } from "@/components/feedback";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { format } from "date-fns";
@@ -41,13 +41,11 @@ type EnrichedUser = ProfileRow & {
 };
 
 const AdminUsers = () => {
-  const { toast } = useToast();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const confirm = useConfirm();
   const { startImpersonation } = useImpersonation();
   const [impersonatingId, setImpersonatingId] = useState<string | null>(null);
-  const [impersonateTarget, setImpersonateTarget] = useState<{ id: string; name: string; email: string } | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<EnrichedUser | null>(null);
   const [addOpen, setAddOpen] = useState(false);
   const [newEmail, setNewEmail] = useState("");
   const [newName, setNewName] = useState("");
@@ -120,16 +118,18 @@ const AdminUsers = () => {
     },
   });
 
+  // High-stakes mutations: each is gated behind a confirm dialog (handlers below)
+  // and gives an explicit success toast. Failures surface via the global
+  // mutation-error net (mapSupabaseError toast).
   const toggleEntitlement = useMutation({
     mutationFn: async ({ userId, active }: { userId: string; active: boolean }) => {
       const { error } = await supabase.functions.invoke("admin-toggle-entitlement", { body: { userId, active } });
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: (_, { active }) => {
       invalidate();
-      toast({ title: "Entitlement updated" });
+      notify.success(active ? "Access granted" : "Access revoked");
     },
-    onError: (err: any) => toast({ title: "Error", description: err.message, variant: "destructive" }),
   });
 
   const toggleRole = useMutation({
@@ -138,11 +138,10 @@ const AdminUsers = () => {
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
     },
-    onSuccess: () => {
+    onSuccess: (_, { makeAdmin }) => {
       invalidate();
-      toast({ title: "Role updated" });
+      notify.success(makeAdmin ? "Admin role granted" : "Admin role removed");
     },
-    onError: (err: any) => toast({ title: "Error", description: err.message, variant: "destructive" }),
   });
 
   const createUser = useMutation({
@@ -154,6 +153,7 @@ const AdminUsers = () => {
       if (data?.error) throw new Error(data.error);
       return data as { tempPassword: string; email: string };
     },
+    // Success is confirmed by the credential modal that opens (P4 — no toast).
     onSuccess: (data) => {
       invalidate();
       setAddOpen(false);
@@ -162,7 +162,6 @@ const AdminUsers = () => {
       setCredentialModal({ email: data.email, tempPassword: data.tempPassword });
       setCopied(false);
     },
-    onError: (err: any) => toast({ title: "Error creating user", description: err.message, variant: "destructive" }),
   });
 
   const deleteUser = useMutation({
@@ -173,22 +172,95 @@ const AdminUsers = () => {
     },
     onSuccess: () => {
       invalidate();
-      toast({ title: "User deleted" });
+      notify.success("User deleted");
     },
-    onError: (err: any) => toast({ title: "Error deleting user", description: err.message, variant: "destructive" }),
   });
 
+  const handleToggleEntitlement = async (u: EnrichedUser) => {
+    const grant = !u.entitlement?.active;
+    const ok = await confirm({
+      title: grant ? `Grant access to ${u.email}?` : `Revoke access from ${u.email}?`,
+      consequence: grant
+        ? "This user will immediately gain course access."
+        : "This user will immediately lose course access. You can re-grant it at any time.",
+      confirmLabel: grant ? "Grant access" : "Revoke access",
+      destructive: !grant,
+    });
+    if (!ok) return;
+    toggleEntitlement.mutate({ userId: u.user_id, active: grant });
+  };
+
+  const handleToggleRole = async (u: EnrichedUser) => {
+    const makeAdmin = !u.isAdmin;
+    const ok = await confirm({
+      title: makeAdmin ? `Make ${u.email} an admin?` : `Remove admin from ${u.email}?`,
+      consequence: makeAdmin
+        ? "Admins can manage users, entitlements, curriculum, and settings."
+        : "This user will lose access to the admin area.",
+      confirmLabel: makeAdmin ? "Make admin" : "Remove admin",
+      destructive: !makeAdmin,
+    });
+    if (!ok) return;
+    toggleRole.mutate({ userId: u.user_id, makeAdmin });
+  };
+
+  const handleDeleteUser = async (u: EnrichedUser) => {
+    const ok = await confirm({
+      title: "Delete user",
+      consequence: `This will permanently delete ${u.email} and all their data. This action cannot be undone.`,
+      confirmLabel: "Delete permanently",
+      destructive: true,
+    });
+    if (!ok) return;
+    deleteUser.mutate(u.user_id);
+  };
+
+  const handleImpersonate = async (u: EnrichedUser) => {
+    const target = { id: u.user_id, name: u.display_name || u.name || u.email, email: u.email };
+    const ok = await confirm({
+      title: `Impersonate ${target.name}?`,
+      consequence:
+        "You will see the app exactly as this user sees it. Row-level security is enforced against their account. You can browse and view everything, but billing, chat, declarations, and account deletion are disabled. This session is fully audited.",
+      confirmLabel: "Start session",
+    });
+    if (!ok) return;
+    setImpersonatingId(target.id);
+    try {
+      await startImpersonation(target.id);
+      notify.success(`Viewing as ${target.name}`);
+      navigate("/app");
+    } catch (err) {
+      notify.fromError(err);
+    } finally {
+      setImpersonatingId(null);
+    }
+  };
+
   // Bulk grant/revoke over the selected page rows (selection is page-scoped, so
-  // this is bounded to one page of users).
+  // this is bounded to one page of users). Not a useMutation, so it toasts
+  // failures explicitly rather than relying on the global net.
   const bulkSetAccess = async (ids: string[], active: boolean, clear: () => void) => {
     try {
       await Promise.all(ids.map((userId) => supabase.functions.invoke("admin-toggle-entitlement", { body: { userId, active } })));
       invalidate();
-      toast({ title: active ? `Granted access to ${ids.length}` : `Revoked access from ${ids.length}` });
+      notify.success(active ? `Granted access to ${ids.length}` : `Revoked access from ${ids.length}`);
       clear();
-    } catch (err: any) {
-      toast({ title: "Bulk update failed", description: err?.message, variant: "destructive" });
+    } catch (err) {
+      notify.fromError(err);
     }
+  };
+
+  const handleBulkAccess = async (ids: string[], active: boolean, clear: () => void) => {
+    const ok = await confirm({
+      title: active ? `Grant access to ${ids.length} user${ids.length === 1 ? "" : "s"}?` : `Revoke access from ${ids.length} user${ids.length === 1 ? "" : "s"}?`,
+      consequence: active
+        ? "These users will immediately gain course access."
+        : "These users will immediately lose course access. You can re-grant it at any time.",
+      confirmLabel: active ? "Grant access" : "Revoke access",
+      destructive: !active,
+    });
+    if (!ok) return;
+    await bulkSetAccess(ids, active, clear);
   };
 
   const formatEntitlementSource = (source?: string | null) => {
@@ -285,10 +357,14 @@ const AdminUsers = () => {
 
   const handleCopyPassword = async () => {
     if (!credentialModal) return;
-    await navigator.clipboard.writeText(credentialModal.tempPassword);
-    setCopied(true);
-    toast({ title: "Password copied to clipboard" });
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      await navigator.clipboard.writeText(credentialModal.tempPassword);
+      setCopied(true);
+      notify.success("Password copied to clipboard");
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      notify.error("Couldn't copy the password. Select it and copy manually.");
+    }
   };
 
   return (
@@ -329,22 +405,8 @@ const AdminUsers = () => {
           selectable
           bulkActions={(ids, clear) => (
             <>
-              <Button size="sm" onClick={() => bulkSetAccess(ids, true, clear)}>Grant access</Button>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button size="sm" variant="destructive">Revoke access</Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle className="font-display text-lg font-bold uppercase tracking-wide text-bone">Revoke access from {ids.length}?</AlertDialogTitle>
-                    <AlertDialogDescription>These users will immediately lose course access. You can re-grant it at any time.</AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => bulkSetAccess(ids, false, clear)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Revoke</AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+              <Button size="sm" onClick={() => handleBulkAccess(ids, true, clear)}>Grant access</Button>
+              <Button size="sm" variant="destructive" onClick={() => handleBulkAccess(ids, false, clear)}>Revoke access</Button>
             </>
           )}
           toolbarActions={
@@ -401,7 +463,7 @@ const AdminUsers = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuItem
-                  onSelect={() => toggleEntitlement.mutate({ userId: u.user_id, active: !u.entitlement?.active })}
+                  onSelect={() => handleToggleEntitlement(u)}
                   disabled={toggleEntitlement.isPending}
                 >
                   {u.entitlement?.active ? (
@@ -411,7 +473,7 @@ const AdminUsers = () => {
                   )}
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  onSelect={() => toggleRole.mutate({ userId: u.user_id, makeAdmin: !u.isAdmin })}
+                  onSelect={() => handleToggleRole(u)}
                   disabled={toggleRole.isPending}
                 >
                   {u.isAdmin ? (
@@ -422,14 +484,14 @@ const AdminUsers = () => {
                 </DropdownMenuItem>
                 {!u.isAdmin && (
                   <DropdownMenuItem
-                    onSelect={() => setImpersonateTarget({ id: u.user_id, name: u.display_name || u.name || u.email, email: u.email })}
+                    onSelect={() => handleImpersonate(u)}
                     disabled={impersonatingId === u.user_id}
                   >
                     <UserRoundCog className="mr-2 h-4 w-4" aria-hidden="true" /> Impersonate
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-ember focus:text-ember" onSelect={() => setDeleteTarget(u)}>
+                <DropdownMenuItem className="text-ember focus:text-ember" onSelect={() => handleDeleteUser(u)}>
                   <Trash2 className="mr-2 h-4 w-4" aria-hidden="true" /> Delete
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -467,62 +529,6 @@ const AdminUsers = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="font-display text-lg font-bold uppercase tracking-wide text-bone">Delete user</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will permanently delete <strong>{deleteTarget?.email}</strong> and all their data. This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                if (deleteTarget) deleteUser.mutate(deleteTarget.user_id);
-                setDeleteTarget(null);
-              }}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Delete permanently
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      <AlertDialog open={!!impersonateTarget} onOpenChange={(open) => { if (!open) setImpersonateTarget(null); }}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="font-display text-lg font-bold uppercase tracking-wide text-bone">Impersonate {impersonateTarget?.name}?</AlertDialogTitle>
-            <AlertDialogDescription>
-              You will see the app exactly as <strong>{impersonateTarget?.email}</strong> sees it. Row-level security is enforced against their account. You can browse and view everything, but billing, chat, declarations, and account deletion are disabled. This session is fully audited.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={async () => {
-                if (!impersonateTarget) return;
-                const target = impersonateTarget;
-                setImpersonatingId(target.id);
-                setImpersonateTarget(null);
-                try {
-                  await startImpersonation(target.id);
-                  toast({ title: `Viewing as ${target.name}` });
-                  navigate("/app");
-                } catch (err: any) {
-                  toast({ title: "Impersonation failed", description: err?.message ?? "Unknown error", variant: "destructive" });
-                } finally {
-                  setImpersonatingId(null);
-                }
-              }}
-            >
-              Start session
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </>
   );
 };

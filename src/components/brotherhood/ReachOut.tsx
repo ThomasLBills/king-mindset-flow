@@ -1,12 +1,13 @@
 import { useState, type ReactNode } from "react";
-import { Heart, Loader2, MessageCircle, SendHorizonal, Shield, Sparkles } from "lucide-react";
-import { toast } from "sonner";
+import { Heart, Loader2, MessageCircle, SendHorizonal, Shield, Sparkles, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { notify } from "@/lib/notify";
 import { useAuth } from "@/hooks/useAuth";
 import { useBrothers } from "@/hooks/useBrotherhood";
 import { initialsOf } from "@/hooks/useForgeProfile";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { ErrorState, EmptyState, LoadingState } from "@/components/feedback";
 import {
   Dialog,
   DialogContent,
@@ -52,7 +53,7 @@ const TEMPLATES = [
 
 export const ReachOut = ({ trigger }: { trigger: ReactNode }) => {
   const { user } = useAuth();
-  const { brothers, isLoading } = useBrothers();
+  const { brothers, isLoading, isError, refetch } = useBrothers();
   const [open, setOpen] = useState(false);
   const [templateId, setTemplateId] = useState<string | null>(null);
   const [selected, setSelected] = useState<string[]>([]);
@@ -73,42 +74,60 @@ export const ReachOut = ({ trigger }: { trigger: ReactNode }) => {
     if (!user || !template || selected.length === 0 || sending) return;
     setSending(true);
     try {
+      const failedIds: string[] = [];
       let sent = 0;
       for (const brotherId of selected) {
-        // Find-or-create the DM before inserting, so we never duplicate a
-        // conversation the other brother may have opened first.
-        const { data: existing } = await supabase
-          .from("chat_dms")
-          .select("id")
-          .or(
-            `and(user_a.eq.${user.id},user_b.eq.${brotherId}),and(user_a.eq.${brotherId},user_b.eq.${user.id})`
-          )
-          .limit(1);
-        let dmId = existing?.[0]?.id;
-        if (!dmId) {
-          const [userA, userB] = [user.id, brotherId].sort();
-          const { data: created, error } = await supabase
+        try {
+          // Find-or-create the DM before inserting, so we never duplicate a
+          // conversation the other brother may have opened first.
+          const { data: existing } = await supabase
             .from("chat_dms")
-            .insert({ user_a: userA, user_b: userB })
             .select("id")
-            .single();
-          if (error || !created) continue;
-          dmId = created.id;
+            .or(
+              `and(user_a.eq.${user.id},user_b.eq.${brotherId}),and(user_a.eq.${brotherId},user_b.eq.${user.id})`
+            )
+            .limit(1);
+          let dmId = existing?.[0]?.id;
+          if (!dmId) {
+            const [userA, userB] = [user.id, brotherId].sort();
+            const { data: created, error } = await supabase
+              .from("chat_dms")
+              .insert({ user_a: userA, user_b: userB })
+              .select("id")
+              .single();
+            if (error || !created) throw error ?? new Error("Could not open conversation");
+            dmId = created.id;
+          }
+          const { error: msgError } = await supabase
+            .from("chat_messages")
+            .insert({ content: template.body, user_id: user.id, dm_id: dmId });
+          if (msgError) throw msgError;
+          sent += 1;
+        } catch {
+          failedIds.push(brotherId);
         }
-        const { error: msgError } = await supabase
-          .from("chat_messages")
-          .insert({ content: template.body, user_id: user.id, dm_id: dmId });
-        if (!msgError) sent += 1;
       }
 
-      if (sent > 0) {
-        toast.success(sent === 1 ? "Message sent." : `Sent to ${sent} brothers.`, {
+      const nameOf = (id: string) =>
+        brothers.find((b) => b.userId === id)?.displayName ?? "a brother";
+
+      if (failedIds.length === 0) {
+        // Nothing else confirms this — the DMs land in threads the sender isn't
+        // viewing — so a success toast is the right channel (P4).
+        notify.success(sent === 1 ? "Message sent." : `Sent to ${sent} brothers.`, {
           description: "They'll see it in their messages.",
         });
         setOpen(false);
         reset();
+      } else if (sent > 0) {
+        // Partial failure: name who we couldn't reach and narrow the selection
+        // to just them, so a retry doesn't double-send to the ones that worked.
+        notify.error(
+          `Sent to ${sent}, but couldn't reach ${failedIds.map(nameOf).join(", ")}. Try again.`
+        );
+        setSelected(failedIds);
       } else {
-        toast.error("Couldn't send that. Try again in a moment.");
+        notify.error("Couldn't send that. Try again in a moment.");
       }
     } finally {
       setSending(false);
@@ -143,11 +162,15 @@ export const ReachOut = ({ trigger }: { trigger: ReactNode }) => {
             <span className="font-normal normal-case tracking-normal text-dim">(select one or more)</span>
           </Eyebrow>
           {isLoading ? (
-            <p className="py-4 text-sm text-dim">Loading your brothers…</p>
+            <LoadingState lines={2} />
+          ) : isError ? (
+            <ErrorState message="We couldn't load your brothers." onRetry={() => refetch()} />
           ) : brothers.length === 0 ? (
-            <p className="rounded-md border border-line bg-raised-2 px-4 py-4 text-sm text-bone-2">
-              No brothers connected yet. Add brothers from the Brotherhood page first.
-            </p>
+            <EmptyState
+              icon={Users}
+              title="No brothers connected yet"
+              description="Connect with brothers on the Brotherhood page first."
+            />
           ) : (
             <div className="flex flex-wrap gap-2">
               {brothers.map((b) => {
@@ -208,7 +231,7 @@ export const ReachOut = ({ trigger }: { trigger: ReactNode }) => {
         </div>
 
         <div className="border-t border-line px-5 py-4">
-          <Button className="w-full" disabled={!canSend} onClick={send}>
+          <Button className="w-full" disabled={!canSend} aria-busy={sending} onClick={send}>
             {sending ? (
               <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
             ) : (
