@@ -60,11 +60,17 @@ const ChatThread = ({
   target,
   title,
   locked = false,
+  draft,
+  onDraftChange,
   onBack,
 }: {
   target: ChatTarget;
   title: string;
   locked?: boolean;
+  // Draft lives in the parent, keyed by conversation, so each channel/DM keeps
+  // its own unsent text across switches (and survives closing/reopening a thread).
+  draft: string;
+  onDraftChange: (value: string) => void;
   onBack: () => void;
 }) => {
   const { user } = useAuth();
@@ -89,7 +95,6 @@ const ChatThread = ({
 
   const { messages, loading, error, sendMessage, refetch } = useMessages(target, ready);
   const { reactions, toggleReaction } = useChatReactions(messages.map((m) => m.id));
-  const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
@@ -139,7 +144,7 @@ const ChatThread = ({
     try {
       await sendMessage(body);
       // No success toast: the message appearing in the thread is the confirmation.
-      setDraft("");
+      onDraftChange("");
     } catch (err) {
       // sendMessage isn't a useMutation, so the global net doesn't cover it.
       notify.fromError(err);
@@ -346,7 +351,7 @@ const ChatThread = ({
           <Input
             id="composer"
             value={draft}
-            onChange={(e) => setDraft(e.target.value)}
+            onChange={(e) => onDraftChange(e.target.value)}
             placeholder={canPost ? "Speak plainly, brother…" : "Only admins can post in this channel"}
             autoComplete="off"
             disabled={!canPost || uploading}
@@ -505,6 +510,9 @@ const Brotherhood = () => {
   const { counts } = useUnread();
   // DMs opened from the group card that aren't in the fetched list yet.
   const [openedDms, setOpenedDms] = useState<Record<string, string>>({});
+  // Unsent message text per conversation id, so switching channels/DMs keeps
+  // each thread's own draft.
+  const [drafts, setDrafts] = useState<Record<string, string>>({});
 
   const setTab = (next: string) => setParams({ tab: next }, { replace: true });
   const setThread = (next: string | null) => {
@@ -705,6 +713,8 @@ const Brotherhood = () => {
                 target={target}
                 title={activeTitle}
                 locked={activeChannel?.is_locked ?? false}
+                draft={drafts[target.id] ?? ""}
+                onDraftChange={(v) => setDrafts((prev) => ({ ...prev, [target.id]: v }))}
                 onBack={() => setThread(null)}
               />
             ) : (

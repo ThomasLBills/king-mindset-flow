@@ -356,6 +356,28 @@ describe("app navigation", () => {
     expect(input).toBeDisabled();
   });
 
+  it("keeps a separate draft per channel", async () => {
+    startAt("/app/brotherhood?tab=channels");
+    render(<App />);
+    await screen.findByRole("heading", { name: /brotherhood/i });
+
+    // Type a draft in General.
+    fireEvent.click(await screen.findByRole("button", { name: /general/i }));
+    const general = await screen.findByPlaceholderText(/speak plainly/i);
+    fireEvent.change(general, { target: { value: "test123" } });
+    expect(general).toHaveValue("test123");
+
+    // Switch to Recordings — its own composer starts empty.
+    fireEvent.click(screen.getByRole("button", { name: /recordings/i }));
+    await screen.findByText(/no messages yet/i);
+    expect(screen.getByPlaceholderText(/only admins can post/i)).toHaveValue("");
+
+    // Back to General — the draft is restored.
+    fireEvent.click(screen.getByRole("button", { name: /general/i }));
+    await screen.findByText(/week 3 reading hit hard/i);
+    expect(screen.getByPlaceholderText(/speak plainly/i)).toHaveValue("test123");
+  });
+
   it("login validates input and signs in for real", async () => {
     resetMock(false);
     startAt("/login");
