@@ -10,7 +10,6 @@ const CANONICAL_ORIGIN = "https://app.liberatedkings.com";
 // unknown path that should read "Page not found".
 const ROUTE_TITLES: Array<[prefix: string, title: string]> = [
   ["/login", "Log in"],
-  ["/signup", "Sign up"],
   ["/forgot-password", "Forgot password"],
   ["/reset-password", "Reset password"],
   ["/setup-account", "Set up account"],
@@ -36,7 +35,7 @@ const ROUTE_TITLES: Array<[prefix: string, title: string]> = [
 // Only public, indexable routes get a canonical URL. Everything behind auth
 // resolves to a login wall for crawlers, so advertising a canonical there
 // would only invite indexing of pages that can never render for a bot.
-const INDEXABLE_PATHS = new Set(["/", "/login", "/signup", "/privacy", "/terms"]);
+const INDEXABLE_PATHS = new Set(["/login", "/privacy", "/terms"]);
 
 const resolveTitle = (pathname: string): string => {
   if (pathname === "/") return SITE_NAME;

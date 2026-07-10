@@ -28,7 +28,6 @@ import { OfflineBanner } from "@/components/OfflineBanner";
 // disabled (client request). The file is kept in the tree; "/" redirects
 // instead (see RootRedirect). Re-add the import + route to re-enable it.
 const Login = lazy(() => import("./pages/forge/Login"));
-const Signup = lazy(() => import("./pages/forge/Signup"));
 const Onboarding = lazy(() => import("./pages/forge/Onboarding"));
 const Today = lazy(() => import("./pages/forge/Today"));
 const StandFirm = lazy(() => import("./pages/forge/StandFirm"));
@@ -199,7 +198,10 @@ const AnimatedRoutes = () => {
             {/* Public */}
             <Route path="/" element={<RootRedirect />} />
                     <Route path="/login" element={<Login />} />
-                    <Route path="/signup" element={<Signup />} />
+                    {/* Signups are handled externally (course purchase creates the
+                        account); self-serve signup is disabled. Kept as a redirect,
+                        Signup.tsx stays in the tree. */}
+                    <Route path="/signup" element={<Navigate to="/login" replace />} />
                     <Route path="/forgot-password" element={<ForgotPassword />} />
                     <Route path="/reset-password" element={<ResetPassword />} />
                     <Route path="/setup-account" element={<SetupAccount />} />

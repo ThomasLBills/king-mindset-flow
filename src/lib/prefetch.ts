@@ -6,7 +6,6 @@
  */
 const loaders: Record<string, () => Promise<unknown>> = {
   "/login": () => import("@/pages/forge/Login"),
-  "/signup": () => import("@/pages/forge/Signup"),
   "/privacy": () => import("@/pages/forge/Legal"),
   "/terms": () => import("@/pages/forge/Legal"),
 };
@@ -19,7 +18,7 @@ export const prefetchRoute = (path: string) => {
 /** Warm the whole public funnel (auth + legal) once the browser is idle, so the
  *  landing's CTAs land on an already-downloaded page. */
 export const prefetchPublic = () => {
-  const run = () => ["/login", "/signup", "/privacy"].forEach(prefetchRoute);
+  const run = () => ["/login", "/privacy"].forEach(prefetchRoute);
   const ric = (window as unknown as { requestIdleCallback?: (cb: () => void) => void })
     .requestIdleCallback;
   if (ric) ric(run);

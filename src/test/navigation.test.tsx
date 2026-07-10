@@ -405,25 +405,15 @@ describe("app navigation", () => {
     });
   });
 
-  it("signup creates a real account and lands on the paywall (no entitlement yet)", async () => {
+  it("signup is disabled and redirects to login", async () => {
     resetMock(false);
     startAt("/signup");
     render(<App />);
 
-    fireEvent.change(await screen.findByLabelText(/full name/i), {
-      target: { value: "John Carter" },
-    });
-    fireEvent.change(screen.getByLabelText(/email/i), { target: { value: "jc@example.com" } });
-    fireEvent.change(screen.getByLabelText(/password/i), { target: { value: "password123" } });
-    fireEvent.click(screen.getByRole("button", { name: /create account/i }));
-
-    // Fresh accounts have no entitlement: the guard routes to /upgrade.
-    await waitFor(() => expect(window.location.pathname).toBe("/upgrade"), { timeout: 4000 });
-
-    // And the profile row exists for real.
-    expect(
-      mockRef.current.__tables.profiles.some((p: any) => p.email === "jc@example.com")
-    ).toBe(true);
+    // No signup form — it lands on the login page instead.
+    await screen.findByLabelText(/email/i);
+    expect(window.location.pathname).toBe("/login");
+    expect(screen.queryByRole("button", { name: /create account/i })).toBeNull();
   });
 
   it("root redirects a signed-in user to the app (landing disabled)", async () => {

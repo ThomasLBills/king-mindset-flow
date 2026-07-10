@@ -119,9 +119,6 @@ const Login = () => {
         >
           Forgot password?
         </Link>
-        <Link to="/signup" className="text-gold underline-offset-4 hover:underline">
-          New here? Join
-        </Link>
       </div>
       <p className="mt-3 text-sm">
         <Link
