@@ -178,7 +178,7 @@ const Landing = () => {
           </div>
           <div className="relative z-40 mt-10 flex w-full flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <p className="hero-tagline font-display text-3xl font-bold uppercase leading-[0.9] tracking-tight text-forge sm:text-5xl">
-              Freedom is fought for. Together.
+              Freedom is fought together.
             </p>
             <div className="hero-cta flex shrink-0 flex-col gap-3 sm:flex-row">
               <Button asChild size="xl">

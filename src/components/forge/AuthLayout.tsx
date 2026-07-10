@@ -25,7 +25,7 @@ const AuthLayout = ({ children }: { children: ReactNode }) => (
       <div className="absolute inset-x-0 bottom-0 p-10">
         <LkWordmark tone="ink" className="mb-6 h-9 w-auto" />
         <p className="max-w-[22ch] font-display text-4xl font-bold uppercase leading-[0.92] tracking-tight text-foreground">
-          Freedom is fought for. Together.
+          Freedom is fought together.
         </p>
         <p className="mt-4 max-w-[42ch] font-serif text-lg italic text-muted-foreground">
           A Christ-centered brotherhood for men who are done fighting alone.

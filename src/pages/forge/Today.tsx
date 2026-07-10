@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Eyebrow, InitialsAvatar, SectionCard } from "@/components/forge/atoms";
 import { PageBackdrop } from "@/components/forge/scenes";
 import { CheckInCard } from "@/components/today/CheckInCard";
-import { ArmorActivatedCard, LiberatedCard, UrgesRedirectedCard } from "@/components/today/stats";
+import { UrgesRedirectedCard } from "@/components/today/stats";
 
 const timeOfDay = () => {
   const h = new Date().getHours();
@@ -114,17 +114,6 @@ const Today = () => {
                 </div>
               </Reveal>
             )}
-
-            {/* This week's evidence: the two KPIs (community + personal) */}
-            <Reveal delay={0.12}>
-              <div>
-                <Eyebrow className="mb-3 block">This week's evidence</Eyebrow>
-                <div className="grid grid-cols-2 items-stretch gap-4">
-                  <ArmorActivatedCard />
-                  <LiberatedCard />
-                </div>
-              </div>
-            </Reveal>
 
             {/* Verse, then brothers/send-strength */}
             {verse && (
