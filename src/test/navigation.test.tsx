@@ -120,6 +120,16 @@ const seedTables = (): Tables => ({
       is_default: true,
       sort_order: 1,
     },
+    {
+      id: "ch2",
+      name: "Recordings",
+      description: "Weekly recordings",
+      type: "channel",
+      is_locked: true,
+      is_pinned: true,
+      is_default: false,
+      sort_order: 2,
+    },
   ],
   chat_channel_members: [],
   chat_messages: [
@@ -131,6 +141,15 @@ const seedTables = (): Tables => ({
       content: "Week 3 reading hit hard this morning.",
       image_url: null,
       created_at: daysAgo(0.1),
+    },
+    {
+      id: "m2",
+      channel_id: "ch1",
+      dm_id: null,
+      user_id: BROTHER_ID,
+      content: "6/17/2026 - The War for Your Attention https://vimeo.com/1202169555/ddc82031db?share=copy",
+      image_url: null,
+      created_at: daysAgo(0.05),
     },
   ],
   chat_dms: [],
@@ -309,7 +328,7 @@ describe("app navigation", () => {
     await screen.findByRole("heading", { name: /eight weeks of ground taken/i });
   });
 
-  it("brotherhood channels open a chat thread", async () => {
+  it("brotherhood channels open a chat thread and embed pasted videos", async () => {
     // URL-driven tab state (Radix tab clicks need real pointer events jsdom lacks)
     startAt("/app/brotherhood?tab=channels");
     render(<App />);
@@ -317,6 +336,24 @@ describe("app navigation", () => {
 
     fireEvent.click(await screen.findByRole("button", { name: /general/i }));
     await screen.findByText(/week 3 reading hit hard/i);
+
+    // A pasted Vimeo link renders as a player, not raw URL text.
+    const frame = await screen.findByTitle(/vimeo video/i);
+    expect(frame).toHaveAttribute("src", expect.stringContaining("player.vimeo.com/video/1202169555"));
+    expect(screen.queryByText(/vimeo\.com\/1202169555/i)).toBeNull();
+  });
+
+  it("a locked channel shows a disabled composer for non-admins", async () => {
+    startAt("/app/brotherhood?tab=channels");
+    render(<App />);
+    await screen.findByRole("heading", { name: /brotherhood/i });
+
+    fireEvent.click(await screen.findByRole("button", { name: /recordings/i }));
+
+    // Wait for the thread to settle (join + fetch) so no async resolves post-teardown.
+    await screen.findByText(/no messages yet/i);
+    const input = await screen.findByPlaceholderText(/only admins can post/i);
+    expect(input).toBeDisabled();
   });
 
   it("login validates input and signs in for real", async () => {

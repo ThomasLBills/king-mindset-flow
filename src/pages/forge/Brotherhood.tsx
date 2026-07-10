@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { format, formatDistanceToNow } from "date-fns";
-import { ArrowLeft, Eye, Hash, ImagePlus, Loader2, MessageCircle, MessagesSquare, SendHorizonal, SmilePlus, Users } from "lucide-react";
+import { ArrowLeft, Eye, Hash, ImagePlus, Loader2, Lock, MessageCircle, MessagesSquare, Pin, SendHorizonal, SmilePlus, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { notify } from "@/lib/notify";
 import { ErrorState, EmptyState, LoadingState } from "@/components/feedback";
 import { FEATURES } from "@/features";
 import { useAuth } from "@/hooks/useAuth";
+import { useAdminRole } from "@/hooks/useAdminRole";
 import {
   useChannels,
   useDMs,
@@ -29,6 +30,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Eyebrow, InitialsAvatar, SectionCard } from "@/components/forge/atoms";
 import { PageBackdrop } from "@/components/forge/scenes";
 import { ReachOut } from "@/components/brotherhood/ReachOut";
+import { MessageBody } from "@/components/chat/MessageBody";
 
 /** Fixed product copy from production (BrotherhoodPage ground rules). */
 const GROUND_RULES = [
@@ -57,15 +59,19 @@ const when = (iso: string) => {
 const ChatThread = ({
   target,
   title,
-  readOnly = false,
+  locked = false,
   onBack,
 }: {
   target: ChatTarget;
   title: string;
-  readOnly?: boolean;
+  locked?: boolean;
   onBack: () => void;
 }) => {
   const { user } = useAuth();
+  const { isAdmin } = useAdminRole();
+  // Locked channels are admin-only to post (RLS enforces this too); everyone
+  // can post in unlocked channels and DMs.
+  const canPost = !locked || isAdmin;
   const isImpersonating = useIsImpersonating();
   const { target: impersonationTarget } = useImpersonation();
   const { markAsRead } = useUnread();
@@ -128,7 +134,7 @@ const ChatThread = ({
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     const body = draft.trim();
-    if (!body || sending) return;
+    if (!body || sending || !canPost) return;
     setSending(true);
     try {
       await sendMessage(body);
@@ -146,7 +152,7 @@ const ChatThread = ({
   // original MessageComposer (ADR 0006). Store the URL on the message; the
   // signing effect above swaps it for a short-lived signed URL when rendering.
   const handleUpload = async (file: File) => {
-    if (uploading || sending) return;
+    if (uploading || sending || !canPost) return;
     // Validate type + size inline BEFORE uploading, so we never round-trip a
     // file we already know we'll reject.
     if (!file.type.startsWith("image/")) {
@@ -215,16 +221,7 @@ const ChatThread = ({
                     <p className="mb-0.5 text-[11px] text-dim">
                       {own ? "You" : authorName} · {when(m.created_at)}
                     </p>
-                    {m.content && (
-                      <p
-                        className={cn(
-                          "inline-block max-w-full whitespace-pre-wrap break-words rounded-lg border px-3.5 py-2.5 text-left text-sm leading-relaxed [overflow-wrap:anywhere]",
-                          own ? "border-gold-deep/60 bg-raised-2 text-bone" : "border-line bg-raised text-bone-2"
-                        )}
-                      >
-                        {m.content}
-                      </p>
-                    )}
+                    {m.content && <MessageBody content={m.content} own={own} />}
                     {m.image_url && (
                       <img
                         src={signedUrls[m.id] || m.image_url}
@@ -300,12 +297,14 @@ const ChatThread = ({
             </strong>
           </span>
         </div>
-      ) : readOnly ? (
-        <p className="border-t border-line p-3 text-center text-xs text-dim">
-          This channel is view only.
-        </p>
       ) : (
-        <form onSubmit={submit} className="flex items-center gap-2 border-t border-line p-3">
+        // Composer is always shown. When the channel is locked and the viewer
+        // isn't an admin it renders disabled with a lock hint, so flipping the
+        // channel's lock makes it live with no code change.
+        <form
+          onSubmit={submit}
+          className={cn("flex items-center gap-2 border-t border-line p-3", !canPost && "opacity-70")}
+        >
           <label htmlFor="composer" className="sr-only">
             Message {title}
           </label>
@@ -320,34 +319,43 @@ const ChatThread = ({
               e.target.value = "";
             }}
           />
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="shrink-0 text-dim hover:text-bone"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={uploading || sending}
-            aria-label="Attach image"
-          >
-            {uploading ? (
-              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-            ) : (
-              <ImagePlus className="h-4 w-4" aria-hidden="true" />
-            )}
-          </Button>
+          {canPost ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="shrink-0 text-dim hover:text-bone"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading || sending}
+              aria-label="Attach image"
+            >
+              {uploading ? (
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+              ) : (
+                <ImagePlus className="h-4 w-4" aria-hidden="true" />
+              )}
+            </Button>
+          ) : (
+            <span
+              className="grid h-9 w-9 shrink-0 place-items-center text-dim"
+              title="Only admins can post in this channel"
+            >
+              <Lock className="h-4 w-4" aria-hidden="true" />
+            </span>
+          )}
           <Input
             id="composer"
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
-            placeholder="Speak plainly, brother…"
+            placeholder={canPost ? "Speak plainly, brother…" : "Only admins can post in this channel"}
             autoComplete="off"
-            disabled={uploading}
+            disabled={!canPost || uploading}
           />
           <Button
             type="submit"
             size="icon"
             className="shrink-0"
-            disabled={!draft.trim() || sending || uploading}
+            disabled={!canPost || !draft.trim() || sending || uploading}
             aria-label="Send"
           >
             <SendHorizonal className="h-4 w-4" aria-hidden="true" />
@@ -579,7 +587,15 @@ const Brotherhood = () => {
             >
               <Hash className="h-4 w-4 shrink-0 text-dim" aria-hidden="true" />
               <span className="min-w-0 flex-1">
-                <span className="block text-sm font-semibold text-bone">{c.name}</span>
+                <span className="flex items-center gap-1.5">
+                  <span className="truncate text-sm font-semibold text-bone">{c.name}</span>
+                  {c.is_pinned && (
+                    <Pin className="h-3 w-3 shrink-0 text-gold" role="img" aria-label="Pinned" />
+                  )}
+                  {c.is_locked && (
+                    <Lock className="h-3 w-3 shrink-0 text-dim" role="img" aria-label="Locked" />
+                  )}
+                </span>
                 {c.description && (
                   <span className="block truncate text-xs text-dim">{c.description}</span>
                 )}
@@ -637,9 +653,12 @@ const Brotherhood = () => {
   );
 
   const list = tab === "channels" ? channelsBody : dmsBody;
+  // Chat tabs get a wider desktop canvas (the narrow reading column left the
+  // thread cramped); the group tab stays reading-width.
+  const isChat = tab === "channels" || tab === "messages";
 
   return (
-    <PageBackdrop className="mx-auto max-w-3xl px-5 py-7 sm:px-8">
+    <PageBackdrop className={cn("mx-auto px-5 py-7 sm:px-8", isChat ? "max-w-6xl" : "max-w-3xl")}>
       <header className="mb-5">
         <Eyebrow className="mb-1 block">Never fight alone</Eyebrow>
         <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-bone">
@@ -658,14 +677,14 @@ const Brotherhood = () => {
       {tab === "group" && <GroupTab openDm={openDm} />}
 
       {(tab === "channels" || tab === "messages") && (
-        <div className="flex h-[62dvh] min-h-[420px] gap-4">
+        <div className="flex h-[72dvh] min-h-[460px] gap-4">
           <div className={cn("w-full md:w-80 md:shrink-0", thread && "hidden md:block")}>{list}</div>
           <SectionCard className={cn("min-w-0 flex-1", !thread && "hidden md:block")}>
             {target ? (
               <ChatThread
                 target={target}
                 title={activeTitle}
-                readOnly={activeChannel?.is_locked}
+                locked={activeChannel?.is_locked ?? false}
                 onBack={() => setThread(null)}
               />
             ) : (
