@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
-import { Eyebrow } from "@/components/forge/atoms";
+import { Eyebrow, BackLink } from "@/components/forge/atoms";
 import { AdminList, type AdminColumn } from "@/components/admin/AdminList";
 import { useAdminCollection } from "@/hooks/useAdminCollection";
 
@@ -97,6 +97,7 @@ const AdminAuditLog = () => {
 
   return (
     <div className="space-y-6">
+      <BackLink to="/admin" label="Admin" className="md:hidden" />
       <header>
         <Eyebrow className="mb-1 block">Admin</Eyebrow>
         <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-bone">Audit log</h1>

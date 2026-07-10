@@ -206,6 +206,19 @@ describe("app navigation", () => {
     expect(window.location.pathname).toBe("/app");
   });
 
+  it("orphaned admin sections have a mobile back to the admin hub", async () => {
+    resetMock(true);
+    mockRef.current.__tables.user_roles.push({ user_id: USER_ID, role: "admin" });
+
+    startAt("/admin/community");
+    render(<App />);
+
+    const back = await screen.findByRole("link", { name: /^admin$/i }, { timeout: 4000 });
+    expect(back).toHaveAttribute("href", "/admin");
+    fireEvent.click(back);
+    await waitFor(() => expect(window.location.pathname).toBe("/admin"));
+  });
+
   it("the return flow (I already fell) persists the fall", async () => {
     startAt("/stand-firm");
     render(<App />);

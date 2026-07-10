@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
 import { useAnnouncements, useSaveAnnouncement } from "@/hooks/useAdminCurriculum";
-import { Eyebrow } from "@/components/forge/atoms";
+import { Eyebrow, BackLink } from "@/components/forge/atoms";
 import { AdminList, type AdminColumn } from "@/components/admin/AdminList";
 
 type Announcement = {
@@ -86,6 +86,7 @@ const AdminAnnouncements = () => {
 
   return (
     <div className="space-y-6">
+      <BackLink to="/admin" label="Admin" className="md:hidden" />
       <header>
         <Eyebrow className="mb-1 block">Announcements</Eyebrow>
         <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-bone">
