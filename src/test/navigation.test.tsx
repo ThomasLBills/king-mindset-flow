@@ -5,7 +5,7 @@
  * guard misroute fails here.
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import type { Tables } from "./supabaseMock";
 
 const mockRef = vi.hoisted(() => ({ current: null as any }));
@@ -187,6 +187,23 @@ describe("app navigation", () => {
 
     fireEvent.click(screen.getByRole("link", { name: /leave, back to today/i }));
     await screen.findByText(/good (morning|afternoon|evening), ethan/i);
+  });
+
+  it("rhythms has a back control that returns to Today", async () => {
+    startAt("/app/rhythms");
+    render(<App />);
+
+    // Scope to the page header — "Today" nav links also exist in the shell rail
+    // and tab bar, so the accessible name alone is ambiguous.
+    const heading = await screen.findByRole("heading", { name: /the ordinary days/i }, { timeout: 4000 });
+    const back = within(heading.closest("header")!).getByRole("link", { name: /today/i });
+    expect(back).toHaveAttribute("href", "/app");
+    fireEvent.click(back);
+
+    await screen.findByText(/good (morning|afternoon|evening), ethan/i, undefined, {
+      timeout: 4000,
+    });
+    expect(window.location.pathname).toBe("/app");
   });
 
   it("the return flow (I already fell) persists the fall", async () => {

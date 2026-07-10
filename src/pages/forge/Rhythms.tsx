@@ -30,7 +30,7 @@ import {
 import { FormErrorSummary } from "@/components/form/FormErrorSummary";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Eyebrow, SectionCard } from "@/components/forge/atoms";
+import { Eyebrow, SectionCard, BackLink } from "@/components/forge/atoms";
 
 type RhythmKind = "prayer" | "scripture" | "renewedMind" | "gratitude";
 
@@ -372,6 +372,7 @@ const Rhythms = () => {
   return (
     <div className="mx-auto max-w-3xl px-5 py-7 sm:px-8">
       <header className="mb-6">
+        <BackLink to="/app" label="Today" className="mb-4" />
         <Eyebrow className="mb-1 block">Daily rhythms</Eyebrow>
         <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-bone">
           The ordinary days
