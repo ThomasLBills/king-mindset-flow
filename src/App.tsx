@@ -1,8 +1,8 @@
-import { Component, Suspense, lazy, useEffect, useRef, type ErrorInfo, type ReactNode } from "react";
+import { Suspense, lazy, useEffect, useRef } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { AuthProvider } from "@/hooks/useAuth";
@@ -17,6 +17,10 @@ import AdminGuard from "@/components/guards/AdminGuard";
 import AppShell from "@/components/shell/AppShell";
 import RouteFallback from "@/components/RouteFallback";
 import RouteMeta from "@/components/RouteMeta";
+import { makeQueryClient } from "@/lib/queryClient";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { ConfirmProvider, ErrorState } from "@/components/feedback";
+import { OfflineBanner } from "@/components/OfflineBanner";
 import Landing from "./pages/forge/Landing";
 
 // Route-level code splitting: every page below ships as its own chunk,
@@ -58,61 +62,42 @@ const CurriculumOverview = lazy(() => import("@/components/admin/curriculum/Curr
 const WeekDetail = lazy(() => import("@/components/admin/curriculum/WeekDetail"));
 const CurriculumLessonEditor = lazy(() => import("@/components/admin/curriculum/CurriculumLessonEditor"));
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      // Alt-tabbing back to the app was refetching every query on window focus
-      // (TanStack's default with staleTime 0), which reads as the page
-      // "refreshing" itself. Treat data as fresh for a minute and don't refetch
-      // just because the tab regained focus.
-      staleTime: 60_000,
-      refetchOnWindowFocus: false,
-    },
-  },
-});
+const queryClient = makeQueryClient();
 
 /**
- * Root error boundary. Without one, any uncaught render/effect error makes
- * React unmount the entire tree, which reads as a dead blank page. This
- * renders a recoverable screen and logs the real error to the console.
+ * Full-screen fallback for the root boundary. Without a root boundary, any
+ * uncaught render/effect error unmounts the whole tree (a dead blank page);
+ * this renders a recoverable screen. The reusable <ErrorBoundary> logs the
+ * real error to the console.
  */
-class RootErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
-  state = { error: null as Error | null };
+const rootErrorFallback = (error: Error) => (
+  <div className="grid min-h-dvh place-items-center bg-background px-6 text-center">
+    <div>
+      <p className="font-display text-xs font-semibold uppercase tracking-[0.2em] text-dim">Something broke</p>
+      <h1 className="mt-2 font-display text-3xl font-bold uppercase tracking-wide text-bone">
+        Steady. Nothing is lost.
+      </h1>
+      <p className="mx-auto mt-3 max-w-[40ch] text-sm text-bone-2">
+        The app hit an unexpected error. Reload and you'll be right back where you were.
+      </p>
+      <p className="mt-3 font-mono text-xs text-dim">{error.message}</p>
+      <button
+        onClick={() => window.location.reload()}
+        className="mt-6 rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:brightness-110"
+      >
+        Reload
+      </button>
+    </div>
+  </div>
+);
 
-  static getDerivedStateFromError(error: Error) {
-    return { error };
-  }
-
-  componentDidCatch(error: Error, info: ErrorInfo) {
-    console.error("Uncaught app error:", error, info.componentStack);
-  }
-
-  render() {
-    if (!this.state.error) return this.props.children;
-    return (
-      <div className="grid min-h-dvh place-items-center bg-background px-6 text-center">
-        <div>
-          <p className="font-display text-xs font-semibold uppercase tracking-[0.2em] text-dim">
-            Something broke
-          </p>
-          <h1 className="mt-2 font-display text-3xl font-bold uppercase tracking-wide text-bone">
-            Steady. Nothing is lost.
-          </h1>
-          <p className="mx-auto mt-3 max-w-[40ch] text-sm text-bone-2">
-            The app hit an unexpected error. Reload and you'll be right back where you were.
-          </p>
-          <p className="mt-3 font-mono text-xs text-dim">{this.state.error.message}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="mt-6 rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:brightness-110"
-          >
-            Reload
-          </button>
-        </div>
-      </div>
-    );
-  }
-}
+// Compact fallback for a single area (outlet) so one panel's crash doesn't blank
+// the whole app — it recovers in place via the boundary's reset.
+const areaErrorFallback = (error: Error, reset: () => void) => (
+  <div className="p-6">
+    <ErrorState title="This section hit an error" message={error.message} onRetry={reset} />
+  </div>
+);
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -230,7 +215,9 @@ const AnimatedRoutes = () => {
                       element={
                         <EntitlementGuard>
                           <OnboardingGuard>
-                            <StandFirm />
+                            <ErrorBoundary fallback={areaErrorFallback}>
+                              <StandFirm />
+                            </ErrorBoundary>
                           </OnboardingGuard>
                         </EntitlementGuard>
                       }
@@ -242,7 +229,9 @@ const AnimatedRoutes = () => {
                       element={
                         <EntitlementGuard>
                           <OnboardingGuard>
-                            <AppShell />
+                            <ErrorBoundary fallback={areaErrorFallback}>
+                              <AppShell />
+                            </ErrorBoundary>
                           </OnboardingGuard>
                         </EntitlementGuard>
                       }
@@ -257,7 +246,7 @@ const AnimatedRoutes = () => {
                     </Route>
 
                     {/* Admin */}
-                    <Route path="/admin" element={<AdminGuard><AdminLayout /></AdminGuard>}>
+                    <Route path="/admin" element={<AdminGuard><ErrorBoundary fallback={areaErrorFallback}><AdminLayout /></ErrorBoundary></AdminGuard>}>
                       <Route index element={<AdminDashboard />} />
                       <Route path="curriculum" element={<CurriculumOverview />} />
                       <Route path="curriculum/weeks/:weekId" element={<WeekDetail />} />
@@ -285,26 +274,29 @@ const AnimatedRoutes = () => {
 };
 
 const App = () => (
-  <RootErrorBoundary>
+  <ErrorBoundary fallback={rootErrorFallback}>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <AuthProvider>
-          <UnreadProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <ImpersonationProvider>
-                <ImpersonationBanner />
-                <ScrollToTop />
-                <RouteMeta />
-                <AnimatedRoutes />
-              </ImpersonationProvider>
-            </BrowserRouter>
-          </UnreadProvider>
-        </AuthProvider>
+        <ConfirmProvider>
+          <AuthProvider>
+            <UnreadProvider>
+              <Toaster />
+              <Sonner />
+              <OfflineBanner />
+              <BrowserRouter>
+                <ImpersonationProvider>
+                  <ImpersonationBanner />
+                  <ScrollToTop />
+                  <RouteMeta />
+                  <AnimatedRoutes />
+                </ImpersonationProvider>
+              </BrowserRouter>
+            </UnreadProvider>
+          </AuthProvider>
+        </ConfirmProvider>
       </TooltipProvider>
     </QueryClientProvider>
-  </RootErrorBoundary>
+  </ErrorBoundary>
 );
 
 export default App;

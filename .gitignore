@@ -26,3 +26,6 @@ dist-devbypass-regression
 
 # Local reminder notes, never committed
 TODO-HARDENING.md
+
+# Design specs / brainstorming docs — local only, never committed
+docs/superpowers/
