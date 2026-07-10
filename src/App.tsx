@@ -16,7 +16,7 @@ import AdminGuard from "@/components/guards/AdminGuard";
 import AppShell from "@/components/shell/AppShell";
 import RouteFallback from "@/components/RouteFallback";
 import RouteMeta from "@/components/RouteMeta";
-import { makeQueryClient } from "@/lib/queryClient";
+import { queryClient } from "@/lib/queryClient";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ConfirmProvider, ErrorState } from "@/components/feedback";
 import { OfflineBanner } from "@/components/OfflineBanner";
@@ -60,8 +60,6 @@ const AdminSettings = lazy(() => import("@/components/admin/AdminSettings"));
 const CurriculumOverview = lazy(() => import("@/components/admin/curriculum/CurriculumOverview"));
 const WeekDetail = lazy(() => import("@/components/admin/curriculum/WeekDetail"));
 const CurriculumLessonEditor = lazy(() => import("@/components/admin/curriculum/CurriculumLessonEditor"));
-
-const queryClient = makeQueryClient();
 
 /**
  * Full-screen fallback for the root boundary. Without a root boundary, any

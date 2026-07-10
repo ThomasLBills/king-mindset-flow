@@ -18,6 +18,7 @@ vi.mock("@/integrations/supabase/client", async () => {
 });
 
 import App from "@/App";
+import { queryClient } from "@/lib/queryClient";
 
 const USER_ID = "user-1";
 const BROTHER_ID = "brother-1";
@@ -158,6 +159,9 @@ const resetMock = (signedIn: boolean) => {
 describe("app navigation", () => {
   beforeEach(() => {
     localStorage.clear();
+    // Module-level queryClient persists across tests; clear it so a cached
+    // query (e.g. admin-role) from an earlier test can't misroute this one.
+    queryClient.clear();
     resetMock(true);
   });
 

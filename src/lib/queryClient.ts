@@ -34,3 +34,8 @@ export function makeQueryClient(): QueryClient {
     queryCache: new QueryCache({ onError: (error) => console.error("[query error]", error) }),
   });
 }
+
+// The app's single shared client. Lives here (not in App.tsx) so the test
+// harness can import and clear() it between tests without App re-exporting a
+// non-component (which trips react-refresh).
+export const queryClient = makeQueryClient();
