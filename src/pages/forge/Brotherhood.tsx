@@ -677,9 +677,29 @@ const Brotherhood = () => {
       {tab === "group" && <GroupTab openDm={openDm} />}
 
       {(tab === "channels" || tab === "messages") && (
-        <div className="flex h-[72dvh] min-h-[460px] gap-4">
-          <div className={cn("w-full md:w-80 md:shrink-0", thread && "hidden md:block")}>{list}</div>
-          <SectionCard className={cn("min-w-0 flex-1", !thread && "hidden md:block")}>
+        // Fill the viewport minus chrome so the composer is always in view and
+        // only the message list scrolls. Two chrome budgets: mobile/tablet have
+        // the top bar + bottom tab bar (up to lg); lg+ has the desktop rail only.
+        // ponytail: the rem constants are tuned to the current header/nav heights —
+        // adjust them if that chrome changes.
+        <div className="flex h-[calc(100dvh-17rem)] min-h-[420px] gap-4 lg:h-[calc(100dvh-12rem)]">
+          <div
+            className={cn(
+              "w-full overflow-y-auto md:w-80 md:shrink-0",
+              thread && "hidden md:block"
+            )}
+          >
+            {list}
+          </div>
+          {/* A plain flex container, not SectionCard: SectionCard's inner wrapper
+              isn't full-height, so ChatThread's h-full collapsed and its overflow
+              clipped the composer. */}
+          <div
+            className={cn(
+              "flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-lg border border-line bg-raised",
+              !thread && "hidden md:flex"
+            )}
+          >
             {target ? (
               <ChatThread
                 target={target}
@@ -696,7 +716,7 @@ const Brotherhood = () => {
                 </p>
               </div>
             )}
-          </SectionCard>
+          </div>
         </div>
       )}
     </PageBackdrop>
