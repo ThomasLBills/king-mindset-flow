@@ -4,7 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { AuthProvider } from "@/hooks/useAuth";
+import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { prefetchPublic } from "@/lib/prefetch";
 import { UnreadProvider } from "@/contexts/UnreadContext";
 import { ImpersonationProvider } from "@/contexts/ImpersonationContext";
@@ -20,13 +20,13 @@ import { queryClient } from "@/lib/queryClient";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ConfirmProvider, ErrorState } from "@/components/feedback";
 import { OfflineBanner } from "@/components/OfflineBanner";
-import Landing from "./pages/forge/Landing";
 
 // Route-level code splitting: every page below ships as its own chunk,
-// fetched on first navigation, so the entry bundle stays small. Landing is
-// deliberately eager - it renders the "/" route and lazy-loading it would
-// push LCP behind a second network round trip for first-time visitors.
+// fetched on first navigation, so the entry bundle stays small.
 // Guards, providers, and AppShell stay eager because they wrap every route.
+// NOTE: the marketing Landing page is intentionally not imported — it's
+// disabled (client request). The file is kept in the tree; "/" redirects
+// instead (see RootRedirect). Re-add the import + route to re-enable it.
 const Login = lazy(() => import("./pages/forge/Login"));
 const Signup = lazy(() => import("./pages/forge/Signup"));
 const Onboarding = lazy(() => import("./pages/forge/Onboarding"));
@@ -95,6 +95,17 @@ const areaErrorFallback = (error: Error, reset: () => void) => (
     <ErrorState title="This section hit an error" message={error.message} onRetry={reset} />
   </div>
 );
+
+/**
+ * The marketing landing page is disabled (client request): "/" must not render
+ * it, even via a direct URL. Signed-in users go to the app; everyone else to
+ * login. Landing.tsx is kept but no longer imported or routed.
+ */
+const RootRedirect = () => {
+  const { user, loading } = useAuth();
+  if (loading) return <RouteFallback />;
+  return <Navigate to={user ? "/app" : "/login"} replace />;
+};
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -186,7 +197,7 @@ const AnimatedRoutes = () => {
           <Suspense fallback={<RouteFallback />}>
             <Routes location={location}>
             {/* Public */}
-            <Route path="/" element={<Landing />} />
+            <Route path="/" element={<RootRedirect />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/signup" element={<Signup />} />
                     <Route path="/forgot-password" element={<ForgotPassword />} />

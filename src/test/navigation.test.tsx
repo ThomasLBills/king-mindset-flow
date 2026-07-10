@@ -426,13 +426,20 @@ describe("app navigation", () => {
     ).toBe(true);
   });
 
-  it("landing CTA reaches the app when signed in", async () => {
+  it("root redirects a signed-in user to the app (landing disabled)", async () => {
     startAt("/");
     render(<App />);
-    fireEvent.click((await screen.findAllByRole("link", { name: /take your place/i }))[0]);
-    await waitFor(() => expect(window.location.pathname).toBe("/app"));
     await screen.findByText(/good (morning|afternoon|evening), ethan/i, undefined, {
       timeout: 4000,
     });
+    expect(window.location.pathname).toBe("/app");
+  });
+
+  it("root redirects a signed-out visitor to login (landing disabled)", async () => {
+    resetMock(false);
+    startAt("/");
+    render(<App />);
+    await screen.findByLabelText(/email/i);
+    expect(window.location.pathname).toBe("/login");
   });
 });
