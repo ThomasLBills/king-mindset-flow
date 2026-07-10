@@ -77,8 +77,8 @@ const passwordSchema = z
 const TIMEZONES = ["Eastern", "Central", "Mountain", "Pacific"] as const;
 
 const PREFS = [
-  { key: "reminder", label: "Daily rhythm reminder", sub: "One quiet nudge each morning." },
   { key: "discretion", label: "Discretion mode", sub: "Neutral tab title and icon in your browser." },
+  // Weekly call reminder is mandatory: shown as always-on, no toggle.
   { key: "call", label: "Weekly call reminder", sub: `A heads-up before ${WEEKLY_CALL.label}.` },
 ] as const;
 
@@ -89,7 +89,6 @@ const PREFS = [
 const PREFS_STORAGE_KEY = "lk-prefs-v1";
 
 const DEFAULT_PREFS: Record<string, boolean> = {
-  reminder: true,
   discretion: false,
   call: true,
 };
@@ -259,12 +258,18 @@ const Profile = () => {
                   </Label>
                   <p className="text-xs text-dim">{p.sub}</p>
                 </div>
-                <Switch
-                  id={`pref-${p.key}`}
-                  checked={prefs[p.key]}
-                  aria-label={p.label}
-                  onCheckedChange={(v) => setPref(p.key, v)}
-                />
+                {p.key === "call" ? (
+                  <span className="shrink-0 font-display text-[10px] font-bold uppercase tracking-[0.12em] text-gold">
+                    Always on
+                  </span>
+                ) : (
+                  <Switch
+                    id={`pref-${p.key}`}
+                    checked={prefs[p.key]}
+                    aria-label={p.label}
+                    onCheckedChange={(v) => setPref(p.key, v)}
+                  />
+                )}
               </div>
             ))}
           </div>
@@ -421,13 +426,6 @@ const Profile = () => {
             className="flex items-center justify-between px-5 py-4 text-sm font-semibold text-bone transition-colors hover:bg-raised-2"
           >
             Membership & billing
-            <ChevronRight className="h-4 w-4 text-dim" aria-hidden="true" />
-          </Link>
-          <Link
-            to="/app/rhythms"
-            className="flex items-center justify-between border-t border-line-soft px-5 py-4 text-sm font-semibold text-bone transition-colors hover:bg-raised-2"
-          >
-            Daily rhythms
             <ChevronRight className="h-4 w-4 text-dim" aria-hidden="true" />
           </Link>
         </SectionCard>

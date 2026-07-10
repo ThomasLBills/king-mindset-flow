@@ -15,26 +15,32 @@
   :root {
     color-scheme: dark;
 
-    --background: 34 21% 6%; /* forge #14110D */
-    --foreground: 39 41% 87%; /* bone #ECE3D2 */
+    /* Dark "forge" theme, lifted for legibility (2026-07): the old ramp packed
+       background/cards/borders into 6-16% L, so surfaces and outlined controls
+       read as one flat colour. The ramp is now spread - ground 9 -> cards 14 ->
+       hover/selected 21 -> borders 28 - and tertiary text raised, so cards,
+       buttons, and choices stand apart. Gold is unchanged; it pops once the
+       ground sits further from it. */
+    --background: 34 20% 9%; /* forge ground, lifted from near-black */
+    --foreground: 39 41% 88%; /* bone #ECE3D2 */
 
-    --card: 35 23% 10%; /* raised #201B14 */
-    --card-foreground: 39 41% 87%;
+    --card: 34 22% 14%; /* raised - a clear step above the ground */
+    --card-foreground: 39 41% 88%;
 
-    --popover: 35 23% 10%;
-    --popover-foreground: 39 41% 87%;
+    --popover: 34 22% 14%;
+    --popover-foreground: 39 41% 88%;
 
     --primary: 42 49% 58%; /* gold #C9A961 */
     --primary-foreground: 38 48% 9%; /* #221A0C */
 
-    --secondary: 33 22% 8%; /* forge-2 #191510 */
-    --secondary-foreground: 39 16% 67%;
+    --secondary: 33 20% 11%; /* forge-2, lifted */
+    --secondary-foreground: 39 20% 76%;
 
-    --muted: 35 23% 10%;
-    --muted-foreground: 39 16% 67%; /* bone-2 #B8AE9C */
+    --muted: 34 22% 14%;
+    --muted-foreground: 39 20% 76%; /* bone-2, brighter for readable body copy */
 
-    --accent: 30 19% 13%; /* raised-2 #26201A - hover surface */
-    --accent-foreground: 39 41% 87%;
+    --accent: 30 20% 21%; /* raised-2 - hover / selected surface, clearly lighter */
+    --accent-foreground: 39 41% 88%;
 
     /* Ember, never alarm-red: "fell" is spoken gently here. */
     --destructive: 19 49% 47%; /* #B4633E */
@@ -45,17 +51,17 @@
     --warning: 19 49% 47%;
     --warning-foreground: 39 41% 92%;
 
-    --border: 33 22% 16%; /* line #322A20 */
-    --input: 33 22% 16%;
+    --border: 34 18% 28%; /* line - now clearly visible against surfaces */
+    --input: 34 18% 30%;
     --ring: 42 49% 58%;
 
     --radius: 0.5rem;
 
     /* Brand extras */
-    --forge-2: 33 22% 8%;
-    --raised-2: 30 19% 13%;
-    --line-soft: 36 22% 14%; /* #2A241B */
-    --dim: 38 10% 47%; /* #857C6C */
+    --forge-2: 33 20% 11%;
+    --raised-2: 30 20% 21%;
+    --line-soft: 35 20% 22%;
+    --dim: 38 15% 62%; /* tertiary text, lifted for legibility */
     --gold-bright: 44 62% 72%; /* #E4CD8C */
     --gold-deep: 42 47% 37%; /* #8C7132 */
     --ember: 19 49% 47%; /* #B4633E */

@@ -1,6 +1,5 @@
 /**
- * Home "This week's evidence" cards, restored to original function in the
- * Forge visual language:
+ * Home KPI + ritual cards in the Forge visual language:
  *  - ArmorActivatedCard: community-wide "Armor Activated / All Kings"
  *    (get_community_armor_stats RPC), This week + Lifetime.
  *  - LiberatedCard: personal "Liberated / My Evidence" (all of the user's
@@ -10,8 +9,8 @@
  *    an inline success flash. Never navigates. Shows Today + Lifetime counts.
  *
  * The two KPIs read two DIFFERENT scopes (community vs personal) and must not
- * be conflated. See the behavior contract. All three reuse intact hooks
- * (useCommunityArmor / useEvidenceCounter / useUrgeCounter).
+ * be conflated. All three reuse intact hooks (useCommunityArmor /
+ * useEvidenceCounter / useUrgeCounter).
  */
 import { useState } from "react";
 import { ShieldCheck } from "lucide-react";
@@ -144,7 +143,11 @@ export const UrgesRedirectedCard = () => {
             },
           });
         }}
-        className={cn(addUrge.isPending && "opacity-70")}
+        // White at rest; the hold sweeps gold across it, and it stays fully gold
+        // through the success flash.
+        className={cn("bg-bone text-forge", addUrge.isPending && "opacity-70")}
+        fillClassName="bg-gold"
+        completed={flash}
       >
         Hold to Redirect
       </HoldButton>

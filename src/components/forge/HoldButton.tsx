@@ -23,6 +23,12 @@ interface HoldButtonProps {
   duration?: number;
   disabled?: boolean;
   className?: string;
+  /** Colour of the progress fill that sweeps in during the hold. Defaults to a
+   *  subtle darkening; pass e.g. "bg-gold" for a white→gold fill. */
+  fillClassName?: string;
+  /** Force the fill to full (the finished look) even when not pressed - lets a
+   *  parent keep the button "fully gold once done" through its success state. */
+  completed?: boolean;
 }
 
 export const HoldButton = ({
@@ -31,6 +37,8 @@ export const HoldButton = ({
   duration = 1200,
   disabled = false,
   className,
+  fillClassName,
+  completed = false,
 }: HoldButtonProps) => {
   const [pressed, setPressed] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -100,9 +108,12 @@ export const HoldButton = ({
       >
         <span
           aria-hidden="true"
-          className="absolute inset-y-0 left-0 w-full origin-left bg-black/25 will-change-transform"
+          className={cn(
+            "absolute inset-y-0 left-0 w-full origin-left will-change-transform",
+            fillClassName ?? "bg-black/25"
+          )}
           style={{
-            transform: pressed ? "scaleX(1)" : "scaleX(0)",
+            transform: pressed || completed ? "scaleX(1)" : "scaleX(0)",
             transitionProperty: "transform",
             transitionTimingFunction: "linear",
             transitionDuration: pressed ? `${duration}ms` : "0ms",

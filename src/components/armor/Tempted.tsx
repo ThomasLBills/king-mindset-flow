@@ -1,28 +1,25 @@
 /**
  * "I Am Being Tempted". N.A.N.: Notice → Name → Navigate. Navigate ends in a
  * 2s Hold to Redirect that logs evidence "urge_redirected" (useUrgeCounter)
- * and returns to Today. The redesign's breathing pacer and "raise the banner"
- * prayer request are preserved as options inside Navigate, so nothing is lost.
+ * and returns to Today. The redesign's breathing pacer is preserved as an
+ * option inside Navigate.
  */
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { MessageSquare, ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Eyebrow, InitialsAvatar } from "@/components/forge/atoms";
+import { Eyebrow } from "@/components/forge/atoms";
 import { HoldButton } from "@/components/forge/HoldButton";
-import { useForgeUser } from "@/hooks/useForgeProfile";
-import { useGroup, useRaiseBanner } from "@/hooks/useForgeGroup";
 import { useUrgeCounter } from "@/hooks/useUrgeCounter";
 import { useCrisisEventLogger } from "@/hooks/useTriggerPatterns";
 import { celebrate } from "@/lib/celebrate";
 import { BackTo, BreathingPacer } from "./frame";
 
 const NOTICE = [
-  { id: "pressure", label: "I feel pressure" },
-  { id: "tired", label: "I'm tired" },
-  { id: "relief", label: "I'm seeking relief" },
+  { id: "pressure", label: "I Feel Pressure." },
+  { id: "tired", label: "I'm Tired." },
+  { id: "relief", label: "I'm Seeking Relief." },
 ];
 
 const TRUTHS = [
@@ -37,42 +34,33 @@ const TRUTHS = [
 const ACTIONS = [
   {
     id: "environment",
-    title: "Change environments",
+    title: "Change Environments.",
     helper: "Stand up. Walk outside. Physical movement interrupts the pattern. Get up now.",
   },
   {
     id: "slow",
-    title: "Slow the body",
+    title: "Slow the Body.",
     helper: "Take three deep breaths. Slow breathing calms the nervous system. Breathe with me: In for 4. Hold for 4. Out for 6.",
   },
   {
     id: "engage",
-    title: "Engage in action",
+    title: "Engage in Action.",
     helper: "Text a brother. Pray. Do 10 pushups. Connect with something real. Break isolation.",
   },
 ];
 
-const PRAYER_TEMPLATES = [
-  "Brothers, the pull is strong right now. Stand with me.",
-  "In the fight this hour. Pray I hold the line.",
-  "Tempted and tired. I'm not hiding it. Pray for me.",
-];
-
-type View = "notice" | "name" | "navigate" | "call" | "sent";
+type View = "notice" | "name" | "navigate";
 
 const optionRow = (selected: boolean) =>
   cn(
     "w-full rounded-lg border px-4 py-3 text-left text-sm font-medium transition-colors",
     selected
       ? "border-gold-deep bg-raised-2 text-gold-bright"
-      : "border-line bg-raised text-bone-2 hover:border-gold-deep/50"
+      : "border-line bg-raised-2 text-bone hover:border-gold-deep/50"
   );
 
 export const Tempted = ({ onBack }: { onBack: () => void }) => {
   const navigate = useNavigate();
-  const { user } = useForgeUser();
-  const { data: group } = useGroup();
-  const raiseBanner = useRaiseBanner();
   const { addUrge } = useUrgeCounter();
   const { logCrisisEvent } = useCrisisEventLogger();
 
@@ -87,13 +75,8 @@ export const Tempted = ({ onBack }: { onBack: () => void }) => {
   const [redirected, setRedirected] = useState(false);
   const [feeling, setFeeling] = useState<string | null>(null);
   const [action, setAction] = useState<string | null>(null);
-  const [selected, setSelected] = useState<string[]>([]);
-  const [template, setTemplate] = useState(PRAYER_TEMPLATES[0]);
 
   const truth = useMemo(() => TRUTHS[Math.floor(Math.random() * TRUTHS.length)], []);
-  const brothers = (group?.members ?? []).filter((m) => m.id !== user?.id);
-  const allIds = brothers.map((b) => b.id);
-  const effectiveSelected = selected.length ? selected : allIds;
   const activeAction = ACTIONS.find((a) => a.id === action);
 
   // Preserve the exact data write (evidence_events "urge_redirected"). On a
@@ -127,7 +110,7 @@ export const Tempted = ({ onBack }: { onBack: () => void }) => {
     return (
       <>
         <Eyebrow tone="gold" className="mb-1">
-          Notice · Awareness without judgment
+          Notice · Awareness Without Judgment
         </Eyebrow>
         <h1 className="font-display text-3xl font-bold tracking-tight text-bone">Notice</h1>
         <p className="mb-6 mt-2 text-[15px] leading-relaxed text-bone-2">
@@ -157,9 +140,9 @@ export const Tempted = ({ onBack }: { onBack: () => void }) => {
     return (
       <>
         <Eyebrow tone="gold" className="mb-1">
-          Name the truth · Alignment with reality
+          Name the Truth · Alignment With Reality
         </Eyebrow>
-        <h1 className="font-display text-3xl font-bold tracking-tight text-bone">Name The Truth</h1>
+        <h1 className="font-display text-3xl font-bold tracking-tight text-bone">Name the Truth</h1>
         <p className="mb-6 mt-2 text-[15px] leading-relaxed text-bone-2">
           Anchor to reality. Speak this truth out loud:
         </p>
@@ -177,154 +160,38 @@ export const Tempted = ({ onBack }: { onBack: () => void }) => {
     );
   }
 
-  if (view === "navigate") {
-    return (
-      <>
-        <Eyebrow tone="gold" className="mb-1">
-          Navigate · Choose the next aligned step
-        </Eyebrow>
-        <h1 className="font-display text-3xl font-bold tracking-tight text-bone">Navigate</h1>
-        <p className="mb-6 mt-2 text-[15px] leading-relaxed text-bone-2">
-          This is where you redirect. Choose one small, embodied response:
-        </p>
-        <div className="flex w-full flex-col gap-2.5">
-          {ACTIONS.map((a) => (
-            <button
-              key={a.id}
-              onClick={() => setAction((cur) => (cur === a.id ? null : a.id))}
-              className={optionRow(action === a.id)}
-            >
-              {a.title}
-            </button>
-          ))}
-        </div>
-        {activeAction && (
-          <p className="mt-3 text-sm text-bone-2">{activeAction.helper}</p>
-        )}
-        {action === "slow" && <BreathingPacer />}
-
-        <button
-          onClick={() => setView("call")}
-          className="mt-5 flex items-center gap-2 text-sm text-gold underline-offset-4 hover:underline"
-        >
-          <MessageSquare className="h-4 w-4" aria-hidden="true" /> Call the brothers instead
-        </button>
-
-        <p className="mt-4 text-sm text-bone-2">
-          You're not trying to beat the urge. You're practicing a different pathway. Every time you
-          practice, it gets stronger.
-        </p>
-        <HoldButton className="mt-5" disabled={!action || addUrge.isPending} onComplete={steady}>
-          Hold to Redirect
-        </HoldButton>
-        <BackTo onClick={() => setView("name")} />
-      </>
-    );
-  }
-
-  if (view === "call") {
-    return (
-      <>
-        <Eyebrow tone="gold" className="mb-3">
-          Raise the banner
-        </Eyebrow>
-        <h1 className="font-display text-3xl font-bold tracking-tight text-bone">
-          Your brothers want this call.
-        </h1>
-        <p className="mb-6 mt-2 text-sm text-bone-2">
-          This logs the urge and sends a prayer request. You don't need to explain anything.
-        </p>
-        {brothers.length === 0 ? (
-          <p className="rounded-md border border-line bg-raised/80 px-4 py-3 text-sm text-bone-2">
-            No brothers connected yet. Add brothers from the Brotherhood page first.
-          </p>
-        ) : (
-          <>
-            <ul className="mb-4 flex w-full flex-col gap-1.5 text-left">
-              {brothers.map((b) => {
-                const checked = effectiveSelected.includes(b.id);
-                return (
-                  <li key={b.id}>
-                    <label className="flex cursor-pointer items-center gap-3 rounded-md border border-line bg-raised/80 px-3 py-2.5 text-sm text-bone">
-                      <Checkbox
-                        checked={checked}
-                        className="h-5 w-5 border-gold"
-                        onCheckedChange={(next) =>
-                          setSelected(
-                            next
-                              ? [...new Set([...effectiveSelected, b.id])]
-                              : effectiveSelected.filter((id) => id !== b.id)
-                          )
-                        }
-                      />
-                      <InitialsAvatar initials={b.initials} tone="raised" className="h-7 w-7 text-[11px]" />
-                      {b.name}
-                    </label>
-                  </li>
-                );
-              })}
-            </ul>
-            <div className="flex w-full flex-col gap-1.5 text-left">
-              {PRAYER_TEMPLATES.map((t) => (
-                <label
-                  key={t}
-                  className={cn(
-                    "cursor-pointer rounded-md border px-3 py-2.5 font-serif text-sm italic",
-                    template === t
-                      ? "border-gold-deep bg-raised-2 text-bone"
-                      : "border-line bg-raised/80 text-bone-2"
-                  )}
-                >
-                  <input
-                    type="radio"
-                    name="prayer-template"
-                    className="sr-only"
-                    checked={template === t}
-                    onChange={() => setTemplate(t)}
-                  />
-                  “{t}”
-                </label>
-              ))}
-            </div>
-            <HoldButton
-              className="mt-5"
-              disabled={raiseBanner.isPending || effectiveSelected.length === 0}
-              onComplete={() =>
-                raiseBanner.mutate(
-                  { brotherIds: effectiveSelected, template },
-                  { onSuccess: () => setView("sent") }
-                )
-              }
-            >
-              {raiseBanner.isPending
-                ? "Raising the banner…"
-                : `Hold to send · ${effectiveSelected.length} brothers`}
-            </HoldButton>
-          </>
-        )}
-        <BackTo onClick={() => setView("navigate")} />
-      </>
-    );
-  }
-
-  // view === "sent"
+  // view === "navigate"
   return (
     <>
-      <Eyebrow tone="gold" className="mb-3">
-        The banner is raised
+      <Eyebrow tone="gold" className="mb-1">
+        Navigate · Choose the Next Aligned Step
       </Eyebrow>
-      <h1 className="font-display text-3xl font-bold tracking-tight text-bone">
-        They're being told right now.
-      </h1>
-      <p className="mb-2 mt-3 text-[15px] leading-relaxed text-bone-2">
-        You did the strong thing. You didn't hide. Keep breathing. Answers usually come within
-        minutes.
+      <h1 className="font-display text-3xl font-bold tracking-tight text-bone">Navigate</h1>
+      <p className="mb-6 mt-2 text-[15px] leading-relaxed text-bone-2">
+        This is where you redirect. Choose one small, embodied response:
       </p>
-      <BreathingPacer />
-      <HoldButton className="mt-4" disabled={addUrge.isPending} onComplete={steady}>
-        Hold when steady
+      <div className="flex w-full flex-col gap-2.5">
+        {ACTIONS.map((a) => (
+          <button
+            key={a.id}
+            onClick={() => setAction((cur) => (cur === a.id ? null : a.id))}
+            className={optionRow(action === a.id)}
+          >
+            {a.title}
+          </button>
+        ))}
+      </div>
+      {activeAction && <p className="mt-3 text-sm text-bone-2">{activeAction.helper}</p>}
+      {action === "slow" && <BreathingPacer />}
+
+      <p className="mt-4 text-sm text-bone-2">
+        You're not trying to beat the urge. You're practicing a different pathway. Every time you
+        practice, it gets stronger.
+      </p>
+      <HoldButton className="mt-5" disabled={!action || addUrge.isPending} onComplete={steady}>
+        Hold to Redirect
       </HoldButton>
-      <BackTo onClick={() => setView("navigate")} />
+      <BackTo onClick={() => setView("name")} />
     </>
   );
 };

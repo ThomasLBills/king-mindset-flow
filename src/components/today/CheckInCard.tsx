@@ -44,7 +44,6 @@ export const CheckInCard = () => {
   const { isCheckedIn, todayCheckIn, isLoading, submitCheckIn } = useDailyCheckIn();
   const { addEvidence } = useEvidenceCounter();
 
-  const [editing, setEditing] = useState(false);
   const [feeling, setFeeling] = useState<string | null>(null);
   const [showMore, setShowMore] = useState(false);
   const [note, setNote] = useState("");
@@ -52,22 +51,16 @@ export const CheckInCard = () => {
   const scripture = scriptureFor(feeling);
   const options = showMore ? ALL_FEELINGS : CORE_FEELINGS;
 
-  const startEdit = () => {
-    setFeeling(null);
-    setShowMore(false);
-    setNote("");
-    setEditing(true);
-  };
-
   const onSubmit = () => {
-    if (!feeling) return;
+    // A feeling AND a written reflection are both required to log.
+    if (!feeling || !note.trim()) return;
     // Capture BEFORE submit: only the first check-in of the day logs evidence.
     const wasFirstCheckInToday = !isCheckedIn;
     submitCheckIn.mutate(
       {
         feelings: [feeling],
         needsSupport: needsSupportFor(feeling),
-        spiritResponse: note.trim() || undefined,
+        spiritResponse: note.trim(),
       },
       {
         onSuccess: () => {
@@ -75,13 +68,13 @@ export const CheckInCard = () => {
           // No success toast: the card flips to the compact "Checked in today"
           // state showing the saved feelings + Scripture in place (P4). Failure
           // surfaces via the global mutation net.
-          setEditing(false);
         },
       }
     );
   };
 
-  const showCompact = isCheckedIn && !editing;
+  // Check-in is once per day: no re-entry once done.
+  const showCompact = isCheckedIn;
 
   // In the compact state, surface the verse for the first stored feeling that
   // maps to Scripture (older rows may hold unmapped values, that's fine).
@@ -133,14 +126,6 @@ export const CheckInCard = () => {
               <VerseBlock scripture={compactScripture} />
             </div>
           )}
-
-          <button
-            type="button"
-            onClick={startEdit}
-            className="mt-4 text-sm font-medium text-gold underline-offset-4 hover:underline"
-          >
-            Check in again →
-          </button>
         </div>
       ) : (
         <div>
@@ -178,7 +163,7 @@ export const CheckInCard = () => {
 
           <div className="mt-5 space-y-1.5">
             <label htmlFor="checkin-card-spirit" className="text-sm font-medium text-bone-2">
-              What do you sense the Spirit saying about what you’re feeling? (optional)
+              What do you sense the Spirit saying about what you’re feeling?
             </label>
             <Textarea
               id="checkin-card-spirit"
@@ -190,25 +175,15 @@ export const CheckInCard = () => {
             />
           </div>
 
-          <div className="mt-5 flex items-center gap-3">
+          <div className="mt-5">
             <Button
               type="button"
-              className="flex-1"
-              disabled={!feeling || submitCheckIn.isPending}
+              className="w-full"
+              disabled={!feeling || !note.trim() || submitCheckIn.isPending}
               onClick={onSubmit}
             >
               {submitCheckIn.isPending ? "Logging…" : "Log check-in"}
             </Button>
-            {editing && (
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => setEditing(false)}
-                disabled={submitCheckIn.isPending}
-              >
-                Cancel
-              </Button>
-            )}
           </div>
         </div>
       )}

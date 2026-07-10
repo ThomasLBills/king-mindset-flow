@@ -124,5 +124,5 @@ export const feelingChipClass = (selected: boolean): string =>
     "rounded-md border px-3 py-2.5 text-center text-sm font-medium transition-colors",
     selected
       ? "border-gold-deep bg-raised-2 text-gold-bright"
-      : "border-line bg-raised text-bone-2 hover:border-gold-deep/50",
+      : "border-line bg-raised-2 text-bone hover:border-gold-deep/50",
   ].join(" ");

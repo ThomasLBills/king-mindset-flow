@@ -21,8 +21,8 @@ import { useCrisisEventLogger } from "@/hooks/useTriggerPatterns";
 import { celebrateBig } from "@/lib/celebrate";
 
 const TITLES = [
-  "Recognize The Truth",
-  "Engage The Father",
+  "Recognize the Truth",
+  "Engage the Father",
   "Trace What Happened",
   "Uproot Isolation",
   "Resume Normal Rhythms",
@@ -30,12 +30,12 @@ const TITLES = [
 ];
 
 const SUBTITLES = [
-  "Anchor to what is real",
-  "Come as a son, not a slave",
-  "Data, not condemnation",
-  "Break the power of secrecy",
-  "Return, not self-punishment",
-  "Failure is feedback",
+  "Anchor to What Is Real.",
+  "Come as a Son, Not a Slave.",
+  "Data, Not Condemnation.",
+  "Break the Power of Secrecy.",
+  "Return, Not Self-Punishment.",
+  "Failure Is Feedback.",
 ];
 
 const STEP1_DECLARATIONS = [

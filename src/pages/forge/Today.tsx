@@ -1,22 +1,16 @@
-import { useEffect, useState, type ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, type ReactNode } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { Check, Lock, ShieldCheck } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { ShieldCheck } from "lucide-react";
 import { FEATURES } from "@/features";
 import { useForgeUser } from "@/hooks/useForgeProfile";
-import { usePathToday, type PathStep } from "@/hooks/usePathToday";
 import { useVerseOfDay } from "@/hooks/useForgeVerses";
 import { useBanner, useGroup, useSendStrength } from "@/hooks/useForgeGroup";
-import { useWeekStats } from "@/hooks/useWeekStats";
 import { useForgeWeeks } from "@/hooks/useForgeCurriculum";
 import { WEEKLY_CALL, isCallDay } from "@/data/weeklyCall";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Eyebrow, InitialsAvatar, SectionCard } from "@/components/forge/atoms";
 import { PageBackdrop } from "@/components/forge/scenes";
 import { CheckInCard } from "@/components/today/CheckInCard";
-import { CheckInDialog, ReflectionDialog } from "@/components/today/dialogs";
 import { ArmorActivatedCard, LiberatedCard, UrgesRedirectedCard } from "@/components/today/stats";
 
 const timeOfDay = () => {
@@ -44,102 +38,13 @@ const Reveal = ({ children, delay = 0 }: { children: ReactNode; delay?: number }
   );
 };
 
-const StepMarker = ({ status }: { status: PathStep["status"] }) => (
-  <span
-    aria-hidden="true"
-    className={cn(
-      "grid h-[22px] w-[22px] shrink-0 place-items-center rounded-full border text-xs",
-      status === "done" && "border-gold-deep bg-[hsl(38_45%_9%)] text-gold",
-      status === "now" && "border-gold text-gold",
-      status === "locked" && "border-line text-dim"
-    )}
-  >
-    {status === "done" ? (
-      <Check className="h-3 w-3" />
-    ) : status === "now" ? (
-      "●"
-    ) : (
-      <Lock className="h-2.5 w-2.5" />
-    )}
-  </span>
-);
-
-const PathToday = ({
-  steps,
-  onCheckIn,
-  onReflect,
-}: {
-  steps: PathStep[];
-  onCheckIn: () => void;
-  onReflect: () => void;
-}) => (
-  <SectionCard className="p-5">
-    <Eyebrow className="mb-2 block">Your path today</Eyebrow>
-    <div>
-      {steps.map((step, i) => (
-        <div
-          key={step.id}
-          className={cn(
-            "flex items-center gap-3 py-3",
-            i > 0 && "border-t border-line-soft",
-            step.status === "locked" && "opacity-60"
-          )}
-        >
-          <StepMarker status={step.status} />
-          <div className="min-w-0 flex-1">
-            <span
-              className={cn(
-                "block text-sm font-semibold",
-                step.status === "done" ? "text-bone-2 line-through decoration-dim" : "text-bone"
-              )}
-            >
-              {step.title}
-            </span>
-            <span className="text-xs text-dim">{step.sub}</span>
-          </div>
-          {step.status === "now" &&
-            (step.kind === "reading" && step.to ? (
-              <Button
-                asChild
-                variant="outline"
-                size="sm"
-                className="border-gold-deep font-display text-[10.5px] uppercase tracking-[0.12em] text-gold hover:text-gold-bright"
-              >
-                <Link to={step.to}>Continue</Link>
-              </Button>
-            ) : (
-              <Button
-                variant="outline"
-                size="sm"
-                className="border-gold-deep font-display text-[10.5px] uppercase tracking-[0.12em] text-gold hover:text-gold-bright"
-                onClick={step.kind === "checkin" ? onCheckIn : onReflect}
-              >
-                {step.kind === "checkin" ? "Begin" : "Reflect"}
-              </Button>
-            ))}
-        </div>
-      ))}
-    </div>
-    <Link
-      to="/app/rhythms"
-      className="mt-1 inline-block text-xs text-dim underline-offset-4 transition-colors hover:text-gold hover:underline"
-    >
-      All daily rhythms →
-    </Link>
-  </SectionCard>
-);
-
 const Today = () => {
   const { user } = useForgeUser();
-  const { data: path } = usePathToday();
   const { data: verse } = useVerseOfDay();
   const { data: group } = useGroup();
   const { data: banner } = useBanner();
-  const { data: stats } = useWeekStats();
   const { data: weeks } = useForgeWeeks();
   const sendStrength = useSendStrength();
-  const [checkInOpen, setCheckInOpen] = useState(false);
-  const [reflectOpen, setReflectOpen] = useState(false);
 
   useEffect(() => {
     revealPlayed = true;
@@ -210,7 +115,7 @@ const Today = () => {
               </Reveal>
             )}
 
-            {/* 4. This week's evidence: the two KPIs (community + personal) */}
+            {/* This week's evidence: the two KPIs (community + personal) */}
             <Reveal delay={0.12}>
               <div>
                 <Eyebrow className="mb-3 block">This week's evidence</Eyebrow>
@@ -221,7 +126,7 @@ const Today = () => {
               </div>
             </Reveal>
 
-            {/* 5. The rest: verse, brothers/send-strength + weekly stats, then the path */}
+            {/* Verse, then brothers/send-strength */}
             {verse && (
               <Reveal delay={0.15}>
                 <SectionCard className="bg-gradient-to-br from-raised to-[hsl(35_23%_8%)] p-6">
@@ -233,87 +138,41 @@ const Today = () => {
               </Reveal>
             )}
 
-            <Reveal delay={0.18}>
-              <div className="flex flex-col gap-4 sm:flex-row">
-                {FEATURES.groups && banner && (
-                  <SectionCard className="flex-1 p-5">
-                    <Eyebrow className="mb-3 block">{group?.name ?? "Your brothers"}</Eyebrow>
-                    <div className="mb-3 flex items-center gap-2.5">
-                      <InitialsAvatar initials={banner.initials} />
-                      <span className="text-sm font-semibold text-bone">
-                        {banner.name}
-                        <span className="block font-serif text-xs font-normal italic text-ember">
-                          Raised the banner · {banner.when}
-                        </span>
+            {FEATURES.groups && banner && (
+              <Reveal delay={0.18}>
+                <SectionCard className="p-5">
+                  <Eyebrow className="mb-3 block">{group?.name ?? "Your brothers"}</Eyebrow>
+                  <div className="mb-3 flex items-center gap-2.5">
+                    <InitialsAvatar initials={banner.initials} />
+                    <span className="text-sm font-semibold text-bone">
+                      {banner.name}
+                      <span className="block font-serif text-xs font-normal italic text-ember">
+                        Raised the banner · {banner.when}
                       </span>
-                    </div>
-                    {banner.strengthened ? (
-                      <p className="flex items-center gap-2 text-sm text-gold">
-                        <ShieldCheck className="h-4 w-4" aria-hidden="true" /> Strength sent. He knows
-                        you're with him.
-                      </p>
-                    ) : (
-                      <Button
-                        className="w-full"
-                        disabled={sendStrength.isPending}
-                        // Success confirms in place: the card flips to the
-                        // "Strength sent" state once forge-banner refetches, so
-                        // no toast (P4). Failure surfaces via the global net.
-                        onClick={() => sendStrength.mutate(banner)}
-                      >
-                        {sendStrength.isPending ? "Sending…" : "Send strength"}
-                      </Button>
-                    )}
-                  </SectionCard>
-                )}
-                {stats && (
-                  <SectionCard className="flex-1 p-5">
-                    <Eyebrow className="mb-1 block">This week</Eyebrow>
-                    <dl>
-                      <div className="flex items-baseline justify-between py-2 text-sm text-bone-2">
-                        <dt>Urges you turned from</dt>
-                        <dd className="font-display text-lg font-bold text-bone">
-                          {stats.urgesRedirected}
-                        </dd>
-                      </div>
-                      {FEATURES.extraStats && (
-                        <>
-                          <div className="flex items-baseline justify-between border-t border-line-soft py-2 text-sm text-bone-2">
-                            <dt>Readings finished</dt>
-                            <dd className="font-display text-lg font-bold text-bone">
-                              {stats.readingsFinished}
-                            </dd>
-                          </div>
-                          <div className="flex items-baseline justify-between border-t border-line-soft py-2 text-sm text-bone-2">
-                            <dt>Brothers reached</dt>
-                            <dd className="font-display text-lg font-bold text-bone">
-                              {stats.brothersReached}
-                            </dd>
-                          </div>
-                        </>
-                      )}
-                    </dl>
-                  </SectionCard>
-                )}
-              </div>
-            </Reveal>
-
-            {!path ? (
-              <Skeleton className="h-48 w-full" />
-            ) : (
-              <Reveal delay={0.21}>
-                <PathToday
-                  steps={path}
-                  onCheckIn={() => setCheckInOpen(true)}
-                  onReflect={() => setReflectOpen(true)}
-                />
+                    </span>
+                  </div>
+                  {banner.strengthened ? (
+                    <p className="flex items-center gap-2 text-sm text-gold">
+                      <ShieldCheck className="h-4 w-4" aria-hidden="true" /> Strength sent. He knows
+                      you're with him.
+                    </p>
+                  ) : (
+                    <Button
+                      className="w-full"
+                      disabled={sendStrength.isPending}
+                      // Success confirms in place: the card flips to the
+                      // "Strength sent" state once forge-banner refetches, so
+                      // no toast (P4). Failure surfaces via the global net.
+                      onClick={() => sendStrength.mutate(banner)}
+                    >
+                      {sendStrength.isPending ? "Sending…" : "Send strength"}
+                    </Button>
+                  )}
+                </SectionCard>
               </Reveal>
             )}
           </div>
       </div>
-
-      <CheckInDialog open={checkInOpen} onOpenChange={setCheckInOpen} />
-      <ReflectionDialog open={reflectOpen} onOpenChange={setReflectOpen} />
     </div>
   );
 };

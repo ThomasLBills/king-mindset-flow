@@ -13,9 +13,12 @@ import { Grain, SceneFigure } from "@/components/forge/scenes";
 
 export const ArmorFrame = ({ children }: { children: ReactNode }) => (
   <div className="relative flex min-h-dvh flex-col items-center justify-center overflow-hidden bg-forge px-6 py-12 text-center">
-    <SceneFigure className="opacity-90" />
+    <SceneFigure className="opacity-80" />
+    {/* Vignette tracks the (lifted) --background token instead of a hardcoded
+        near-black, and its alphas are softened, so the crisis screen lightens
+        with the rest of the app and the option rows stay legible. */}
     <div
-      className="pointer-events-none absolute inset-0 bg-[radial-gradient(90%_70%_at_50%_42%,hsl(34_21%_6%/0.35),hsl(30_33%_4%/0.92))]"
+      className="pointer-events-none absolute inset-0 bg-[radial-gradient(90%_70%_at_50%_42%,hsl(var(--background)/0.3),hsl(var(--background)/0.82))]"
       aria-hidden="true"
     />
     <Grain />
@@ -52,7 +55,7 @@ export const ActionRow = ({
       "flex w-full items-center gap-3.5 rounded-lg border p-4 text-left transition-colors",
       primary
         ? "border-gold-deep bg-gradient-to-b from-[hsl(24_41%_12%)] to-[hsl(26_45%_9%)]"
-        : "border-line bg-raised hover:border-gold-deep hover:bg-raised-2"
+        : "border-line bg-raised-2 hover:border-gold-deep hover:brightness-110"
     )}
   >
     <Icon className="h-[22px] w-[22px] shrink-0 text-gold" aria-hidden="true" />

@@ -78,7 +78,7 @@ export const ScriptureBrowser = ({ onBack }: { onBack: () => void }) => {
         {last ? "Done" : "Next"}
       </Button>
       <p className="mt-6 text-[10px] leading-relaxed text-dim">{ESV}</p>
-      <BackTo onClick={() => setCat(null)} label="All categories" />
+      <BackTo onClick={() => setCat(null)} label="All Categories" />
     </>
   );
 };

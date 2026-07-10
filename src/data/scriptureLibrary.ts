@@ -3,12 +3,12 @@
  * ScriptureTool so the Forge screens and the tool share one source.
  */
 export const scriptureCategories = [
-  { key: "temptation", title: "Temptation", subtitle: "When the urge is strong" },
-  { key: "shame", title: "Shame", subtitle: "When the enemy accuses" },
-  { key: "anxiety", title: "Anxiety", subtitle: "When fear takes over" },
-  { key: "loneliness", title: "Loneliness", subtitle: "When you feel alone" },
-  { key: "anger", title: "Anger", subtitle: "When frustration builds" },
-  { key: "identity", title: "Identity", subtitle: "When you forget who you are" },
+  { key: "temptation", title: "Temptation", subtitle: "When the Urge Is Strong." },
+  { key: "shame", title: "Shame", subtitle: "When the Enemy Accuses." },
+  { key: "anxiety", title: "Anxiety", subtitle: "When Fear Takes Over." },
+  { key: "loneliness", title: "Loneliness", subtitle: "When You Feel Alone." },
+  { key: "anger", title: "Anger", subtitle: "When Frustration Builds." },
+  { key: "identity", title: "Identity", subtitle: "When You Forget Who You Are." },
 ] as const;
 
 export type ScriptureCategoryKey = (typeof scriptureCategories)[number]["key"];

@@ -34,7 +34,6 @@ const StandFirm = lazy(() => import("./pages/forge/StandFirm"));
 const Brotherhood = lazy(() => import("./pages/forge/Brotherhood"));
 const Grow = lazy(() => import("./pages/forge/Grow"));
 const Lesson = lazy(() => import("./pages/forge/Lesson"));
-const Rhythms = lazy(() => import("./pages/forge/Rhythms"));
 const Profile = lazy(() => import("./pages/forge/Profile"));
 const Billing = lazy(() => import("./pages/forge/Billing"));
 const NotFound = lazy(() => import("./pages/forge/NotFound"));
@@ -250,7 +249,6 @@ const AnimatedRoutes = () => {
                       <Route path="brotherhood" element={<Brotherhood />} />
                       <Route path="grow" element={<Grow />} />
                       <Route path="grow/lesson/:lessonId" element={<Lesson />} />
-                      <Route path="rhythms" element={<Rhythms />} />
                       <Route path="profile" element={<Profile />} />
                       <Route path="billing" element={<Billing />} />
                     </Route>

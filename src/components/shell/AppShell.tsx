@@ -22,9 +22,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const NAV = [
-  { to: "/app", label: "Today", icon: Home, end: true },
+  { to: "/app", label: "Home", icon: Home, end: true },
   { to: "/app/brotherhood", label: "Brotherhood", icon: Users, end: false },
-  { to: "/app/grow", label: "Grow", icon: BookOpen, end: false },
+  { to: "/app/grow", label: "Path", icon: BookOpen, end: false },
   { to: "/app/profile", label: "Profile", icon: UserRound, end: false },
 ] as const;
 
@@ -183,7 +183,7 @@ const MobileTabBar = () => {
     >
       <NavLink to="/app" end className={tabLink}>
         <Home className="h-[22px] w-[22px]" aria-hidden="true" />
-        Today
+        Home
       </NavLink>
       <NavLink to="/app/brotherhood" className={tabLink}>
         <span className="relative">
@@ -192,14 +192,17 @@ const MobileTabBar = () => {
         </span>
         Brothers
       </NavLink>
-      <Link to="/stand-firm" className="flex flex-col items-center" aria-label="Stand Firm, help now">
+      {/* Armor: keeps its raised circle but now sits in the grid like the
+          other tabs, with a label, so it reads as a proper nav item. */}
+      <Link to="/stand-firm" className="flex flex-col items-center gap-1" aria-label="Armor">
         <span className="-mt-6 grid h-12 w-12 place-items-center rounded-full border border-gold-deep bg-gradient-to-b from-[hsl(24_41%_12%)] to-[hsl(26_45%_9%)] text-gold-bright shadow-[0_6px_18px_-6px_rgba(0,0,0,0.7)]">
           <Shield className="h-[22px] w-[22px]" aria-hidden="true" />
         </span>
+        <span className="text-[10px] font-semibold text-dim">Armor</span>
       </Link>
       <NavLink to="/app/grow" className={tabLink}>
         <BookOpen className="h-[22px] w-[22px]" aria-hidden="true" />
-        Grow
+        Path
       </NavLink>
       <NavLink to="/app/profile" className={tabLink}>
         <UserRound className="h-[22px] w-[22px]" aria-hidden="true" />

@@ -456,7 +456,7 @@ const GroupTab = ({ openDm }: { openDm: (brotherId: string, name: string) => voi
       {FEATURES.groups && group && (
         <SectionCard className="p-5">
           <div className="mb-4 flex items-baseline justify-between">
-            <Eyebrow>{group.name}</Eyebrow>
+            <Eyebrow>My Groups</Eyebrow>
             <span className="text-xs text-dim">{members.length} brothers</span>
           </div>
           <ul className="flex flex-col">
@@ -497,7 +497,7 @@ const GroupTab = ({ openDm }: { openDm: (brotherId: string, name: string) => voi
 
 const Brotherhood = () => {
   const [params, setParams] = useSearchParams();
-  const tab = params.get("tab") ?? "group";
+  const tab = params.get("tab") ?? "messages";
   const thread = params.get("thread");
   const { user } = useAuth();
   const {
@@ -626,12 +626,7 @@ const Brotherhood = () => {
     <EmptyState
       icon={MessagesSquare}
       title="No conversations yet"
-      description="Reach a brother from My group to start a conversation."
-      action={
-        <Button variant="outline" size="sm" onClick={() => setTab("group")}>
-          Go to My group
-        </Button>
-      }
+      description="Reach a brother from My Groups above to start a conversation."
     />
   ) : (
     <ul className="flex flex-col gap-1.5">
@@ -660,13 +655,23 @@ const Brotherhood = () => {
     </ul>
   );
 
-  const list = tab === "channels" ? channelsBody : dmsBody;
-  // Chat tabs get a wider desktop canvas (the narrow reading column left the
-  // thread cramped); the group tab stays reading-width.
-  const isChat = tab === "channels" || tab === "messages";
+  // Messages now also carries what used to be the "My group" tab: the reach-out
+  // / ground-rules / call cards + the group roster ("My Groups"), stacked above
+  // the direct-message list in the left pane. Clicking a brother opens a DM.
+  const messagesBody = (
+    <div className="flex flex-col gap-4">
+      <GroupTab openDm={openDm} />
+      <div>
+        <Eyebrow className="mb-3 block">Direct messages</Eyebrow>
+        {dmsBody}
+      </div>
+    </div>
+  );
+
+  const list = tab === "channels" ? channelsBody : messagesBody;
 
   return (
-    <PageBackdrop className={cn("mx-auto px-5 py-7 sm:px-8", isChat ? "max-w-6xl" : "max-w-3xl")}>
+    <PageBackdrop className="mx-auto max-w-6xl px-5 py-7 sm:px-8">
       <header className="mb-5">
         <Eyebrow className="mb-1 block">Never fight alone</Eyebrow>
         <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-bone">
@@ -676,13 +681,10 @@ const Brotherhood = () => {
 
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList className="mb-5">
-          <TabsTrigger value="group">My group</TabsTrigger>
-          <TabsTrigger value="channels">Channels</TabsTrigger>
           <TabsTrigger value="messages">Messages</TabsTrigger>
+          <TabsTrigger value="channels">Channels</TabsTrigger>
         </TabsList>
       </Tabs>
-
-      {tab === "group" && <GroupTab openDm={openDm} />}
 
       {(tab === "channels" || tab === "messages") && (
         // Fill the viewport minus chrome so the composer is always in view and

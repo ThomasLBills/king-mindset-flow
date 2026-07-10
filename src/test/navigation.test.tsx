@@ -5,7 +5,7 @@
  * guard misroute fails here.
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { Tables } from "./supabaseMock";
 
 const mockRef = vi.hoisted(() => ({ current: null as any }));
@@ -195,7 +195,7 @@ describe("app navigation", () => {
     fireEvent.click(screen.getAllByRole("link", { name: /brotherhood/i })[0]);
     await screen.findByRole("heading", { name: /brotherhood/i });
 
-    fireEvent.click(screen.getAllByRole("link", { name: /grow/i })[0]);
+    fireEvent.click(screen.getAllByRole("link", { name: /^path$/i })[0]);
     await screen.findByRole("heading", { name: /eight weeks of ground taken/i });
 
     fireEvent.click(screen.getAllByRole("link", { name: /profile/i })[0]);
@@ -210,23 +210,6 @@ describe("app navigation", () => {
 
     fireEvent.click(screen.getByRole("link", { name: /leave, back to today/i }));
     await screen.findByText(/good (morning|afternoon|evening), ethan/i);
-  });
-
-  it("rhythms has a back control that returns to Today", async () => {
-    startAt("/app/rhythms");
-    render(<App />);
-
-    // Scope to the page header: "Today" nav links also exist in the shell rail
-    // and tab bar, so the accessible name alone is ambiguous.
-    const heading = await screen.findByRole("heading", { name: /the ordinary days/i }, { timeout: 4000 });
-    const back = within(heading.closest("header")!).getByRole("link", { name: /today/i });
-    expect(back).toHaveAttribute("href", "/app");
-    fireEvent.click(back);
-
-    await screen.findByText(/good (morning|afternoon|evening), ethan/i, undefined, {
-      timeout: 4000,
-    });
-    expect(window.location.pathname).toBe("/app");
   });
 
   it("orphaned admin sections have a mobile back to the admin hub", async () => {
@@ -299,17 +282,24 @@ describe("app navigation", () => {
     });
   });
 
-  it("check-in persists and unlocks the reading, which opens the lesson", async () => {
+  it("check-in requires a feeling and a note, persists, then the path opens a lesson", async () => {
     startAt("/app");
     render(<App />);
-    await screen.findByText(/your path today/i, undefined, { timeout: 4000 });
+    // The check-in card is the primary card on Home.
+    await screen.findByText(/what is present in you right now/i, undefined, { timeout: 4000 });
 
-    // Reading is locked until the morning check-in is done.
-    // Pick one of the 16 feelings; its cited verse surfaces; then log it.
-    fireEvent.click(await screen.findByRole("button", { name: /begin/i }));
+    // Pick one of the 16 feelings; its cited verse surfaces.
     fireEvent.click(await screen.findByRole("button", { name: /^anxious$/i }));
     await screen.findByText(/philippians 4:6-7/i); // the feeling surfaces its cited verse
-    fireEvent.click(screen.getByRole("button", { name: /log check-in/i }));
+
+    // The reflection note is now required: Log stays disabled until it's filled.
+    const log = screen.getByRole("button", { name: /log check-in/i });
+    expect(log).toBeDisabled();
+    fireEvent.change(screen.getByLabelText(/what do you sense the spirit saying/i), {
+      target: { value: "He is holding me." },
+    });
+    await waitFor(() => expect(log).toBeEnabled());
+    fireEvent.click(log);
 
     // Persisted to daily_check_ins with the production shape
     await waitFor(() => {
@@ -319,13 +309,12 @@ describe("app navigation", () => {
       expect(rows[0].needs_support).toBe(true);
     });
 
+    // The Path page still opens a lesson.
+    fireEvent.click(screen.getAllByRole("link", { name: /^path$/i })[0]);
+    await screen.findByRole("heading", { name: /eight weeks of ground taken/i });
     const continueLink = await screen.findByRole("link", { name: /continue/i }, { timeout: 4000 });
     fireEvent.click(continueLink);
     await screen.findByRole("heading", { name: /the lie beneath the urge/i });
-    await screen.findByText(/the urge promises relief/i);
-
-    fireEvent.click(screen.getAllByRole("link", { name: /grow/i })[0]);
-    await screen.findByRole("heading", { name: /eight weeks of ground taken/i });
   });
 
   it("brotherhood channels open a chat thread and embed pasted videos", async () => {

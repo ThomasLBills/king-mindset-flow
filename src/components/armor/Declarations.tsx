@@ -178,7 +178,7 @@ export const Declarations = ({ onBack }: { onBack: () => void }) => {
           {composing ? (
             <>
               <Eyebrow tone="gold" className="mb-2 block text-left">
-                {editId ? "Edit your declaration" : "Write your declaration"}
+                {editId ? "Edit Your Declaration" : "Write Your Declaration"}
               </Eyebrow>
               <Textarea
                 rows={3}
@@ -224,10 +224,10 @@ export const Declarations = ({ onBack }: { onBack: () => void }) => {
           ) : declarations.length === 0 ? (
             <EmptyState
               icon={ScrollText}
-              title="No declarations yet"
+              title="No Declarations Yet"
               description="Write what God has spoken over you. Declare it daily."
               action={
-                <Button onClick={() => setComposing(true)}>+ Write your first declaration</Button>
+                <Button onClick={() => setComposing(true)}>+ Write Your First Declaration</Button>
               }
             />
           ) : (
@@ -267,7 +267,7 @@ export const Declarations = ({ onBack }: { onBack: () => void }) => {
                   className="mt-3 text-sm text-gold underline-offset-4 hover:underline"
                   onClick={() => setComposing(true)}
                 >
-                  + Write a declaration
+                  + Write a Declaration
                 </button>
               )}
               <div className="mt-5">
