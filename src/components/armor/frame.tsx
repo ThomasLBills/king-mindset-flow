@@ -4,37 +4,49 @@
  * swaps the inner tool. Tools render only their inner content plus a BackTo.
  */
 import type { ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowLeft, X, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useImpersonation } from "@/contexts/ImpersonationContext";
 import { LkMonogram } from "@/components/forge/brand";
 import { Grain, SceneFigure } from "@/components/forge/scenes";
 
-export const ArmorFrame = ({ children }: { children: ReactNode }) => (
-  <div className="relative flex min-h-dvh flex-col items-center justify-center overflow-hidden bg-forge px-6 py-12 text-center">
-    <SceneFigure className="opacity-80" />
-    {/* Vignette tracks the (lifted) --background token instead of a hardcoded
-        near-black, and its alphas are softened, so the crisis screen lightens
-        with the rest of the app and the option rows stay legible. */}
-    <div
-      className="pointer-events-none absolute inset-0 bg-[radial-gradient(90%_70%_at_50%_42%,hsl(var(--background)/0.3),hsl(var(--background)/0.82))]"
-      aria-hidden="true"
-    />
-    <Grain />
-    <Link
-      to="/app"
-      aria-label="Leave, back to Today"
-      className="absolute right-5 top-[calc(3.5rem+var(--impersonation-offset,0px))] z-10 rounded-full border border-line bg-raised/60 p-2 text-dim transition-colors hover:text-bone sm:top-[calc(1.5rem+var(--impersonation-offset,0px))]"
-    >
-      <X className="h-4 w-4" aria-hidden="true" />
-    </Link>
-    <div className="relative z-10 flex w-full max-w-[420px] flex-col items-center">
-      <LkMonogram className="mb-4 h-6 w-8 opacity-90" />
-      {children}
+export const ArmorFrame = ({ children }: { children: ReactNode }) => {
+  const navigate = useNavigate();
+  const { isImpersonating } = useImpersonation();
+
+  return (
+    <div className="relative flex min-h-dvh flex-col items-center justify-center overflow-hidden bg-forge px-6 py-12 text-center">
+      <SceneFigure className="opacity-80" />
+      {/* Vignette tracks the (lifted) --background token instead of a hardcoded
+          near-black, and its alphas are softened, so the crisis screen lightens
+          with the rest of the app and the option rows stay legible. */}
+      <div
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(90%_70%_at_50%_42%,hsl(var(--background)/0.3),hsl(var(--background)/0.82))]"
+        aria-hidden="true"
+      />
+      <Grain />
+      <button
+        type="button"
+        onClick={() => navigate("/app")}
+        aria-label="Leave, back to Today"
+        className={cn(
+          "fixed right-4 z-[10000] grid h-12 w-12 place-items-center rounded-full border border-line bg-raised/80 text-dim backdrop-blur-md transition-colors hover:text-bone",
+          isImpersonating
+            ? "top-[calc(var(--impersonation-offset,0px)+1rem)]"
+            : "top-[max(env(safe-area-inset-top),1.5rem)]"
+        )}
+      >
+        <X className="h-5 w-5" aria-hidden="true" />
+      </button>
+      <div className="relative z-10 flex w-full max-w-[420px] flex-col items-center">
+        <LkMonogram className="mb-4 h-6 w-8 opacity-90" />
+        {children}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 export const ActionRow = ({
   icon: Icon,
