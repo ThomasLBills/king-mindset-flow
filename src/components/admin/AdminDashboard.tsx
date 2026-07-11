@@ -7,6 +7,7 @@ import {
   BookOpen,
   Plus,
   ShieldCheck,
+  Users,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -191,19 +192,66 @@ const AdminDashboard = () => {
       {/* Quick Actions */}
       <SectionCard className="p-6">
         <h2 className="mb-4 font-display text-lg font-bold tracking-tight text-bone">Quick Actions</h2>
-        <div className="flex flex-wrap gap-3">
-          <Button onClick={() => navigate("/admin/curriculum")} className="gap-2">
-            <BookOpen className="h-4 w-4" aria-hidden="true" /> Manage Curriculum
-          </Button>
-          <Button variant="outline" onClick={() => navigate("/admin/announcements")} className="gap-2">
-            <Plus className="h-4 w-4" aria-hidden="true" /> New Announcement
-          </Button>
-          <Button variant="outline" onClick={() => navigate("/admin/users")}>
-            View Users
-          </Button>
-          <Button variant="outline" onClick={() => navigate("/admin/entitlements")} className="gap-2">
-            <ShieldCheck className="h-4 w-4" aria-hidden="true" /> Entitlements
-          </Button>
+        <div className="grid grid-cols-2 gap-3">
+          {[
+            {
+              label: "Manage Curriculum",
+              sub: "Weeks & lessons",
+              icon: BookOpen,
+              to: "/admin/curriculum",
+              primary: true,
+            },
+            {
+              label: "New Announcement",
+              sub: "Broadcast to kings",
+              icon: Plus,
+              to: "/admin/announcements",
+            },
+            {
+              label: "View Users",
+              sub: "Roster & activity",
+              icon: Users,
+              to: "/admin/users",
+            },
+            {
+              label: "Entitlements",
+              sub: "Access & trials",
+              icon: ShieldCheck,
+              to: "/admin/entitlements",
+            },
+          ].map(({ label, sub, icon: Icon, to, primary }) => (
+            <button
+              key={to}
+              onClick={() => navigate(to)}
+              className={
+                primary
+                  ? "group flex items-center gap-3 rounded-lg border border-gold-deep bg-gradient-to-b from-[hsl(24_41%_12%)] to-[hsl(26_45%_9%)] p-4 text-left transition-[filter] hover:brightness-110"
+                  : "group flex items-center gap-3 rounded-lg border border-line bg-raised-2 p-4 text-left transition-colors hover:border-gold-deep"
+              }
+            >
+              <span
+                className={
+                  primary
+                    ? "grid h-10 w-10 shrink-0 place-items-center rounded-md bg-gold/15 text-gold-bright"
+                    : "grid h-10 w-10 shrink-0 place-items-center rounded-md bg-raised text-gold"
+                }
+              >
+                <Icon className="h-[18px] w-[18px]" aria-hidden="true" />
+              </span>
+              <span className="min-w-0">
+                <span
+                  className={
+                    primary
+                      ? "block text-sm font-semibold text-gold-bright"
+                      : "block text-sm font-semibold text-bone"
+                  }
+                >
+                  {label}
+                </span>
+                <span className="mt-0.5 block truncate text-xs text-dim">{sub}</span>
+              </span>
+            </button>
+          ))}
         </div>
       </SectionCard>
     </div>
