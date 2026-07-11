@@ -16,6 +16,7 @@ const PRODUCTION_CSP = [
   "img-src 'self' data: https:",
   "connect-src 'self' https://ahsadpsvknpsdwgrdecu.supabase.co wss://ahsadpsvknpsdwgrdecu.supabase.co",
   "frame-src 'self' https://player.vimeo.com",
+  "media-src 'self' https://ahsadpsvknpsdwgrdecu.supabase.co blob:",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
