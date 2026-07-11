@@ -102,7 +102,7 @@ const NavRail = () => {
   const { user } = useForgeUser();
   const unread = useUnreadCount();
   return (
-    <aside className="sticky top-[var(--impersonation-offset,0px)] hidden h-dvh w-56 shrink-0 flex-col border-r border-line bg-forge-2 px-4 py-5 lg:flex">
+    <aside className="sticky top-0 hidden h-dvh w-56 shrink-0 flex-col border-r border-line bg-forge-2 px-4 py-5 lg:flex">
       <Link to="/app" className="mb-6 block px-1.5" aria-label="Liberated Kings, back to Today">
         <LkWordmark className="h-9 w-auto" />
       </Link>
