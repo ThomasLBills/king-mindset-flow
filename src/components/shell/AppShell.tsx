@@ -157,7 +157,12 @@ const MobileTopBar = () => {
   return (
     <header
       className={cn(
-        "sticky top-[var(--impersonation-offset,0px)] z-20 flex items-center justify-between border-b border-line-soft bg-forge/80 px-4 pb-3 backdrop-blur-md lg:hidden",
+        "sticky top-[var(--impersonation-offset,0px)] z-20 flex items-center justify-between border-b border-line-soft px-4 pb-3 lg:hidden",
+        // While impersonating, the banner sits directly above this bar. A
+        // translucent, blurred bar lets the page content bleed through in
+        // that seam and reads as an ugly gap. Make it fully opaque so the
+        // banner and top bar visually connect.
+        isImpersonating ? "bg-forge" : "bg-forge/80 backdrop-blur-md",
         // The banner already accounts for env(safe-area-inset-top) inside
         // --impersonation-offset, so skip our own safe-area padding while
         // impersonating to avoid stacking that inset twice.
