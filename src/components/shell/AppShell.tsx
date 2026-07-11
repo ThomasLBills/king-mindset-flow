@@ -10,6 +10,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useAdminRole } from "@/hooks/useAdminRole";
 import { useForgeUser } from "@/hooks/useForgeProfile";
 import { useUnread } from "@/contexts/UnreadContext";
+import { useImpersonation } from "@/contexts/ImpersonationContext";
 import { LkMonogram, LkWordmark } from "@/components/forge/brand";
 import { InitialsAvatar } from "@/components/forge/atoms";
 import {
@@ -152,8 +153,17 @@ const NavRail = () => {
 
 const MobileTopBar = () => {
   const { user } = useForgeUser();
+  const { isImpersonating } = useImpersonation();
   return (
-    <header className="sticky top-[var(--impersonation-offset,0px)] z-20 flex items-center justify-between border-b border-line-soft bg-forge/80 px-4 pb-3 pt-[max(env(safe-area-inset-top),0.75rem)] backdrop-blur-md lg:hidden">
+    <header
+      className={cn(
+        "sticky top-[var(--impersonation-offset,0px)] z-20 flex items-center justify-between border-b border-line-soft bg-forge/80 px-4 pb-3 backdrop-blur-md lg:hidden",
+        // The banner already accounts for env(safe-area-inset-top) inside
+        // --impersonation-offset, so skip our own safe-area padding while
+        // impersonating to avoid stacking that inset twice.
+        isImpersonating ? "pt-3" : "pt-[max(env(safe-area-inset-top),0.75rem)]"
+      )}
+    >
       <Link to="/app" aria-label="Liberated Kings, back to Today">
         <LkMonogram className="h-7 w-9" />
       </Link>
