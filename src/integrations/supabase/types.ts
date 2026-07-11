@@ -869,6 +869,53 @@ export type Database = {
         }
         Relationships: []
       }
+      group_members: {
+        Row: {
+          group_id: string
+          joined_at: string
+          user_id: string
+        }
+        Insert: {
+          group_id: string
+          joined_at?: string
+          user_id: string
+        }
+        Update: {
+          group_id?: string
+          joined_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      groups: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       lesson_progress: {
         Row: {
           completed_at: string | null
@@ -1176,6 +1223,53 @@ export type Database = {
         }
         Relationships: []
       }
+      prayer_request_strength: {
+        Row: {
+          created_at: string
+          request_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          request_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          request_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prayer_request_strength_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "prayer_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prayer_requests: {
+        Row: {
+          id: string
+          sent_at: string
+          template: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          sent_at?: string
+          template: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          sent_at?: string
+          template?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -1437,6 +1531,33 @@ export type Database = {
           },
         ]
       }
+      user_covenants: {
+        Row: {
+          created_at: string
+          signed_at: string | null
+          signed_name: string | null
+          updated_at: string
+          user_id: string
+          why: string | null
+        }
+        Insert: {
+          created_at?: string
+          signed_at?: string | null
+          signed_name?: string | null
+          updated_at?: string
+          user_id: string
+          why?: string | null
+        }
+        Update: {
+          created_at?: string
+          signed_at?: string | null
+          signed_name?: string | null
+          updated_at?: string
+          user_id?: string
+          why?: string | null
+        }
+        Relationships: []
+      }
       user_declarations: {
         Row: {
           created_at: string
@@ -1657,12 +1778,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      are_brothers: { Args: { _a: string; _b: string }; Returns: boolean }
       bump_rate_limit: {
         Args: { _bucket_key: string; _user_id: string; _window_start: string }
         Returns: number
       }
       deactivate_expired_entitlements: { Args: never; Returns: number }
       get_community_armor_stats: { Args: never; Returns: Json }
+      get_crisis_button_trend: {
+        Args: { _days?: number }
+        Returns: {
+          count: number
+          day: string
+        }[]
+      }
       get_evidence_counts_by_user: {
         Args: never
         Returns: {
@@ -1688,6 +1817,10 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      is_group_member: {
+        Args: { _group_id: string; _user_id: string }
         Returns: boolean
       }
       search_profiles_directory: {
