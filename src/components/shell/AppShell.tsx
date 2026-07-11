@@ -102,7 +102,7 @@ const NavRail = () => {
   const { user } = useForgeUser();
   const unread = useUnreadCount();
   return (
-    <aside className="sticky top-0 hidden h-dvh w-56 shrink-0 flex-col border-r border-line bg-forge-2 px-4 py-5 lg:flex">
+    <aside className="sticky top-[var(--impersonation-offset,0px)] hidden h-dvh w-56 shrink-0 flex-col border-r border-line bg-forge-2 px-4 py-5 lg:flex">
       <Link to="/app" className="mb-6 block px-1.5" aria-label="Liberated Kings, back to Today">
         <LkWordmark className="h-9 w-auto" />
       </Link>
@@ -153,7 +153,7 @@ const NavRail = () => {
 const MobileTopBar = () => {
   const { user } = useForgeUser();
   return (
-    <header className="sticky top-0 z-20 flex items-center justify-between border-b border-line-soft bg-forge/80 px-4 pb-3 pt-[max(env(safe-area-inset-top),0.75rem)] backdrop-blur-md lg:hidden">
+    <header className="sticky top-[var(--impersonation-offset,0px)] z-20 flex items-center justify-between border-b border-line-soft bg-forge/80 px-4 pb-3 pt-[max(env(safe-area-inset-top),0.75rem)] backdrop-blur-md lg:hidden">
       <Link to="/app" aria-label="Liberated Kings, back to Today">
         <LkMonogram className="h-7 w-9" />
       </Link>
