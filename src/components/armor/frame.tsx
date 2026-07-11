@@ -25,7 +25,7 @@ export const ArmorFrame = ({ children }: { children: ReactNode }) => (
     <Link
       to="/app"
       aria-label="Leave, back to Today"
-      className="absolute right-5 top-10 z-10 rounded-full border border-line bg-raised/60 p-2 text-dim transition-colors hover:text-bone sm:top-5"
+      className="absolute right-5 top-[calc(3.5rem+var(--impersonation-offset,0px))] z-10 rounded-full border border-line bg-raised/60 p-2 text-dim transition-colors hover:text-bone sm:top-[calc(1.5rem+var(--impersonation-offset,0px))]"
     >
       <X className="h-4 w-4" aria-hidden="true" />
     </Link>
