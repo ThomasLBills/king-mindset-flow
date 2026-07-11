@@ -154,19 +154,23 @@ const NavRail = () => {
 const MobileTopBar = () => {
   const { user } = useForgeUser();
   const { isImpersonating } = useImpersonation();
+
+  // While impersonating, the fixed banner is the visible header. Hide the
+  // mobile top bar behind it so the logo/profile and page content are not
+  // fighting with the banner.
+  if (isImpersonating) {
+    return (
+      <header
+        aria-hidden="true"
+        className="sticky top-0 z-0 h-[var(--impersonation-offset,0px)] w-full lg:hidden"
+      />
+    );
+  }
+
   return (
     <header
       className={cn(
-        "sticky top-[var(--impersonation-offset,0px)] z-20 flex items-center justify-between border-b border-line-soft px-4 pb-3 lg:hidden",
-        // While impersonating, the banner sits directly above this bar. A
-        // translucent, blurred bar lets the page content bleed through in
-        // that seam and reads as an ugly gap. Make it fully opaque so the
-        // banner and top bar visually connect.
-        isImpersonating ? "bg-forge" : "bg-forge/80 backdrop-blur-md",
-        // The banner already accounts for env(safe-area-inset-top) inside
-        // --impersonation-offset, so skip our own safe-area padding while
-        // impersonating to avoid stacking that inset twice.
-        isImpersonating ? "pt-3" : "pt-[max(env(safe-area-inset-top),0.75rem)]"
+        "sticky top-[var(--impersonation-offset,0px)] z-20 flex items-center justify-between border-b border-line-soft bg-forge/80 px-4 pb-3 pt-[max(env(safe-area-inset-top),0.75rem)] backdrop-blur-md lg:hidden"
       )}
     >
       <Link to="/app" aria-label="Liberated Kings, back to Today">
