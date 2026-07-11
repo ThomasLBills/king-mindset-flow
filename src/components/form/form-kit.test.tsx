@@ -6,12 +6,12 @@ import type { FieldErrors } from "react-hook-form";
 
 describe("form kit", () => {
   it("summary announces errors after a submit attempt", () => {
-    render(<FormErrorSummary submitCount={1} errors={{ email: { message: "Required" } } as FieldErrors} />);
+    render(<FormErrorSummary submitCount={1} errors={{ email: { message: "Required", type: "required" } } as unknown as FieldErrors} />);
     expect(screen.getByRole("alert")).toHaveTextContent(/required/i);
   });
   it("summary is empty before submit", () => {
     const { container } = render(
-      <FormErrorSummary submitCount={0} errors={{ email: { message: "Required" } } as FieldErrors} />,
+      <FormErrorSummary submitCount={0} errors={{ email: { message: "Required", type: "required" } } as unknown as FieldErrors} />,
     );
     expect(container).toBeEmptyDOMElement();
   });
