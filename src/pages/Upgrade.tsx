@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { notify } from "@/lib/notify";
 import { Eyebrow, SectionCard } from "@/components/forge/atoms";
 import { LkMonogram } from "@/components/forge/brand";
-import { Grain } from "@/components/forge/scenes";
+import { PageBackdrop } from "@/components/forge/scenes";
 
 const benefits = [
   "Daily check-ins to build evidence of your freedom",
@@ -123,30 +123,28 @@ const Upgrade = () => {
   const amountLabel = plan === "monthly" ? "$7.95/mo" : "$69.95/yr";
 
   return (
-    <div className="lk-cream relative min-h-dvh overflow-hidden bg-background px-6 py-6 text-foreground">
-      <Grain />
-      <div className="relative mx-auto flex min-h-[calc(100dvh-3rem)] max-w-lg flex-col">
+    <div className="relative min-h-dvh overflow-hidden bg-forge text-foreground">
+      <PageBackdrop />
+      <div className="relative mx-auto flex min-h-dvh max-w-lg flex-col px-6 pb-10 pt-[max(env(safe-area-inset-top),1.25rem)]">
         {/* An exit that isn't "pay" or "sign out": go back where you came from. */}
         <button
           type="button"
           onClick={() => navigate(-1)}
-          className="-ml-1 mb-3 flex items-center gap-1.5 self-start text-sm text-dim transition-colors hover:text-bone"
+          className="-ml-1 mt-6 mb-6 flex items-center gap-1.5 self-start text-sm text-dim transition-colors hover:text-bone"
         >
           <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Back
         </button>
 
-        {/* my-auto vertically centers the card on tall screens; it collapses and
-            top-aligns when the content is taller than the viewport. */}
         <div className="my-auto">
-          <div className="mb-5 text-center">
-            <LkMonogram tone="ink" className="mx-auto mb-3 h-9 w-12" />
-            <Eyebrow tone="gold" className="mb-1.5 block">
+          <div className="mb-6 text-center">
+            <LkMonogram className="mx-auto mb-4 h-9 w-12" />
+            <Eyebrow tone="gold" className="mb-2 block">
               Keep your ground
             </Eyebrow>
             <h1 className="font-display text-2xl font-bold uppercase tracking-wide text-bone">
               Continue walking in freedom
             </h1>
-            <p className="mt-1.5 text-sm text-bone-2">
+            <p className="mt-2 text-sm text-bone-2">
               Keep your tools, your brotherhood, and your daily rhythm active.
             </p>
           </div>
