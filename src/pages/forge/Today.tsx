@@ -6,8 +6,7 @@ import { useForgeUser } from "@/hooks/useForgeProfile";
 import { useVerseOfDay } from "@/hooks/useForgeVerses";
 import { useBanner, useGroup, useSendStrength } from "@/hooks/useForgeGroup";
 import { useForgeWeeks } from "@/hooks/useForgeCurriculum";
-import { WEEKLY_CALL, isCallDay, isCallLive } from "@/data/weeklyCall";
-import { CallLivePreview } from "@/components/forge/CallLivePreview";
+import { WEEKLY_CALL, isCallDay } from "@/data/weeklyCall";
 import { Button } from "@/components/ui/button";
 import { Eyebrow, InitialsAvatar, SectionCard } from "@/components/forge/atoms";
 import { PageBackdrop } from "@/components/forge/scenes";
@@ -91,15 +90,8 @@ const Today = () => {
               <UrgesRedirectedCard />
             </Reveal>
 
-            {/* 3. Weekly Brotherhood Call.
-                - During the live window (Tue 6–8 PM CT): Twitch-style live preview.
-                - Rest of Tuesday: the existing "next call" card. */}
-            {/* Live preview appears only during the scheduled call window. */}
-            {isCallLive() ? (
-              <Reveal delay={0.09}>
-                <CallLivePreview />
-              </Reveal>
-            ) : isCallDay() ? (
+            {/* 3. Weekly Brotherhood Call reminder (only on call day). */}
+            {isCallDay() && (
               <Reveal delay={0.09}>
                 <div>
                   <Eyebrow className="mb-3 block text-center">Next brotherhood call</Eyebrow>
@@ -120,7 +112,7 @@ const Today = () => {
                   </SectionCard>
                 </div>
               </Reveal>
-            ) : null}
+            )}
 
             {/* The two KPIs (community + personal). No section title (client). */}
             <Reveal delay={0.12}>
