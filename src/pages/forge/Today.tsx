@@ -102,8 +102,7 @@ const Today = () => {
                     <p className="mt-0.5 text-xs text-gold">Tonight · all brothers welcome</p>
                     <Button
                       variant="outline"
-                      size="sm"
-                      className="mt-3"
+                      className="mt-3 w-full"
                       onClick={() =>
                         window.open(WEEKLY_CALL.joinUrl, "_blank", "noopener,noreferrer")
                       }
