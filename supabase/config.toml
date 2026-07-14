@@ -15,3 +15,5 @@ project_id = "ahsadpsvknpsdwgrdecu"
     verify_jwt = false
   [functions.verify-code-set-password]
     verify_jwt = false
+  [functions.process-email-queue]
+    verify_jwt = true
