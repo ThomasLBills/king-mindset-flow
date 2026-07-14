@@ -94,8 +94,8 @@ const Today = () => {
             {isCallDay() && (
               <Reveal delay={0.09}>
                 <div>
-                  <Eyebrow className="mb-3 block">Next brotherhood call</Eyebrow>
-                  <SectionCard hatch className="p-4">
+                  <Eyebrow className="mb-3 block text-center">Next brotherhood call</Eyebrow>
+                  <SectionCard hatch className="p-4 text-center">
                     <p className="font-display text-lg font-bold tracking-tight text-bone">
                       {WEEKLY_CALL.label}
                     </p>
