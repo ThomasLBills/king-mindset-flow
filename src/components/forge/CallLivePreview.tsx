@@ -31,13 +31,15 @@ export const CallLivePreview = () => {
           aria-label="Join the live brotherhood call"
           className="group relative block w-full text-left"
         >
-          {/* Live-style preview surface. PREVIEW MODE: shows a muted, looping
-              YouTube video so the tile feels like a live broadcast thumbnail.
-              Swap the src for the real stream URL when the call goes live. */}
+          {/* Live-style preview surface. PREVIEW MODE: embeds Lofi Girl's
+              current live channel stream (channel-based URL always resolves to
+              whatever is live right now, so it doesn't 404 when a specific
+              video ID gets rotated or taken down). Swap for the real stream
+              URL when the call goes live. */}
           <div className="relative h-56 w-full overflow-hidden bg-[hsl(0_0%_6%)]">
             <iframe
               title="Brotherhood call preview"
-              src="https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1&mute=1&controls=0&loop=1&playlist=jfKfPfyJRdk&modestbranding=1&playsinline=1&rel=0&showinfo=0&iv_load_policy=3&disablekb=1"
+              src="https://www.youtube.com/embed/live_stream?channel=UCSJ4gkVC6NrvII8umztf0Ow&autoplay=1&mute=1&controls=0&modestbranding=1&playsinline=1&rel=0&showinfo=0&iv_load_policy=3&disablekb=1"
               allow="autoplay; encrypted-media"
               className="pointer-events-none absolute left-1/2 top-1/2 h-[240%] w-[140%] -translate-x-1/2 -translate-y-1/2 border-0"
               tabIndex={-1}
