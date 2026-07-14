@@ -34,7 +34,7 @@ export const CallLivePreview = () => {
           {/* Live-style preview surface. PREVIEW MODE: shows a muted, looping
               YouTube video so the tile feels like a live broadcast thumbnail.
               Swap the src for the real stream URL when the call goes live. */}
-          <div className="relative h-40 w-full overflow-hidden bg-[hsl(0_0%_6%)]">
+          <div className="relative h-56 w-full overflow-hidden bg-[hsl(0_0%_6%)]">
             <iframe
               title="Brotherhood call preview"
               src="https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1&mute=1&controls=0&loop=1&playlist=jfKfPfyJRdk&modestbranding=1&playsinline=1&rel=0&showinfo=0&iv_load_policy=3&disablekb=1"
