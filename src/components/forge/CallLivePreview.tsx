@@ -31,19 +31,25 @@ export const CallLivePreview = () => {
           aria-label="Join the live brotherhood call"
           className="group relative block w-full text-left"
         >
-          {/* Ambient preview surface (stand-in for a live video tile) */}
-          <div className="relative h-32 w-full overflow-hidden bg-gradient-to-br from-[hsl(35_23%_10%)] via-[hsl(0_0%_10%)] to-[hsl(35_30%_6%)]">
-            {/* Soft moving glow */}
+          {/* Live-style preview surface. PREVIEW MODE: shows a muted, looping
+              YouTube video so the tile feels like a live broadcast thumbnail.
+              Swap the src for the real stream URL when the call goes live. */}
+          <div className="relative h-40 w-full overflow-hidden bg-[hsl(0_0%_6%)]">
+            <iframe
+              title="Brotherhood call preview"
+              src="https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1&mute=1&controls=0&loop=1&playlist=jfKfPfyJRdk&modestbranding=1&playsinline=1&rel=0&showinfo=0&iv_load_policy=3&disablekb=1"
+              allow="autoplay; encrypted-media"
+              className="pointer-events-none absolute left-1/2 top-1/2 h-[240%] w-[140%] -translate-x-1/2 -translate-y-1/2 border-0"
+              tabIndex={-1}
+            />
+            {/* Dark vignette so text/badges stay legible over any frame */}
             <div
-              className="pointer-events-none absolute -inset-8 opacity-60 blur-2xl"
+              className="pointer-events-none absolute inset-0"
               style={{
                 background:
-                  "radial-gradient(40% 60% at 30% 40%, rgba(184,150,63,0.35), transparent 70%), radial-gradient(35% 50% at 75% 65%, rgba(184,150,63,0.18), transparent 70%)",
-                transform: `translate3d(${(tick % 6) - 3}px, ${
-                  ((tick + 2) % 6) - 3
-                }px, 0)`,
-                transition: "transform 700ms ease-in-out",
+                  "linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0) 40%, rgba(0,0,0,0) 60%, rgba(0,0,0,0.55) 100%)",
               }}
+              aria-hidden="true"
             />
 
             {/* LIVE badge */}
