@@ -6,7 +6,7 @@ import { useForgeUser } from "@/hooks/useForgeProfile";
 import { useVerseOfDay } from "@/hooks/useForgeVerses";
 import { useBanner, useGroup, useSendStrength } from "@/hooks/useForgeGroup";
 import { useForgeWeeks } from "@/hooks/useForgeCurriculum";
-import { WEEKLY_CALL, isCallDay } from "@/data/weeklyCall";
+import { WEEKLY_CALL, isCallDay, isCallLive } from "@/data/weeklyCall";
 import { CallLivePreview } from "@/components/forge/CallLivePreview";
 import { Button } from "@/components/ui/button";
 import { Eyebrow, InitialsAvatar, SectionCard } from "@/components/forge/atoms";
@@ -94,9 +94,8 @@ const Today = () => {
             {/* 3. Weekly Brotherhood Call.
                 - During the live window (Tue 6–8 PM CT): Twitch-style live preview.
                 - Rest of Tuesday: the existing "next call" card. */}
-            {/* PREVIEW MODE: forced on so we can review the live-call design.
-                Swap back to `isCallLive()` when ready to gate by Tue 6–8 PM CT. */}
-            {true ? (
+            {/* Live preview appears only during the scheduled call window. */}
+            {isCallLive() ? (
               <Reveal delay={0.09}>
                 <CallLivePreview />
               </Reveal>
